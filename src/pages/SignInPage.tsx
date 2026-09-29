@@ -116,7 +116,7 @@ function EmailSignInWorkflow({ hasSessionError }: EmailSignInWorkflowProps) {
           className="mt-0 mb-6 rounded-md border border-accent bg-surface-subtle px-4 py-3 text-sm leading-5 text-text"
           role="alert"
         >
-          We could not check whether you are already signed in. You can still
+          We could not verify whether you are already signed in. You can still
           sign in below.
         </p>
       )}
