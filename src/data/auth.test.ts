@@ -1,23 +1,37 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  getCurrentSession,
+  isValidEmailAddress,
+  requestEmailOtp,
+  signOut,
+  subscribeToAuthChanges,
+  verifyEmailOtp,
+} from './auth'
 
-const authMocks = vi.hoisted(() => ({
-  signInWithOtp: vi.fn(),
-  signOut: vi.fn(),
-  verifyOtp: vi.fn(),
-}))
+const authMocks = vi.hoisted(() => {
+  const unsubscribe = vi.fn()
+
+  return {
+    getSession: vi.fn(),
+    onAuthStateChange: vi.fn(() => ({
+      data: {
+        subscription: {
+          unsubscribe,
+        },
+      },
+    })),
+    signInWithOtp: vi.fn(),
+    signOut: vi.fn(),
+    unsubscribe,
+    verifyOtp: vi.fn(),
+  }
+})
 
 vi.mock('./supabase', () => ({
   supabase: {
     auth: authMocks,
   },
 }))
-
-import {
-  isValidEmailAddress,
-  requestEmailOtp,
-  signOut,
-  verifyEmailOtp,
-} from './auth'
 
 describe('email OTP authentication', () => {
   beforeEach(() => {
@@ -67,5 +81,30 @@ describe('email OTP authentication', () => {
     await signOut()
 
     expect(authMocks.signOut).toHaveBeenCalledOnce()
+  })
+
+  it('reads the current persisted session', async () => {
+    const response = {
+      data: {
+        session: null,
+      },
+      error: null,
+    }
+    authMocks.getSession.mockResolvedValue(response)
+
+    await expect(getCurrentSession()).resolves.toBe(response)
+    expect(authMocks.getSession).toHaveBeenCalledOnce()
+  })
+
+  it('subscribes to auth changes and exposes cleanup', () => {
+    const listener = vi.fn()
+
+    const unsubscribe = subscribeToAuthChanges(listener)
+
+    expect(authMocks.onAuthStateChange).toHaveBeenCalledWith(listener)
+
+    unsubscribe()
+
+    expect(authMocks.unsubscribe).toHaveBeenCalledOnce()
   })
 })
