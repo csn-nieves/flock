@@ -468,15 +468,37 @@ Meta's built-in redirect validator and a live OAuth attempt exposed the missing
 persisted callback. After committing both the Supabase domain and exact callback
 entry, the same live test completed successfully.
 
+## 2026-09-29 — Establishing React Query conventions
+
+### Server-state provider and query-key foundation
+
+TanStack React Query now provides Flock's shared server-state cache. A single
+application client wraps the router and authentication provider, preserving the
+same cache across renders and navigation. This branch deliberately adds no
+Supabase product query; it establishes the boundary before the first flock
+workflow needs it.
+
+Reads remain fresh for 30 seconds and retry once, balancing duplicate-request
+avoidance with recovery from a brief mobile connection interruption. Mutations
+do not retry automatically because repeating a write could duplicate an action.
+The default focus refetch remains enabled so stale data can refresh when a
+runner returns to a backgrounded PWA.
+
+The first hierarchical query-key family establishes plural domain roots with
+separate list and detail scopes. Future hooks will live in `src/hooks`, use
+these keys, and call the Supabase-facing modules in `src/data`. Tests receive a
+fresh client with retries disabled and a cache retained for the test mount,
+preventing one test's server state or timers from leaking into another.
+
 ## Current next steps
 
 Authentication still needs:
 
 - production-like auth lifecycle and memory profiling.
 
-The next branch should introduce React Query conventions without adding a
-product query yet. Later branches can apply those conventions to the flock
-creation, invitation, joining, and member-list slice.
+The next product-data branch can apply the established React Query conventions
+to the first flock workflow, then continue through invitation, joining, and the
+member list.
 
 ## Journal entry template
 

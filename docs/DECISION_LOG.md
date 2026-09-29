@@ -193,18 +193,32 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Only if the rule creates a documented case that is less
   readable than the expression it prohibits.
 
-## D014 — Add React Query with the first server-data query
+## D014 — Use React Query for server data
 
-- **Status:** Planned
+- **Status:** Accepted
 - **Decision:** Use React Query through domain-specific custom hooks for flock,
-  membership, and event server state. Do not add it solely for authentication
-  mutations already coordinated by Supabase and the auth controller.
+  membership, and event server state. Establish the provider, cache defaults,
+  hierarchical query-key factories, and test provider before the first product
+  query. Do not use it for authentication mutations already coordinated by
+  Supabase and the auth controller.
 - **Why:** Query caching, invalidation, retry, and shared loading state will
-  matter when pages begin reading backend records. Delaying installation avoids
-  adding an unused abstraction.
-- **Tradeoffs:** The first data feature must establish query-key and invalidation
-  conventions before other features copy an accidental pattern.
-- **Revisit when:** The first flock data query begins.
+  matter when pages begin reading backend records. A small foundation branch
+  lets the first data feature follow reviewed conventions instead of defining
+  infrastructure and product behavior simultaneously.
+- **Defaults:** Reads are fresh for 30 seconds and retry once. This avoids
+  immediate duplicate route reads while still recovering from a brief mobile
+  connection interruption. Mutations do not retry automatically because a
+  repeated write can create duplicate or surprising product actions. React
+  Query's focus refetch remains enabled so returning to a backgrounded PWA can
+  refresh stale data.
+- **Query keys:** Keys begin with a plural domain root and branch into stable
+  list or detail scopes. Invalidations should target the narrowest shared key
+  that represents the changed server data.
+- **Tradeoffs:** React Query adds bundle and conceptual overhead before the
+  first product query. The isolated branch makes that cost and policy explicit,
+  while unused abstractions beyond the first flock key family remain deferred.
+- **Revisit when:** Measured request behavior calls for different defaults or a
+  server-data domain cannot be represented clearly by hierarchical keys.
 
 ## D015 — Develop in small branches without automated commits
 
