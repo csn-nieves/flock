@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router'
-import UpdatePrompt from './components/UpdatePrompt'
+import UpdatePrompt from '@src/components/UpdatePrompt'
 
 function App() {
   return (

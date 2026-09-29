@@ -1,7 +1,7 @@
 import { StrictMode, type ComponentType } from 'react'
 import { flushSync } from 'react-dom'
 import { createRoot, type Root } from 'react-dom/client'
-import '../../src/styles/global.css'
+import '@src/styles/global.css'
 
 type StoryProps = Record<string, unknown>
 type Story = ComponentType<StoryProps>

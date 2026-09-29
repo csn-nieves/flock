@@ -1,6 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
+import HomePage from '@src/pages/HomePage'
 import App from './App'
-import HomePage from './pages/HomePage'
 
 export const routes = [
   {

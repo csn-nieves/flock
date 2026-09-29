@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
+import '@src/styles/global.css'
 import router from './router'
-import './styles/global.css'
 
 const rootElement = document.getElementById('root')
 
