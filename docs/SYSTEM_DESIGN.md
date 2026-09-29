@@ -164,10 +164,12 @@ application copy; raw provider messages are not displayed.
 
 `/sign-in` resolves the current session before mounting the email workflow, so
 an existing session never flashes the sign-in form. The loading state has an
-honest document title and accessible status. An authenticated runner is sent to
-`/` with history replacement, including after OTP verification publishes a new
-session. If the initial session check fails, the page shows safe recovery copy
-and keeps sign-in available rather than exposing the provider error.
+honest document title and accessible status. When a session exists, the page
+consumes the saved destination and replaces `/sign-in` with that location,
+including after OTP verification publishes a new session. It falls back to `/`
+when no safe destination exists. If the initial session check fails, the page
+shows safe recovery copy and keeps sign-in available rather than exposing the
+provider error.
 
 Google and Facebook will use Supabase OAuth with PKCE. They will return through
 `/auth/callback`.
@@ -181,8 +183,10 @@ The destination is consumed once after authentication and otherwise falls back
 to `/`. `sessionStorage` survives a same-tab OAuth round trip without leaving a
 stale cross-tab destination after the tab closes.
 
-The storage utility is implemented, but sign-in restoration, callback handling,
-and protected-route behavior are not wired yet.
+Sign-in restoration is implemented. Destination consumption runs in a guarded
+effect so render remains free of storage mutations and React Strict Mode cannot
+consume the one-time value twice during its development checks. Callback
+handling and protected-route preservation are not wired yet.
 
 ## Configuration and secrets
 

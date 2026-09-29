@@ -1,6 +1,7 @@
-import { useEffect, type ReactNode } from 'react'
-import { Navigate } from 'react-router'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { useNavigate } from 'react-router'
 
+import { consumeAuthDestination } from '@src/auth/destination'
 import EmailOtpForm from '@src/components/EmailOtpForm'
 import EmailSignInForm from '@src/components/EmailSignInForm'
 import { useAuthSession } from '@src/hooks/useAuthSession'
@@ -128,7 +129,15 @@ function EmailSignInWorkflow({ hasSessionError }: EmailSignInWorkflowProps) {
 
 function SignInPage() {
   const { error, isLoading, session } = useAuthSession()
-  const title = isLoading ? 'Loading… — Flock' : 'Sign in — Flock'
+  const hasRedirectedRef = useRef(false)
+  const navigate = useNavigate()
+  let title = 'Sign in — Flock'
+
+  if (isLoading) {
+    title = 'Loading… — Flock'
+  } else if (session) {
+    title = 'Returning… — Flock'
+  }
 
   useEffect(() => {
     document.title = title
@@ -137,6 +146,15 @@ function SignInPage() {
       document.title = 'Flock'
     }
   }, [title])
+
+  useEffect(() => {
+    if (isLoading || !session || hasRedirectedRef.current) {
+      return
+    }
+
+    hasRedirectedRef.current = true
+    navigate(consumeAuthDestination(), { replace: true })
+  }, [isLoading, navigate, session])
 
   if (isLoading) {
     return (
@@ -149,7 +167,13 @@ function SignInPage() {
   }
 
   if (session) {
-    return <Navigate replace to="/" />
+    return (
+      <SignInPageLayout
+        description="Taking you back to where you left off…"
+        heading="Returning you to Flock"
+        isStatus
+      />
+    )
   }
 
   return <EmailSignInWorkflow hasSessionError={Boolean(error)} />

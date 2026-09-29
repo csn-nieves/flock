@@ -294,11 +294,33 @@ not grant access; route checks and Supabase authorization remain separate.
 This branch intentionally stops at the utility boundary. No route guard,
 sign-in redirect, or OAuth callback uses the stored destination yet.
 
+## 2026-09-29 — Restoring the destination after sign-in
+
+### Session-aware destination restoration
+
+The sign-in page now consumes the saved destination as soon as it receives a
+valid session, whether that session was already persisted or was just created
+by email verification. Navigation replaces `/sign-in`, preserves the saved
+query string and hash, and falls back to `/` when there is no valid value.
+
+Destination consumption happens in a guarded effect instead of during render.
+This keeps rendering free of storage mutations and prevents React Strict Mode's
+development effect checks from consuming the one-time value twice. While the
+effect completes, the page uses the existing sign-in layout to announce an
+accessible returning state instead of briefly remounting the email form.
+
+Unit coverage exercises the deep-location and fallback paths, including the
+Strict Mode guard and replacement history. Page-level browser tests cover both
+an existing session and a session created by OTP verification, and confirm that
+the one-time storage value is removed after use.
+
+Protected routes still do not write this destination. That route guard remains
+a separate, reviewable branch.
+
 ## Current next steps
 
 Authentication still needs:
 
-- destination restoration after successful sign-in;
 - protected-route behavior that preserves the current location;
 - Google and Facebook provider configuration and buttons;
 - `/auth/callback` PKCE exchange and recovery states; and

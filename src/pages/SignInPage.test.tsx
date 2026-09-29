@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { StrictMode } from 'react'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -36,7 +37,13 @@ vi.mock('@src/hooks/useAuthSession', () => ({
   useAuthSession: () => authSession,
 }))
 
-function renderSignInRoute() {
+const destination = vi.hoisted(() => ({
+  consumeAuthDestination: vi.fn(() => '/'),
+}))
+
+vi.mock('@src/auth/destination', () => destination)
+
+function renderSignInRoute({ strict = false } = {}) {
   const router = createMemoryRouter(
     [
       {
@@ -47,11 +54,17 @@ function renderSignInRoute() {
         path: '/sign-in',
         element: <SignInPage />,
       },
+      {
+        path: '/flocks/:flockId/events/:eventId',
+        element: <p>Run details</p>,
+      },
     ],
     { initialEntries: ['/sign-in'] },
   )
 
-  render(<RouterProvider router={router} />)
+  const route = <RouterProvider router={router} />
+
+  render(strict ? <StrictMode>{route}</StrictMode> : route)
 
   return router
 }
@@ -71,11 +84,12 @@ describe('SignInPage', () => {
     controller.resendError = undefined
     controller.step = 'email'
     controller.verificationError = undefined
+    destination.consumeAuthDestination.mockReturnValue('/')
   })
 
   it('shows an honest loading state while resolving the session', () => {
     authSession.isLoading = true
-    render(<SignInPage />)
+    renderSignInRoute()
 
     expect(document.title).toBe('Loading… — Flock')
     expect(
@@ -89,7 +103,24 @@ describe('SignInPage', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('replaces the sign-in route when a session already exists', async () => {
+  it('restores a complete saved destination when a session exists', async () => {
+    authSession.session = { user: { id: 'runner-id' } } as Session
+    destination.consumeAuthDestination.mockReturnValue(
+      '/flocks/sunday-runners/events/tempo-run?pace=9%3A00#route-map',
+    )
+    const router = renderSignInRoute({ strict: true })
+
+    expect(await screen.findByText('Run details')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe(
+      '/flocks/sunday-runners/events/tempo-run',
+    )
+    expect(router.state.location.search).toBe('?pace=9%3A00')
+    expect(router.state.location.hash).toBe('#route-map')
+    expect(router.state.historyAction).toBe('REPLACE')
+    expect(destination.consumeAuthDestination).toHaveBeenCalledOnce()
+  })
+
+  it('replaces sign-in with the home fallback without a saved destination', async () => {
     authSession.session = { user: { id: 'runner-id' } } as Session
     const router = renderSignInRoute()
 
@@ -100,7 +131,7 @@ describe('SignInPage', () => {
 
   it('keeps sign-in available after a session check failure', () => {
     authSession.error = new Error('raw provider message')
-    render(<SignInPage />)
+    renderSignInRoute()
 
     expect(screen.getByRole('alert')).toHaveTextContent(
       'We could not verify whether you are already signed in. You can still sign in below.',
@@ -110,7 +141,7 @@ describe('SignInPage', () => {
   })
 
   it('renders email entry and forwards the submitted address', () => {
-    render(<SignInPage />)
+    renderSignInRoute()
 
     expect(document.title).toBe('Sign in — Flock')
     expect(
@@ -129,7 +160,7 @@ describe('SignInPage', () => {
     controller.email = 'runner@example.com'
     controller.resendAvailableInSeconds = 0
     controller.step = 'verification'
-    render(<SignInPage />)
+    renderSignInRoute()
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Check your email' }),
@@ -154,7 +185,7 @@ describe('SignInPage', () => {
     controller.step = 'verification'
     controller.verificationError =
       'That code is invalid or has expired. Check the code and try again.'
-    render(<SignInPage />)
+    renderSignInRoute()
 
     expect(screen.getByRole('alert')).toHaveTextContent(
       'That code is invalid or has expired. Check the code and try again.',
