@@ -1,7 +1,7 @@
 import type { AuthError, Session } from '@supabase/supabase-js'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { AuthSessionContext } from './useAuthSession'
 import { getCurrentSession, subscribeToAuthChanges } from '@src/data/auth'
+import { AuthSessionContext } from '@src/hooks/useAuthSession'
 
 type AuthSessionProviderProps = {
   children: ReactNode

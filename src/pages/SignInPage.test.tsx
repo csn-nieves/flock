@@ -19,7 +19,7 @@ const controller = vi.hoisted(() => ({
   verifyCode: vi.fn(),
 }))
 
-vi.mock('@src/auth/useEmailAuthController', () => ({
+vi.mock('@src/hooks/useEmailAuthController', () => ({
   useEmailAuthController: () => controller,
 }))
 

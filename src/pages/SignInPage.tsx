@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 
-import { useEmailAuthController } from '@src/auth/useEmailAuthController'
 import EmailOtpForm from '@src/components/EmailOtpForm'
 import EmailSignInForm from '@src/components/EmailSignInForm'
+import { useEmailAuthController } from '@src/hooks/useEmailAuthController'
 
 function SignInPage() {
   const {

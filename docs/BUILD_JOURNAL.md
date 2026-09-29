@@ -241,6 +241,26 @@ After that, authentication still needs:
 The first product-data work should introduce React Query conventions, then move
 into the flock creation, invitation, joining, and member-list slice.
 
+## 2026-09-29 — Centralizing custom React hooks
+
+### Hook directory convention
+
+The first authentication hooks originally lived directly in `src/auth`. That
+location communicated their domain, but it did not provide one predictable
+place to find React hooks as the application expands into user, flock,
+membership, and event data.
+
+We moved `useAuthSession` and `useEmailAuthController` into `src/hooks`, keeping
+the controller's test beside it. Provider components and other authentication
+infrastructure remain in `src/auth`, while direct Supabase operations remain in
+`src/data`. Future React Query hooks will follow the same top-level hook
+convention and pages will continue to initiate queries and mutations whenever
+practical.
+
+The directory will remain flat while it is easy to scan. Domain subdirectories
+can be introduced inside `src/hooks` if hook volume or naming collisions create
+a real navigation problem.
+
 ## Journal entry template
 
 ```md
