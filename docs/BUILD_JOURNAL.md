@@ -224,23 +224,6 @@ guard remains intact, local secrets stay ignored, and browser tests cannot send
 OTP requests to the real Supabase project. After the fix, all unit, component,
 desktop page, Android page, and iPhone page suites passed.
 
-## Current next steps
-
-The next small authentication branch should make `/sign-in` react to the current
-session: wait for initial session resolution, redirect an already signed-in
-person, and leave destination preservation for a subsequent branch.
-
-After that, authentication still needs:
-
-- safe intended-destination storage and restoration;
-- protected-route behavior;
-- Google and Facebook provider configuration and buttons;
-- `/auth/callback` PKCE exchange and recovery states; and
-- production-like auth lifecycle and memory profiling.
-
-The first product-data work should introduce React Query conventions, then move
-into the flock creation, invitation, joining, and member-list slice.
-
 ## 2026-09-29 — Centralizing custom React hooks
 
 ### Hook directory convention
@@ -260,6 +243,44 @@ practical.
 The directory will remain flat while it is easy to scan. Domain subdirectories
 can be introduced inside `src/hooks` if hook volume or naming collisions create
 a real navigation problem.
+
+## 2026-09-29 — Making sign-in session-aware
+
+### Session-aware sign-in route
+
+The sign-in page now resolves `useAuthSession` before mounting the email
+workflow. This prevents an authenticated runner from briefly seeing a form they
+do not need and avoids initializing the email controller when the page will
+immediately redirect.
+
+While the provider resolves persisted state, the page keeps Flock's existing
+shell and shows an accessible “Checking your session…” status with an honest
+loading document title. A valid session replaces `/sign-in` with `/`, so the
+Back button does not return the runner to an obsolete sign-in screen. The same
+subscription-driven transition handles a session created after OTP
+verification.
+
+If the initial session read fails, the form remains usable and a page-level
+notice explains the recovery path without displaying the raw Supabase error.
+Focused page tests cover loading, recovery, and replacement navigation, while
+Playwright seeds a fake persisted session to exercise the redirect in each
+configured browser project.
+
+Destination preservation remains intentionally separate. This branch always
+uses `/` as the authenticated fallback.
+
+## Current next steps
+
+Authentication still needs:
+
+- safe intended-destination storage and restoration;
+- protected-route behavior;
+- Google and Facebook provider configuration and buttons;
+- `/auth/callback` PKCE exchange and recovery states; and
+- production-like auth lifecycle and memory profiling.
+
+The first product-data work should introduce React Query conventions, then move
+into the flock creation, invitation, joining, and member-list slice.
 
 ## Journal entry template
 

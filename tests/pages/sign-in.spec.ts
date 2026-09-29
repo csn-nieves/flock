@@ -1,12 +1,63 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const otpRoute = '**/auth/v1/otp**'
+const verifyRoute = '**/auth/v1/verify**'
+
+function createTestSession() {
+  const expiresInSeconds = 60 * 60
+
+  return {
+    access_token: 'test-access-token',
+    expires_at: Math.floor(Date.now() / 1000) + expiresInSeconds,
+    expires_in: expiresInSeconds,
+    refresh_token: 'test-refresh-token',
+    token_type: 'bearer',
+    user: {
+      app_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+      id: 'runner-id',
+      role: 'authenticated',
+      user_metadata: {},
+    },
+  }
+}
 
 async function mockSuccessfulOtpRequest(page: Page) {
   await page.route(otpRoute, async (route) => {
     await route.fulfill({ json: {}, status: 200 })
   })
 }
+
+async function seedAuthenticatedSession(page: Page) {
+  await page.addInitScript((session) => {
+    window.localStorage.setItem(
+      'sb-example-auth-token',
+      JSON.stringify(session),
+    )
+  }, createTestSession())
+}
+
+async function mockSuccessfulOtpVerification(page: Page) {
+  await page.route(verifyRoute, async (route) => {
+    await route.fulfill({
+      json: createTestSession(),
+      status: 200,
+    })
+  })
+}
+
+test('redirects an authenticated runner away from sign-in', async ({
+  page,
+}) => {
+  await seedAuthenticatedSession(page)
+  await page.goto('/sign-in')
+
+  await expect(page).toHaveURL('/')
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Sign in to Flock' }),
+  ).toHaveCount(0)
+})
 
 test('moves from email entry to code verification', async ({ page }) => {
   await mockSuccessfulOtpRequest(page)
@@ -31,6 +82,23 @@ test('moves from email entry to code verification', async ({ page }) => {
   await expect(
     page.getByText('You can request another code in 60 seconds.'),
   ).toBeVisible()
+})
+
+test('leaves sign-in after email verification creates a session', async ({
+  page,
+}) => {
+  await mockSuccessfulOtpRequest(page)
+  await mockSuccessfulOtpVerification(page)
+  await page.goto('/sign-in')
+
+  await page
+    .getByRole('textbox', { name: 'Email address' })
+    .fill('runner@example.com')
+  await page.getByRole('button', { name: 'Send code' }).click()
+  await page.getByRole('textbox', { name: 'Six-digit code' }).fill('123456')
+  await page.getByRole('button', { name: 'Verify code' }).click()
+
+  await expect(page).toHaveURL('/')
 })
 
 test('returns to email entry without losing the address', async ({ page }) => {
