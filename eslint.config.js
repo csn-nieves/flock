@@ -27,6 +27,7 @@ export default defineConfig([
     },
     rules: {
       'import-x/first': 'error',
+      'no-nested-ternary': 'error',
     },
   },
 ])

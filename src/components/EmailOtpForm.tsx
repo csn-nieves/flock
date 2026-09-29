@@ -51,6 +51,29 @@ function EmailOtpForm({
   const hasResendStatus =
     isResending || Boolean(resendError) || resendWaitSeconds > 0
 
+  let resendStatus = null
+
+  if (isResending) {
+    resendStatus = (
+      <p className="m-0 text-text-muted" role="status">
+        Sending another code.
+      </p>
+    )
+  } else if (resendError) {
+    resendStatus = (
+      <p className="m-0 font-medium text-text" role="alert">
+        <span className="text-accent">Error:</span> {resendError}
+      </p>
+    )
+  } else if (resendWaitSeconds > 0) {
+    resendStatus = (
+      <p className="m-0 text-text-muted">
+        You can request another code in {resendWaitSeconds}{' '}
+        {resendWaitSeconds === 1 ? 'second' : 'seconds'}.
+      </p>
+    )
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -139,20 +162,7 @@ function EmailOtpForm({
       </Button>
 
       <div className="min-h-6 pt-2 text-sm leading-4" id={resendStatusId}>
-        {isResending ? (
-          <p className="m-0 text-text-muted" role="status">
-            Sending another code.
-          </p>
-        ) : resendError ? (
-          <p className="m-0 font-medium text-text" role="alert">
-            <span className="text-accent">Error:</span> {resendError}
-          </p>
-        ) : resendWaitSeconds > 0 ? (
-          <p className="m-0 text-text-muted">
-            You can request another code in {resendWaitSeconds}{' '}
-            {resendWaitSeconds === 1 ? 'second' : 'seconds'}.
-          </p>
-        ) : null}
+        {resendStatus}
       </div>
 
       {isSubmitting ? (
