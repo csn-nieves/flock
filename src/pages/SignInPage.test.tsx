@@ -1,4 +1,7 @@
+import type { Session } from '@supabase/supabase-js'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { createMemoryRouter } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import SignInPage from './SignInPage'
@@ -23,9 +26,42 @@ vi.mock('@src/hooks/useEmailAuthController', () => ({
   useEmailAuthController: () => controller,
 }))
 
+const authSession = vi.hoisted(() => ({
+  error: null as Error | null,
+  isLoading: false,
+  session: null as Session | null,
+}))
+
+vi.mock('@src/hooks/useAuthSession', () => ({
+  useAuthSession: () => authSession,
+}))
+
+function renderSignInRoute() {
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/',
+        element: <p>Flock home</p>,
+      },
+      {
+        path: '/sign-in',
+        element: <SignInPage />,
+      },
+    ],
+    { initialEntries: ['/sign-in'] },
+  )
+
+  render(<RouterProvider router={router} />)
+
+  return router
+}
+
 describe('SignInPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    authSession.error = null
+    authSession.isLoading = false
+    authSession.session = null
     controller.email = ''
     controller.isRequesting = false
     controller.isResending = false
@@ -35,6 +71,42 @@ describe('SignInPage', () => {
     controller.resendError = undefined
     controller.step = 'email'
     controller.verificationError = undefined
+  })
+
+  it('shows an honest loading state while resolving the session', () => {
+    authSession.isLoading = true
+    render(<SignInPage />)
+
+    expect(document.title).toBe('Loading… — Flock')
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Getting Flock ready' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Checking your session…',
+    )
+    expect(
+      screen.queryByRole('textbox', { name: 'Email address' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('replaces the sign-in route when a session already exists', async () => {
+    authSession.session = { user: { id: 'runner-id' } } as Session
+    const router = renderSignInRoute()
+
+    expect(await screen.findByText('Flock home')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/')
+    expect(router.state.historyAction).toBe('REPLACE')
+  })
+
+  it('keeps sign-in available after a session check failure', () => {
+    authSession.error = new Error('raw provider message')
+    render(<SignInPage />)
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'We could not check whether you are already signed in. You can still sign in below.',
+    )
+    expect(screen.queryByText('raw provider message')).not.toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Email address' })).toBeEnabled()
   })
 
   it('renders email entry and forwards the submitted address', () => {
