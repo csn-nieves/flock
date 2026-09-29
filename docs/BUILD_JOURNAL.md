@@ -490,15 +490,44 @@ these keys, and call the Supabase-facing modules in `src/data`. Tests receive a
 fresh client with retries disabled and a cache retained for the test mount,
 preventing one test's server state or timers from leaking into another.
 
+## 2026-09-29 — Establishing flock membership storage
+
+### Flock and membership schema
+
+The first product tables are now expressed as a migration rather than changes
+made directly in the hosted dashboard. `flocks` stores the canonical owner,
+while `flock_members` stores one owner membership and future member rows. The
+owner membership is inserted by a database trigger in the same transaction as
+the flock, and a partial unique index rejects a second owner.
+
+Row Level Security starts closed. Anonymous users have no privileges. An
+authenticated runner can create only a flock they own, members can read only
+their shared flock and roster, and only the owner can update or delete the
+flock. Direct membership writes are intentionally unavailable until invitation
+and joining semantics exist. A private `security definer` helper avoids the
+recursive policy that would result from asking `flock_members` to authorize a
+query against itself.
+
+Transactional pgTAP tests cover table security, least-privilege grants, atomic
+owner membership, member and outsider visibility, owner-only writes, ownership
+invariants, and cascade cleanup. The repository now includes the minimal local
+Supabase configuration needed to apply migrations and run those tests. Docker
+and the Supabase CLI are not available in the current workstation environment.
+As a fallback, the migration was applied to a temporary PostgreSQL 17 database
+with Supabase-compatible auth roles; owner, member, outsider, privilege,
+single-owner, and cascade behavior passed a focused smoke test. The complete
+pgTAP suite still needs its first local or CI execution before this migration is
+deployed. Hosted deployment remains deliberately separate.
+
 ## Current next steps
 
 Authentication still needs:
 
 - production-like auth lifecycle and memory profiling.
 
-The next product-data branch can apply the established React Query conventions
-to the first flock workflow, then continue through invitation, joining, and the
-member list.
+The next product-data branch can add the first typed flock read through a data
+module and React Query hook, then continue through creation, invitation,
+joining, and the member list.
 
 ## Journal entry template
 

@@ -160,6 +160,36 @@ React Query's default focus refetch remains active so stale data can refresh
 when a runner returns to a backgrounded PWA. Tests use a fresh isolated client,
 disable retries, and retain cache entries for the life of the test mount.
 
+## Flock and membership data
+
+Postgres migrations are the source of truth for product data. The first model
+contains `flocks` and `flock_members`. A flock has one canonical `owner_id`, and
+the same user receives an `owner` membership from an after-insert trigger in the
+same transaction. A partial unique index prevents a second owner membership.
+Every other membership has the `member` role.
+
+The explicit owner column makes ownership checks and account-deletion behavior
+simple: the owner alone can update or delete a flock, and deleting the owner's
+authentication record removes the flock and its memberships. Ownership transfer
+is intentionally unsupported until it can be implemented as one database
+transaction that changes both the flock and owner membership together.
+
+Both public tables have Row Level Security enabled and explicit grants. Signed-
+out users receive no table privileges. Signed-in users can create flocks and
+read only flocks and rosters where they hold membership. They cannot write the
+membership table directly; future invitation and join operations must add a
+narrow policy or database function with their own authorization tests.
+
+Membership-backed read policies use a `security definer` helper in the private,
+non-exposed schema. This avoids recursive policies on `flock_members`. The
+function has an empty search path, fully qualified table references, restricted
+execution privileges, and an index supporting its user-and-flock lookup.
+
+Database behavior is tested below the frontend with transactional pgTAP tests.
+The suite verifies schema protections, grants, owner creation, member and non-
+member visibility, owner-only writes, the single-owner constraint, and cascading
+membership cleanup.
+
 ## Authentication design
 
 Supabase Auth is the authentication system. Flock plans to support Google,
@@ -329,17 +359,17 @@ route protection causes more mount, redirect, and session-refresh activity.
 
 ### Server-state queries
 
-React Query is the planned owner for reusable server-data queries and their
-cache lifecycle. It has not been added yet because the work completed so far is
-authentication mutation and session coordination rather than flock data
-fetching. Add it with the first real server-data query, behind a domain-specific
-custom hook.
+React Query owns reusable server-data queries and their cache lifecycle. Its
+provider and query-key conventions are established, but no product query uses
+them yet. The first flock read should call a Supabase-facing data module through
+a domain-specific hook in `src/hooks`.
 
 ### Backend authorization
 
-No flock-owned database table should be used by the application until its Row
-Level Security policies and authorization tests exist. Hiding a control in the
-UI will never be treated as authorization.
+The first flock and membership tables have Row Level Security policies and
+authorization tests. Every new operation must extend both explicit grants and
+policies deliberately; hiding a control in the UI will never be treated as
+authorization.
 
 ## A short explanation of the architecture
 
