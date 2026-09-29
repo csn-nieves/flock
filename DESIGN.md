@@ -132,6 +132,8 @@ Every interactive control needs default, hover where available, focus-visible, p
 
 `src/primitives/Button.tsx` is the canonical button owner. Primary actions use the accessible shamrock system, with navy foreground on the exact brand color and white foreground on `primary-strong` while pressed. Secondary actions use a border and true-white surface, with `surface-subtle` on hover and press. Both variants preserve a 44px minimum target, visible focus, native disabled behavior, and stable labels. Labels name the actual outcome and remain stable while busy.
 
+Social sign-in uses the shared secondary button treatment so Google and Facebook have equal visual weight. Each option keeps the provider name visible and pairs it with the provider's recognizable full-color mark; provider colors remain isolated to those marks rather than becoming Flock palette tokens. While a redirect opens, both choices lock, the selected choice receives a stable in-button progress indicator, and assistive technology receives an explicit status announcement.
+
 ### Navigation and data display
 
 Navigation will be introduced only when there are real destinations. Mobile controls must not depend on hover. Lists prioritize names and participation details over decorative metadata.

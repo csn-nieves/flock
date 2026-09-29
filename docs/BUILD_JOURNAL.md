@@ -371,11 +371,34 @@ add buttons, initiate OAuth from the sign-in page, exchange the returned code,
 or configure provider credentials. Those remain separate code and operational
 steps.
 
+## 2026-09-29 — Presenting social sign-in choices
+
+### Google and Facebook button component
+
+We added a shared, presentation-only component for Google and Facebook sign-in.
+It reuses the canonical Button primitive and reports provider intent through
+callbacks, so it has no Supabase dependency and can be exercised in isolation.
+The provider marks live separately in `src/primitives/icons`, keeping reusable
+visual primitives out of the larger authentication component. The redirect
+spinner is also a domain-neutral `PendingIndicator` primitive so later pending
+actions can reuse the same motion and visual treatment.
+
+Both options have equal visual weight, stable “Continue with…” labels, and
+recognizable provider marks. Provider colors stay inside those marks rather
+than expanding Flock's palette. When one provider is opening, both buttons lock
+to prevent overlapping PKCE attempts, the selected button shows progress
+without changing size, and an accessible status names the provider.
+
+Unit tests cover the callback and locking contract. Real-browser component
+tests cover the same behavior and mobile touch geometry across desktop,
+Android, and iPhone projects. Wiring these callbacks to the OAuth data boundary
+remains a separate branch.
+
 ## Current next steps
 
 Authentication still needs:
 
-- Google and Facebook buttons and sign-in page integration;
+- Google and Facebook sign-in page integration;
 - Google and Facebook provider configuration;
 - `/auth/callback` PKCE exchange and recovery states; and
 - production-like auth lifecycle and memory profiling.
