@@ -144,6 +144,22 @@ Facebook OAuth, reads sessions, subscribes to auth changes, and signs out. UI
 code receives application-shaped state and messages rather than raw provider
 errors.
 
+React Query owns asynchronous server-state caching outside authentication. One
+application-level `QueryClientProvider` wraps the router and session provider.
+The client instance is created once at startup, so renders and route changes do
+not replace the cache. Domain hooks in `src/hooks` will call data-access modules
+and expose application-shaped query results to pages; components and primitives
+will continue to receive data through props.
+
+Query keys are defined centrally in `src/data/queryKeys.ts`. Each family begins
+with a plural domain root and adds stable list or detail scopes, allowing a
+mutation to invalidate either one record, all details, or the complete domain
+without matching unrelated data. The initial client treats reads as fresh for
+30 seconds and retries a failed read once. Writes do not retry automatically.
+React Query's default focus refetch remains active so stale data can refresh
+when a runner returns to a backgrounded PWA. Tests use a fresh isolated client,
+disable retries, and retain cache entries for the life of the test mount.
+
 ## Authentication design
 
 Supabase Auth is the authentication system. Flock plans to support Google,
