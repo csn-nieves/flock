@@ -258,3 +258,20 @@ means it is the current direction, not that it can never change.
   runner's original intent.
 - **Revisit when:** Authentication intentionally moves across tabs or devices,
   or a server-owned state parameter becomes necessary for a supported flow.
+
+## D018 — Keep social providers restricted during development
+
+- **Status:** Accepted
+- **Decision:** Keep Google's OAuth application in testing mode with explicit
+  test users and keep Meta's Flock app unpublished while the product is under
+  development. Provider credentials remain only in the provider consoles and
+  Supabase configuration.
+- **Why:** Live end-to-end authentication can be verified without exposing an
+  unfinished product to general users or prematurely entering provider review.
+  Restricting access also limits the impact of configuration mistakes while the
+  surrounding account, authorization, and data-deletion behavior is incomplete.
+- **Tradeoffs:** Only approved Google test users and Meta app roles can use
+  social sign-in. External testers must be added deliberately until release.
+- **Revisit when:** Flock has a deployed production domain, privacy policy,
+  user-data deletion process, production branding, and a release candidate that
+  is ready for provider verification or publication.
