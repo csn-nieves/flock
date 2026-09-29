@@ -11,6 +11,8 @@ dist/
 
 # Tooling output
 coverage/
+playwright-report/
+test-results/
 *.tsbuildinfo
 
 # Logs
@@ -21,4 +23,3 @@ coverage/
 .idea/
 .vscode/*
 !.vscode/extensions.json
-
