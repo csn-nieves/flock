@@ -1,0 +1,28 @@
+:root {
+  --flock-color-primary: #369f60;
+  --flock-color-primary-bright: #42ad6c;
+  --flock-color-primary-strong: #246b41;
+  --flock-color-on-primary: #071e11;
+  --flock-color-text: #10243e;
+  --flock-color-text-muted: #536273;
+  --flock-color-background: #ffffff;
+  --flock-color-surface-subtle: #f3f7f4;
+  --flock-color-border: #d6e0d9;
+  --flock-color-accent: #d95f4c;
+  --flock-color-focus: #10243e;
+  --flock-color-scrollbar-thumb: #8ba897;
+  --flock-color-scrollbar-track: #edf3ef;
+
+  --flock-font-display:
+    'Avenir Next', Avenir, ui-rounded, system-ui, sans-serif;
+  --flock-font-body:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --flock-font-mono:
+    ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+  --page-gutter: 1rem;
+  --app-max-width: 30rem;
+  --flock-focus-ring: 0 0 0 0.1875rem var(--flock-color-focus);
+  --flock-shadow-floating: 0 0.75rem 2.5rem rgb(16 36 62 / 18%);
+}

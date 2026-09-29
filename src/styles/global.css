@@ -1,0 +1,114 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@theme inline {
+  --color-primary: var(--flock-color-primary);
+  --color-primary-bright: var(--flock-color-primary-bright);
+  --color-primary-strong: var(--flock-color-primary-strong);
+  --color-on-primary: var(--flock-color-on-primary);
+  --color-text: var(--flock-color-text);
+  --color-text-muted: var(--flock-color-text-muted);
+  --color-background: var(--flock-color-background);
+  --color-surface-subtle: var(--flock-color-surface-subtle);
+  --color-border: var(--flock-color-border);
+  --color-accent: var(--flock-color-accent);
+  --color-focus: var(--flock-color-focus);
+  --font-display: var(--flock-font-display);
+  --font-sans: var(--flock-font-body);
+  --font-mono: var(--flock-font-mono);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-pill: 999px;
+  --container-app: 30rem;
+  --spacing-touch: 2.75rem;
+  --shadow-floating: var(--flock-shadow-floating);
+  --duration-fast: 160ms;
+  --duration-standard: 220ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color: var(--flock-color-text);
+  background: var(--flock-color-background);
+  color-scheme: light;
+  font-family: var(--flock-font-body);
+  font-synthesis: none;
+  scrollbar-color: var(--flock-color-scrollbar-thumb)
+    var(--flock-color-scrollbar-track);
+  scrollbar-width: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-width: 20rem;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  background: var(--flock-color-background);
+}
+
+button,
+input,
+textarea,
+select {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 0;
+  box-shadow: var(--flock-focus-ring);
+}
+
+*::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--flock-color-scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--flock-color-scrollbar-thumb);
+  border: 0.1875rem solid var(--flock-color-scrollbar-track);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--flock-color-primary-strong);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--flock-color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  html {
+    scrollbar-color: auto;
+  }
+}
