@@ -108,7 +108,9 @@ queries.
 Components combine primitives into reusable interface patterns. For example,
 `EmailSignInForm` validates and emits a normalized email address, while
 `EmailOtpForm` validates a code and exposes verification and resend intent.
-They receive data and callbacks rather than calling Supabase directly.
+`SocialSignInButtons` exposes Google and Facebook intent, including disabled and
+provider-specific pending presentation. They receive data and callbacks rather
+than calling Supabase directly.
 
 ### Pages
 
@@ -192,6 +194,12 @@ callback must complete in the same browser and device where sign-in began.
 Flock's initial design assumes one in-flight social sign-in per browser;
 overlapping flows can be revisited with Supabase flow IDs if product usage
 justifies the additional callback state.
+
+The shared social sign-in component remains presentation-only. It names and
+visually identifies both approved providers, preserves stable labels while a
+redirect begins, and locks both choices once one provider is pending. A later
+page-integration branch will translate those callbacks into data-layer calls
+and own recoverable provider errors.
 
 `src/auth/destination.ts` owns intended-destination validation and per-tab
 storage. It preserves the first valid internal path, including its query string
