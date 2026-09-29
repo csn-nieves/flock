@@ -54,6 +54,47 @@ The exact email experience—password, magic link, or one-time code—will be se
 
 The approved visual foundation uses shamrock `#369f60` as the primary color, deep navy typography, a restrained warm coral accent, and a true-white background.
 
+## Frontend architecture
+
+Build the interface in three layers, ordered from least to most product-aware:
+
+### Primitives
+
+Primitives are the smallest reusable interface elements, such as buttons, text treatments, inputs, avatars, and icons.
+
+- Keep primitives unaware of Flock's domain, routes, authentication, and data sources.
+- Configure them through focused props, variants, and children.
+- Do not query or mutate data from a primitive.
+- Prefer native semantics and accessibility behavior over visual abstractions.
+- Do not create a primitive for plain semantic HTML unless the abstraction adds a consistent behavior or design rule.
+
+### Components
+
+Components combine primitives into reusable interface patterns, such as forms, member lists, tables, and event cards.
+
+- Keep components presentational whenever practical.
+- Receive data and event callbacks through props rather than accessing Supabase or route loaders directly.
+- Components may own local interface state that does not need to survive navigation or synchronize with the backend. Examples include an open disclosure, a selected tab, or an in-progress form draft.
+- Move repeated business behavior into an explicit shared hook or domain module rather than hiding it inside a visual component.
+
+### Pages
+
+Pages are route-level entry points built from components and primitives.
+
+- Start data queries and mutations at the page or route level whenever possible.
+- Own loading, empty, error, authorization, and success states for the complete page workflow.
+- Translate backend responses into the focused data shapes required by child components.
+- Pass data downward and receive user intent upward through callbacks.
+- Keep transport details in data-access modules or hooks even when the page initiates the operation.
+
+The default import direction is:
+
+`pages → components → primitives`
+
+Code in a lower layer must not import from a higher layer. Data-access modules may be used by pages and route-level hooks, but never by primitives and only by a component when a documented exception is more coherent than page ownership.
+
+Keep server state high without lifting every piece of state. Data shared across a workflow belongs at the closest page or route boundary; temporary interaction state belongs as close as possible to the control that uses it.
+
 ## Testing and quality
 
 - TypeScript strict mode
