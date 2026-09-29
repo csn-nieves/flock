@@ -98,10 +98,13 @@ pages → components → primitives
 
 ### Primitives
 
-Primitives are domain-neutral controls such as `Button` and `TextField`. They
-own consistent semantics, accessible states, touch sizing, focus treatment, and
-visual variants. They do not know about routes, flocks, Supabase, or data
-queries.
+Primitives are domain-neutral controls and indicators such as `Button`,
+`TextField`, and `PendingIndicator`. They own consistent semantics, accessible
+states, touch sizing, focus treatment, and visual variants. They do not know
+about routes, flocks, Supabase, or data queries. Reusable SVG marks live in
+`src/primitives/icons`; they remain dumb visual elements and default to
+decorative semantics when a surrounding control already provides the
+accessible name.
 
 ### Components
 

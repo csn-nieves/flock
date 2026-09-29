@@ -378,6 +378,10 @@ steps.
 We added a shared, presentation-only component for Google and Facebook sign-in.
 It reuses the canonical Button primitive and reports provider intent through
 callbacks, so it has no Supabase dependency and can be exercised in isolation.
+The provider marks live separately in `src/primitives/icons`, keeping reusable
+visual primitives out of the larger authentication component. The redirect
+spinner is also a domain-neutral `PendingIndicator` primitive so later pending
+actions can reuse the same motion and visual treatment.
 
 Both options have equal visual weight, stable “Continue with…” labels, and
 recognizable provider marks. Provider colors stay inside those marks rather
