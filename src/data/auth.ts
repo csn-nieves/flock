@@ -1,12 +1,7 @@
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 
+import { isValidEmailAddress } from '@src/auth/email'
 import { supabase } from './supabase'
-
-const EMAIL_ADDRESS_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-export function isValidEmailAddress(email: string) {
-  return EMAIL_ADDRESS_PATTERN.test(email.trim())
-}
 
 export function requestEmailOtp(email: string) {
   const normalizedEmail = email.trim()
