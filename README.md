@@ -1,5 +1,12 @@
 # Flock
 
+## Project documentation
+
+- [Product foundation](./PRODUCT.md)
+- [Technical foundation](./TECHNICAL.md)
+- [Design system](./DESIGN.md)
+- [System design and build journal](./docs/README.md)
+
 ## Local development
 
 Install dependencies and create a local environment file:
