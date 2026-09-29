@@ -97,6 +97,43 @@ jobs:
       - name: Run ${{ matrix.device }} component tests
         run: npx playwright test --project="${{ matrix.project }}"
 
+  page-tests:
+    name: Page tests (${{ matrix.device }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device: Desktop Chromium
+            project: pages
+            browser: chromium
+          - device: Pixel 10
+            project: pages-android
+            browser: chromium
+          - device: iPhone 17
+            project: pages-iphone
+            browser: webkit
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run ${{ matrix.device }} page tests
+        run: npx playwright test --project="${{ matrix.project }}"
+
   production-build:
     name: Production build
     runs-on: ubuntu-latest

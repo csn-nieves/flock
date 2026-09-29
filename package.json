@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:components": "playwright test --project=components --project=components-android --project=components-iphone",
+    "test:pages": "playwright test --project=pages --project=pages-android --project=pages-iphone",
     "test:playwright": "playwright test --ui",
     "test:watch": "vitest",
     "typecheck": "tsc -b"

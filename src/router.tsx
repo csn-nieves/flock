@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import HomePage from '@src/pages/HomePage'
+import SignInPage from '@src/pages/SignInPage'
 import App from './App'
 
 export const routes = [
@@ -10,6 +11,10 @@ export const routes = [
       {
         index: true,
         Component: HomePage,
+      },
+      {
+        path: 'sign-in',
+        Component: SignInPage,
       },
     ],
   },
