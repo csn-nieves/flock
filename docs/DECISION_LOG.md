@@ -100,10 +100,16 @@ means it is the current direction, not that it can never change.
   Supabase OAuth with PKCE.
 - **Why:** A code avoids password creation and recovery. It also keeps an
   installed-PWA user inside Flock instead of requiring a magic-link handoff.
-  Social providers reduce friction for users who prefer them.
+  Social providers reduce friction for users who prefer them. Flock is a
+  browser-based public OAuth client and cannot keep a fixed client secret
+  confidential. PKCE binds each returned authorization code to a fresh verifier
+  retained by the browser that initiated the flow, so an intercepted code
+  cannot be exchanged on its own.
 - **Tradeoffs:** Email delivery and rate limits become part of the experience.
   OAuth adds provider configuration, callback validation, and destination
-  restoration.
+  restoration. A PKCE exchange must finish in the same browser and device that
+  created its verifier. Overlapping flows may require Supabase flow IDs if they
+  become a real usage pattern.
 - **Revisit when:** Delivery reliability, user research, or account-linking
   requirements call for another method such as passkeys.
 

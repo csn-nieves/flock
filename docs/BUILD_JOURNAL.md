@@ -349,6 +349,18 @@ approved social providers: Google and Facebook. It constructs a same-origin
 PKCE client configuration to carry the browser through the provider and back
 to Flock.
 
+We chose PKCE specifically because Flock's PWA cannot keep a client secret
+confidential in browser JavaScript. Each sign-in receives a fresh verifier,
+while only its derived challenge leaves the browser during authorization. A
+returned code is useful only when exchanged with that verifier, which protects
+the session if the code is intercepted. This also explains why the eventual
+callback must run in the same browser and device that started sign-in.
+
+Supabase stores the verifier locally. Multiple overlapping PKCE attempts can
+compete for that local state, so the initial design assumes one social sign-in
+at a time. We will adopt Supabase's flow-ID support only if multi-tab usage
+makes that extra state necessary.
+
 The exported provider type is intentionally narrower than Supabase's full
 provider list. This keeps unsupported providers out of Flock's application
 contract while leaving provider names and transport details outside future

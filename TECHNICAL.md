@@ -55,6 +55,22 @@ Email sign-in uses a six-digit one-time password rather than a password or magic
 
 Google and Facebook use Supabase's OAuth flow with PKCE. Authentication starts in the current window and returns to `/auth/callback`, where Flock exchanges the authorization code for a session.
 
+PKCE is a deliberate security choice for Flock's browser-delivered PWA. The
+application is a public OAuth client, so any fixed client secret shipped in its
+JavaScript would be visible and could not prove which browser started a sign-in
+attempt. Instead, Supabase creates a fresh random code verifier for each flow
+and sends only its derived challenge when authorization begins. The returned
+authorization code can be exchanged only by the browser that still holds the
+matching verifier, so intercepting the code alone is not enough to create a
+session. Access and refresh tokens are issued only after that exchange rather
+than being returned directly in the redirect URL.
+
+The verifier is stored locally by the Supabase client. The callback exchange
+must therefore finish in the same browser and device that started the flow.
+Flock currently treats social sign-in as one in-flight flow per browser; if
+real usage shows people starting overlapping flows across tabs, revisit
+Supabase's flow-ID support rather than weakening PKCE.
+
 - Register Supabase's provider callback URL with Google and Facebook.
 - Add the local, preview, and production Flock callback URLs to Supabase's redirect allow list.
 - Preserve the intended in-app destination before leaving Flock. Accept only same-origin relative paths when restoring it to prevent open redirects.
