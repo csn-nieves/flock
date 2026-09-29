@@ -183,10 +183,13 @@ The destination is consumed once after authentication and otherwise falls back
 to `/`. `sessionStorage` survives a same-tab OAuth round trip without leaving a
 stale cross-tab destination after the tab closes.
 
-Sign-in restoration is implemented. Destination consumption runs in a guarded
-effect so render remains free of storage mutations and React Strict Mode cannot
-consume the one-time value twice during its development checks. Callback
-handling and protected-route preservation are not wired yet.
+Sign-in restoration and protected-route preservation are implemented.
+`ProtectedRoute` waits for initial session resolution before rendering private
+content. A signed-out runner's complete location is preserved before the route
+is replaced with `/sign-in`. Destination storage and navigation run in guarded
+effects so render remains free of storage mutations and React Strict Mode
+cannot repeat either one-time action during its development checks. OAuth
+callback handling is not wired yet.
 
 ## Configuration and secrets
 

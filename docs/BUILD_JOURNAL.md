@@ -317,11 +317,32 @@ the one-time storage value is removed after use.
 Protected routes still do not write this destination. That route guard remains
 a separate, reviewable branch.
 
+## 2026-09-29 — Protecting private routes
+
+### Session-aware route boundary
+
+The application root now sits behind a reusable `ProtectedRoute` boundary,
+while `/sign-in` remains public. The boundary waits for the initial Supabase
+session check before rendering its child route, preventing private content from
+flashing while authentication state is unknown.
+
+When no session exists, the guard preserves the complete internal location and
+replaces it with `/sign-in`. The preservation and navigation happen in a
+guarded effect rather than during render, so React Strict Mode cannot repeat the
+one-time action. The existing destination utility still owns validation,
+first-valid-value behavior, and per-tab storage.
+
+The sign-in layout was extracted into a presentational component so session
+loading, protected-route redirection, and the sign-in workflow share one visual
+and accessibility contract. Focused route tests cover loading, authenticated,
+and signed-out states. The page-level OTP test now begins at a protected URL,
+proving the full preserve, sign-in, consume, and return sequence in each browser
+project.
+
 ## Current next steps
 
 Authentication still needs:
 
-- protected-route behavior that preserves the current location;
 - Google and Facebook provider configuration and buttons;
 - `/auth/callback` PKCE exchange and recovery states; and
 - production-like auth lifecycle and memory profiling.
