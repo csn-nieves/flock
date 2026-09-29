@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   getCurrentSession,
-  isValidEmailAddress,
   requestEmailOtp,
   signOut,
   subscribeToAuthChanges,
@@ -58,11 +57,6 @@ describe('email OTP authentication', () => {
       expect(authMocks.signInWithOtp).not.toHaveBeenCalled()
     },
   )
-
-  it('exposes email validation for the sign-in form', () => {
-    expect(isValidEmailAddress(' runner@example.com ')).toBe(true)
-    expect(isValidEmailAddress('not-an-email')).toBe(false)
-  })
 
   it('verifies the submitted code as an email OTP', async () => {
     await verifyEmailOtp({

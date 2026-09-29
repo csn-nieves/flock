@@ -1,9 +1,9 @@
-import { useId, type ComponentProps } from 'react'
+import { useId, type ComponentProps, type ReactNode } from 'react'
 
 export type TextFieldProps = Omit<ComponentProps<'input'>, 'id'> & {
   label: string
   error?: string
-  hint?: string
+  hint?: ReactNode
   id?: string
 }
 
