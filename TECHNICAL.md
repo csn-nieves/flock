@@ -47,7 +47,8 @@ The exact email experience—password, magic link, or one-time code—will be se
 
 - Use semantic HTML and accessible native controls whenever they meet the interaction requirements.
 - Use CSS custom properties as the source of truth for design tokens.
-- Use CSS Modules for component styles and one small global stylesheet for tokens, resets, and application-wide behavior.
+- Use **Tailwind CSS** for component and layout styling, mapped to the semantic CSS custom properties.
+- Keep one small global stylesheet for tokens, resets, and application-wide behavior. Add component CSS only when a behavior cannot be expressed clearly with shared Tailwind utilities.
 - Do not add a component library or global state library until repeated product needs justify one.
 - Target WCAG 2.2 AA and phone layouts first, beginning at a 360-pixel viewport width.
 
