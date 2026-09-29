@@ -19,6 +19,10 @@ export function startOAuthSignIn(provider: SocialAuthProvider) {
   })
 }
 
+export function exchangeOAuthCodeForSession(authorizationCode: string) {
+  return supabase.auth.exchangeCodeForSession(authorizationCode)
+}
+
 export function requestEmailOtp(email: string) {
   const normalizedEmail = email.trim()
 

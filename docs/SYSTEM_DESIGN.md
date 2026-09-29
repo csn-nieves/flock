@@ -206,6 +206,15 @@ prevents overlapping provider requests, and maps raw failures to provider-aware
 recovery copy. The sign-in page disables email entry while a provider redirect
 is starting and restores every method after a recoverable failure.
 
+`/auth/callback` captures the returned authorization code, immediately removes
+callback parameters from browser history, and asks `useOAuthCallbackController`
+to exchange the single-use code through the authentication data boundary. The
+controller shares one request across React Strict Mode effect replays so it
+cannot consume the code twice. A successful exchange consumes the saved
+destination and replaces the callback route with it. Cancellation, missing
+codes, interrupted connections, and rejected exchanges show safe recovery copy
+without exposing provider details or consuming the intended destination.
+
 `src/auth/destination.ts` owns intended-destination validation and per-tab
 storage. It preserves the first valid internal path, including its query string
 and hash, through an authentication redirect chain. Only paths beginning with a
@@ -215,13 +224,14 @@ The destination is consumed once after authentication and otherwise falls back
 to `/`. `sessionStorage` survives a same-tab OAuth round trip without leaving a
 stale cross-tab destination after the tab closes.
 
-Sign-in restoration and protected-route preservation are implemented.
+Sign-in restoration, protected-route preservation, and OAuth callback exchange
+are implemented.
 `ProtectedRoute` waits for initial session resolution before rendering private
 content. A signed-out runner's complete location is preserved before the route
 is replaced with `/sign-in`. Destination storage and navigation run in guarded
 effects so render remains free of storage mutations and React Strict Mode
 cannot repeat either one-time action during its development checks. OAuth
-callback handling is not wired yet.
+callback handling returns a completed social sign-in to the saved destination.
 
 ## Configuration and secrets
 
