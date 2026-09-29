@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
+import { createMemoryRouter } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
 import { describe, expect, it, vi } from 'vitest'
-import App from './App'
+import { routes } from './router'
 
 vi.mock('virtual:pwa-register/react', () => ({
   useRegisterSW: () => ({
@@ -11,8 +13,12 @@ vi.mock('virtual:pwa-register/react', () => ({
 }))
 
 describe('App', () => {
-  it('renders the empty application shell', () => {
-    render(<App />)
+  it('renders the empty application shell at the index route', () => {
+    const router = createMemoryRouter(routes, {
+      initialEntries: ['/'],
+    })
+
+    render(<RouterProvider router={router} />)
 
     expect(
       screen.getByRole('main', { name: 'Flock application' }),
