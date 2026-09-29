@@ -103,7 +103,7 @@ describe('SignInPage', () => {
     render(<SignInPage />)
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'We could verify whether you are already signed in. You can still sign in below.',
+      'We could not verify whether you are already signed in. You can still sign in below.',
     )
     expect(screen.queryByText('raw provider message')).not.toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: 'Email address' })).toBeEnabled()
