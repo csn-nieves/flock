@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const galleryUrl = 'http://127.0.0.1:4199/playwright/gallery/index.html'
+const applicationUrl = 'http://127.0.0.1:4199'
 
 export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
@@ -34,6 +35,33 @@ export default defineConfig({
         ...devices['iPhone 17'],
         baseURL: galleryUrl,
         reuseContext: true,
+        serviceWorkers: 'block',
+      },
+    },
+    {
+      name: 'pages',
+      testDir: './tests/pages',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: applicationUrl,
+        serviceWorkers: 'block',
+      },
+    },
+    {
+      name: 'pages-android',
+      testDir: './tests/pages',
+      use: {
+        ...devices['Pixel 10'],
+        baseURL: applicationUrl,
+        serviceWorkers: 'block',
+      },
+    },
+    {
+      name: 'pages-iphone',
+      testDir: './tests/pages',
+      use: {
+        ...devices['iPhone 17'],
+        baseURL: applicationUrl,
         serviceWorkers: 'block',
       },
     },
