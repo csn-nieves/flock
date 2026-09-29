@@ -23,6 +23,8 @@
 
   --page-gutter: 1rem;
   --app-max-width: 30rem;
-  --flock-focus-ring: 0 0 0 0.1875rem var(--flock-color-focus);
+  --flock-focus-ring:
+    0 0 0 0.125rem var(--flock-color-background),
+    0 0 0 0.3125rem var(--flock-color-focus);
   --flock-shadow-floating: 0 0.75rem 2.5rem rgb(16 36 62 / 18%);
 }

@@ -49,6 +49,13 @@ components:
   button-primary-strong:
     backgroundColor: '{colors.primary-strong}'
     textColor: '{colors.background}'
+  button-secondary:
+    backgroundColor: '{colors.background}'
+    textColor: '{colors.text}'
+    rounded: '{rounded.md}'
+    height: '{spacing.touch-target}'
+  button-secondary-hover:
+    backgroundColor: '{colors.surface-subtle}'
   supporting-surface:
     backgroundColor: '{colors.surface-subtle}'
     textColor: '{colors.text-muted}'
@@ -116,7 +123,7 @@ Every interactive control needs default, hover where available, focus-visible, p
 
 ### Buttons and actions
 
-Primary actions use the accessible shamrock system, with navy foreground on the exact brand color or white foreground on `primary-strong`. Secondary actions use a border or quiet surface. Labels name the actual outcome and remain stable while busy.
+`src/primitives/Button.tsx` is the canonical button owner. Primary actions use the accessible shamrock system, with navy foreground on the exact brand color and white foreground on `primary-strong` while pressed. Secondary actions use a border and true-white surface, with `surface-subtle` on hover and press. Both variants preserve a 44px minimum target, visible focus, native disabled behavior, and stable labels. Labels name the actual outcome and remain stable while busy.
 
 ### Navigation and data display
 
