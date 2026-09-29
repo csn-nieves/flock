@@ -339,11 +339,44 @@ and signed-out states. The page-level OTP test now begins at a protected URL,
 proving the full preserve, sign-in, consume, and return sequence in each browser
 project.
 
+## 2026-09-29 — Starting social authentication
+
+### Google and Facebook OAuth data boundary
+
+The authentication data module can now start Supabase OAuth for the two
+approved social providers: Google and Facebook. It constructs a same-origin
+`/auth/callback` URL and supplies it through `redirectTo`, allowing the existing
+PKCE client configuration to carry the browser through the provider and back
+to Flock.
+
+We chose PKCE specifically because Flock's PWA cannot keep a client secret
+confidential in browser JavaScript. Each sign-in receives a fresh verifier,
+while only its derived challenge leaves the browser during authorization. A
+returned code is useful only when exchanged with that verifier, which protects
+the session if the code is intercepted. This also explains why the eventual
+callback must run in the same browser and device that started sign-in.
+
+Supabase stores the verifier locally. Multiple overlapping PKCE attempts can
+compete for that local state, so the initial design assumes one social sign-in
+at a time. We will adopt Supabase's flow-ID support only if multi-tab usage
+makes that extra state necessary.
+
+The exported provider type is intentionally narrower than Supabase's full
+provider list. This keeps unsupported providers out of Flock's application
+contract while leaving provider names and transport details outside future
+presentational buttons.
+
+Focused tests verify both providers and the callback URL. This branch does not
+add buttons, initiate OAuth from the sign-in page, exchange the returned code,
+or configure provider credentials. Those remain separate code and operational
+steps.
+
 ## Current next steps
 
 Authentication still needs:
 
-- Google and Facebook provider configuration and buttons;
+- Google and Facebook buttons and sign-in page integration;
+- Google and Facebook provider configuration;
 - `/auth/callback` PKCE exchange and recovery states; and
 - production-like auth lifecycle and memory profiling.
 

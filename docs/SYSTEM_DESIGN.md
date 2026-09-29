@@ -134,9 +134,10 @@ after unmounting. Provider components remain in their domain directory, such as
 `src/auth`; their hook interfaces live in `src/hooks`.
 
 Data-access modules are the only frontend layer that speaks in Supabase API
-terms. `src/data/auth.ts` requests and verifies email codes, reads sessions,
-subscribes to auth changes, and signs out. UI code receives application-shaped
-state and messages rather than raw provider errors.
+terms. `src/data/auth.ts` requests and verifies email codes, starts Google or
+Facebook OAuth, reads sessions, subscribes to auth changes, and signs out. UI
+code receives application-shaped state and messages rather than raw provider
+errors.
 
 ## Authentication design
 
@@ -171,8 +172,26 @@ when no safe destination exists. If the initial session check fails, the page
 shows safe recovery copy and keeps sign-in available rather than exposing the
 provider error.
 
-Google and Facebook will use Supabase OAuth with PKCE. They will return through
-`/auth/callback`.
+Google and Facebook use Supabase OAuth with PKCE and return through
+`/auth/callback`. The data boundary accepts only Flock's approved `google` and
+`facebook` provider identifiers and constructs the callback from the current
+application origin. Supabase then redirects the browser to the provider. The
+callback URL must be allow-listed in each Supabase environment; provider client
+secrets remain in Google, Facebook, and Supabase configuration.
+
+PKCE fits Flock because a PWA is a public client: browser JavaScript cannot
+protect a fixed OAuth client secret. Supabase creates a fresh verifier in the
+initiating browser and sends a derived challenge with the authorization
+request. The callback receives a short-lived, single-use code, but Supabase will
+issue a session only when that code is exchanged with the matching verifier.
+This binds the exchange to the client instance that started it and makes a
+captured authorization code insufficient on its own.
+
+That binding creates an operational constraint as well as protection. The
+callback must complete in the same browser and device where sign-in began.
+Flock's initial design assumes one in-flight social sign-in per browser;
+overlapping flows can be revisited with Supabase flow IDs if product usage
+justifies the additional callback state.
 
 `src/auth/destination.ts` owns intended-destination validation and per-tab
 storage. It preserves the first valid internal path, including its query string

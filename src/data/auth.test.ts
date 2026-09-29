@@ -3,6 +3,7 @@ import {
   getCurrentSession,
   requestEmailOtp,
   signOut,
+  startOAuthSignIn,
   subscribeToAuthChanges,
   verifyEmailOtp,
 } from './auth'
@@ -19,6 +20,7 @@ const authMocks = vi.hoisted(() => {
         },
       },
     })),
+    signInWithOAuth: vi.fn(),
     signInWithOtp: vi.fn(),
     signOut: vi.fn(),
     unsubscribe,
@@ -31,6 +33,29 @@ vi.mock('./supabase', () => ({
     auth: authMocks,
   },
 }))
+
+describe('social OAuth authentication', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it.each(['google', 'facebook'] as const)(
+    'starts %s sign-in with the same-origin callback route',
+    async (provider) => {
+      await startOAuthSignIn(provider)
+
+      expect(authMocks.signInWithOAuth).toHaveBeenCalledWith({
+        provider,
+        options: {
+          redirectTo: new URL(
+            '/auth/callback',
+            window.location.origin,
+          ).toString(),
+        },
+      })
+    },
+  )
+})
 
 describe('email OTP authentication', () => {
   beforeEach(() => {
