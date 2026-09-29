@@ -3,6 +3,22 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { isValidEmailAddress } from '@src/auth/email'
 import { supabase } from './supabase'
 
+export type SocialAuthProvider = 'facebook' | 'google'
+
+export function startOAuthSignIn(provider: SocialAuthProvider) {
+  const redirectTo = new URL(
+    '/auth/callback',
+    window.location.origin,
+  ).toString()
+
+  return supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo,
+    },
+  })
+}
+
 export function requestEmailOtp(email: string) {
   const normalizedEmail = email.trim()
 

@@ -94,9 +94,10 @@ means it is the current direction, not that it can never change.
 
 ## D007 — Use email OTP plus Google and Facebook authentication
 
-- **Status:** Accepted; email implemented, social providers pending
-- **Decision:** Offer a six-digit email code and later Google and Facebook
-  through Supabase OAuth with PKCE.
+- **Status:** Accepted; email and social initiation implemented, social UI and
+  callback handling pending
+- **Decision:** Offer a six-digit email code plus Google and Facebook through
+  Supabase OAuth with PKCE.
 - **Why:** A code avoids password creation and recovery. It also keeps an
   installed-PWA user inside Flock instead of requiring a magic-link handoff.
   Social providers reduce friction for users who prefer them.
