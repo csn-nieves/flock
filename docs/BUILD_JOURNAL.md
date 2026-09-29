@@ -269,12 +269,37 @@ configured browser project.
 Destination preservation remains intentionally separate. This branch always
 uses `/` as the authenticated fallback.
 
+## 2026-09-29 — Preserving authentication destinations safely
+
+### Destination storage and validation
+
+Protected routes and social sign-in need to remember where a runner was headed
+before authentication. React state cannot survive a full OAuth redirect, while
+`localStorage` can leave stale intent across tabs and later sessions. We chose
+per-tab `sessionStorage`, which survives navigation away from and back to Flock
+in the same tab and disappears when that tab closes.
+
+`src/auth/destination.ts` now validates, preserves, and consumes this navigation
+hint. A deeply nested path keeps its query string and hash. The first valid
+destination wins so `/sign-in` and `/auth/callback` cannot overwrite the
+original route during an authentication chain. Consumption removes the value
+before returning it, preventing a later sign-in from replaying stale intent.
+
+The validator accepts only internal paths beginning with one `/`. It rejects
+absolute and protocol-relative URLs, backslashes, surrounding whitespace, and
+the sign-in or callback route families. Invalid, missing, corrupted, or
+unavailable storage falls back to `/`. This prevents open redirects but does
+not grant access; route checks and Supabase authorization remain separate.
+
+This branch intentionally stops at the utility boundary. No route guard,
+sign-in redirect, or OAuth callback uses the stored destination yet.
+
 ## Current next steps
 
 Authentication still needs:
 
-- safe intended-destination storage and restoration;
-- protected-route behavior;
+- destination restoration after successful sign-in;
+- protected-route behavior that preserves the current location;
 - Google and Facebook provider configuration and buttons;
 - `/auth/callback` PKCE exchange and recovery states; and
 - production-like auth lifecycle and memory profiling.

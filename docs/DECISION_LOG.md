@@ -228,3 +228,26 @@ means it is the current direction, not that it can never change.
   number of hooks makes the directory difficult to scan.
 - **Revisit when:** Hook volume or naming collisions make a flat directory
   harder to navigate than domain subdirectories under `src/hooks`.
+
+## D017 — Preserve authentication destinations per browser tab
+
+- **Status:** Accepted
+- **Decision:** Preserve the first valid internal authentication destination in
+  `sessionStorage`, consume it once after authentication, and fall back to `/`.
+- **Why:** React state cannot survive an OAuth page redirect, while a URL
+  parameter exposes the destination through browser history, copied links,
+  logs, and analytics. `localStorage` persists stale navigation intent and
+  shares it across tabs. `sessionStorage` survives a same-tab OAuth round trip
+  but remains isolated to that tab and disappears when it closes.
+- **Security boundary:** Treat the stored value only as a navigation hint.
+  Accept a single-slash same-origin path and preserve its query string and hash.
+  Reject absolute and protocol-relative URLs, backslashes, surrounding
+  whitespace, and authentication routes that could create redirect loops.
+  Authorization remains the responsibility of protected routes and Supabase
+  policies.
+- **Tradeoffs:** Closing the tab discards the destination, and a browser context
+  that blocks storage falls back to `/`. The first valid destination wins until
+  consumed, so intermediate authentication redirects cannot overwrite the
+  runner's original intent.
+- **Revisit when:** Authentication intentionally moves across tabs or devices,
+  or a server-owned state parameter becomes necessary for a supported flow.

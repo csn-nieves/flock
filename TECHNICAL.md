@@ -58,6 +58,7 @@ Google and Facebook use Supabase's OAuth flow with PKCE. Authentication starts i
 - Register Supabase's provider callback URL with Google and Facebook.
 - Add the local, preview, and production Flock callback URLs to Supabase's redirect allow list.
 - Preserve the intended in-app destination before leaving Flock. Accept only same-origin relative paths when restoring it to prevent open redirects.
+- Keep the first valid destination in per-tab `sessionStorage` until authentication consumes it. Preserve its pathname, query string, and hash, but reject `/sign-in`, `/auth/callback`, their nested paths, protocol-relative URLs, absolute URLs, and malformed paths.
 - Default to `/` when there is no valid saved destination.
 - Treat provider cancellation, denied consent, missing callback state, and failed code exchange as recoverable sign-in errors.
 

@@ -170,8 +170,19 @@ session. If the initial session check fails, the page shows safe recovery copy
 and keeps sign-in available rather than exposing the provider error.
 
 Google and Facebook will use Supabase OAuth with PKCE. They will return through
-`/auth/callback`. Destination preservation, callback handling, and protected
-route behavior are not implemented yet.
+`/auth/callback`.
+
+`src/auth/destination.ts` owns intended-destination validation and per-tab
+storage. It preserves the first valid internal path, including its query string
+and hash, through an authentication redirect chain. Only paths beginning with a
+single `/` are eligible; absolute URLs, protocol-relative URLs, backslashes,
+surrounding whitespace, `/sign-in`, and `/auth/callback` paths are rejected.
+The destination is consumed once after authentication and otherwise falls back
+to `/`. `sessionStorage` survives a same-tab OAuth round trip without leaving a
+stale cross-tab destination after the tab closes.
+
+The storage utility is implemented, but sign-in restoration, callback handling,
+and protected-route behavior are not wired yet.
 
 ## Configuration and secrets
 
