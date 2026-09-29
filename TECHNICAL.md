@@ -147,6 +147,7 @@ This keeps initial hosting costs low and leaves Cloudflare Workers available if 
 
 Do not select these until the corresponding feature branch begins:
 
+- Bundle splitting: the production build currently triggers Vite's 500 kB chunk warning after loading Supabase authentication at startup. Revisit route-level code splitting as features are added, measure its effect on mobile startup performance, and do not raise the warning threshold as a substitute for optimization.
 - Map and route provider
 - Email delivery provider
 - Analytics and error monitoring
