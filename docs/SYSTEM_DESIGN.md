@@ -119,14 +119,19 @@ success behavior.
 
 ### Hooks, providers, and data access
 
-Workflow hooks coordinate reusable behavior without rendering UI.
-`useEmailAuthController` owns the email-authentication phase, mutation state,
-safe error copy, duplicate-request protection, and resend cooldown.
+Every custom React hook lives in `src/hooks`. Tests that primarily exercise a
+hook live beside it, while provider integration tests remain with their
+provider. This provides one predictable home for workflow hooks, context
+consumers, and future React Query hooks. Hooks can remain domain-specific even
+though their files share a directory. `useEmailAuthController`, for example,
+owns the email-authentication phase, mutation state, safe error copy,
+duplicate-request protection, and resend cooldown.
 
 Providers own application-wide state with a clear lifecycle.
 `AuthSessionProvider` resolves the persisted session and subscribes to Supabase
 authentication changes. It unsubscribes and ignores late asynchronous results
-after unmounting.
+after unmounting. Provider components remain in their domain directory, such as
+`src/auth`; their hook interfaces live in `src/hooks`.
 
 Data-access modules are the only frontend layer that speaks in Supabase API
 terms. `src/data/auth.ts` requests and verifies email codes, reads sessions,

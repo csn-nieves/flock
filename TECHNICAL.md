@@ -124,6 +124,12 @@ Code in a lower layer must not import from a higher layer. Data-access modules m
 
 Keep server state high without lifting every piece of state. Data shared across a workflow belongs at the closest page or route boundary; temporary interaction state belongs as close as possible to the control that uses it.
 
+### Hooks
+
+Keep every custom React hook in `src/hooks`. Colocate tests that primarily exercise a hook beside it; provider integration tests remain with their provider. This gives the application one predictable place for workflow hooks, context consumers, and future React Query hooks such as `useUser`, `useFlock`, and `useUpdateUser`.
+
+Hooks may call data-access modules, but components and primitives should receive their results through props whenever practical. Pages remain the preferred place to start server-state queries and mutations. Keep provider components and other authentication infrastructure in `src/auth`; only their hook interfaces belong in `src/hooks`.
+
 ## Testing and quality
 
 - TypeScript strict mode

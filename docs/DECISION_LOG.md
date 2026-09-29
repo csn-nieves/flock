@@ -212,3 +212,19 @@ means it is the current direction, not that it can never change.
   be sequenced carefully.
 - **Revisit when:** Team size or release cadence requires a different branching
   model while preserving equivalent review boundaries.
+
+## D016 — Keep custom React hooks in one directory
+
+- **Status:** Accepted
+- **Decision:** Keep all custom React hooks in `src/hooks`, including workflow
+  controllers, context consumers, and future React Query hooks. Colocate tests
+  that primarily exercise a hook.
+- **Why:** A single directory gives contributors one predictable answer to
+  where hooks belong. It also makes the boundary between React orchestration
+  and direct data access easy to see as Flock adds user, flock, membership, and
+  event queries.
+- **Tradeoffs:** Hooks from different product domains share a directory, so
+  names must remain explicit. Domain subdirectories may become useful when the
+  number of hooks makes the directory difficult to scan.
+- **Revisit when:** Hook volume or naming collisions make a flat directory
+  harder to navigate than domain subdirectories under `src/hooks`.

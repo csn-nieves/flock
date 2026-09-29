@@ -2,7 +2,8 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthSessionProvider } from './AuthSessionProvider'
-import { useAuthSession } from './useAuthSession'
+
+import { useAuthSession } from '@src/hooks/useAuthSession'
 
 const authMocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
