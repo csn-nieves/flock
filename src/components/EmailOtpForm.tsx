@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useId, useRef, useState, type FormEvent } from 'react'
 
 import { isValidEmailOtp } from '@src/auth/email'
 import Button from '@src/primitives/Button'
@@ -7,10 +7,14 @@ import TextField from '@src/primitives/TextField'
 export type EmailOtpFormProps = {
   email: string
   onChangeEmail: () => void
+  onResend: () => void
   onSubmit: (code: string) => void
   error?: string
   initialCode?: string
+  isResending?: boolean
   isSubmitting?: boolean
+  resendAvailableInSeconds?: number
+  resendError?: string
 }
 
 function getCodeError(code: string) {
@@ -28,19 +32,29 @@ function getCodeError(code: string) {
 function EmailOtpForm({
   email,
   onChangeEmail,
+  onResend,
   onSubmit,
   error,
   initialCode = '',
+  isResending = false,
   isSubmitting = false,
+  resendAvailableInSeconds = 0,
+  resendError,
 }: EmailOtpFormProps) {
+  const resendStatusId = useId()
   const codeInputRef = useRef<HTMLInputElement>(null)
   const [code, setCode] = useState(initialCode)
   const [codeError, setCodeError] = useState<string>()
+  const resendWaitSeconds = Math.max(0, Math.ceil(resendAvailableInSeconds))
+  const isBusy = isSubmitting || isResending
+  const canResend = !isBusy && resendWaitSeconds === 0
+  const hasResendStatus =
+    isResending || Boolean(resendError) || resendWaitSeconds > 0
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (isSubmitting) {
+    if (isBusy) {
       return
     }
 
@@ -57,7 +71,7 @@ function EmailOtpForm({
 
   return (
     <form
-      aria-busy={isSubmitting}
+      aria-busy={isBusy}
       className="w-full"
       noValidate
       onSubmit={handleSubmit}
@@ -67,7 +81,7 @@ function EmailOtpForm({
         <p className="m-0 break-all font-bold leading-6 text-text">{email}</p>
         <Button
           className="mt-2 w-full"
-          disabled={isSubmitting}
+          disabled={isBusy}
           variant="secondary"
           onClick={onChangeEmail}
         >
@@ -77,7 +91,7 @@ function EmailOtpForm({
 
       <TextField
         autoComplete="one-time-code"
-        disabled={isSubmitting}
+        disabled={isBusy}
         error={codeError}
         hint={
           error ? (
@@ -109,9 +123,37 @@ function EmailOtpForm({
         }}
       />
 
-      <Button className="mt-4 w-full" disabled={isSubmitting} type="submit">
+      <Button className="mt-4 w-full" disabled={isBusy} type="submit">
         Verify code
       </Button>
+
+      <Button
+        aria-describedby={hasResendStatus ? resendStatusId : undefined}
+        className="mt-3 w-full"
+        disabled={!canResend}
+        type="button"
+        variant="secondary"
+        onClick={onResend}
+      >
+        Send another code
+      </Button>
+
+      <div className="min-h-6 pt-2 text-sm leading-4" id={resendStatusId}>
+        {isResending ? (
+          <p className="m-0 text-text-muted" role="status">
+            Sending another code.
+          </p>
+        ) : resendError ? (
+          <p className="m-0 font-medium text-text" role="alert">
+            <span className="text-accent">Error:</span> {resendError}
+          </p>
+        ) : resendWaitSeconds > 0 ? (
+          <p className="m-0 text-text-muted">
+            You can request another code in {resendWaitSeconds}{' '}
+            {resendWaitSeconds === 1 ? 'second' : 'seconds'}.
+          </p>
+        ) : null}
+      </div>
 
       {isSubmitting ? (
         <p className="sr-only" role="status">

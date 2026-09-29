@@ -16,6 +16,7 @@ export function Default() {
       <EmailOtpForm
         email={email}
         onChangeEmail={() => setResult('change-email')}
+        onResend={() => setResult('resend')}
         onSubmit={(code) => setResult(code)}
       />
       <output className="sr-only" data-testid="result">
@@ -33,6 +34,7 @@ export function ServerError() {
         error="That code is invalid or has expired. Check the code and try again."
         initialCode="123456"
         onChangeEmail={() => undefined}
+        onResend={() => undefined}
         onSubmit={() => undefined}
       />
     </Canvas>
@@ -47,6 +49,49 @@ export function Submitting() {
         initialCode="123456"
         isSubmitting
         onChangeEmail={() => undefined}
+        onResend={() => undefined}
+        onSubmit={() => undefined}
+      />
+    </Canvas>
+  )
+}
+
+export function ResendCooldown() {
+  return (
+    <Canvas>
+      <EmailOtpForm
+        email={email}
+        resendAvailableInSeconds={42}
+        onChangeEmail={() => undefined}
+        onResend={() => undefined}
+        onSubmit={() => undefined}
+      />
+    </Canvas>
+  )
+}
+
+export function ResendError() {
+  return (
+    <Canvas>
+      <EmailOtpForm
+        email={email}
+        resendError="We could not send another code. Check your connection and try again."
+        onChangeEmail={() => undefined}
+        onResend={() => undefined}
+        onSubmit={() => undefined}
+      />
+    </Canvas>
+  )
+}
+
+export function Resending() {
+  return (
+    <Canvas>
+      <EmailOtpForm
+        email={email}
+        isResending
+        onChangeEmail={() => undefined}
+        onResend={() => undefined}
         onSubmit={() => undefined}
       />
     </Canvas>

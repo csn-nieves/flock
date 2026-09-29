@@ -24,6 +24,15 @@ test('shows the email and emits the change-email action', async ({ mount }) => {
   await expect(component.getByTestId('result')).toHaveText('change-email')
 })
 
+test('emits resend intent when another code is available', async ({
+  mount,
+}) => {
+  const component = await mount('components/EmailOtpForm/Default')
+
+  await component.getByRole('button', { name: 'Send another code' }).click()
+  await expect(component.getByTestId('result')).toHaveText('resend')
+})
+
 test('fits its actions within a mobile viewport', async ({ mount, page }) => {
   const component = await mount('components/EmailOtpForm/Default')
   const viewport = page.viewportSize()
@@ -92,5 +101,57 @@ test('keeps actions stable and disabled while verifying', async ({ mount }) => {
   await expect(
     component.getByRole('button', { name: 'Verify code' }),
   ).toBeDisabled()
+  await expect(
+    component.getByRole('button', { name: 'Send another code' }),
+  ).toBeDisabled()
   await expect(component.getByRole('status')).toHaveText('Verifying code.')
+})
+
+test('shows and enforces the resend cooldown', async ({ mount }) => {
+  const component = await mount('components/EmailOtpForm/ResendCooldown')
+  const resendButton = component.getByRole('button', {
+    name: 'Send another code',
+  })
+
+  await expect(resendButton).toBeDisabled()
+  await expect(resendButton).toHaveAccessibleDescription(
+    'You can request another code in 42 seconds.',
+  )
+  await expect(
+    component.getByText('You can request another code in 42 seconds.'),
+  ).toBeVisible()
+})
+
+test('keeps resend available after a recoverable error', async ({ mount }) => {
+  const component = await mount('components/EmailOtpForm/ResendError')
+
+  await expect(component.getByRole('alert')).toContainText(
+    'We could not send another code. Check your connection and try again.',
+  )
+  await expect(
+    component.getByRole('button', { name: 'Send another code' }),
+  ).toBeEnabled()
+})
+
+test('blocks competing actions while sending another code', async ({
+  mount,
+}) => {
+  const component = await mount('components/EmailOtpForm/Resending')
+
+  await expect(component.locator('form')).toHaveAttribute('aria-busy', 'true')
+  await expect(
+    component.getByRole('textbox', { name: 'Six-digit code' }),
+  ).toBeDisabled()
+  await expect(
+    component.getByRole('button', { name: 'Change email' }),
+  ).toBeDisabled()
+  await expect(
+    component.getByRole('button', { name: 'Verify code' }),
+  ).toBeDisabled()
+  await expect(
+    component.getByRole('button', { name: 'Send another code' }),
+  ).toBeDisabled()
+  await expect(component.getByRole('status')).toHaveText(
+    'Sending another code.',
+  )
 })

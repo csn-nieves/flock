@@ -12,6 +12,7 @@ describe('EmailOtpForm', () => {
       <EmailOtpForm
         email={email}
         onChangeEmail={handleChangeEmail}
+        onResend={vi.fn()}
         onSubmit={vi.fn()}
       />,
     )
@@ -28,6 +29,7 @@ describe('EmailOtpForm', () => {
         email={email}
         initialCode="123456"
         onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
         onSubmit={handleSubmit}
       />,
     )
@@ -42,6 +44,7 @@ describe('EmailOtpForm', () => {
       <EmailOtpForm
         email={email}
         onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
         onSubmit={handleSubmit}
       />,
     )
@@ -59,7 +62,12 @@ describe('EmailOtpForm', () => {
 
   it('revalidates an incomplete code as it changes', () => {
     render(
-      <EmailOtpForm email={email} onChangeEmail={vi.fn()} onSubmit={vi.fn()} />,
+      <EmailOtpForm
+        email={email}
+        onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
     )
     const input = screen.getByRole('textbox', { name: 'Six-digit code' })
 
@@ -81,6 +89,7 @@ describe('EmailOtpForm', () => {
         error="That code is invalid or has expired. Check the code and try again."
         initialCode="123456"
         onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
         onSubmit={vi.fn()}
       />,
     )
@@ -102,6 +111,7 @@ describe('EmailOtpForm', () => {
         initialCode="123456"
         isSubmitting
         onChangeEmail={handleChangeEmail}
+        onResend={vi.fn()}
         onSubmit={handleSubmit}
       />,
     )
@@ -120,5 +130,86 @@ describe('EmailOtpForm', () => {
     fireEvent.submit(form!)
     expect(handleChangeEmail).not.toHaveBeenCalled()
     expect(handleSubmit).not.toHaveBeenCalled()
+  })
+
+  it('emits resend intent when another code is available', () => {
+    const handleResend = vi.fn()
+    render(
+      <EmailOtpForm
+        email={email}
+        onChangeEmail={vi.fn()}
+        onResend={handleResend}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send another code' }))
+    expect(handleResend).toHaveBeenCalledOnce()
+  })
+
+  it('disables resend and explains the remaining cooldown', () => {
+    render(
+      <EmailOtpForm
+        email={email}
+        resendAvailableInSeconds={42}
+        onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    const resendButton = screen.getByRole('button', {
+      name: 'Send another code',
+    })
+    expect(resendButton).toBeDisabled()
+    expect(resendButton).toHaveAccessibleDescription(
+      'You can request another code in 42 seconds.',
+    )
+    expect(
+      screen.getByText('You can request another code in 42 seconds.'),
+    ).toBeVisible()
+  })
+
+  it('keeps resend available after a recoverable resend error', () => {
+    render(
+      <EmailOtpForm
+        email={email}
+        resendError="We could not send another code. Check your connection and try again."
+        onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Error: We could not send another code. Check your connection and try again.',
+    )
+    expect(
+      screen.getByRole('button', { name: 'Send another code' }),
+    ).toBeEnabled()
+  })
+
+  it('prevents competing actions while another code is being sent', () => {
+    render(
+      <EmailOtpForm
+        email={email}
+        isResending
+        onChangeEmail={vi.fn()}
+        onResend={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.getByRole('textbox', { name: 'Six-digit code' }),
+    ).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Change email' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Verify code' })).toBeDisabled()
+    expect(
+      screen.getByRole('button', { name: 'Send another code' }),
+    ).toBeDisabled()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Sending another code.',
+    )
   })
 })
