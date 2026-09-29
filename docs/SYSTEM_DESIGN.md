@@ -184,6 +184,22 @@ application origin. Supabase then redirects the browser to the provider. The
 callback URL must be allow-listed in each Supabase environment; provider client
 secrets remain in Google, Facebook, and Supabase configuration.
 
+The hosted Google and Facebook integrations are configured and have completed
+live end-to-end sign-in checks. Google Cloud owns Flock's OAuth consent screen,
+non-sensitive `openid`, email, and profile scopes, test-user access, and web
+client credentials. Meta owns the unpublished Flock app, its `public_profile`
+and email permissions, app domains, exact Supabase redirect URI, app roles, and
+credentials. Supabase stores both providers' server-side credentials and is the
+only callback registered with either provider.
+
+Provider credentials are operational secrets, not frontend configuration. They
+must not appear in `VITE_` variables, committed files, screenshots, logs, or
+documentation. Local Flock callback routes belong in Supabase's redirect allow
+list because Supabase returns the completed flow to the originating PWA after
+the provider callback. A production deployment must add its exact application
+URL to that allow list and update provider release configuration before social
+sign-in is opened beyond test users and app roles.
+
 PKCE fits Flock because a PWA is a public client: browser JavaScript cannot
 protect a fixed OAuth client secret. Supabase creates a fresh verifier in the
 initiating browser and sends a derived challenge with the authorization

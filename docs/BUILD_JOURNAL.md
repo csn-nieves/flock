@@ -438,15 +438,45 @@ sign-in. Unit tests verify exchange ownership, Strict Mode deduplication, safe
 errors, and navigation. Browser tests exercise loading, success, failure, and
 cancellation across desktop, Android, and iPhone.
 
+## 2026-09-29 — Connecting live social providers
+
+### Google and Facebook provider configuration
+
+Google and Facebook were configured against the hosted Supabase project and
+verified through complete browser sign-in flows. Each provider redirects only
+to Supabase's project-specific OAuth callback. Supabase then returns the browser
+to Flock's allow-listed `/auth/callback` route, where the existing PKCE exchange
+creates the application session. Successful Google and Facebook sign-ins both
+returned to Flock and created the expected Supabase Auth users.
+
+Provider credentials live only in Google Cloud, Meta for Developers, and
+Supabase. They were transferred directly between provider dashboards and were
+not added to source control, local frontend environment variables, or project
+documentation. Flock's local Supabase URL configuration permits the exact
+`localhost` and `127.0.0.1` callback routes used during development.
+
+Google remains in testing mode with an explicit test-user list. The Meta app is
+unpublished, so Facebook sign-in is limited to app roles. These restrictions
+let the real integrations be exercised without presenting an unfinished app to
+general users. Production release remains a separate decision that requires a
+deployed domain and the providers' release requirements.
+
+Meta's multi-value App Domains and Valid OAuth Redirect URIs controls were the
+main setup difficulty. Typing a value and saving left text visible but did not
+persist it. The value first had to be committed as a tag with Enter, then saved.
+Meta's built-in redirect validator and a live OAuth attempt exposed the missing
+persisted callback. After committing both the Supabase domain and exact callback
+entry, the same live test completed successfully.
+
 ## Current next steps
 
 Authentication still needs:
 
-- Google and Facebook provider configuration;
 - production-like auth lifecycle and memory profiling.
 
-The first product-data work should introduce React Query conventions, then move
-into the flock creation, invitation, joining, and member-list slice.
+The next branch should introduce React Query conventions without adding a
+product query yet. Later branches can apply those conventions to the flock
+creation, invitation, joining, and member-list slice.
 
 ## Journal entry template
 
