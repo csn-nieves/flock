@@ -56,6 +56,13 @@ components:
     height: '{spacing.touch-target}'
   button-secondary-hover:
     backgroundColor: '{colors.surface-subtle}'
+  text-field:
+    backgroundColor: '{colors.background}'
+    textColor: '{colors.text}'
+    rounded: '{rounded.md}'
+    height: '{spacing.touch-target}'
+  text-field-error:
+    textColor: '{colors.text}'
   supporting-surface:
     backgroundColor: '{colors.surface-subtle}'
     textColor: '{colors.text-muted}'
@@ -131,7 +138,7 @@ Navigation will be introduced only when there are real destinations. Mobile cont
 
 ### Forms and overlays
 
-Forms use native semantics, visible labels, inline recovery guidance, and app-owned validation. Dialogs and feedback surfaces must respect safe areas and the virtual keyboard. Browser `alert`, `confirm`, and `prompt` are not product UI.
+`src/primitives/TextField.tsx` is the canonical owner for standard text-like inputs. It uses native input semantics, a visible label, a reserved description area, and linked hint or error text. Errors use explicit language and `aria-invalid`; coral reinforces the state but never carries it alone. Forms use app-owned validation and preserve useful native metadata such as input type, autocomplete, and input mode. Dialogs and feedback surfaces must respect safe areas and the virtual keyboard. Browser `alert`, `confirm`, and `prompt` are not product UI.
 
 ### Iconography
 
