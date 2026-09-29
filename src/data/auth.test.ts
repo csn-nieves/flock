@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  exchangeOAuthCodeForSession,
   getCurrentSession,
   requestEmailOtp,
   signOut,
@@ -12,6 +13,7 @@ const authMocks = vi.hoisted(() => {
   const unsubscribe = vi.fn()
 
   return {
+    exchangeCodeForSession: vi.fn(),
     getSession: vi.fn(),
     onAuthStateChange: vi.fn(() => ({
       data: {
@@ -55,6 +57,19 @@ describe('social OAuth authentication', () => {
       })
     },
   )
+
+  it('exchanges the callback authorization code for a session', async () => {
+    authMocks.exchangeCodeForSession.mockResolvedValue({
+      data: { session: null, user: null },
+      error: null,
+    })
+
+    await exchangeOAuthCodeForSession('callback-authorization-code')
+
+    expect(authMocks.exchangeCodeForSession).toHaveBeenCalledWith(
+      'callback-authorization-code',
+    )
+  })
 })
 
 describe('email OTP authentication', () => {

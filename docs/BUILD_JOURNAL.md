@@ -415,12 +415,34 @@ navigates to the correct provider authorization URL with Flock's callback
 across desktop, Android, and iPhone. Callback code exchange and provider-console
 setup remain separate.
 
+## 2026-09-29 — Completing the OAuth callback
+
+### PKCE code exchange and destination restoration
+
+The new `/auth/callback` page completes Google and Facebook sign-in by passing
+the returned authorization code through a dedicated controller hook to the
+Supabase data boundary. It removes callback parameters from browser history,
+exchanges the code once, and replaces the callback route with the saved internal
+destination after a session is created.
+
+PKCE authorization codes are short-lived and single-use. React Strict Mode can
+replay effects during development, so the controller retains one shared request
+instead of starting an exchange per effect setup. This keeps development
+behavior aligned with production and prevents a valid code from being consumed
+twice.
+
+Provider cancellation, a missing code, a connection interruption, and a
+rejected exchange are recoverable states. The page removes raw provider details,
+keeps the intended destination for a later attempt, and offers a clear return to
+sign-in. Unit tests verify exchange ownership, Strict Mode deduplication, safe
+errors, and navigation. Browser tests exercise loading, success, failure, and
+cancellation across desktop, Android, and iPhone.
+
 ## Current next steps
 
 Authentication still needs:
 
 - Google and Facebook provider configuration;
-- `/auth/callback` PKCE exchange and recovery states; and
 - production-like auth lifecycle and memory profiling.
 
 The first product-data work should introduce React Query conventions, then move
