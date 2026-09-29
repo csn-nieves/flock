@@ -67,7 +67,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4199 --strictPort',
+    command:
+      'npm run dev -- --mode test --host 127.0.0.1 --port 4199 --strictPort',
     reuseExistingServer: !process.env.CI,
     url: galleryUrl,
   },
