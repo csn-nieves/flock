@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
+import importX from 'eslint-plugin-import-x'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
@@ -20,6 +21,12 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 'latest',
       globals: globals.browser,
+    },
+    plugins: {
+      'import-x': importX,
+    },
+    rules: {
+      'import-x/first': 'error',
     },
   },
 ])
