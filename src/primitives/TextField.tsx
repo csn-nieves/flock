@@ -25,7 +25,25 @@ function TextField({
   const inputId = id ?? generatedId
   const hintId = `${inputId}-hint`
   const errorId = `${inputId}-error`
-  const descriptionId = error ? errorId : hint ? hintId : undefined
+  let descriptionId
+  let supportingText: ReactNode = null
+
+  if (error) {
+    descriptionId = errorId
+    supportingText = (
+      <p className="m-0 font-medium text-text" id={errorId} role="alert">
+        <span className="text-accent">Error:</span> {error}
+      </p>
+    )
+  } else if (hint) {
+    descriptionId = hintId
+    supportingText = (
+      <p className="m-0 text-text-muted" id={hintId}>
+        {hint}
+      </p>
+    )
+  }
+
   const describedBy = [ariaDescribedBy, descriptionId].filter(Boolean).join(' ')
   const classes = [inputClasses, className].filter(Boolean).join(' ')
 
@@ -45,17 +63,7 @@ function TextField({
         id={inputId}
         {...props}
       />
-      <div className="min-h-6 pt-2 text-sm leading-4">
-        {error ? (
-          <p className="m-0 font-medium text-text" id={errorId} role="alert">
-            <span className="text-accent">Error:</span> {error}
-          </p>
-        ) : hint ? (
-          <p className="m-0 text-text-muted" id={hintId}>
-            {hint}
-          </p>
-        ) : null}
-      </div>
+      <div className="min-h-6 pt-2 text-sm leading-4">{supportingText}</div>
     </div>
   )
 }
