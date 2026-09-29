@@ -289,3 +289,26 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Flock has a deployed production domain, privacy policy,
   user-data deletion process, production branding, and a release candidate that
   is ready for provider verification or publication.
+
+## D019 — Model flock ownership separately from membership access
+
+- **Status:** Accepted
+- **Decision:** Store one canonical `owner_id` on each flock, mirror that user
+  as the flock's single `owner` membership in the same database transaction,
+  and represent everyone else with the `member` role.
+- **Why:** A direct owner reference makes owner-only writes inexpensive and
+  unambiguous while the membership row keeps roster queries uniform. Cascading
+  from the owner's authentication record prevents ownerless flocks. A partial
+  unique index and an insert trigger enforce the initial invariant in Postgres
+  instead of relying on frontend sequencing.
+- **Authorization:** RLS permits authenticated users to create only flocks they
+  own, permits members to read only their flocks and rosters, and permits only
+  the canonical owner to update or delete a flock. The application has no
+  direct membership-write grant yet.
+- **Tradeoffs:** Ownership appears in two related rows. A future transfer must
+  update both inside a reviewed database function or transaction; changing
+  `owner_id` directly remains forbidden. Deleting the owner currently deletes
+  the flock rather than transferring or archiving it.
+- **Revisit when:** Flock needs ownership transfer, multiple administrators,
+  invitation acceptance, voluntary departure, or an owner account-deletion
+  retention policy.
