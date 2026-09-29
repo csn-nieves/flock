@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 const otpRoute = '**/auth/v1/otp**'
 const verifyRoute = '**/auth/v1/verify**'
+const authDestinationStorageKey = 'flock.auth.destination'
 
 function createTestSession() {
   const expiresInSeconds = 60 * 60
@@ -29,13 +30,33 @@ async function mockSuccessfulOtpRequest(page: Page) {
   })
 }
 
-async function seedAuthenticatedSession(page: Page) {
-  await page.addInitScript((session) => {
-    window.localStorage.setItem(
-      'sb-example-auth-token',
-      JSON.stringify(session),
-    )
-  }, createTestSession())
+async function seedAuthDestination(page: Page, destination: string) {
+  await page.addInitScript(
+    ({ destination, storageKey }) => {
+      window.sessionStorage.setItem(storageKey, destination)
+    },
+    { destination, storageKey: authDestinationStorageKey },
+  )
+}
+
+async function seedAuthenticatedSession(page: Page, destination?: string) {
+  await page.addInitScript(
+    ({ destination, session, storageKey }) => {
+      window.localStorage.setItem(
+        'sb-example-auth-token',
+        JSON.stringify(session),
+      )
+
+      if (destination) {
+        window.sessionStorage.setItem(storageKey, destination)
+      }
+    },
+    {
+      destination,
+      session: createTestSession(),
+      storageKey: authDestinationStorageKey,
+    },
+  )
 }
 
 async function mockSuccessfulOtpVerification(page: Page) {
@@ -50,13 +71,18 @@ async function mockSuccessfulOtpVerification(page: Page) {
 test('redirects an authenticated runner away from sign-in', async ({
   page,
 }) => {
-  await seedAuthenticatedSession(page)
+  await seedAuthenticatedSession(page, '/?from=invite#members')
   await page.goto('/sign-in')
 
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL('/?from=invite#members')
   await expect(
     page.getByRole('heading', { level: 1, name: 'Sign in to Flock' }),
   ).toHaveCount(0)
+  expect(
+    await page.evaluate((storageKey) => {
+      return window.sessionStorage.getItem(storageKey)
+    }, authDestinationStorageKey),
+  ).toBeNull()
 })
 
 test('moves from email entry to code verification', async ({ page }) => {
@@ -89,6 +115,7 @@ test('leaves sign-in after email verification creates a session', async ({
 }) => {
   await mockSuccessfulOtpRequest(page)
   await mockSuccessfulOtpVerification(page)
+  await seedAuthDestination(page, '/?from=email#members')
   await page.goto('/sign-in')
 
   await page
@@ -98,7 +125,12 @@ test('leaves sign-in after email verification creates a session', async ({
   await page.getByRole('textbox', { name: 'Six-digit code' }).fill('123456')
   await page.getByRole('button', { name: 'Verify code' }).click()
 
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL('/?from=email#members')
+  expect(
+    await page.evaluate((storageKey) => {
+      return window.sessionStorage.getItem(storageKey)
+    }, authDestinationStorageKey),
+  ).toBeNull()
 })
 
 test('returns to email entry without losing the address', async ({ page }) => {
