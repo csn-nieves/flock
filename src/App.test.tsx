@@ -4,6 +4,14 @@ import { RouterProvider } from 'react-router/dom'
 import { describe, expect, it, vi } from 'vitest'
 import { routes } from './router'
 
+vi.mock('@src/hooks/useAuthSession', () => ({
+  useAuthSession: () => ({
+    error: null,
+    isLoading: false,
+    session: { user: { id: 'runner-id' } },
+  }),
+}))
+
 vi.mock('virtual:pwa-register/react', () => ({
   useRegisterSW: () => ({
     needRefresh: [false, vi.fn()],

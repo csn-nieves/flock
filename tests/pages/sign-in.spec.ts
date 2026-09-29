@@ -30,15 +30,6 @@ async function mockSuccessfulOtpRequest(page: Page) {
   })
 }
 
-async function seedAuthDestination(page: Page, destination: string) {
-  await page.addInitScript(
-    ({ destination, storageKey }) => {
-      window.sessionStorage.setItem(storageKey, destination)
-    },
-    { destination, storageKey: authDestinationStorageKey },
-  )
-}
-
 async function seedAuthenticatedSession(page: Page, destination?: string) {
   await page.addInitScript(
     ({ destination, session, storageKey }) => {
@@ -115,8 +106,14 @@ test('leaves sign-in after email verification creates a session', async ({
 }) => {
   await mockSuccessfulOtpRequest(page)
   await mockSuccessfulOtpVerification(page)
-  await seedAuthDestination(page, '/?from=email#members')
-  await page.goto('/sign-in')
+  await page.goto('/?from=email#members')
+
+  await expect(page).toHaveURL('/sign-in')
+  expect(
+    await page.evaluate((storageKey) => {
+      return window.sessionStorage.getItem(storageKey)
+    }, authDestinationStorageKey),
+  ).toBe('/?from=email#members')
 
   await page
     .getByRole('textbox', { name: 'Email address' })
