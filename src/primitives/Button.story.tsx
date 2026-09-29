@@ -33,7 +33,7 @@ export function Interactive() {
       <Button onClick={() => setClickCount((count) => count + 1)}>
         Create flock
       </Button>
-      <form hidden>
+      <form hidden noValidate>
         <input data-testid="click-count" readOnly value={String(clickCount)} />
       </form>
     </Canvas>
