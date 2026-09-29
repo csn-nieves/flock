@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const otpRoute = '**/auth/v1/otp**'
+const oauthRoute = '**/auth/v1/authorize**'
 const verifyRoute = '**/auth/v1/verify**'
 const authDestinationStorageKey = 'flock.auth.destination'
 
@@ -100,6 +101,42 @@ test('moves from email entry to code verification', async ({ page }) => {
     page.getByText('You can request another code in 60 seconds.'),
   ).toBeVisible()
 })
+
+for (const provider of ['Google', 'Facebook'] as const) {
+  test(`starts ${provider} sign-in with the Flock callback`, async ({
+    page,
+  }) => {
+    let requestUrl = ''
+    await page.route(oauthRoute, async (route) => {
+      requestUrl = route.request().url()
+      await route.fulfill({
+        body: `<h1>Mock ${provider} authorization</h1>`,
+        contentType: 'text/html',
+        status: 200,
+      })
+    })
+    await page.goto('/sign-in')
+
+    await page
+      .getByRole('button', { name: `Continue with ${provider}` })
+      .click()
+
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: `Mock ${provider} authorization`,
+      }),
+    ).toBeVisible()
+
+    const authorizationUrl = new URL(requestUrl)
+    expect(authorizationUrl.searchParams.get('provider')).toBe(
+      provider.toLowerCase(),
+    )
+    expect(authorizationUrl.searchParams.get('redirect_to')).toBe(
+      'http://127.0.0.1:4199/auth/callback',
+    )
+  })
+}
 
 test('leaves sign-in after email verification creates a session', async ({
   page,
@@ -207,6 +244,9 @@ test('keeps the sign-in workflow inside the viewport', async ({ page }) => {
   await page.goto('/sign-in')
   const application = page.getByRole('main', { name: 'Flock application' })
   const submitButton = page.getByRole('button', { name: 'Send code' })
+  const googleButton = page.getByRole('button', {
+    name: 'Continue with Google',
+  })
   const applicationBox = await application.boundingBox()
   const buttonBox = await submitButton.boundingBox()
   const viewport = page.viewportSize()
@@ -214,6 +254,7 @@ test('keeps the sign-in workflow inside the viewport', async ({ page }) => {
   expect(applicationBox).not.toBeNull()
   expect(buttonBox).not.toBeNull()
   expect(viewport).not.toBeNull()
+  await expect(googleButton).toBeVisible()
   expect(buttonBox?.height).toBeGreaterThanOrEqual(44)
   expect(applicationBox?.x).toBeGreaterThanOrEqual(0)
   expect(

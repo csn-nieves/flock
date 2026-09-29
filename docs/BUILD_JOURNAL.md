@@ -394,11 +394,31 @@ tests cover the same behavior and mobile touch geometry across desktop,
 Android, and iPhone projects. Wiring these callbacks to the OAuth data boundary
 remains a separate branch.
 
+## 2026-09-29 — Integrating social sign-in
+
+### Sign-in page and OAuth-start controller
+
+The sign-in page now offers Google and Facebook before the six-digit email
+option. A small `useSocialAuthController` hook connects those presentation-only
+buttons to the OAuth data boundary, records which provider is opening, blocks a
+second provider request, and translates failures into safe recovery copy.
+
+Email and social authentication lock each other only while a request is active.
+This prevents overlapping authentication attempts without removing email as a
+fallback after Google or Facebook fails. A successful OAuth start deliberately
+remains pending because the browser is leaving Flock; clearing it early could
+briefly re-enable competing controls before navigation completes.
+
+Unit tests cover provider-specific pending state, duplicate-request locking,
+safe errors, and page wiring. Page-level browser tests verify that each button
+navigates to the correct provider authorization URL with Flock's callback
+across desktop, Android, and iPhone. Callback code exchange and provider-console
+setup remain separate.
+
 ## Current next steps
 
 Authentication still needs:
 
-- Google and Facebook sign-in page integration;
 - Google and Facebook provider configuration;
 - `/auth/callback` PKCE exchange and recovery states; and
 - production-like auth lifecycle and memory profiling.

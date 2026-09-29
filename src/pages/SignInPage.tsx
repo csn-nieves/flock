@@ -5,14 +5,16 @@ import { consumeAuthDestination } from '@src/auth/destination'
 import AuthPageLayout from '@src/components/AuthPageLayout'
 import EmailOtpForm from '@src/components/EmailOtpForm'
 import EmailSignInForm from '@src/components/EmailSignInForm'
+import SocialSignInButtons from '@src/components/SocialSignInButtons'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useEmailAuthController } from '@src/hooks/useEmailAuthController'
+import { useSocialAuthController } from '@src/hooks/useSocialAuthController'
 
-type EmailSignInWorkflowProps = {
+type SignInWorkflowProps = {
   hasSessionError: boolean
 }
 
-function EmailSignInWorkflow({ hasSessionError }: EmailSignInWorkflowProps) {
+function SignInWorkflow({ hasSessionError }: SignInWorkflowProps) {
   const {
     changeEmail,
     email,
@@ -28,16 +30,48 @@ function EmailSignInWorkflow({ hasSessionError }: EmailSignInWorkflowProps) {
     verificationError,
     verifyCode,
   } = useEmailAuthController()
+  const {
+    error: socialError,
+    pendingProvider,
+    signIn: signInWithSocialProvider,
+  } = useSocialAuthController()
 
   let heading = 'Sign in to Flock'
-  let description = 'We will email you a code. No password to remember.'
+  let description = 'Choose Google, Facebook, or a six-digit email code.'
   let form = (
-    <EmailSignInForm
-      error={requestError}
-      initialEmail={email}
-      isSubmitting={isRequesting}
-      onSubmit={(nextEmail) => void requestCode(nextEmail)}
-    />
+    <>
+      <SocialSignInButtons
+        disabled={isRequesting}
+        pendingProvider={pendingProvider}
+        onFacebookSignIn={() => void signInWithSocialProvider('facebook')}
+        onGoogleSignIn={() => void signInWithSocialProvider('google')}
+      />
+
+      <div className="min-h-10 pt-2">
+        {socialError ? (
+          <p
+            className="m-0 text-sm leading-5 font-medium text-text"
+            role="alert"
+          >
+            <span className="text-accent">Error:</span> {socialError}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mb-5 flex items-center gap-3">
+        <span aria-hidden="true" className="h-px flex-1 bg-border" />
+        <span className="text-sm text-text-muted">or use email</span>
+        <span aria-hidden="true" className="h-px flex-1 bg-border" />
+      </div>
+
+      <EmailSignInForm
+        disabled={pendingProvider !== undefined}
+        error={requestError}
+        initialEmail={email}
+        isSubmitting={isRequesting}
+        onSubmit={(nextEmail) => void requestCode(nextEmail)}
+      />
+    </>
   )
 
   if (step === 'verification') {
@@ -124,7 +158,7 @@ function SignInPage() {
     )
   }
 
-  return <EmailSignInWorkflow hasSessionError={Boolean(error)} />
+  return <SignInWorkflow hasSessionError={Boolean(error)} />
 }
 
 export default SignInPage

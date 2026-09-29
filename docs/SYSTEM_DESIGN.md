@@ -200,9 +200,11 @@ justifies the additional callback state.
 
 The shared social sign-in component remains presentation-only. It names and
 visually identifies both approved providers, preserves stable labels while a
-redirect begins, and locks both choices once one provider is pending. A later
-page-integration branch will translate those callbacks into data-layer calls
-and own recoverable provider errors.
+redirect begins, and locks both choices once one provider is pending.
+`useSocialAuthController` translates those callbacks into data-layer calls,
+prevents overlapping provider requests, and maps raw failures to provider-aware
+recovery copy. The sign-in page disables email entry while a provider redirect
+is starting and restores every method after a recoverable failure.
 
 `src/auth/destination.ts` owns intended-destination validation and per-tab
 storage. It preserves the first valid internal path, including its query string

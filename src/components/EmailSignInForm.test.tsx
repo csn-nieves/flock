@@ -87,4 +87,20 @@ describe('EmailSignInForm', () => {
     fireEvent.submit(form!)
     expect(handleSubmit).not.toHaveBeenCalled()
   })
+
+  it('can be disabled by a competing sign-in method', () => {
+    const handleSubmit = vi.fn()
+    render(<EmailSignInForm disabled onSubmit={handleSubmit} />)
+
+    const button = screen.getByRole('button', { name: 'Send code' })
+    const form = button.closest('form')
+    expect(
+      screen.getByRole('textbox', { name: 'Email address' }),
+    ).toBeDisabled()
+    expect(button).toBeDisabled()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+
+    fireEvent.submit(form!)
+    expect(handleSubmit).not.toHaveBeenCalled()
+  })
 })
