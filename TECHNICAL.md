@@ -41,7 +41,36 @@ Use **Supabase Auth** for:
 - Facebook sign-in
 - Email sign-in
 
-The exact email experience—password, magic link, or one-time code—will be selected in the authentication branch before implementation. OAuth provider setup and redirect URLs must support both local development and the production domain.
+### Email flow
+
+Email sign-in uses a six-digit one-time password rather than a password or magic link. Keeping verification inside Flock avoids moving an installed-PWA user into a different browser context and removes password creation and recovery from the first slice.
+
+- Request the code with `signInWithOtp`. New users may be created through this flow.
+- Verify the submitted code with `verifyOtp` using the `email` type.
+- Keep the submitted email visible while the code is pending and allow the person to change it.
+- Offer resend only after the configured Supabase cooldown and explain rate-limit, expiration, network, and invalid-code failures without exposing raw provider errors.
+- Configure the Supabase email template with `{{ .Token }}` so it sends a code instead of a magic link.
+
+### Social flow
+
+Google and Facebook use Supabase's OAuth flow with PKCE. Authentication starts in the current window and returns to `/auth/callback`, where Flock exchanges the authorization code for a session.
+
+- Register Supabase's provider callback URL with Google and Facebook.
+- Add the local, preview, and production Flock callback URLs to Supabase's redirect allow list.
+- Preserve the intended in-app destination before leaving Flock. Accept only same-origin relative paths when restoring it to prevent open redirects.
+- Default to `/` when there is no valid saved destination.
+- Treat provider cancellation, denied consent, missing callback state, and failed code exchange as recoverable sign-in errors.
+
+### Routes and session behavior
+
+- `/sign-in` owns Google, Facebook, and email entry. Email verification is a second state of the same route rather than a separate page.
+- `/auth/callback` owns the OAuth code exchange and then replaces itself in browser history with the saved destination.
+- A protected route saves its complete internal path, including an invitation token, before sending a signed-out person to `/sign-in`.
+- Resolve the initial session before rendering a protected page so private content does not flash while authentication loads.
+- Persist the Supabase browser session and allow the client to refresh it. A session ends when the person signs out or Supabase invalidates it.
+- A signed-in person who opens `/sign-in` continues to the valid saved destination or `/`.
+
+OAuth configuration must support local development, pull-request previews, and the production domain. Provider secrets remain in provider and Supabase configuration and must never enter the Vite client bundle.
 
 ## Interface and styling
 
@@ -129,5 +158,9 @@ Do not select these until the corresponding feature branch begins:
 - [Vite documentation](https://vite.dev/guide/)
 - [Vite PWA documentation](https://vite-pwa-org.netlify.app/guide/)
 - [Supabase Auth documentation](https://supabase.com/docs/guides/auth)
+- [Supabase passwordless email documentation](https://supabase.com/docs/guides/auth/auth-email-passwordless)
+- [Supabase PKCE documentation](https://supabase.com/docs/guides/auth/sessions/pkce-flow)
+- [Supabase redirect URL documentation](https://supabase.com/docs/guides/auth/redirect-urls)
+- [Supabase session documentation](https://supabase.com/docs/guides/auth/sessions)
 - [Supabase Realtime documentation](https://supabase.com/docs/guides/realtime)
 - [Cloudflare Pages React documentation](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/)
