@@ -50,9 +50,8 @@ type AuthSessionChangeListener = (
 ) => void
 
 export function subscribeToAuthChanges(listener: AuthSessionChangeListener) {
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange(listener)
+  const authStateChange = supabase.auth.onAuthStateChange(listener)
+  const subscription = authStateChange.data.subscription
 
   return () => subscription.unsubscribe()
 }
