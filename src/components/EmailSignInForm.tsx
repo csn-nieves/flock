@@ -6,6 +6,7 @@ import TextField from '@src/primitives/TextField'
 
 export type EmailSignInFormProps = {
   onSubmit: (email: string) => void
+  disabled?: boolean
   error?: string
   initialEmail?: string
   isSubmitting?: boolean
@@ -25,6 +26,7 @@ function getEmailError(email: string) {
 
 function EmailSignInForm({
   onSubmit,
+  disabled = false,
   error,
   initialEmail = '',
   isSubmitting = false,
@@ -36,7 +38,7 @@ function EmailSignInForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (isSubmitting) {
+    if (disabled || isSubmitting) {
       return
     }
 
@@ -60,7 +62,7 @@ function EmailSignInForm({
     >
       <TextField
         autoComplete="email"
-        disabled={isSubmitting}
+        disabled={disabled || isSubmitting}
         error={emailError}
         hint={
           error ? (
@@ -89,7 +91,11 @@ function EmailSignInForm({
         }}
       />
 
-      <Button className="mt-2 w-full" disabled={isSubmitting} type="submit">
+      <Button
+        className="mt-2 w-full"
+        disabled={disabled || isSubmitting}
+        type="submit"
+      >
         Send code
       </Button>
 

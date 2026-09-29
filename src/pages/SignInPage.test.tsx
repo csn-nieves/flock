@@ -27,6 +27,16 @@ vi.mock('@src/hooks/useEmailAuthController', () => ({
   useEmailAuthController: () => controller,
 }))
 
+const socialController = vi.hoisted(() => ({
+  error: undefined as string | undefined,
+  pendingProvider: undefined as 'facebook' | 'google' | undefined,
+  signIn: vi.fn(),
+}))
+
+vi.mock('@src/hooks/useSocialAuthController', () => ({
+  useSocialAuthController: () => socialController,
+}))
+
 const authSession = vi.hoisted(() => ({
   error: null as Error | null,
   isLoading: false,
@@ -84,6 +94,8 @@ describe('SignInPage', () => {
     controller.resendError = undefined
     controller.step = 'email'
     controller.verificationError = undefined
+    socialController.error = undefined
+    socialController.pendingProvider = undefined
     destination.consumeAuthDestination.mockReturnValue('/')
   })
 
@@ -154,6 +166,47 @@ describe('SignInPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Send code' }))
 
     expect(controller.requestCode).toHaveBeenCalledWith('runner@example.com')
+  })
+
+  it('renders social options and forwards provider intent', () => {
+    renderSignInRoute()
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Continue with Facebook' }),
+    )
+
+    expect(socialController.signIn).toHaveBeenNthCalledWith(1, 'google')
+    expect(socialController.signIn).toHaveBeenNthCalledWith(2, 'facebook')
+  })
+
+  it('locks every sign-in method while a social redirect is pending', () => {
+    socialController.pendingProvider = 'google'
+    renderSignInRoute()
+
+    expect(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    ).toHaveAttribute('aria-busy', 'true')
+    expect(
+      screen.getByRole('button', { name: 'Continue with Facebook' }),
+    ).toBeDisabled()
+    expect(
+      screen.getByRole('textbox', { name: 'Email address' }),
+    ).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Send code' })).toBeDisabled()
+  })
+
+  it('shows safe social sign-in recovery without hiding email', () => {
+    socialController.error =
+      'Google sign-in could not start. Try again or use email.'
+    renderSignInRoute()
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Error: Google sign-in could not start. Try again or use email.',
+    )
+    expect(screen.getByRole('textbox', { name: 'Email address' })).toBeEnabled()
   })
 
   it('renders verification and connects each available action', () => {
