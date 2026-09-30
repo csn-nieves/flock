@@ -785,6 +785,29 @@ that exercise navigation and hooks moved beside the routes, while component
 stories continue to render pure pages directly. The user-visible behavior and
 current membership milestone remain unchanged.
 
+## 2026-09-30 — Connecting flock creation to server state
+
+### Staged create route and pure page
+
+`CreateFlockRoute` now connects the existing `CreateFlockForm` to
+`useCreateFlock` and translates React Query mutation state into a small typed
+page contract. `CreateFlockPage` owns only the screen layout and forwards valid,
+normalized names upward; it remains unaware of React Query, Supabase, and
+routing.
+
+The route maps transport failures to safe recovery copy instead of exposing raw
+database details. The shared form preserves the entered name, keeps app-owned
+validation and first-error focus, and uses the canonical pending button to
+prevent duplicate creation while the request is active. Component-browser
+coverage exercises default, failure, and pending states at desktop, Android,
+and iPhone sizes.
+
+The route remains outside `src/router.tsx`. A successful creation will navigate
+to its flock-detail destination, and that destination does not exist yet.
+Deferring registration prevents an incomplete success path from becoming a
+reachable product workflow; establishing the detail route remains the next
+small branch.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

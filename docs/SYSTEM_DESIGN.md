@@ -169,6 +169,13 @@ for creation and flock selection. `FlocksPage` renders those props and remains
 testable without a router or database. The route is intentionally not exposed
 by the router until its create and detail destinations exist.
 
+`CreateFlockRoute` calls `useCreateFlock`, maps pending and failure state into
+safe page props, and forwards normalized creation intent from the pure
+`CreateFlockPage`. The page composes the shared `CreateFlockForm`, so validation,
+input preservation, and duplicate-submit protection keep their established
+owners. This route is staged outside the live router until the flock-detail
+route provides an honest post-create destination.
+
 Pages stay in one file while their presentation remains easy to scan. When a
 page grows, it moves into a domain-named directory with page-scoped feature
 components. Route orchestration stays separately visible in `src/routes`.

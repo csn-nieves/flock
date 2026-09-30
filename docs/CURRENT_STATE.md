@@ -37,13 +37,18 @@ outside this slice.
 - A mobile-first `FlocksRoute`, pure successful `FlocksPage`, and pure
   route-state views covering loading, error, retrying, empty, populated, and
   background refresh.
+- A staged `CreateFlockRoute` and pure `CreateFlockPage` connect
+  `CreateFlockForm` to `useCreateFlock`, preserve entered data after a safe
+  mutation error, and prevent duplicate creation while pending.
 
 ## Current application boundary
 
 The live router currently exposes sign-in, the OAuth callback, and the protected
 home shell through explicit route-controller modules. `FlocksRoute` is
 intentionally not registered yet because its create and detail actions do not
-have complete destinations.
+have complete destinations. `CreateFlockRoute` is also intentionally not
+registered because a successful creation does not yet have a valid detail
+destination.
 
 The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
@@ -51,14 +56,10 @@ production branding, and a release candidate suitable for provider review.
 
 ## Next smallest branches
 
-1. Build a query-connected create-flock route and pure page from
-   `CreateFlockForm` and `useCreateFlock`, including safe mutation failure and
-   pending behavior. Keep it out of the live router until its success
-   destination is valid.
-2. Establish the first flock-detail destination.
-3. Wire the flock list, create, and detail destinations into one honest routed
+1. Establish the first flock-detail destination.
+2. Wire the flock list, create, and detail destinations into one honest routed
    workflow.
-4. Continue the membership slice with invitation creation, invitation
+3. Continue the membership slice with invitation creation, invitation
    acceptance, joining, and the member list in separate small branches.
 
 ## Known follow-ups
