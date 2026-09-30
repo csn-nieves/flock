@@ -174,6 +174,12 @@ React Query's default focus refetch remains active so stale data can refresh
 when a runner returns to a backgrounded PWA. Tests use a fresh isolated client,
 disable retries, and retain cache entries for the life of the test mount.
 
+`useFlocks` is the first product-data query hook. It binds `listFlocks` to the
+shared flock list key and relies on the application query client for freshness,
+retry, and request deduplication. The hook exposes query state rather than
+converting it into page copy, allowing the route-level page to own loading,
+empty, failure, and success presentation.
+
 ## Flock and membership data
 
 Postgres migrations are the source of truth for product data. The first model

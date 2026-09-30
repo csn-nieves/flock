@@ -584,6 +584,25 @@ Focused unit tests cover the selected table and columns, ordering, an empty
 authorized result, and error propagation. React Query integration and rendering
 remain separate branches.
 
+## 2026-09-30 — Caching the visible flock list
+
+### React Query flock hook
+
+`useFlocks` now connects the typed flock-summary data function to the shared
+React Query cache. It uses the established flock list key, returns React
+Query's standard pending, success, and error state, and contains no duplicate
+request or presentation state of its own.
+
+Multiple consumers using the hook at the same time share one in-flight request.
+The application query client's existing freshness and retry policy applies
+without being redefined inside the domain hook, keeping cache behavior
+consistent across future flock screens. The hook leaves raw query failures for
+the page boundary to translate into safe user-facing recovery copy.
+
+Hook tests cover populated and empty successful results, failures, and
+deduplication across simultaneous consumers. Page rendering and its loading,
+empty, and recovery states remain a separate branch.
+
 ## Current next steps
 
 Authentication still needs:
