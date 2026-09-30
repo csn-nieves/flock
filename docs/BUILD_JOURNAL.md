@@ -623,6 +623,19 @@ Unit tests cover accessible list semantics, selection intent, and empty input.
 Playwright verifies selection, touch geometry, long-name wrapping, and empty
 rendering across desktop Chrome, Android-sized Chrome, and iPhone WebKit.
 
+## 2026-09-30 — Removing duplicate feature-branch CI runs
+
+### Main-only push validation
+
+Frontend CI previously ran once when a feature branch was pushed and again when
+its pull request was opened or updated. Both runs executed the same nine jobs
+against the same commit, doubling feedback without adding meaningful coverage.
+
+Pull requests remain the required pre-merge validation point. Push-triggered CI
+now runs only on `main`, preserving a post-merge verification of the repository's
+canonical branch while avoiding duplicate feature-branch runs. Job names remain
+unchanged so the repository's required-status-check rules continue to match.
+
 ## Current next steps
 
 Authentication still needs:
