@@ -671,9 +671,12 @@ cached array, which would duplicate ordering and visibility assumptions in the
 browser. The invalidation promise is awaited so creation remains pending until
 active list refreshes have settled.
 
-Focused hook tests cover the mutation input and result, pending behavior,
-failure exposure, and flock-list invalidation. Form validation, user-facing
-error copy, and create-flow presentation remain separate branches.
+Focused hook tests cover the initial idle contract, mutation input and result,
+pending behavior, failure exposure, and flock-list invalidation. This also
+establishes a broader rule that query and mutation hooks receive explicit
+coverage for their complete application-relevant async lifecycle rather than
+only their successful result. Form validation, user-facing error copy, and
+create-flow presentation remain separate branches.
 
 ## Current next steps
 

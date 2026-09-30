@@ -44,6 +44,14 @@ describe('useCreateFlock', () => {
     vi.clearAllMocks()
   })
 
+  it('starts idle without creating a flock', () => {
+    const { result } = renderCreateFlockHook()
+
+    expect(result.current.isIdle).toBe(true)
+    expect(result.current.isPending).toBe(false)
+    expect(createFlockMock).not.toHaveBeenCalled()
+  })
+
   it('creates a flock and invalidates flock lists', async () => {
     createFlockMock.mockResolvedValue(flock)
     const { queryClient, result } = renderCreateFlockHook()
