@@ -564,6 +564,26 @@ generated TypeScript shape is `string`; the data layer must preserve that
 runtime constraint until a future workflow demonstrates that a database enum
 would provide enough value to justify a migration.
 
+## 2026-09-30 — Reading visible flocks through the data boundary
+
+### Typed flock summary query
+
+The first product-data function now lists the flocks visible to the current
+Supabase session. It requests only the identifier, name, and owner identifier
+needed by a future flock list and returns the generated `FlockSummary` shape in
+stable name order.
+
+The function intentionally accepts no user identifier and adds no browser-side
+ownership filter. PostgreSQL Row Level Security remains the authorization
+boundary and decides which flock rows the authenticated session can read. This
+prevents a missing or manipulated frontend filter from becoming a data leak.
+Supabase query failures reject from the data module so the future React Query
+hook can own retry, caching, and presentation-safe error behavior.
+
+Focused unit tests cover the selected table and columns, ordering, an empty
+authorized result, and error propagation. React Query integration and rendering
+remain separate branches.
+
 ## Current next steps
 
 Authentication still needs:
