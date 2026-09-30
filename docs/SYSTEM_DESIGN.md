@@ -1,6 +1,6 @@
 # Flock system design
 
-Last reviewed: 2026-09-29
+Last reviewed: 2026-09-30
 
 ## What Flock is
 
@@ -143,6 +143,13 @@ terms. `src/data/auth.ts` requests and verifies email codes, starts Google or
 Facebook OAuth, reads sessions, subscribes to auth changes, and signs out. UI
 code receives application-shaped state and messages rather than raw provider
 errors.
+
+The shared Supabase client is parameterized by the generated `Database` type in
+`src/types/database.ts`. That file describes only the exposed `public` schema
+and is regenerated from the migration-built local database with
+`npm run db:types`; it is committed for deterministic builds but never edited
+by hand. Generated types provide compile-time table contracts, while Row Level
+Security, constraints, and input validation remain the runtime authority.
 
 React Query owns asynchronous server-state caching outside authentication. One
 application-level `QueryClientProvider` wraps the router and session provider.

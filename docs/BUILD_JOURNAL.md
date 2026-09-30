@@ -539,6 +539,31 @@ creation assertion now guards this exact regression.
 After the correction, a clean local reset replayed both migrations and all 27
 pgTAP assertions passed.
 
+## 2026-09-30 — Typing the Supabase data boundary
+
+### Generated public-schema contract
+
+The frontend Supabase client now consumes generated TypeScript definitions for
+the migration-built `public` schema. Queries against `flocks` and
+`flock_members` can therefore infer their row, insert, update, and relationship
+shapes instead of treating product data as an untyped external response. This
+branch deliberately adds no product query or React Query hook; it establishes
+the contract those later branches will use.
+
+`npm run db:types` regenerates the checked-in contract from the running local
+database and formats the CLI output. Local generation keeps migrations as the
+source of truth, works without hosted credentials, and prevents a remote
+deployment's timing from deciding what the frontend compiles against. Only the
+browser-accessible `public` schema is generated, so the private RLS membership
+helper does not become part of the client surface.
+
+The generated file is not hand-edited. A schema migration must be applied
+locally before regeneration, and both changes must be reviewed together.
+Because the membership role currently uses a PostgreSQL check constraint, its
+generated TypeScript shape is `string`; the data layer must preserve that
+runtime constraint until a future workflow demonstrates that a database enum
+would provide enough value to justify a migration.
+
 ## Current next steps
 
 Authentication still needs:

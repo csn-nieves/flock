@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@src/types/database'
 
 function requireEnvironmentVariable(name: string, value: string | undefined) {
   const normalizedValue = value?.trim()
@@ -21,11 +22,15 @@ const supabasePublishableKey = requireEnvironmentVariable(
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
 )
 
-export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
-  auth: {
-    autoRefreshToken: true,
-    detectSessionInUrl: false,
-    flowType: 'pkce',
-    persistSession: true,
+export const supabase = createClient<Database>(
+  supabaseUrl,
+  supabasePublishableKey,
+  {
+    auth: {
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+      flowType: 'pkce',
+      persistSession: true,
+    },
   },
-})
+)
