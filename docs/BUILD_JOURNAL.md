@@ -766,6 +766,22 @@ existing product, technical, design, decision, system-design, and journal
 records remain authoritative for their own concerns; the handoff links to them
 instead of duplicating their full rationale.
 
+## 2026-09-30 — Clarifying the React application hierarchy
+
+### Application composition and feature ownership
+
+The frontend documentation now shows the complete hierarchy from application
+providers and routing through pages, components, and primitives. It also shows
+the parallel orchestration path from a page through domain hooks and data-access
+modules to Supabase.
+
+Separating the rendered interface path from the remote-data path avoids implying
+that hooks are visual children or that shared components may fetch their own
+server state. The system-design record includes the concrete routed tree that
+runs today, while the technical foundation keeps the durable pattern future
+routes should follow. This clarification changes no runtime behavior or current
+milestone.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
