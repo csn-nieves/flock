@@ -603,6 +603,26 @@ Hook tests cover populated and empty successful results, failures, and
 deduplication across simultaneous consumers. Page rendering and its loading,
 empty, and recovery states remain a separate branch.
 
+## 2026-09-30 — Presenting selectable flocks
+
+### Mobile-first flock list component
+
+`FlockList` is the first presentational component for product data. It receives
+typed flock summaries through props, renders each flock as a semantic button,
+and reports the selected identifier through a callback. It does not fetch data,
+read React Query state, or own route navigation, preserving the boundary between
+components and pages.
+
+The list follows Flock's product-first visual system: flock names lead, rows use
+borders and a subtle tonal interaction state instead of card shadows, and every
+selection has a phone-friendly target. Long names wrap rather than becoming
+hover-only truncated content. An empty array renders no list because the future
+page owns the empty-state explanation and action.
+
+Unit tests cover accessible list semantics, selection intent, and empty input.
+Playwright verifies selection, touch geometry, long-name wrapping, and empty
+rendering across desktop Chrome, Android-sized Chrome, and iPhone WebKit.
+
 ## Current next steps
 
 Authentication still needs:
