@@ -50,6 +50,22 @@ export function Disabled() {
   )
 }
 
+export function Pending() {
+  const [isPending, setIsPending] = useState(false)
+
+  return (
+    <Canvas>
+      <Button
+        isPending={isPending}
+        pendingLabel="Creating flock"
+        onClick={() => setIsPending(true)}
+      >
+        Create flock
+      </Button>
+    </Canvas>
+  )
+}
+
 export function FocusOrder() {
   return (
     <Canvas>

@@ -95,15 +95,15 @@ function CreateFlockForm({
         }}
       />
 
-      <Button className="mt-4 w-full" disabled={isDisabled} type="submit">
+      <Button
+        className="mt-4 w-full"
+        disabled={disabled}
+        isPending={isSubmitting}
+        pendingLabel="Creating flock"
+        type="submit"
+      >
         Create flock
       </Button>
-
-      {isSubmitting ? (
-        <p className="sr-only" role="status">
-          Creating flock.
-        </p>
-      ) : null}
     </form>
   )
 }

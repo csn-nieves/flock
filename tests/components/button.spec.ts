@@ -49,6 +49,44 @@ test('exposes the native disabled state', async ({ mount }) => {
   await expect(button).toHaveCSS('opacity', '0.55')
 })
 
+test('shows a stable action-specific pending state', async ({ mount }) => {
+  const component = await mount('primitives/Button/Pending')
+  const button = component.getByRole('button', { name: 'Create flock' })
+  const idleBox = await button.boundingBox()
+
+  expect(idleBox).not.toBeNull()
+  await expect(component.locator('.animate-spin')).toHaveCount(0)
+
+  await button.click()
+
+  const pendingButton = component.getByRole('button', {
+    name: 'Creating flock',
+  })
+  const pendingBox = await pendingButton.boundingBox()
+
+  await expect(pendingButton).toBeDisabled()
+  await expect(pendingButton).toHaveAttribute('aria-busy', 'true')
+  await expect(component.getByRole('status')).toHaveText('Creating flock')
+  expect(pendingBox).not.toBeNull()
+  expect(pendingBox?.width).toBe(idleBox?.width)
+  expect(pendingBox?.height).toBe(idleBox?.height)
+})
+
+test('stops pending animation when reduced motion is requested', async ({
+  mount,
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+
+  const component = await mount('primitives/Button/Pending')
+  await component.getByRole('button', { name: 'Create flock' }).click()
+
+  await expect(component.locator('.animate-spin')).toHaveCSS(
+    'animation-name',
+    'none',
+  )
+})
+
 test('shows a visible focus state', async ({ mount }) => {
   const component = await mount('primitives/Button/FocusOrder')
   const firstButton = component.getByRole('button', { name: 'First action' })

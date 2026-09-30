@@ -1,10 +1,23 @@
 import type { ComponentProps } from 'react'
 
+import PendingIndicator from './PendingIndicator'
+
 export type ButtonVariant = 'primary' | 'secondary'
 
-export type ButtonProps = ComponentProps<'button'> & {
-  variant?: ButtonVariant
-}
+type ButtonPendingProps =
+  | {
+      isPending: boolean
+      pendingLabel: string
+    }
+  | {
+      isPending?: never
+      pendingLabel?: never
+    }
+
+export type ButtonProps = ComponentProps<'button'> &
+  ButtonPendingProps & {
+    variant?: ButtonVariant
+  }
 
 const baseClasses =
   'inline-flex min-h-touch cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 py-2 font-bold leading-5 transition-[color,background-color,border-color,transform] duration-fast ease-out active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:active:translate-y-0'
@@ -17,17 +30,76 @@ const variantClasses: Record<ButtonVariant, string> = {
 }
 
 function Button({
+  'aria-label': ariaLabel,
+  children,
   className,
+  disabled = false,
+  isPending = false,
   onClick,
+  pendingLabel,
   type = 'button',
   variant = 'primary',
   ...props
 }: ButtonProps) {
+  const isDisabled = disabled || isPending
   const classes = [baseClasses, variantClasses[variant], className]
     .filter(Boolean)
     .join(' ')
 
-  return <button className={classes} type={type} onClick={onClick} {...props} />
+  if (pendingLabel === undefined) {
+    return (
+      <button
+        aria-label={ariaLabel}
+        className={classes}
+        disabled={isDisabled}
+        type={type}
+        onClick={onClick}
+        {...props}
+      >
+        {children}
+      </button>
+    )
+  }
+
+  return (
+    <>
+      <button
+        aria-busy={isPending || undefined}
+        aria-label={isPending ? pendingLabel : ariaLabel}
+        className={classes}
+        disabled={isDisabled}
+        type={type}
+        onClick={onClick}
+        {...props}
+      >
+        <span className="grid items-center justify-items-center">
+          <span
+            aria-hidden={isPending}
+            className={`col-start-1 row-start-1 inline-flex items-center justify-center gap-2 ${isPending ? 'invisible' : ''}`}
+          >
+            {children}
+          </span>
+          <span
+            aria-hidden={!isPending}
+            className={`col-start-1 row-start-1 inline-flex items-center justify-center gap-2 ${isPending ? '' : 'invisible'}`}
+          >
+            {isPending ? (
+              <PendingIndicator className="shrink-0" />
+            ) : (
+              <span aria-hidden="true" className="size-4 shrink-0" />
+            )}
+            {pendingLabel}
+          </span>
+        </span>
+      </button>
+
+      {isPending ? (
+        <span className="sr-only" role="status">
+          {pendingLabel}
+        </span>
+      ) : null}
+    </>
+  )
 }
 
 export default Button

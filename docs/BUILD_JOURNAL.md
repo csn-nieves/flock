@@ -689,8 +689,8 @@ and emits only valid submission intent. It remains unaware of React Query,
 Supabase, routing, and post-create navigation.
 
 The form uses app-owned validation with an associated inline error and first-
-error focus. Pending state disables the field and stable-labeled action,
-announces creation to assistive technology, and blocks duplicate submissions.
+error focus. Pending state disables the field and action, announces creation to
+assistive technology, and blocks duplicate submissions.
 Safe server error copy replaces field guidance without clearing the entered
 name, allowing correction or retry.
 
@@ -699,6 +699,24 @@ and pending states. Playwright verifies the interaction and phone-sized action
 geometry across desktop Chrome, Android-sized Chrome, and iPhone WebKit. No new
 tokens were introduced because the established form primitives already own the
 visual and accessibility contract.
+
+## 2026-09-30 — Making pending actions explicit
+
+### Shared button pending state
+
+The canonical `Button` primitive now accepts request state and an
+action-specific pending label. While work is active, it disables native button
+interaction, exposes busy semantics, announces the update politely, and pairs
+the visible progress label with the existing `PendingIndicator`. The
+create-flock form now changes `Create flock` to `Creating flock` rather than
+communicating progress only through a disabled control and hidden status.
+
+Both the idle and pending contents participate in the same internal grid, with
+only the current state visible. This reserves the larger geometry before the
+request starts and prevents nearby controls from moving when a longer progress
+label appears. The primitive stays domain-neutral because each caller supplies
+its own verb-led copy; authentication actions remain a later, independently
+scoped migration.
 
 ## Current next steps
 
