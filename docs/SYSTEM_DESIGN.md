@@ -120,6 +120,11 @@ identifier. It owns accessible list and selection semantics but not fetching,
 navigation, or empty-state copy. Long names remain fully readable on narrow
 screens, and the route-level page decides what selecting a flock means.
 
+`CreateFlockForm` owns flock-name input, normalization, and the database-aligned
+required and length validation experience. It emits a valid name and receives
+pending, disabled, and safe error presentation through props. It does not call
+React Query or Supabase, keeping mutation orchestration at the page layer.
+
 ### Pages
 
 Pages own route-level workflows and assemble components. `SignInPage` uses

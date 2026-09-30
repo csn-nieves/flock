@@ -678,6 +678,28 @@ coverage for their complete application-relevant async lifecycle rather than
 only their successful result. Form validation, user-facing error copy, and
 create-flow presentation remain separate branches.
 
+## 2026-09-30 — Collecting a new flock name
+
+### Presentational create-flock form
+
+`CreateFlockForm` composes the shared `TextField` and `Button` primitives into
+the first product-data form. It owns the flock-name value, trims surrounding
+whitespace, validates the database's required and 80-character constraints,
+and emits only valid submission intent. It remains unaware of React Query,
+Supabase, routing, and post-create navigation.
+
+The form uses app-owned validation with an associated inline error and first-
+error focus. Pending state disables the field and stable-labeled action,
+announces creation to assistive technology, and blocks duplicate submissions.
+Safe server error copy replaces field guidance without clearing the entered
+name, allowing correction or retry.
+
+Stories and unit tests cover default, validation, recoverable failure, disabled,
+and pending states. Playwright verifies the interaction and phone-sized action
+geometry across desktop Chrome, Android-sized Chrome, and iPhone WebKit. No new
+tokens were introduced because the established form primitives already own the
+visual and accessibility contract.
+
 ## Current next steps
 
 Authentication still needs:
