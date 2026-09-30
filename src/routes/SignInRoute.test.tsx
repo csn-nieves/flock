@@ -5,7 +5,7 @@ import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import SignInPage from './SignInPage'
+import SignInRoute from './SignInRoute'
 
 const controller = vi.hoisted(() => ({
   changeEmail: vi.fn(),
@@ -62,7 +62,7 @@ function renderSignInRoute({ strict = false } = {}) {
       },
       {
         path: '/sign-in',
-        element: <SignInPage />,
+        element: <SignInRoute />,
       },
       {
         path: '/flocks/:flockId/events/:eventId',
@@ -79,7 +79,7 @@ function renderSignInRoute({ strict = false } = {}) {
   return router
 }
 
-describe('SignInPage', () => {
+describe('SignInRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     authSession.error = null

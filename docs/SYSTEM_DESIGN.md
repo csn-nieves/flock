@@ -25,11 +25,11 @@ Browser / installed PWA
             └── RouterProvider
                 └── App route layout
                     ├── Route outlet
-                        ├── Public pages
-                        │   ├── SignInPage
-                        │   └── OAuthCallbackPage
-                        └── ProtectedRoute
-                            └── HomePage
+                    │   ├── Public routes
+                    │   │   ├── SignInRoute → SignInPage
+                    │   │   └── OAuthCallbackRoute → OAuthCallbackPage
+                    │   └── ProtectedRoute
+                    │       └── HomeRoute → HomePage
                     └── UpdatePrompt
 ```
 
@@ -37,22 +37,23 @@ The routed tree above is the composition that runs today. Product pages follow
 the broader feature pattern below as they are added:
 
 ```text
-Route page controller
+Route controller
+├── URL input, navigation, and document metadata
 ├── Domain hooks
 │   └── Data-access modules
 │       └── Supabase
 │           Auth · Postgres · Realtime · Storage
-└── Page view
+└── Page with clean, typed props
     └── Page-scoped content
         ├── Shared components
         │   └── Reusable primitives
         └── Reusable primitives
 ```
 
-The first branch is orchestration rather than rendered component nesting. A
-page starts remote work through a domain hook, which calls a data-access module;
-the page then translates the resulting state into props for its rendered view.
-Lower visual layers do not reach sideways into the data branch.
+The route controller is orchestration rather than rendered page content. It
+starts remote work through a domain hook, translates the resulting state into
+page props, and owns router-aware effects. The page and lower visual layers do
+not reach sideways into the routing or data branches.
 
 Cloudflare Pages will serve the compiled application. Supabase supplies the
 backend capabilities. The browser may call Supabase directly only through its
@@ -80,8 +81,9 @@ search pages.
 
 React Router owns client-side routes. Shareable invitation URLs and the OAuth
 callback require real, addressable routes rather than screen state hidden in a
-single component. Pages remain the highest frontend layer and initiate complete
-workflows.
+single component. Modules in `src/routes` are the highest feature layer and
+initiate complete workflows; pages remain pure views of application-shaped
+props.
 
 ### Tailwind CSS and semantic tokens
 
@@ -108,7 +110,7 @@ update cannot silently discard in-progress work.
 The default import and responsibility direction is:
 
 ```text
-pages → components → primitives
+routes → pages → components → primitives
 ```
 
 ### Primitives
@@ -139,33 +141,39 @@ than calling Supabase directly.
 `FlockList` receives typed flock summaries and emits the selected flock
 identifier. It owns accessible list and selection semantics but not fetching,
 navigation, or empty-state copy. Long names remain fully readable on narrow
-screens, and the route-level page decides what selecting a flock means.
+screens, and the route controller decides what selecting a flock means.
 
 `CreateFlockForm` owns flock-name input, normalization, and the database-aligned
 required and length validation experience. It emits a valid name and receives
 pending, disabled, and safe error presentation through props. It does not call
-React Query or Supabase, keeping mutation orchestration at the page layer.
+React Query or Supabase, keeping mutation orchestration at the route layer.
+
+### Routes
+
+Route controllers live in `src/routes` and are registered by `src/router.tsx`
+when their destinations are ready to expose. They read URL state, call workflow
+or query hooks, own navigation and document metadata, and translate asynchronous
+results into typed props and callbacks. Loading, authorization, not-found, and
+recovery decisions stay here when they are route concerns rather than reusable
+page presentation.
 
 ### Pages
 
-Pages own route-level workflows and assemble components. `SignInPage` uses
-`useEmailAuthController` to connect the presentational authentication forms to
-the data layer. Pages own whole-screen loading, error, authorization, and
-success behavior.
+Pages are router-agnostic screen views. They receive application-shaped data and
+callbacks through typed props, assemble feature components and primitives, and
+contain no React Router, React Query, or Supabase calls.
 
-`FlocksPage` is the first product-data page. It calls `useFlocks`, translates
-React Query state into safe loading, refreshing, empty, error, and populated
-presentation, and owns navigation intent for creation and flock selection. Its
-page view remains presentational so every state can be exercised without a
-database. The page is intentionally not exposed by the router until its create
-and detail destinations exist.
+`FlocksRoute` calls `useFlocks`, translates React Query state into safe loading,
+refreshing, empty, error, and populated page props, and owns navigation intent
+for creation and flock selection. `FlocksPage` renders those props and remains
+testable without a router or database. The route is intentionally not exposed
+by the router until its create and detail destinations exist.
 
-Pages stay in one file while their orchestration and presentation remain easy
-to scan. Once those responsibilities compete, the page moves into a
-domain-named directory: a thin page controller owns hooks, document metadata,
-and navigation; a page view owns screen layout; and page-scoped content
-components own state presentation. Page-only pieces stay beside the page rather
-than entering `src/components`; only behavior reused across pages is promoted.
+Pages stay in one file while their presentation remains easy to scan. When a
+page grows, it moves into a domain-named directory with page-scoped feature
+components. Route orchestration stays separately visible in `src/routes`.
+Page-only pieces remain beside their page rather than entering `src/components`;
+only behavior reused across pages is promoted.
 
 ### Hooks, providers, and data access
 
@@ -214,8 +222,8 @@ React Query owns asynchronous server-state caching outside authentication. One
 application-level `QueryClientProvider` wraps the router and session provider.
 The client instance is created once at startup, so renders and route changes do
 not replace the cache. Domain hooks in `src/hooks` will call data-access modules
-and expose application-shaped query results to pages; components and primitives
-will continue to receive data through props.
+and expose application-shaped query results to route controllers; pages,
+components, and primitives receive data through props.
 
 Query keys are defined centrally in `src/data/queryKeys.ts`. Each family begins
 with a plural domain root and adds stable list or detail scopes, allowing a
@@ -229,8 +237,8 @@ disable retries, and retain cache entries for the life of the test mount.
 `useFlocks` is the first product-data query hook. It binds `listFlocks` to the
 shared flock list key and relies on the application query client for freshness,
 retry, and request deduplication. The hook exposes query state rather than
-converting it into page copy, allowing the route-level page to own loading,
-empty, failure, and success presentation.
+converting it into page copy, allowing the route controller to own loading,
+empty, failure, and success translation.
 
 `useCreateFlock` binds the flock-creation data function to React Query mutation
 state. A successful mutation invalidates the shared flock-list key so active
@@ -242,8 +250,8 @@ Async hooks expose React Query's complete state contract rather than returning
 only successful data. Query-hook tests cover initial pending, populated and
 empty success, failure, and feature-specific cache behavior. Mutation-hook
 tests cover idle when meaningful, pending, success, failure, and cache
-reconciliation. Pages translate those states into safe user-facing copy and
-recovery actions.
+reconciliation. Route controllers translate those states into safe page props
+and recovery actions.
 
 ## Flock and membership data
 
@@ -302,12 +310,12 @@ application copy; raw provider messages are not displayed.
 
 `/sign-in` resolves the current session before mounting the email workflow, so
 an existing session never flashes the sign-in form. The loading state has an
-honest document title and accessible status. When a session exists, the page
-consumes the saved destination and replaces `/sign-in` with that location,
-including after OTP verification publishes a new session. It falls back to `/`
-when no safe destination exists. If the initial session check fails, the page
-shows safe recovery copy and keeps sign-in available rather than exposing the
-provider error.
+honest document title and accessible status. When a session exists, the route
+controller consumes the saved destination and replaces `/sign-in` with that
+location, including after OTP verification publishes a new session. It falls
+back to `/` when no safe destination exists. If the initial session check
+fails, the route passes a safe recovery state to the page and keeps sign-in
+available rather than exposing the provider error.
 
 Google and Facebook use Supabase OAuth with PKCE and return through
 `/auth/callback`. The data boundary accepts only Flock's approved `google` and
@@ -349,12 +357,12 @@ justifies the additional callback state.
 The shared social sign-in component remains presentation-only. It names and
 visually identifies both approved providers, preserves stable labels while a
 redirect begins, and locks both choices once one provider is pending.
-`useSocialAuthController` translates those callbacks into data-layer calls,
+`SignInRoute` uses `useSocialAuthController` to translate those callbacks into data-layer calls,
 prevents overlapping provider requests, and maps raw failures to provider-aware
-recovery copy. The sign-in page disables email entry while a provider redirect
-is starting and restores every method after a recoverable failure.
+recovery copy. The page disables email entry from the clean pending state it
+receives and restores every method after a recoverable failure.
 
-`/auth/callback` captures the returned authorization code, immediately removes
+`OAuthCallbackRoute` captures the returned authorization code, immediately removes
 callback parameters from browser history, and asks `useOAuthCallbackController`
 to exchange the single-use code through the authentication data boundary. The
 controller shares one request across React Strict Mode effect replays so it
@@ -414,7 +422,7 @@ geometry without requiring the complete application.
 
 ### Playwright page tests
 
-Page tests navigate to the real application and exercise routing, page-to-hook
+Page tests navigate to the real application and exercise routing, route-to-hook
 wiring, mocked network boundaries, loading, recovery, and responsive layout.
 They currently run as separate desktop Chromium, Android-sized Chromium, and
 iPhone WebKit projects.
@@ -446,9 +454,9 @@ route protection causes more mount, redirect, and session-refresh activity.
 ### Server-state queries
 
 React Query owns reusable server-data queries and their cache lifecycle. Its
-provider and query-key conventions are established, but no product query uses
-them yet. The first flock read should call a Supabase-facing data module through
-a domain-specific hook in `src/hooks`.
+provider, query-key conventions, `useFlocks`, and `useCreateFlock` hooks are
+established. Route controllers consume those domain hooks and keep React Query
+state out of pure pages.
 
 ### Backend authorization
 
@@ -462,8 +470,9 @@ authorization.
 Flock is a React and TypeScript progressive web app built with Vite. React
 Router gives the product real routes, Tailwind implements a token-driven design
 system, and Supabase provides authentication and will provide the database and
-realtime features. Pages own workflows, presentational components collect user
-intent, primitives enforce accessible interaction, hooks coordinate behavior,
-and data modules isolate Supabase. Vitest checks logic quickly, while Playwright
+realtime features. Route controllers own router-aware workflows, pure pages
+render typed application props, presentational components collect user intent,
+primitives enforce accessible interaction, hooks coordinate behavior, and data
+modules isolate Supabase. Vitest checks logic quickly, while Playwright
 checks components and complete pages in the browsers and phone sizes runners
 will actually use.

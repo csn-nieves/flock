@@ -4,7 +4,7 @@ import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useOAuthCallbackController } from '@src/hooks/useOAuthCallbackController'
-import OAuthCallbackPage from './OAuthCallbackPage'
+import OAuthCallbackRoute from './OAuthCallbackRoute'
 
 const callbackController = vi.hoisted(() => ({
   error: undefined as string | undefined,
@@ -40,7 +40,7 @@ function renderCallbackRoute(
       },
       {
         path: '/auth/callback',
-        element: <OAuthCallbackPage />,
+        element: <OAuthCallbackRoute />,
       },
     ],
     { initialEntries: [initialEntry] },
@@ -51,7 +51,7 @@ function renderCallbackRoute(
   return router
 }
 
-describe('OAuthCallbackPage', () => {
+describe('OAuthCallbackRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     callbackController.error = undefined

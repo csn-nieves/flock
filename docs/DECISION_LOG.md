@@ -51,7 +51,7 @@ means it is the current direction, not that it can never change.
 
 ## D004 — Separate pages, components, and primitives
 
-- **Status:** Accepted
+- **Status:** Superseded by D021
 - **Decision:** Use the default dependency direction
   `pages → components → primitives`.
 - **Why:** Primitives remain reusable and easy to verify when they do not know
@@ -335,3 +335,24 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Schema changes become frequent enough to warrant an
   automated drift check in CI or the project intentionally exposes another
   schema to the browser.
+
+## D021 — Separate route controllers from pure pages
+
+- **Status:** Accepted
+- **Decision:** Use the default feature dependency direction
+  `routes → pages → components → primitives`. Register modules from
+  `src/routes` with React Router. Route controllers own URL input, navigation,
+  document metadata, workflow hooks, and async-state translation. Pages receive
+  clean, typed data and callbacks through props and remain unaware of React
+  Router, React Query, and Supabase.
+- **Why:** A distinct route boundary makes data and navigation dependencies
+  visible instead of hiding them inside files named as views. Pure pages can be
+  rendered and tested with ordinary props, while URL parsing and server-state
+  orchestration stay together at the highest feature layer.
+- **Tradeoffs:** Even a simple screen may have a thin route module, and route
+  controllers can accumulate too many prop mappings if page contracts are not
+  shaped around cohesive application concepts. The extra file boundary is
+  accepted for consistent ownership and testability.
+- **Revisit when:** A framework-owned route convention replaces the explicit
+  controller files or repeated route behavior has a clear shared abstraction
+  that preserves pure page contracts.

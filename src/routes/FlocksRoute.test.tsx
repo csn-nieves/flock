@@ -3,8 +3,8 @@ import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { FlockSummary } from '@src/data/flocks'
-import FlocksPage from './flocks/FlocksPage'
+import type { FlockSummary } from '@src/types/flocks'
+import FlocksRoute from './FlocksRoute'
 
 const flocksQuery = vi.hoisted(() => ({
   data: undefined as FlockSummary[] | undefined,
@@ -32,7 +32,7 @@ function renderFlocksRoute() {
     [
       {
         path: '/flocks',
-        element: <FlocksPage />,
+        element: <FlocksRoute />,
       },
       {
         path: '/flocks/new',
@@ -51,7 +51,7 @@ function renderFlocksRoute() {
   return router
 }
 
-describe('FlocksPage', () => {
+describe('FlocksRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     flocksQuery.data = flocks

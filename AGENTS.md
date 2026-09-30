@@ -37,15 +37,21 @@ Use the records for their intended purpose:
 
 ## Preserve the frontend boundaries
 
-- Keep the default dependency direction `pages → components → primitives`.
-- Start server-state queries and mutations at the page or route level whenever
+- Keep the default dependency direction
+  `routes → pages → components → primitives`.
+- Register route-controller modules from `src/routes`. Route controllers own
+  URL input, navigation, document metadata, workflow hooks, and translation of
+  async state into clean page props.
+- Keep pages pure and router-agnostic. They receive typed application data and
+  callbacks through props and assemble page-scoped or shared components.
+- Start server-state queries and mutations in route controllers whenever
   practical. Use React Query through domain hooks in `src/hooks`.
 - Keep Supabase transport details in `src/data`; never call Supabase from a
   primitive and avoid calling it directly from presentational components.
 - Keep primitives domain-neutral and components as presentational as practical.
-- Keep a page in one file while it is easy to scan. When orchestration and
-  presentation compete, use a domain-named page directory containing a thin
-  page controller, a layout-focused view, and page-scoped state content.
+- Keep a page in one file while it is easy to scan. When its presentation grows,
+  use a domain-named page directory containing the pure page and page-scoped
+  feature components; keep route orchestration in `src/routes`.
 - Keep page-only pieces near their page. Promote them to `src/components` only
   after reuse across pages establishes a shared responsibility.
 - Use the `@src` alias for imports from `src`.

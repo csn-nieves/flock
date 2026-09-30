@@ -1,8 +1,19 @@
 import { useState, type ReactNode } from 'react'
 
-import type { FlockSummary } from '@src/data/flocks'
-import type { FlocksPageState } from './flocks/FlocksPageContent'
-import FlocksPageView from './flocks/FlocksPageView'
+import type { FlockSummary } from '@src/types/flocks'
+import FlocksPage, {
+  FlocksErrorPage,
+  FlocksLoadingPage,
+} from './flocks/FlocksPage'
+
+type StoryState =
+  | { status: 'loading' }
+  | { isRetrying: boolean; status: 'error' }
+  | {
+      flocks: readonly FlockSummary[]
+      isRefreshing: boolean
+      status: 'success'
+    }
 
 const flocks: FlockSummary[] = [
   {
@@ -23,17 +34,33 @@ function Canvas({ children }: { children: ReactNode }) {
   )
 }
 
-function Story({ state }: { state: FlocksPageState }) {
+function Story({ state }: { state: StoryState }) {
   const [intent, setIntent] = useState('')
+  let page: ReactNode
+
+  if (state.status === 'loading') {
+    page = <FlocksLoadingPage />
+  } else if (state.status === 'error') {
+    page = (
+      <FlocksErrorPage
+        isRetrying={state.isRetrying}
+        onRetry={() => setIntent('retry')}
+      />
+    )
+  } else {
+    page = (
+      <FlocksPage
+        flocks={state.flocks}
+        isRefreshing={state.isRefreshing}
+        onCreate={() => setIntent('create')}
+        onSelect={(flockId) => setIntent(`open:${flockId}`)}
+      />
+    )
+  }
 
   return (
     <Canvas>
-      <FlocksPageView
-        state={state}
-        onCreate={() => setIntent('create')}
-        onRetry={() => setIntent('retry')}
-        onSelect={(flockId) => setIntent(`open:${flockId}`)}
-      />
+      {page}
       <output className="sr-only" data-testid="page-intent">
         {intent}
       </output>

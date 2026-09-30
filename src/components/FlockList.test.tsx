@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { FlockSummary } from '@src/data/flocks'
+import type { FlockSummary } from '@src/types/flocks'
 import FlockList from './FlockList'
 
 const flocks: FlockSummary[] = [

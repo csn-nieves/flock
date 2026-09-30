@@ -32,15 +32,18 @@ outside this slice.
   functions, `useFlocks`, and `useCreateFlock`.
 - Presentational `FlockList` and `CreateFlockForm`, including complete async and
   validation states.
-- A mobile-first `FlocksPage` with loading, error, retrying, empty, populated,
-  and background-refresh states. It is modularized into a page controller,
-  layout view, and page-scoped state content.
+- Explicit route controllers in `src/routes` keep URL state, navigation,
+  document metadata, and workflow hooks out of pure typed pages.
+- A mobile-first `FlocksRoute`, pure successful `FlocksPage`, and pure
+  route-state views covering loading, error, retrying, empty, populated, and
+  background refresh.
 
 ## Current application boundary
 
 The live router currently exposes sign-in, the OAuth callback, and the protected
-home shell. `FlocksPage` is intentionally not routed yet because its create and
-detail actions do not have complete destinations.
+home shell through explicit route-controller modules. `FlocksRoute` is
+intentionally not registered yet because its create and detail actions do not
+have complete destinations.
 
 The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
@@ -48,9 +51,10 @@ production branding, and a release candidate suitable for provider review.
 
 ## Next smallest branches
 
-1. Build a query-connected create-flock page from `CreateFlockForm` and
-   `useCreateFlock`, including safe mutation failure and pending behavior. Keep
-   it out of the live router until its success destination is valid.
+1. Build a query-connected create-flock route and pure page from
+   `CreateFlockForm` and `useCreateFlock`, including safe mutation failure and
+   pending behavior. Keep it out of the live router until its success
+   destination is valid.
 2. Establish the first flock-detail destination.
 3. Wire the flock list, create, and detail destinations into one honest routed
    workflow.
