@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(26);
+select plan(27);
 
 select has_table('public', 'flocks', 'flocks table exists');
 select has_table('public', 'flock_members', 'flock_members table exists');
@@ -29,6 +29,13 @@ select has_index(
   'flock_members',
   'flock_members_one_owner_idx',
   'each flock has at most one owner membership'
+);
+
+select has_index(
+  'public',
+  'flocks',
+  'flocks_owner_id_idx',
+  'owner-backed authorization lookups are indexed'
 );
 
 select ok(

@@ -175,8 +175,9 @@ is intentionally unsupported until it can be implemented as one database
 transaction that changes both the flock and owner membership together.
 
 Both public tables have Row Level Security enabled and explicit grants. Signed-
-out users receive no table privileges. Signed-in users can create flocks and
-read only flocks and rosters where they hold membership. They cannot write the
+out users receive no table privileges. Signed-in users can create flocks. The
+canonical owner can read the new flock immediately, while other users can read
+only flocks and rosters where they hold membership. They cannot write the
 membership table directly; future invitation and join operations must add a
 narrow policy or database function with their own authorization tests.
 
