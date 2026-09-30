@@ -28,15 +28,24 @@ keys must never be added to the frontend environment.
 
 ## Local database development
 
-Flock's database schema is tracked in `supabase/migrations`. With Docker running
-and the Supabase CLI installed, recreate the local database and run its pgTAP
-authorization tests with:
+Flock's database schema is tracked in `supabase/migrations`. With Docker running,
+start the local Supabase stack and display its service URLs with:
 
 ```sh
-supabase start
-supabase db reset
-supabase test db
+npm run db:start
+npm run db:status
 ```
+
+Open the Studio URL printed by `db:status` to inspect local tables, policies,
+authentication, and data. Verify the migrations and pgTAP authorization tests
+from a clean local database with:
+
+```sh
+npm run db:verify
+```
+
+`db:verify` resets only the local database before testing it. Run
+`npm run db:stop` when the local Supabase services are no longer needed.
 
 Do not make application schema changes directly in the hosted dashboard. Create
 and test a migration first; deployment of migrations to the hosted project is a
