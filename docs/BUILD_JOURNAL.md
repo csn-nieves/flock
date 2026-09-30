@@ -746,17 +746,31 @@ destination exists today. Keeping the page out of production navigation avoids
 shipping controls that lead to missing screens; router exposure belongs in the
 small branch that establishes those destinations.
 
+## 2026-09-30 — Making development context portable
+
+### Codex instructions and current-state handoff
+
+Long development conversations eventually become expensive to navigate and can
+make a new task harder to start. The repository now carries the context needed
+to continue without relying on one conversation's history.
+
+Root-level `AGENTS.md` records the durable collaboration and engineering rules
+Codex must follow, including small branches, the no-commit/no-push boundary,
+frontend ownership, state coverage, and proportional verification.
+`docs/CURRENT_STATE.md` separately records the active milestone, completed
+foundation, application boundary, next smallest branches, and known follow-ups.
+
+Keeping those purposes separate avoids turning permanent instructions into a
+status diary or allowing temporary status to masquerade as architecture. The
+existing product, technical, design, decision, system-design, and journal
+records remain authoritative for their own concerns; the handoff links to them
+instead of duplicating their full rationale.
+
 ## Current next steps
 
-Authentication still needs:
-
-- production-like auth lifecycle and memory profiling.
-
-The next product-data branch can assemble `CreateFlockForm` and
-`useCreateFlock` into the `/flocks/new` page workflow. A following small branch
-can establish the flock-detail destination and expose `FlocksPage` through the
-live router once both of its actions have valid destinations. Invitation,
-joining, and the member list remain later slices.
+See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
+recommended branches. This journal remains chronological rather than carrying a
+second status snapshot that can drift.
 
 ## Journal entry template
 
