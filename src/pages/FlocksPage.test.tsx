@@ -4,7 +4,7 @@ import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { FlockSummary } from '@src/data/flocks'
-import FlocksPage from './FlocksPage'
+import FlocksPage from './flocks/FlocksPage'
 
 const flocksQuery = vi.hoisted(() => ({
   data: undefined as FlockSummary[] | undefined,

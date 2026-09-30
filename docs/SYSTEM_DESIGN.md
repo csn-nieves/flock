@@ -145,6 +145,13 @@ page view remains presentational so every state can be exercised without a
 database. The page is intentionally not exposed by the router until its create
 and detail destinations exist.
 
+Pages stay in one file while their orchestration and presentation remain easy
+to scan. Once those responsibilities compete, the page moves into a
+domain-named directory: a thin page controller owns hooks, document metadata,
+and navigation; a page view owns screen layout; and page-scoped content
+components own state presentation. Page-only pieces stay beside the page rather
+than entering `src/components`; only behavior reused across pages is promoted.
+
 ### Hooks, providers, and data access
 
 Every custom React hook lives in `src/hooks`. Tests that primarily exercise a

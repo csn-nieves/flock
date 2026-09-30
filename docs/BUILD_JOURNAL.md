@@ -733,8 +733,12 @@ Existing flocks stay visible during a background refresh so a routine cache
 update does not replace useful content with a full-page loading state. Initial
 loading reserves stable space, failures use safe recovery copy, and retry uses
 the button's pending contract to prevent duplicate requests. Separating the
-presentational `FlocksPageView` from the query-connected page also makes every
-state testable without coupling component stories to Supabase.
+query-connected page controller, presentational `FlocksPageView`, and
+page-scoped state content makes each responsibility easy to scan and every
+state testable without coupling component stories to Supabase. This becomes the
+page-organization pattern when a route outgrows a single readable file; simple
+pages remain whole, and page-only pieces are not promoted into the shared
+component layer prematurely.
 
 The page is intentionally not exposed through the live router yet. Its create
 and selection actions target `/flocks/new` and `/flocks/:flockId`, and neither
