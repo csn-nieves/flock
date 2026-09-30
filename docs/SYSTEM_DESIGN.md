@@ -192,6 +192,19 @@ retry, and request deduplication. The hook exposes query state rather than
 converting it into page copy, allowing the route-level page to own loading,
 empty, failure, and success presentation.
 
+`useCreateFlock` binds the flock-creation data function to React Query mutation
+state. A successful mutation invalidates the shared flock-list key so active
+list consumers refetch the database-authorized result. The hook does not append
+directly to cached arrays or duplicate pending and error state, keeping the
+server response and React Query as the state authorities.
+
+Async hooks expose React Query's complete state contract rather than returning
+only successful data. Query-hook tests cover initial pending, populated and
+empty success, failure, and feature-specific cache behavior. Mutation-hook
+tests cover idle when meaningful, pending, success, failure, and cache
+reconciliation. Pages translate those states into safe user-facing copy and
+recovery actions.
+
 ## Flock and membership data
 
 Postgres migrations are the source of truth for product data. The first model
