@@ -656,6 +656,25 @@ Focused tests verify the insert payload, returned summary, database-owned field
 omission, and error propagation. React Query mutation state, validation UI, and
 cache invalidation remain separate branches.
 
+## 2026-09-30 — Coordinating flock creation with React Query
+
+### Create-flock mutation hook
+
+`useCreateFlock` connects the typed creation function to React Query's mutation
+state. It exposes the library's standard pending, success, and error contract
+instead of mirroring request state in component-local variables.
+
+After creation succeeds, the hook invalidates the shared flock-list key. Active
+list consumers can then refetch the complete database-authorized result in its
+canonical order. This favors server reconciliation over manually appending to a
+cached array, which would duplicate ordering and visibility assumptions in the
+browser. The invalidation promise is awaited so creation remains pending until
+active list refreshes have settled.
+
+Focused hook tests cover the mutation input and result, pending behavior,
+failure exposure, and flock-list invalidation. Form validation, user-facing
+error copy, and create-flow presentation remain separate branches.
+
 ## Current next steps
 
 Authentication still needs:

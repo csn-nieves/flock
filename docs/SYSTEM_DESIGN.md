@@ -192,6 +192,12 @@ retry, and request deduplication. The hook exposes query state rather than
 converting it into page copy, allowing the route-level page to own loading,
 empty, failure, and success presentation.
 
+`useCreateFlock` binds the flock-creation data function to React Query mutation
+state. A successful mutation invalidates the shared flock-list key so active
+list consumers refetch the database-authorized result. The hook does not append
+directly to cached arrays or duplicate pending and error state, keeping the
+server response and React Query as the state authorities.
+
 ## Flock and membership data
 
 Postgres migrations are the source of truth for product data. The first model
