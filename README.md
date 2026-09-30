@@ -47,6 +47,16 @@ npm run db:verify
 `db:verify` resets only the local database before testing it. Run
 `npm run db:stop` when the local Supabase services are no longer needed.
 
+After changing the public database schema, regenerate the frontend's TypeScript
+definitions from the running local database:
+
+```sh
+npm run db:types
+```
+
+Commit `src/types/database.ts` so CI and other contributors use the same schema
+contract. The file is generated and must not be edited manually.
+
 Do not make application schema changes directly in the hosted dashboard. Create
 and test a migration first; deployment of migrations to the hosted project is a
 separate, deliberate step.

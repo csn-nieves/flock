@@ -312,3 +312,26 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Flock needs ownership transfer, multiple administrators,
   invitation acceptance, voluntary departure, or an owner account-deletion
   retention policy.
+
+## D020 — Generate frontend database types from the local schema
+
+- **Status:** Accepted
+- **Decision:** Generate and commit TypeScript definitions for the exposed
+  `public` schema from the migration-built local Supabase database. Apply the
+  generated `Database` type to the shared Supabase client and regenerate it
+  through `npm run db:types` after a schema change. Do not edit the generated
+  file manually.
+- **Why:** Migrations remain the database source of truth, while the generated
+  contract lets TypeScript infer valid table rows, inserts, updates, and
+  relationships. Generating locally verifies the exact migration history under
+  review without requiring hosted credentials or depending on whether a remote
+  deployment has already happened. Restricting generation to `public` keeps
+  private authorization helpers outside the browser-facing type surface.
+- **Tradeoffs:** The checked-in file can become stale if a migration changes
+  without regeneration. PostgreSQL check constraints also generate broad
+  scalar types rather than TypeScript literal unions, so some domain rules must
+  still be narrowed at the data boundary or represented as database enums when
+  that added coupling is justified.
+- **Revisit when:** Schema changes become frequent enough to warrant an
+  automated drift check in CI or the project intentionally exposes another
+  schema to the browser.
