@@ -115,6 +115,11 @@ Components combine primitives into reusable interface patterns. For example,
 provider-specific pending presentation. They receive data and callbacks rather
 than calling Supabase directly.
 
+`FlockList` receives typed flock summaries and emits the selected flock
+identifier. It owns accessible list and selection semantics but not fetching,
+navigation, or empty-state copy. Long names remain fully readable on narrow
+screens, and the route-level page decides what selecting a flock means.
+
 ### Pages
 
 Pages own route-level workflows and assemble components. `SignInPage` uses
