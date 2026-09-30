@@ -302,9 +302,9 @@ means it is the current direction, not that it can never change.
   unique index and an insert trigger enforce the initial invariant in Postgres
   instead of relying on frontend sequencing.
 - **Authorization:** RLS permits authenticated users to create only flocks they
-  own, permits members to read only their flocks and rosters, and permits only
-  the canonical owner to update or delete a flock. The application has no
-  direct membership-write grant yet.
+  own. The canonical owner can read the flock directly, while other members
+  receive read access through membership. Only the owner can update or delete a
+  flock. The application has no direct membership-write grant yet.
 - **Tradeoffs:** Ownership appears in two related rows. A future transfer must
   update both inside a reviewed database function or transaction; changing
   `owner_id` directly remains forbidden. Deleting the owner currently deletes

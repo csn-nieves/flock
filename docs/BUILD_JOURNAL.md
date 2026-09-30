@@ -512,12 +512,32 @@ Transactional pgTAP tests cover table security, least-privilege grants, atomic
 owner membership, member and outsider visibility, owner-only writes, ownership
 invariants, and cascade cleanup. The repository now includes the minimal local
 Supabase configuration needed to apply migrations and run those tests. Docker
-and the Supabase CLI are not available in the current workstation environment.
-As a fallback, the migration was applied to a temporary PostgreSQL 17 database
-with Supabase-compatible auth roles; owner, member, outsider, privilege,
-single-owner, and cascade behavior passed a focused smoke test. The complete
-pgTAP suite still needs its first local or CI execution before this migration is
-deployed. Hosted deployment remains deliberately separate.
+was not initially available, so the migration first passed a focused smoke test
+against temporary PostgreSQL 17 with Supabase-compatible auth roles. Installing
+Docker later enabled the complete local Supabase replay and exposed the policy
+ordering issue documented below. Hosted deployment remains deliberately
+separate.
+
+## 2026-09-29 — Correcting owner visibility during flock creation
+
+### Owner-aware flock read policy
+
+The first full local pgTAP run exposed an ordering edge case that the earlier
+PostgreSQL smoke test did not exercise. Creating a flock with `INSERT RETURNING`
+also evaluates its select policy. That policy originally required the new flock
+to appear in the caller's membership list, but the after-insert trigger creates
+the owner membership later in the statement. PostgreSQL therefore rejected the
+returned row even though the insert policy correctly recognized the owner.
+
+A follow-up migration now lets the canonical `owner_id` satisfy the flock read
+policy directly and retains the membership helper for every other member. This
+matches the ownership model, makes flock creation compatible with Supabase's
+normal insert-and-return pattern, and keeps non-members excluded. An owner index
+supports the new policy and owner foreign-key operations. The existing pgTAP
+creation assertion now guards this exact regression.
+
+After the correction, a clean local reset replayed both migrations and all 27
+pgTAP assertions passed.
 
 ## Current next steps
 
