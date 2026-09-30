@@ -102,7 +102,34 @@ The approved visual foundation uses shamrock `#369f60` as the primary color, dee
 
 ## Frontend architecture
 
-Build the interface in three layers, ordered from least to most product-aware:
+Organize the application from global composition down to reusable interface
+elements, while keeping remote-data orchestration on a separate branch of the
+page boundary:
+
+```text
+Application root
+└── Global providers
+    └── Router
+        └── Route layouts and guards
+            └── Pages
+                ├── Page-scoped views and content
+                │   ├── Shared components
+                │   │   └── Primitives
+                │   └── Primitives
+                └── Domain hooks
+                    └── Data-access modules
+                        └── Supabase
+```
+
+This tree describes ownership and dependency direction, not only rendered DOM
+parentage. Providers and routes compose the application globally. Pages are the
+meeting point between the rendered interface and workflow orchestration: they
+pass data down through views, components, and primitives, and initiate remote
+work through hooks and data-access modules. Hooks and data modules are not
+visual children of a page.
+
+Within the rendered interface, build from three layers ordered from least to
+most product-aware:
 
 ### Primitives
 
@@ -133,7 +160,7 @@ Pages are route-level entry points built from components and primitives.
 - Pass data downward and receive user intent upward through callbacks.
 - Keep transport details in data-access modules or hooks even when the page initiates the operation.
 
-The default import direction is:
+The default visual import direction is:
 
 `pages → components → primitives`
 

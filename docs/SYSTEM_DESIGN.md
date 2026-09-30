@@ -19,25 +19,40 @@ organizers.
 
 ```text
 Browser / installed PWA
-        │
-        ▼
-React Router pages
-        │
-        ├── workflow hooks and providers
-        │          │
-        │          ▼
-        │    data-access modules
-        │          │
-        │          ▼
-        │       Supabase
-        │    Auth · Postgres · Realtime · Storage
-        │
-        ▼
-Presentational components
-        │
-        ▼
-Reusable primitives
+└── React application root
+    └── QueryClientProvider
+        └── AuthSessionProvider
+            └── RouterProvider
+                └── App route layout
+                    ├── Route outlet
+                        ├── Public pages
+                        │   ├── SignInPage
+                        │   └── OAuthCallbackPage
+                        └── ProtectedRoute
+                            └── HomePage
+                    └── UpdatePrompt
 ```
+
+The routed tree above is the composition that runs today. Product pages follow
+the broader feature pattern below as they are added:
+
+```text
+Route page controller
+├── Domain hooks
+│   └── Data-access modules
+│       └── Supabase
+│           Auth · Postgres · Realtime · Storage
+└── Page view
+    └── Page-scoped content
+        ├── Shared components
+        │   └── Reusable primitives
+        └── Reusable primitives
+```
+
+The first branch is orchestration rather than rendered component nesting. A
+page starts remote work through a domain hook, which calls a data-access module;
+the page then translates the resulting state into props for its rendered view.
+Lower visual layers do not reach sideways into the data branch.
 
 Cloudflare Pages will serve the compiled application. Supabase supplies the
 backend capabilities. The browser may call Supabase directly only through its
