@@ -156,6 +156,13 @@ determines which rows are visible. Query failures reject from the data layer so
 React Query hooks can own cache and recovery behavior without exposing
 Supabase calls to pages or components.
 
+The same module owns flock creation. The browser submits only the name;
+PostgreSQL enforces its constraints, generates the identifier, and derives
+`owner_id` from the active authenticated session. The insert returns the same
+minimal flock-summary shape used by list consumers. The frontend does not accept
+an owner identifier, which keeps ownership assignment inside the database
+authorization boundary.
+
 The shared Supabase client is parameterized by the generated `Database` type in
 `src/types/database.ts`. That file describes only the exposed `public` schema
 and is regenerated from the migration-built local database with

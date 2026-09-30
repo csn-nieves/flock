@@ -636,6 +636,26 @@ now runs only on `main`, preserving a post-merge verification of the repository'
 canonical branch while avoiding duplicate feature-branch runs. Job names remain
 unchanged so the repository's required-status-check rules continue to match.
 
+## 2026-09-30 — Creating a flock through the data boundary
+
+### Typed flock creation
+
+`createFlock` is the first product-data mutation. It accepts only a flock name,
+inserts through the typed Supabase client, and returns the same minimal summary
+shape used by the flock list. The browser does not provide an identifier or
+owner identifier: PostgreSQL generates the flock ID and derives ownership from
+the authenticated session.
+
+Keeping ownership assignment in the database prevents a caller from selecting
+another user as the owner and preserves the existing Row Level Security and
+trigger-backed membership guarantees. Mutation failures reject from the data
+module so the future React Query hook can own cache updates and the future page
+can translate failures into safe recovery copy.
+
+Focused tests verify the insert payload, returned summary, database-owned field
+omission, and error propagation. React Query mutation state, validation UI, and
+cache invalidation remain separate branches.
+
 ## Current next steps
 
 Authentication still needs:
