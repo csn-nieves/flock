@@ -438,9 +438,11 @@ iPhone WebKit projects.
 
 GitHub Actions reports static analysis, unit tests, component tests, page tests,
 and the production build as distinct checks. The separation makes failures
-easier to identify and allows independent jobs to run in parallel. Browser
-tests are split by device so a platform-specific failure is visible without
-reading one combined log.
+easier to identify and allows independent jobs to run in parallel. Each browser
+suite runs its desktop Chromium, Android-sized Chromium, and iPhone WebKit
+projects in one job. This preserves project-labeled platform coverage while
+installing the headless Chromium shell and WebKit only once per suite instead
+of repeating checkout, dependency installation, and browser setup per device.
 
 ## Current constraints and revisit points
 

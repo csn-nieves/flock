@@ -808,6 +808,32 @@ Deferring registration prevents an incomplete success path from becoming a
 reachable product workflow; establishing the detail route remains the next
 small branch.
 
+## 2026-09-30 — Reducing repeated Playwright setup
+
+### Suite-level browser jobs
+
+Frontend CI previously expanded component and page browser coverage into six
+fresh GitHub-hosted runners. The Pixel profile reused Chromium and the iPhone
+profile reused WebKit, but every matrix entry still repeated checkout, `npm ci`,
+operating-system dependency setup, and a browser download. Four jobs installed
+Chromium and two installed WebKit even though the actual browser suites complete
+quickly once their engines are available.
+
+Component and page tests remain separate checks, preserving the useful failure
+boundary between isolated stories and routed workflows. Each check now runs all
+three Playwright projects in one runner and installs only the headless Chromium
+shell plus WebKit once. Playwright's project names still identify desktop,
+Android-sized, and iPhone failures in the job output, while CI setup falls from
+six browser runners to two.
+
+Browser binaries are intentionally not cached. Playwright's CI guidance notes
+that restoring the large browser cache is often comparable to downloading it,
+and Linux system dependencies still need installation. Sharding remains a
+later option if test execution, rather than setup, becomes the measured
+bottleneck. If repository branch protection requires the former per-device
+check names, replace those requirements with the new `Component tests` and
+`Page tests` checks before merging this workflow change.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

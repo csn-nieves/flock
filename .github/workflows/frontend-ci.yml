@@ -63,22 +63,9 @@ jobs:
         run: npm test
 
   component-tests:
-    name: Component tests (${{ matrix.device }})
+    name: Component tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - device: Desktop Chromium
-            project: components
-            browser: chromium
-          - device: Pixel 10
-            project: components-android
-            browser: chromium
-          - device: iPhone 17
-            project: components-iphone
-            browser: webkit
 
     steps:
       - name: Check out repository
@@ -93,29 +80,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install ${{ matrix.browser }}
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Install browser engines
+        run: npx playwright install --with-deps --only-shell chromium webkit
 
-      - name: Run ${{ matrix.device }} component tests
-        run: npx playwright test --project="${{ matrix.project }}"
+      - name: Run component browser matrix
+        run: npm run test:components
 
   page-tests:
-    name: Page tests (${{ matrix.device }})
+    name: Page tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - device: Desktop Chromium
-            project: pages
-            browser: chromium
-          - device: Pixel 10
-            project: pages-android
-            browser: chromium
-          - device: iPhone 17
-            project: pages-iphone
-            browser: webkit
 
     steps:
       - name: Check out repository
@@ -130,11 +104,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install ${{ matrix.browser }}
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Install browser engines
+        run: npx playwright install --with-deps --only-shell chromium webkit
 
-      - name: Run ${{ matrix.device }} page tests
-        run: npx playwright test --project="${{ matrix.project }}"
+      - name: Run page browser matrix
+        run: npm run test:pages
 
   production-build:
     name: Production build

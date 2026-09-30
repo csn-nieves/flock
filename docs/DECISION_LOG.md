@@ -157,14 +157,19 @@ means it is the current direction, not that it can never change.
 
 - **Status:** Accepted
 - **Decision:** Run static analysis, units, component browsers, page browsers,
-  and production build as distinct GitHub Actions jobs.
+  and production build as distinct GitHub Actions jobs. Run the three component
+  browser projects together and the three page browser projects together, so
+  each browser-suite job installs its required engines only once.
 - **Why:** A failing check identifies its layer immediately, and independent jobs
-  can run in parallel. Device matrices make Chromium- and WebKit-specific
-  failures visible.
-- **Tradeoffs:** Each browser job repeats checkout, installation, and browser
-  setup. Parallel clarity currently matters more than minimizing runner work.
-- **Revisit when:** CI duration or cost becomes significant enough to justify
-  caching, sharding, or a different matrix.
+  can run in parallel. Playwright's project labels keep desktop Chromium,
+  Android-sized Chromium, and iPhone WebKit failures identifiable inside the
+  owning suite without paying for six separate runner setups.
+- **Tradeoffs:** Device-specific failures no longer appear as separate GitHub
+  status checks, and all projects in one suite share its timeout. This is
+  accepted because browser installation dominated the small test suites, while
+  component-versus-page failure ownership remains clear.
+- **Revisit when:** A browser suite's execution time, failure isolation, or
+  runner resources justify sharding after setup cost is measured separately.
 
 ## D012 — Validate public configuration and isolate tests
 
