@@ -718,15 +718,45 @@ label appears. The primitive stays domain-neutral because each caller supplies
 its own verb-led copy; authentication actions remain a later, independently
 scoped migration.
 
+## 2026-09-30 — Presenting the flock collection
+
+### Flocks page state model
+
+`FlocksPage` is the first product page to consume cached database data. The
+page calls `useFlocks`, translates React Query's request state into explicit
+loading, error, empty, populated, and background-refresh presentations, and
+owns the navigation intents produced by the view. `FlockList` remains focused
+on collection presentation and selection, while the shared `Button` and
+`PendingIndicator` primitives continue to own action and progress behavior.
+
+Existing flocks stay visible during a background refresh so a routine cache
+update does not replace useful content with a full-page loading state. Initial
+loading reserves stable space, failures use safe recovery copy, and retry uses
+the button's pending contract to prevent duplicate requests. Separating the
+query-connected page controller, presentational `FlocksPageView`, and
+page-scoped state content makes each responsibility easy to scan and every
+state testable without coupling component stories to Supabase. This becomes the
+page-organization pattern when a route outgrows a single readable file; simple
+pages remain whole, and page-only pieces are not promoted into the shared
+component layer prematurely.
+
+The page is intentionally not exposed through the live router yet. Its create
+and selection actions target `/flocks/new` and `/flocks/:flockId`, and neither
+destination exists today. Keeping the page out of production navigation avoids
+shipping controls that lead to missing screens; router exposure belongs in the
+small branch that establishes those destinations.
+
 ## Current next steps
 
 Authentication still needs:
 
 - production-like auth lifecycle and memory profiling.
 
-The next product-data branch can add the first typed flock read through a data
-module and React Query hook, then continue through creation, invitation,
-joining, and the member list.
+The next product-data branch can assemble `CreateFlockForm` and
+`useCreateFlock` into the `/flocks/new` page workflow. A following small branch
+can establish the flock-detail destination and expose `FlocksPage` through the
+live router once both of its actions have valid destinations. Invitation,
+joining, and the member list remain later slices.
 
 ## Journal entry template
 
