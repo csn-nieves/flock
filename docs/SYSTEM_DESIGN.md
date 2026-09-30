@@ -106,6 +106,12 @@ about routes, flocks, Supabase, or data queries. Reusable SVG marks live in
 decorative semantics when a surrounding control already provides the
 accessible name.
 
+`Button` also owns the shared mutation-pending presentation. A caller supplies
+an action-specific pending label while retaining ownership of the underlying
+request state. The primitive disables duplicate activation, exposes busy
+semantics and a polite status announcement, composes `PendingIndicator`, and
+reserves both labels' geometry so progress never moves surrounding controls.
+
 ### Components
 
 Components combine primitives into reusable interface patterns. For example,

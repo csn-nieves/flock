@@ -53,7 +53,7 @@ test('shows a recoverable server error and preserves the name', async ({
   ).toBeEnabled()
 })
 
-test('keeps its label stable and blocks duplicate submission while busy', async ({
+test('shows pending progress and blocks duplicate submission while busy', async ({
   mount,
 }) => {
   const component = await mount('components/CreateFlockForm/Submitting')
@@ -63,7 +63,7 @@ test('keeps its label stable and blocks duplicate submission while busy', async 
     component.getByRole('textbox', { name: 'Flock name' }),
   ).toBeDisabled()
   await expect(
-    component.getByRole('button', { name: 'Create flock' }),
+    component.getByRole('button', { name: 'Creating flock' }),
   ).toBeDisabled()
-  await expect(component.getByRole('status')).toHaveText('Creating flock.')
+  await expect(component.getByRole('status')).toHaveText('Creating flock')
 })

@@ -78,12 +78,12 @@ describe('CreateFlockForm', () => {
       />,
     )
 
-    const button = screen.getByRole('button', { name: 'Create flock' })
+    const button = screen.getByRole('button', { name: 'Creating flock' })
     const form = button.closest('form')
     expect(form).toHaveAttribute('aria-busy', 'true')
     expect(screen.getByRole('textbox', { name: 'Flock name' })).toBeDisabled()
     expect(button).toBeDisabled()
-    expect(screen.getByRole('status')).toHaveTextContent('Creating flock.')
+    expect(screen.getByRole('status')).toHaveTextContent('Creating flock')
 
     fireEvent.submit(form!)
     expect(handleSubmit).not.toHaveBeenCalled()

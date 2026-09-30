@@ -50,4 +50,35 @@ describe('Button', () => {
 
     expect(handleClick).not.toHaveBeenCalled()
   })
+
+  it('shows and announces an action-specific pending state', () => {
+    const handleClick = vi.fn()
+
+    render(
+      <Button isPending pendingLabel="Creating flock" onClick={handleClick}>
+        Create flock
+      </Button>,
+    )
+
+    const button = screen.getByRole('button', { name: 'Creating flock' })
+    expect(button).toBeDisabled()
+    expect(button).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('Creating flock')
+
+    fireEvent.click(button)
+    expect(handleClick).not.toHaveBeenCalled()
+  })
+
+  it('keeps pending geometry reserved while idle', () => {
+    render(
+      <Button isPending={false} pendingLabel="Creating flock" onClick={vi.fn()}>
+        Create flock
+      </Button>,
+    )
+
+    const button = screen.getByRole('button', { name: 'Create flock' })
+    expect(button).toBeEnabled()
+    expect(button).not.toHaveAttribute('aria-busy')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
 })
