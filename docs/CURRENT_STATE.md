@@ -21,7 +21,9 @@ outside this slice.
   Playwright projects for desktop Chrome, Android-sized Chrome, and iPhone
   WebKit.
 - CI checks separated by formatting, linting, types, unit tests, build,
-  component browser tests, page browser tests, and database tests.
+  component browser tests, page browser tests, and database tests. Component
+  and page jobs each run the complete desktop, Android-sized, and iPhone
+  Playwright matrix without repeating runner setup per device.
 - Supabase authentication through six-digit email codes, Google OAuth, and
   Facebook OAuth using PKCE, protected routes, safe destination restoration,
   and a dedicated callback route.
