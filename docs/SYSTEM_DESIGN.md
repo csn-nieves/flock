@@ -138,6 +138,13 @@ Pages own route-level workflows and assemble components. `SignInPage` uses
 the data layer. Pages own whole-screen loading, error, authorization, and
 success behavior.
 
+`FlocksPage` is the first product-data page. It calls `useFlocks`, translates
+React Query state into safe loading, refreshing, empty, error, and populated
+presentation, and owns navigation intent for creation and flock selection. Its
+page view remains presentational so every state can be exercised without a
+database. The page is intentionally not exposed by the router until its create
+and detail destinations exist.
+
 ### Hooks, providers, and data access
 
 Every custom React hook lives in `src/hooks`. Tests that primarily exercise a
