@@ -2,6 +2,8 @@
 
 ## Project documentation
 
+- [Codex repository instructions](./AGENTS.md)
+- [Current development state](./docs/CURRENT_STATE.md)
 - [Product foundation](./PRODUCT.md)
 - [Technical foundation](./TECHNICAL.md)
 - [Design system](./DESIGN.md)

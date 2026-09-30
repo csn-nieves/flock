@@ -6,6 +6,8 @@ anyone who wants to follow the project from its beginning.
 
 ## Where to look
 
+- [Current state](./CURRENT_STATE.md) is the concise handoff for starting a new
+  development task and identifies the next smallest branches.
 - [System design](./SYSTEM_DESIGN.md) describes how the application works now.
 - [Decision log](./DECISION_LOG.md) records durable choices, alternatives, and
   the conditions that would justify changing them.
@@ -17,6 +19,8 @@ anyone who wants to follow the project from its beginning.
   architecture.
 - [Design system](../DESIGN.md) defines Flock's visual language and runtime
   token ownership.
+- [Repository instructions](../AGENTS.md) define how Codex should work within
+  the project.
 
 ## How the records differ
 
@@ -32,6 +36,10 @@ The build journal answers, “What happened while we built it?” Journal entrie
 may describe temporary failures, rejected approaches, and unresolved concerns.
 They are historical evidence, not necessarily current instructions.
 
+The current-state handoff answers, “Where did we stop, and what is the next
+smallest honest change?” It stays concise and points to the other records rather
+than duplicating their full rationale.
+
 ## Keeping this documentation current
 
 Update these records in the same small branch as a change when that change:
@@ -41,6 +49,9 @@ Update these records in the same small branch as a change when that change:
 - resolves a difficult implementation or CI problem;
 - reveals a limitation that later work must revisit; or
 - materially changes the way the system should be explained.
+
+Update `CURRENT_STATE.md` whenever a branch changes the active milestone,
+completed foundation, known follow-ups, or next recommended branch.
 
 For ordinary feature work, add a short build-journal entry. Add or amend a
 decision only when the reasoning will affect future work. Update the system
