@@ -103,30 +103,29 @@ The approved visual foundation uses shamrock `#369f60` as the primary color, dee
 ## Frontend architecture
 
 Organize the application from global composition down to reusable interface
-elements, while keeping remote-data orchestration on a separate branch of the
-page boundary:
+elements. Give every routed screen an explicit controller boundary between the
+router and its pure page:
 
 ```text
 Application root
 └── Global providers
     └── Router
         └── Route layouts and guards
-            └── Pages
-                ├── Page-scoped views and content
-                │   ├── Shared components
-                │   │   └── Primitives
-                │   └── Primitives
-                └── Domain hooks
-                    └── Data-access modules
-                        └── Supabase
+            └── Route controllers
+                ├── Router input, navigation, and metadata
+                ├── Domain hooks
+                │   └── Data-access modules
+                │       └── Supabase
+                └── Pages
+                    └── Feature components
+                        └── Primitives
 ```
 
 This tree describes ownership and dependency direction, not only rendered DOM
-parentage. Providers and routes compose the application globally. Pages are the
-meeting point between the rendered interface and workflow orchestration: they
-pass data down through views, components, and primitives, and initiate remote
-work through hooks and data-access modules. Hooks and data modules are not
-visual children of a page.
+parentage. Providers and routes compose the application globally. A route
+controller talks to React Router and domain hooks, handles route-level async and
+recovery decisions, and converts their results into application-shaped page
+props. The page is unaware of URLs, navigation, query libraries, and transport.
 
 Within the rendered interface, build from three layers ordered from least to
 most product-aware:
@@ -150,29 +149,49 @@ Components combine primitives into reusable interface patterns, such as forms, m
 - Components may own local interface state that does not need to survive navigation or synchronize with the backend. Examples include an open disclosure, a selected tab, or an in-progress form draft.
 - Move repeated business behavior into an explicit shared hook or domain module rather than hiding it inside a visual component.
 
+### Route controllers
+
+Route controllers live in `src/routes` and are the modules the router
+configuration registers when a destination is ready to expose.
+
+- Read path parameters, search parameters, location state, and saved navigation intent.
+- Initiate domain hooks and own navigation, document metadata, and route-level side effects.
+- Translate query and mutation results into clean, typed page props and safe recovery actions.
+- Render route-level loading, authorization, not-found, and failure views when those states should not enter the successful page contract.
+- Do not absorb visual layout or transport details that belong to pages, components, hooks, or data-access modules.
+
 ### Pages
 
-Pages are route-level entry points built from components and primitives.
+Pages are pure screen views built from feature components and primitives.
 
-- Start data queries and mutations at the page or route level whenever possible.
-- Own loading, empty, error, authorization, and success states for the complete page workflow.
-- Translate backend responses into the focused data shapes required by child components.
+- Receive clean, typed application data and callbacks through props.
+- Remain unaware of React Router, React Query, and Supabase.
+- Own screen layout and presentation states that are meaningfully part of the visible page experience.
 - Pass data downward and receive user intent upward through callbacks.
-- Keep transport details in data-access modules or hooks even when the page initiates the operation.
+- Keep page-only feature components beside their page. Promote them to `src/components` only after reuse establishes shared responsibility.
 
-The default visual import direction is:
+The default feature import direction is:
 
-`pages → components → primitives`
+`routes → pages → components → primitives`
 
-Code in a lower layer must not import from a higher layer. Data-access modules may be used by pages and route-level hooks, but never by primitives and only by a component when a documented exception is more coherent than page ownership.
+Code in a lower layer must not import from a higher layer. Route controllers use
+domain hooks, and hooks may use data-access modules. Pages, components, and
+primitives must not call data-access modules directly; importing focused domain
+types is allowed when it does not introduce transport behavior.
 
-Keep server state high without lifting every piece of state. Data shared across a workflow belongs at the closest page or route boundary; temporary interaction state belongs as close as possible to the control that uses it.
+Keep server state in the route controller without lifting every piece of state.
+Temporary interaction state belongs as close as possible to the control that
+uses it.
 
 ### Hooks
 
 Keep every custom React hook in `src/hooks`. Colocate tests that primarily exercise a hook beside it; provider integration tests remain with their provider. This gives the application one predictable place for workflow hooks, context consumers, and future React Query hooks such as `useUser`, `useFlock`, and `useUpdateUser`.
 
-Hooks may call data-access modules, but components and primitives should receive their results through props whenever practical. Pages remain the preferred place to start server-state queries and mutations. Keep provider components and other authentication infrastructure in `src/auth`; only their hook interfaces belong in `src/hooks`.
+Hooks may call data-access modules, but pages, components, and primitives receive
+their results through props. Route controllers are the preferred place to start
+server-state queries and mutations. Keep provider components and other
+authentication infrastructure in `src/auth`; only their hook interfaces belong
+in `src/hooks`.
 
 ## Testing and quality
 

@@ -1,9 +1,6 @@
-import type { Tables, TablesInsert } from '@src/types/database'
+import type { CreateFlockInput, FlockSummary } from '@src/types/flocks'
 
 import { supabase } from './supabase'
-
-export type FlockSummary = Pick<Tables<'flocks'>, 'id' | 'name' | 'owner_id'>
-export type CreateFlockInput = Pick<TablesInsert<'flocks'>, 'name'>
 
 export async function createFlock({
   name,

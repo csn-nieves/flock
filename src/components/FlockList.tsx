@@ -1,4 +1,4 @@
-import type { FlockSummary } from '@src/data/flocks'
+import type { FlockSummary } from '@src/types/flocks'
 
 export type FlockListProps = {
   flocks: readonly FlockSummary[]

@@ -1,8 +1,8 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import ProtectedRoute from '@src/auth/ProtectedRoute'
-import HomePage from '@src/pages/HomePage'
-import OAuthCallbackPage from '@src/pages/OAuthCallbackPage'
-import SignInPage from '@src/pages/SignInPage'
+import HomeRoute from '@src/routes/HomeRoute'
+import OAuthCallbackRoute from '@src/routes/OAuthCallbackRoute'
+import SignInRoute from '@src/routes/SignInRoute'
 import App from './App'
 
 export const routes = [
@@ -12,18 +12,18 @@ export const routes = [
     children: [
       {
         path: 'sign-in',
-        Component: SignInPage,
+        Component: SignInRoute,
       },
       {
         path: 'auth/callback',
-        Component: OAuthCallbackPage,
+        Component: OAuthCallbackRoute,
       },
       {
         Component: ProtectedRoute,
         children: [
           {
             index: true,
-            Component: HomePage,
+            Component: HomeRoute,
           },
         ],
       },

@@ -766,21 +766,24 @@ existing product, technical, design, decision, system-design, and journal
 records remain authoritative for their own concerns; the handoff links to them
 instead of duplicating their full rationale.
 
-## 2026-09-30 — Clarifying the React application hierarchy
+## 2026-09-30 — Separating routes from pure pages
 
-### Application composition and feature ownership
+### Explicit route-controller boundary
 
-The frontend documentation now shows the complete hierarchy from application
-providers and routing through pages, components, and primitives. It also shows
-the parallel orchestration path from a page through domain hooks and data-access
-modules to Supabase.
+The frontend now uses an explicit `routes → pages → components →
+primitives` feature hierarchy. Registered modules in `src/routes` own URL input,
+navigation, document metadata, workflow hooks, and translation of async state.
+Pages receive clean typed props and callbacks, so their rendering no longer
+depends on React Router, React Query, or Supabase.
 
-Separating the rendered interface path from the remote-data path avoids implying
-that hooks are visual children or that shared components may fetch their own
-server state. The system-design record includes the concrete routed tree that
-runs today, while the technical foundation keeps the durable pattern future
-routes should follow. This clarification changes no runtime behavior or current
-milestone.
+The previous code already separated some presentation into page views, but the
+smart controller was still named `FlocksPage`, and authentication pages mixed
+route effects with rendering. `FlocksRoute`, `SignInRoute`, and
+`OAuthCallbackRoute` now make those responsibilities visible; `HomeRoute`
+provides the same registration boundary for the simple protected index. Tests
+that exercise navigation and hooks moved beside the routes, while component
+stories continue to render pure pages directly. The user-visible behavior and
+current membership milestone remain unchanged.
 
 ## Current next steps
 

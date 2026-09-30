@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { PropsWithChildren } from 'react'
-import type { CreateFlockInput, FlockSummary } from '@src/data/flocks'
+import type { CreateFlockInput, FlockSummary } from '@src/types/flocks'
 import { flockQueryKeys } from '@src/data/queryKeys'
 import { createTestQueryClient } from '@src/test/queryClient'
 import { useCreateFlock } from './useCreateFlock'

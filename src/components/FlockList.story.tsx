@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 
-import type { FlockSummary } from '@src/data/flocks'
+import type { FlockSummary } from '@src/types/flocks'
 import FlockList from './FlockList'
 
 const flocks: FlockSummary[] = [

@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { FlockSummary } from '@src/data/flocks'
+import type { FlockSummary } from '@src/types/flocks'
 import { TestQueryClientProvider } from '@src/test/TestQueryClientProvider'
 import { useFlocks } from './useFlocks'
 
