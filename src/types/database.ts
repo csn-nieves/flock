@@ -186,13 +186,7 @@ export type Database = {
           location: string
           starts_at: string
           title: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'flock_events'
-          isOneToOne: true
-          isSetofReturn: false
-        }
+        }[]
       }
       create_flock_invitation: {
         Args: { target_flock_id: string }
