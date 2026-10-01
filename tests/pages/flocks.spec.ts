@@ -2,6 +2,8 @@ import { expect, test, type Page } from '@playwright/test'
 
 const flocksRoute = '**/rest/v1/flocks**'
 const flockMembersRoute = '**/rest/v1/rpc/list_flock_members'
+const flockEventsRoute = '**/rest/v1/flock_events**'
+const flockAttendanceRoute = '**/rest/v1/flock_event_attendance**'
 
 type TestFlock = {
   id: string
@@ -85,6 +87,14 @@ async function mockFlockWorkflow(page: Page) {
       ],
       status: 200,
     })
+  })
+
+  await page.route(flockEventsRoute, async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+
+  await page.route(flockAttendanceRoute, async (route) => {
+    await route.fulfill({ json: [], status: 200 })
   })
 }
 

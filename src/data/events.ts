@@ -47,7 +47,7 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
       events.map((event) => event.id),
     )
   if (attendanceError) throw attendanceError
-  const { data: userData } = await supabase.auth.getUser()
+  const { data: userData } = await supabase.auth.getSession()
   return events.map((event) => {
     const responses = attendance.filter((item) => item.event_id === event.id)
     return {
@@ -57,7 +57,7 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
         maybe: responses.filter((item) => item.response === 'maybe').length,
         out: responses.filter((item) => item.response === 'out').length,
         response:
-          (responses.find((item) => item.user_id === userData.user?.id)
+          (responses.find((item) => item.user_id === userData.session?.user.id)
             ?.response as EventResponse | undefined) ?? null,
       },
     }
