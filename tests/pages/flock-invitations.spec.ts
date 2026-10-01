@@ -33,6 +33,9 @@ async function seedAuthenticatedSession(page: Page) {
 }
 
 async function mockEventReads(page: Page) {
+  await page.route('**/rest/v1/rpc/list_flock_members', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
   await page.route('**/rest/v1/flock_events**', async (route) => {
     await route.fulfill({ json: [], status: 200 })
   })
