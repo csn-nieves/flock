@@ -13,6 +13,15 @@ import type { FlockInvitationLink } from '@src/types/invitations'
 const creationError =
   'We could not create an invitation. Check your connection and try again.'
 
+function isShareCancellation(error: unknown) {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    error.name === 'AbortError'
+  )
+}
+
 function getInvitationLink(
   invitation: { expiresAt: string; token: string } | undefined,
 ): FlockInvitationLink | undefined {
@@ -75,16 +84,40 @@ function CreateFlockInvitationRoute() {
     return <FlockInvitationNotFoundPage />
   }
 
+  const flock = flockQuery.data
+  const onShare =
+    invitation && typeof navigator.share === 'function'
+      ? async (invitationUrl: string) => {
+          const shareTitle = `Join ${flock.name} on Flock`
+
+          try {
+            await navigator.share({
+              text: `Join ${flock.name} on Flock.`,
+              title: shareTitle,
+              url: invitationUrl,
+            })
+            return 'shared' as const
+          } catch (error) {
+            if (isShareCancellation(error)) {
+              return 'cancelled' as const
+            }
+
+            throw error
+          }
+        }
+      : undefined
+
   return (
     <CreateFlockInvitationPage
       error={invitationMutation.isError ? creationError : undefined}
-      flock={flockQuery.data}
+      flock={flock}
       invitation={invitation}
       isCreating={invitationMutation.isPending}
       onCopy={async (invitationUrl) => {
         await navigator.clipboard.writeText(invitationUrl)
       }}
       onCreate={() => invitationMutation.mutate(flockId)}
+      onShare={onShare}
     />
   )
 }

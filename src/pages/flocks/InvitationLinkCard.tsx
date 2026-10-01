@@ -3,26 +3,48 @@ import { useRef, useState, type ReactNode } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 
-type CopyStatus = 'idle' | 'copying' | 'copied' | 'error'
+export type ShareInvitationResult = 'shared' | 'cancelled'
+
+type InvitationActionStatus =
+  | 'idle'
+  | 'sharing'
+  | 'shared'
+  | 'share-error'
+  | 'copying'
+  | 'copied'
+  | 'copy-error'
 
 export type InvitationLinkCardProps = {
   invitationUrl: string
   onCopy: (invitationUrl: string) => Promise<void>
+  onShare?: (invitationUrl: string) => Promise<ShareInvitationResult>
 }
 
 function InvitationLinkCard({
   invitationUrl,
   onCopy,
+  onShare,
 }: InvitationLinkCardProps) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle')
-  const isCopying = copyStatus === 'copying'
+  const [actionStatus, setActionStatus] =
+    useState<InvitationActionStatus>('idle')
+  const isCopying = actionStatus === 'copying'
+  const isSharing = actionStatus === 'sharing'
+  const isBusy = isCopying || isSharing
   let hint: ReactNode =
     'This link works once and expires 24 hours after creation.'
 
-  if (copyStatus === 'copied') {
+  if (actionStatus === 'shared') {
+    hint = <span role="status">Invitation shared.</span>
+  } else if (actionStatus === 'share-error') {
+    hint = (
+      <span role="alert">
+        We could not open sharing options. Copy the link instead.
+      </span>
+    )
+  } else if (actionStatus === 'copied') {
     hint = <span role="status">Invitation link copied.</span>
-  } else if (copyStatus === 'error') {
+  } else if (actionStatus === 'copy-error') {
     hint = (
       <span role="alert">
         We could not copy the link. Select it and copy it manually.
@@ -30,18 +52,33 @@ function InvitationLinkCard({
     )
   }
 
-  async function handleCopy() {
-    if (isCopying) {
+  async function handleShare() {
+    if (!onShare || isBusy) {
       return
     }
 
-    setCopyStatus('copying')
+    setActionStatus('sharing')
+
+    try {
+      const result = await onShare(invitationUrl)
+      setActionStatus(result === 'shared' ? 'shared' : 'idle')
+    } catch {
+      setActionStatus('share-error')
+    }
+  }
+
+  async function handleCopy() {
+    if (isBusy) {
+      return
+    }
+
+    setActionStatus('copying')
 
     try {
       await onCopy(invitationUrl)
-      setCopyStatus('copied')
+      setActionStatus('copied')
     } catch {
-      setCopyStatus('error')
+      setActionStatus('copy-error')
       inputRef.current?.focus()
       inputRef.current?.select()
     }
@@ -66,14 +103,27 @@ function InvitationLinkCard({
         value={invitationUrl}
       />
 
-      <Button
-        className="mt-4 w-full"
-        isPending={isCopying}
-        pendingLabel="Copying link"
-        onClick={() => void handleCopy()}
-      >
-        Copy invitation link
-      </Button>
+      <div className="mt-4 grid gap-3">
+        {onShare ? (
+          <Button
+            isPending={isSharing}
+            pendingLabel="Opening sharing options"
+            onClick={() => void handleShare()}
+          >
+            Share invitation
+          </Button>
+        ) : null}
+
+        <Button
+          disabled={isSharing}
+          isPending={isCopying}
+          pendingLabel="Copying link"
+          variant={onShare ? 'secondary' : 'primary'}
+          onClick={() => void handleCopy()}
+        >
+          Copy invitation link
+        </Button>
+      </div>
     </div>
   )
 }

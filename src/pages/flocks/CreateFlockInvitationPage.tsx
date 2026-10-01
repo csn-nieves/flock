@@ -4,7 +4,9 @@ import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSummary } from '@src/types/flocks'
 import type { FlockInvitationLink } from '@src/types/invitations'
-import InvitationLinkCard from './InvitationLinkCard'
+import InvitationLinkCard, {
+  type ShareInvitationResult,
+} from './InvitationLinkCard'
 
 export type CreateFlockInvitationPageProps = {
   flock: FlockSummary
@@ -13,6 +15,7 @@ export type CreateFlockInvitationPageProps = {
   onCreate: () => void
   error?: string
   invitation?: FlockInvitationLink
+  onShare?: (invitationUrl: string) => Promise<ShareInvitationResult>
 }
 
 type FlockInvitationErrorPageProps = {
@@ -73,6 +76,7 @@ function CreateFlockInvitationPage({
   isCreating,
   onCopy,
   onCreate,
+  onShare,
 }: CreateFlockInvitationPageProps) {
   return (
     <FlockInvitationPageLayout
@@ -80,7 +84,11 @@ function CreateFlockInvitationPage({
       heading="Invite a runner"
     >
       {invitation ? (
-        <InvitationLinkCard invitationUrl={invitation.url} onCopy={onCopy} />
+        <InvitationLinkCard
+          invitationUrl={invitation.url}
+          onCopy={onCopy}
+          onShare={onShare}
+        />
       ) : (
         <div>
           <p className="mt-0 min-h-6 text-sm leading-5 text-text">

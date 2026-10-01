@@ -416,3 +416,25 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Flocks gain privacy modes, administrator roles, explicit
   invite revocation, longer-lived share links, or evidence that 24 hours is too
   short for real invitation behavior.
+
+## D024 — Prefer native invitation sharing with a copy fallback
+
+- **Status:** Accepted
+- **Decision:** Offer the operating system's native share sheet when the Web
+  Share API is available. Keep copy visible as the fallback on every supported
+  device rather than maintaining app-specific links for Messages, WhatsApp,
+  email, or other third-party applications.
+- **Why:** The native share sheet exposes the applications actually installed
+  on a phone without making Flock track vendor URL schemes. Copy works across
+  browsers and remains the sole fallback when native sharing is unavailable.
+- **Behavior:** The route controller owns browser capability detection and the
+  native share call. User cancellation returns the invitation card to its idle
+  state without an error. Genuine share and clipboard failures remain inline
+  with an immediately available recovery action.
+- **Tradeoffs:** Available destinations differ by browser, operating system,
+  and installed applications. Flock cannot guarantee that a specific app will
+  appear. Browsers without Web Share support offer copy only, even when the
+  operating system has an email application.
+- **Revisit when:** Product evidence supports a high-value app-specific share
+  destination, browsers converge on a richer sharing contract, or invitations
+  gain server-side delivery channels.

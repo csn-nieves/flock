@@ -70,6 +70,7 @@ export function Error() {
 
 export function Ready() {
   const [copiedValue, setCopiedValue] = useState('')
+  const [sharedValue, setSharedValue] = useState('')
 
   return (
     <Canvas>
@@ -82,9 +83,16 @@ export function Ready() {
           return Promise.resolve()
         }}
         onCreate={() => undefined}
+        onShare={(value) => {
+          setSharedValue(value)
+          return Promise.resolve('shared')
+        }}
       />
       <output className="sr-only" data-testid="copied-value">
         {copiedValue}
+      </output>
+      <output className="sr-only" data-testid="shared-value">
+        {sharedValue}
       </output>
     </Canvas>
   )
@@ -100,6 +108,67 @@ export function CopyError() {
         onCopy={() =>
           Promise.reject(new globalThis.Error('Clipboard unavailable.'))
         }
+        onCreate={() => undefined}
+      />
+    </Canvas>
+  )
+}
+
+export function ShareError() {
+  return (
+    <Canvas>
+      <CreateFlockInvitationPage
+        flock={flock}
+        invitation={invitation}
+        isCreating={false}
+        onCopy={() => Promise.resolve()}
+        onCreate={() => undefined}
+        onShare={() =>
+          Promise.reject(new globalThis.Error('Sharing unavailable.'))
+        }
+      />
+    </Canvas>
+  )
+}
+
+export function ShareCancelled() {
+  return (
+    <Canvas>
+      <CreateFlockInvitationPage
+        flock={flock}
+        invitation={invitation}
+        isCreating={false}
+        onCopy={() => Promise.resolve()}
+        onCreate={() => undefined}
+        onShare={() => Promise.resolve('cancelled')}
+      />
+    </Canvas>
+  )
+}
+
+export function Sharing() {
+  return (
+    <Canvas>
+      <CreateFlockInvitationPage
+        flock={flock}
+        invitation={invitation}
+        isCreating={false}
+        onCopy={() => Promise.resolve()}
+        onCreate={() => undefined}
+        onShare={() => new Promise(() => undefined)}
+      />
+    </Canvas>
+  )
+}
+
+export function SharingUnavailable() {
+  return (
+    <Canvas>
+      <CreateFlockInvitationPage
+        flock={flock}
+        invitation={invitation}
+        isCreating={false}
+        onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
       />
     </Canvas>
