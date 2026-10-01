@@ -40,6 +40,25 @@ if (
 
 console.log(`Starting Flock with local Supabase at ${supabaseUrl}`)
 
+const logProcesses = ['supabase_rest_flock', 'supabase_db_flock'].map(
+  (serviceName) => {
+    console.log(`Streaming new ${serviceName} logs…`)
+    return spawn(
+      'docker',
+      ['logs', '--follow', '--tail', '0', '--timestamps', serviceName],
+      { stdio: 'inherit' },
+    )
+  },
+)
+
+function stopLogProcesses() {
+  for (const logProcess of logProcesses) {
+    if (!logProcess.killed) {
+      logProcess.kill('SIGTERM')
+    }
+  }
+}
+
 const viteProcess = spawn('npm', ['run', 'dev'], {
   env: {
     ...process.env,
@@ -50,11 +69,13 @@ const viteProcess = spawn('npm', ['run', 'dev'], {
 })
 
 viteProcess.on('error', (error) => {
+  stopLogProcesses()
   console.error(`Unable to start Vite: ${error.message}`)
   process.exit(1)
 })
 
 viteProcess.on('exit', (code, signal) => {
+  stopLogProcesses()
   if (signal) {
     process.kill(process.pid, signal)
     return
