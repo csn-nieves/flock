@@ -112,6 +112,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      update_my_profile: {
+        Args: { next_display_name: string }
+        Returns: {
+          display_name: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

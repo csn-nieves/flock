@@ -31,6 +31,7 @@ Browser / installed PWA
                     │   └── ProtectedRoute
                     │       ├── index → FlocksRoute → FlocksPage
                     │       ├── FlocksRoute → FlocksPage
+                    │       ├── ProfileRoute → ProfilePage
                     │       ├── CreateFlockRoute → CreateFlockPage
                     │       └── FlockDetailRoute → FlockDetailPage
                     └── UpdatePrompt
@@ -205,6 +206,12 @@ background-refresh, and stale-refresh-failure states, so a roster problem does
 not replace an otherwise usable flock page. The protected router exposes the
 route at `/flocks/:flockId` as the destination for list selection and
 successful creation.
+
+`ProfileRoute` calls `useProfile` and `useUpdateProfile`, owns the protected
+`/profile` destination, and maps loading, retry, save, and success state into
+the pure `ProfilePage`. The update function derives the target from
+`auth.uid()` and the mutation invalidates member-list queries so edited names
+are reflected in flock detail views.
 
 Pages stay in one file while their presentation remains easy to scan. When a
 page grows, it moves into a domain-named directory with page-scoped feature

@@ -9,6 +9,7 @@ export type FlocksPageProps = {
   flocks: readonly FlockSummary[]
   isRefreshing: boolean
   onCreate: () => void
+  onProfile: () => void
   onSelect: (flockId: string) => void
 }
 
@@ -57,6 +58,7 @@ function FlocksPage({
   flocks,
   isRefreshing,
   onCreate,
+  onProfile,
   onSelect,
 }: FlocksPageProps) {
   return (
@@ -65,6 +67,7 @@ function FlocksPage({
         flocks={flocks}
         isRefreshing={isRefreshing}
         onCreate={onCreate}
+        onProfile={onProfile}
         onSelect={onSelect}
       />
     </FlocksPageLayout>
