@@ -8,11 +8,13 @@ export type FlockEventsSectionProps = {
   events?: readonly FlockEvent[]
   isLoading: boolean
   isSaving: boolean
+  canCreate: boolean
   onCreate: (input: CreateFlockEventInput) => void
   onRetry: () => void
 }
 
 function FlockEventsSection({
+  canCreate,
   error,
   events,
   isLoading,
@@ -87,49 +89,51 @@ function FlockEventsSection({
           ))}
         </ul>
       ) : null}
-      <form
-        className="mt-6 space-y-3 rounded-lg border border-border bg-surface-subtle p-4"
-        onSubmit={submit}
-      >
-        <h3 className="m-0 font-display text-base font-bold text-text">
-          Create an event
-        </h3>
-        <TextField
-          label="Title"
-          name="eventTitle"
-          required
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <TextField
-          label="Date and time"
-          name="startsAt"
-          required
-          type="datetime-local"
-          value={startsAt}
-          onChange={(event) => setStartsAt(event.target.value)}
-        />
-        <TextField
-          label="Location"
-          name="eventLocation"
-          required
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-        />
-        <TextField
-          label="Description"
-          name="eventDescription"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
-        <Button
-          isPending={isSaving}
-          pendingLabel="Creating event"
-          type="submit"
+      {canCreate ? (
+        <form
+          className="mt-6 space-y-3 rounded-lg border border-border bg-surface-subtle p-4"
+          onSubmit={submit}
         >
-          Create event
-        </Button>
-      </form>
+          <h3 className="m-0 font-display text-base font-bold text-text">
+            Create an event
+          </h3>
+          <TextField
+            label="Title"
+            name="eventTitle"
+            required
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+          <TextField
+            label="Date and time"
+            name="startsAt"
+            required
+            type="datetime-local"
+            value={startsAt}
+            onChange={(event) => setStartsAt(event.target.value)}
+          />
+          <TextField
+            label="Location"
+            name="eventLocation"
+            required
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+          />
+          <TextField
+            label="Description"
+            name="eventDescription"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+          <Button
+            isPending={isSaving}
+            pendingLabel="Creating event"
+            type="submit"
+          >
+            Create event
+          </Button>
+        </form>
+      ) : null}
     </section>
   )
 }

@@ -510,3 +510,16 @@ means it is the current direction, not that it can never change.
   avoiding unnecessary precision and location-tracking obligations.
 - **Revisit when:** Discovery needs map-based search or runners explicitly need
   a more precise, separately consented location feature.
+
+## D029 — Keep runner-owned events separate from flock events
+
+- **Status:** Future direction
+- **Decision:** Flock events remain owner-created for the initial workflow, but
+  the product should later support runner-owned events that can invite specific
+  runners or an entire flock, even when invitees belong to different flocks.
+- **Why:** Event coordination is broader than flock administration. Sarah may
+  belong to one flock and still organize a run with Gary or another flock's
+  members without requiring ownership of their flock.
+- **Revisit when:** The initial event list and creation workflow have enough
+  usage evidence to justify event invitations, recipient privacy controls, and
+  cross-flock discovery rules.
