@@ -1004,6 +1004,27 @@ Top-level flock collection and authentication handoff screens do not receive a
 misleading generic back control. Their existing task-specific destinations
 remain the appropriate recovery paths.
 
+## 2026-10-01 — Profiling authentication lifecycle behavior
+
+### Repeated route transitions and heap stability
+
+The existing authentication lifecycle protections were profiled in a
+production-like Chromium run before adding more auth code. A persisted test
+session and mocked Supabase responses exercised ten repeated sign-in to
+protected-route transitions, forcing garbage collection before each heap
+sample. Used JavaScript heap stayed at 19.3 MB for every sample, and the run
+reported no console warnings or errors.
+
+The provider's existing unit coverage also verifies that its auth subscription
+is unsubscribed on unmount and that a late initial session response cannot
+update an inactive provider. OAuth callback coverage verifies that React Strict
+Mode does not exchange a single-use authorization code twice. No lifecycle
+change was warranted by this profile.
+
+This is a Chromium, mocked-network, short-duration measurement—not a substitute
+for long-lived token-refresh profiling or Safari/WebKit memory tooling. Those
+remain release-level checks if authentication behavior changes materially.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
