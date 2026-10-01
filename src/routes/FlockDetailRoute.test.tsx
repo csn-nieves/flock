@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { FlockSummary } from '@src/types/flocks'
 import type { FlockMemberSummary } from '@src/types/flockMembers'
+import type { FlockEvent } from '@src/types/events'
 import FlockDetailRoute from './FlockDetailRoute'
 
 const flockQuery = vi.hoisted(() => ({
@@ -25,6 +26,17 @@ const membersQuery = vi.hoisted(() => ({
   refetch: vi.fn(),
 }))
 const useFlockMembersMock = vi.hoisted(() => vi.fn(() => membersQuery))
+const eventsQuery = vi.hoisted(() => ({
+  data: [] as FlockEvent[],
+  isError: false,
+  isFetching: false,
+  isPending: false,
+  refetch: vi.fn(),
+}))
+const useFlockEventsMock = vi.hoisted(() => vi.fn(() => eventsQuery))
+const createEventMock = vi.hoisted(() =>
+  vi.fn(() => ({ isError: false, isPending: false, mutate: vi.fn() })),
+)
 
 vi.mock('@src/hooks/useFlock', () => ({
   useFlock: useFlockMock,
@@ -32,6 +44,14 @@ vi.mock('@src/hooks/useFlock', () => ({
 
 vi.mock('@src/hooks/useFlockMembers', () => ({
   useFlockMembers: useFlockMembersMock,
+}))
+
+vi.mock('@src/hooks/useFlockEvents', () => ({
+  useFlockEvents: useFlockEventsMock,
+}))
+
+vi.mock('@src/hooks/useCreateFlockEvent', () => ({
+  useCreateFlockEvent: createEventMock,
 }))
 
 const flock: FlockSummary = {

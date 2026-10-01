@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router'
 
 import { useFlock } from '@src/hooks/useFlock'
 import { useFlockMembers } from '@src/hooks/useFlockMembers'
+import { useFlockEvents } from '@src/hooks/useFlockEvents'
+import { useCreateFlockEvent } from '@src/hooks/useCreateFlockEvent'
 import FlockDetailPage, {
   FlockDetailErrorPage,
   FlockDetailLoadingPage,
@@ -14,6 +16,8 @@ function FlockDetailRoute() {
   const { flockId } = useParams<{ flockId: string }>()
   const flockQuery = useFlock(flockId)
   const membersQuery = useFlockMembers(flockId)
+  const eventsQuery = useFlockEvents(flockId)
+  const createEventMutation = useCreateFlockEvent(flockId ?? '')
   const navigate = useNavigate()
   const onBack = () => navigate('/flocks', { replace: true })
   let title = 'Flock not found — Flock'
@@ -87,6 +91,17 @@ function FlockDetailRoute() {
         navigate(`/flocks/${encodeURIComponent(flockId)}/invitations/new`)
       }
       onRetryMembers={() => void membersQuery.refetch()}
+      events={{
+        error:
+          eventsQuery.isError || createEventMutation.isError
+            ? 'Events are unavailable.'
+            : undefined,
+        events: eventsQuery.data,
+        isLoading: eventsQuery.isPending,
+        isSaving: createEventMutation.isPending,
+        onCreate: (input) => createEventMutation.mutate(input),
+        onRetry: () => void eventsQuery.refetch(),
+      }}
     />
   )
 }

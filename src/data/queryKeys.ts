@@ -1,5 +1,6 @@
 const flockRootKey = ['flocks'] as const
 const profileRootKey = ['profile'] as const
+const eventRootKey = ['events'] as const
 
 export const flockQueryKeys = {
   all: flockRootKey,
@@ -13,4 +14,8 @@ export const flockQueryKeys = {
 
 export const profileQueryKeys = {
   current: profileRootKey,
+}
+
+export const eventQueryKeys = {
+  flock: (flockId: string) => [...eventRootKey, flockId] as const,
 }

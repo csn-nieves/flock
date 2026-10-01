@@ -7,6 +7,9 @@ import type { FlockSummary } from '@src/types/flocks'
 import FlockMembersSection, {
   type FlockMemberListState,
 } from './FlockMembersSection'
+import FlockEventsSection, {
+  type FlockEventsSectionProps,
+} from './FlockEventsSection'
 
 export type FlockDetailPageProps = {
   flock: FlockSummary
@@ -15,6 +18,7 @@ export type FlockDetailPageProps = {
   onBack: () => void
   onInvite: () => void
   onRetryMembers: () => void
+  events?: FlockEventsSectionProps
 }
 
 type FlockDetailErrorPageProps = {
@@ -80,6 +84,7 @@ function FlockDetailPage({
   onBack,
   onInvite,
   onRetryMembers,
+  events,
 }: FlockDetailPageProps) {
   return (
     <FlockDetailPageLayout
@@ -96,6 +101,7 @@ function FlockDetailPage({
         </p>
       ) : null}
       <FlockMembersSection memberList={memberList} onRetry={onRetryMembers} />
+      {events ? <FlockEventsSection {...events} /> : null}
     </FlockDetailPageLayout>
   )
 }
