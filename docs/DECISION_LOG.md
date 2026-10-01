@@ -309,7 +309,9 @@ means it is the current direction, not that it can never change.
 - **Authorization:** RLS permits authenticated users to create only flocks they
   own. The canonical owner can read the flock directly, while other members
   receive read access through membership. Only the owner can update or delete a
-  flock. The application has no direct membership-write grant yet.
+  flock. The application has no direct membership-write grant yet. A detail
+  lookup presents the same not-found state for an absent flock and one hidden
+  by RLS, avoiding disclosure of another flock's existence.
 - **Tradeoffs:** Ownership appears in two related rows. A future transfer must
   update both inside a reviewed database function or transaction; changing
   `owner_id` directly remains forbidden. Deleting the owner currently deletes

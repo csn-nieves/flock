@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createFlock, listFlocks } from './flocks'
+import { createFlock, getFlock, listFlocks } from './flocks'
 
 const flockQueryMocks = vi.hoisted(() => ({
   from: vi.fn(),
+  eq: vi.fn(),
   insert: vi.fn(),
+  maybeSingle: vi.fn(),
   order: vi.fn(),
   select: vi.fn(),
   single: vi.fn(),
@@ -27,8 +29,12 @@ describe('flock data', () => {
       select: flockQueryMocks.select,
     })
     flockQueryMocks.select.mockReturnValue({
+      eq: flockQueryMocks.eq,
       order: flockQueryMocks.order,
       single: flockQueryMocks.single,
+    })
+    flockQueryMocks.eq.mockReturnValue({
+      maybeSingle: flockQueryMocks.maybeSingle,
     })
   })
 
@@ -113,6 +119,50 @@ describe('flock data', () => {
       })
 
       await expect(listFlocks()).rejects.toBe(queryError)
+    })
+  })
+
+  describe('getFlock', () => {
+    it('returns one RLS-visible flock summary', async () => {
+      const flock = {
+        id: 'morning-runners-id',
+        name: 'Morning Runners',
+        owner_id: 'owner-id',
+      }
+      flockQueryMocks.maybeSingle.mockResolvedValue({
+        data: flock,
+        error: null,
+      })
+
+      await expect(getFlock('morning-runners-id')).resolves.toEqual(flock)
+      expect(flockQueryMocks.from).toHaveBeenCalledWith('flocks')
+      expect(flockQueryMocks.select).toHaveBeenCalledWith('id, name, owner_id')
+      expect(flockQueryMocks.eq).toHaveBeenCalledWith(
+        'id',
+        'morning-runners-id',
+      )
+      expect(flockQueryMocks.maybeSingle).toHaveBeenCalledOnce()
+    })
+
+    it('returns null when the flock is missing or hidden by RLS', async () => {
+      flockQueryMocks.maybeSingle.mockResolvedValue({ data: null, error: null })
+
+      await expect(getFlock('hidden-flock-id')).resolves.toBeNull()
+    })
+
+    it('rejects with the Supabase query error', async () => {
+      const queryError = {
+        code: 'PGRST000',
+        details: '',
+        hint: '',
+        message: 'Unable to load flock.',
+      }
+      flockQueryMocks.maybeSingle.mockResolvedValue({
+        data: null,
+        error: queryError,
+      })
+
+      await expect(getFlock('morning-runners-id')).rejects.toBe(queryError)
     })
   })
 })
