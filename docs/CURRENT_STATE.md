@@ -45,6 +45,11 @@ outside this slice.
 - `FlockDetailRoute` and pure `FlockDetailPage` load one RLS-visible
   flock by route identifier and cover loading, refresh, not-found, failure, and
   retry states without disclosing hidden flocks.
+- A staged invitation-creation foundation lets any flock member request an
+  opaque, single-use link that expires after 24 hours. Private storage keeps
+  only the token hash, pgTAP covers authorization and lifetime rules, and the
+  typed data, hook, route-controller, pure page, copy recovery, and browser
+  stories are ready to connect once invitation acceptance exists.
 - The protected live router exposes `/flocks`, `/flocks/new`, and
   `/flocks/:flockId` as one complete list, create, and detail workflow.
 
@@ -61,10 +66,16 @@ The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
 production branding, and a release candidate suitable for provider review.
 
+Invitation creation is intentionally staged outside the live router. Exposing
+it now would generate links to an acceptance destination that does not exist.
+Invitations are a convenient path into a flock, not an invitation-only privacy
+gate; flock discovery remains deferred.
+
 ## Next smallest branches
 
-1. Continue the membership slice with invitation creation, invitation
-   acceptance, joining, and the member list in separate small branches.
+1. Add atomic invitation acceptance and membership creation, then register the
+   complete invitation routes in one small branch.
+2. Add the member list as a separate small branch.
 
 ## Known follow-ups
 

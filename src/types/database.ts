@@ -67,7 +67,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_flock_invitation: {
+        Args: { target_flock_id: string }
+        Returns: {
+          expires_at: string
+          token: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

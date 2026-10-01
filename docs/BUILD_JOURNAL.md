@@ -892,6 +892,29 @@ on first startup and on `just reset`; normal startup deliberately preserves
 local changes. Just remains a convenience layer over npm scripts so CI and
 contributors without it keep the same lower-level commands.
 
+## 2026-10-01 — Creating single-use flock invitations
+
+### Staged invitation creation and private token storage
+
+Any current flock member can now create a cryptographically random invitation
+that expires after 24 hours. The raw token is returned once for sharing while
+only its SHA-256 hash is stored in a private database table. The schema records
+consumption separately so the next branch can make acceptance single-use with
+one atomic database operation. Multiple invitations for a flock are permitted;
+each individual token is independently single-use.
+
+The frontend follows the route-controller and pure-page boundary. A typed data
+function and React Query mutation create the invitation, while a staged route
+maps flock loading and mutation states into a mobile-first page. The generated
+link remains selectable if clipboard access fails, and both creation and copy
+actions block duplicate activation while pending.
+
+The route is deliberately not registered in the live router yet. Its generated
+URL points to an invitation-acceptance destination, so exposing creation before
+acceptance would produce broken share links. The next branch should validate
+and consume the token in the same database transaction that creates membership,
+then expose the complete create-and-accept route pair.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
