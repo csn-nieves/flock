@@ -40,16 +40,33 @@ if (
 
 console.log(`Starting Flock with local Supabase at ${supabaseUrl}`)
 
-const logProcesses = ['supabase_rest_flock', 'supabase_db_flock'].map(
-  (serviceName) => {
-    console.log(`Streaming new ${serviceName} logs…`)
-    return spawn(
-      'docker',
-      ['logs', '--follow', '--tail', '0', '--timestamps', serviceName],
-      { stdio: 'inherit' },
-    )
-  },
-)
+const logProcesses = [
+  'supabase_kong_flock',
+  'supabase_rest_flock',
+  'supabase_db_flock',
+].map((serviceName) => {
+  console.log(`Streaming new ${serviceName} logs…`)
+  const logProcess = spawn(
+    'docker',
+    ['logs', '--follow', '--tail', '0', '--timestamps', serviceName],
+    { stdio: ['ignore', 'pipe', 'pipe'] },
+  )
+
+  const writeLog = (chunk) => {
+    const lines = chunk.toString().split(/(?<=\n)/)
+    for (const line of lines) {
+      if (line) process.stdout.write(`[${serviceName}] ${line}`)
+    }
+  }
+
+  logProcess.stdout.on('data', writeLog)
+  logProcess.stderr.on('data', writeLog)
+  logProcess.on('error', (error) => {
+    console.error(`Unable to stream ${serviceName}: ${error.message}`)
+  })
+
+  return logProcess
+})
 
 function stopLogProcesses() {
   for (const logProcess of logProcesses) {
