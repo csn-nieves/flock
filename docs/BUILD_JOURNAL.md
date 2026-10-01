@@ -834,6 +834,25 @@ bottleneck. If repository branch protection requires the former per-device
 check names, replace those requirements with the new `Component tests` and
 `Page tests` checks before merging this workflow change.
 
+## 2026-09-30 — Establishing the flock detail destination
+
+### RLS-aware detail route and pure page
+
+The first flock-detail destination now follows the complete frontend ownership
+chain. `getFlock` selects one minimal flock summary, `useFlock` owns its React
+Query cache state, `FlockDetailRoute` translates the route parameter and query
+lifecycle, and the pure `FlockDetailPage` renders application-shaped props.
+
+The data function uses `maybeSingle`, so a flock that does not exist and a flock
+hidden by Row Level Security both become a successful `null` result. The route
+presents one not-found state for both cases instead of revealing whether another
+run club exists. Transport failures remain separate, use safe copy, and provide
+a duplicate-safe retry; visible data stays in place during background refresh.
+
+The route remains outside `src/router.tsx`. The next branch can now register the
+list, create, and detail routes together and navigate a successful creation to
+the returned flock identifier without exposing any incomplete destination.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

@@ -42,6 +42,9 @@ outside this slice.
 - A staged `CreateFlockRoute` and pure `CreateFlockPage` connect
   `CreateFlockForm` to `useCreateFlock`, preserve entered data after a safe
   mutation error, and prevent duplicate creation while pending.
+- A staged `FlockDetailRoute` and pure `FlockDetailPage` load one RLS-visible
+  flock by route identifier and cover loading, refresh, not-found, failure, and
+  retry states without disclosing hidden flocks.
 
 ## Current application boundary
 
@@ -50,7 +53,8 @@ home shell through explicit route-controller modules. `FlocksRoute` is
 intentionally not registered yet because its create and detail actions do not
 have complete destinations. `CreateFlockRoute` is also intentionally not
 registered because a successful creation does not yet have a valid detail
-destination.
+destination. `FlockDetailRoute` now provides that destination in code but stays
+unregistered until the list, create, and detail routes can be exposed together.
 
 The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
@@ -58,10 +62,9 @@ production branding, and a release candidate suitable for provider review.
 
 ## Next smallest branches
 
-1. Establish the first flock-detail destination.
-2. Wire the flock list, create, and detail destinations into one honest routed
+1. Wire the flock list, create, and detail destinations into one honest routed
    workflow.
-3. Continue the membership slice with invitation creation, invitation
+2. Continue the membership slice with invitation creation, invitation
    acceptance, joining, and the member list in separate small branches.
 
 ## Known follow-ups

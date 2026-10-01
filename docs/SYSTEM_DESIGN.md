@@ -176,6 +176,13 @@ input preservation, and duplicate-submit protection keep their established
 owners. This route is staged outside the live router until the flock-detail
 route provides an honest post-create destination.
 
+`FlockDetailRoute` reads the flock identifier, calls `useFlock`, and maps the
+detail query into loading, refreshing, safe failure, and not-found views around
+the pure `FlockDetailPage`. A missing row and a row hidden by Row Level Security
+both arrive as `null` and deliberately share the same not-found presentation.
+The staged route remains outside the live router until list, create, and detail
+can be registered as one complete navigation flow.
+
 Pages stay in one file while their presentation remains easy to scan. When a
 page grows, it moves into a domain-named directory with page-scoped feature
 components. Route orchestration stays separately visible in `src/routes`.
@@ -210,6 +217,12 @@ Supabase session supplies database identity, and PostgreSQL Row Level Security
 determines which rows are visible. Query failures reject from the data layer so
 React Query hooks can own cache and recovery behavior without exposing
 Supabase calls to pages or components.
+
+The same module can read one flock by identifier with `maybeSingle`. It returns
+`null` when Row Level Security exposes no matching row, preserving the database
+authorization boundary without teaching the client whether the row is absent
+or merely inaccessible. `useFlock` caches that result under the established
+detail query key.
 
 The same module owns flock creation. The browser submits only the name;
 PostgreSQL enforces its constraints, generates the identifier, and derives

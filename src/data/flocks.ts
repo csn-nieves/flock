@@ -30,3 +30,17 @@ export async function listFlocks(): Promise<FlockSummary[]> {
 
   return data
 }
+
+export async function getFlock(flockId: string): Promise<FlockSummary | null> {
+  const { data, error } = await supabase
+    .from('flocks')
+    .select('id, name, owner_id')
+    .eq('id', flockId)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
