@@ -853,6 +853,28 @@ The route remains outside `src/router.tsx`. The next branch can now register the
 list, create, and detail routes together and navigate a successful creation to
 the returned flock identifier without exposing any incomplete destination.
 
+## 2026-10-01 — Exposing the first complete flock workflow
+
+### Protected list, create, and detail routes
+
+The live router now exposes `/flocks`, `/flocks/new`, and
+`/flocks/:flockId` beneath the existing session guard. The protected application
+index also renders the flock collection, replacing the empty home placeholder
+with the first usable product destination while preserving exact root URLs
+restored after authentication. List actions now reach real create and detail
+screens instead of staged test destinations.
+
+Successful creation waits for the server-returned flock identifier and then
+replaces the create route with that flock's detail URL. This keeps the mutation
+pessimistic, prevents a guessed identifier, and makes browser Back return to the
+owning list instead of reopening a completed form. React Query's existing list
+invalidation makes the new flock visible when the collection mounts again.
+
+A real-application Playwright flow covers the protected index, empty list,
+create navigation, successful mutation, detail destination, Back behavior,
+refetched list, and list-to-detail selection across desktop Chrome, Android-sized
+Chrome, and iPhone WebKit.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
