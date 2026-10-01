@@ -12,6 +12,17 @@ vi.mock('@src/hooks/useAuthSession', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useFlocks', () => ({
+  useFlocks: () => ({
+    data: [],
+    error: null,
+    isError: false,
+    isFetching: false,
+    isPending: false,
+    refetch: vi.fn(),
+  }),
+}))
+
 vi.mock('virtual:pwa-register/react', () => ({
   useRegisterSW: () => ({
     needRefresh: [false, vi.fn()],
@@ -21,7 +32,7 @@ vi.mock('virtual:pwa-register/react', () => ({
 }))
 
 describe('App', () => {
-  it('renders the empty application shell at the index route', () => {
+  it('renders the flock collection at the protected index route', async () => {
     const router = createMemoryRouter(routes, {
       initialEntries: ['/'],
     })
@@ -32,8 +43,9 @@ describe('App', () => {
       screen.getByRole('main', { name: 'Flock application' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Flock' }),
+      await screen.findByRole('heading', { level: 1, name: 'Your flocks' }),
     ).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/')
     expect(
       screen.queryByText('A new version of Flock is ready.'),
     ).not.toBeInTheDocument()

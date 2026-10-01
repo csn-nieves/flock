@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-09-30
+Last reviewed: 2026-10-01
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -39,22 +39,23 @@ outside this slice.
 - A mobile-first `FlocksRoute`, pure successful `FlocksPage`, and pure
   route-state views covering loading, error, retrying, empty, populated, and
   background refresh.
-- A staged `CreateFlockRoute` and pure `CreateFlockPage` connect
+- `CreateFlockRoute` and pure `CreateFlockPage` connect
   `CreateFlockForm` to `useCreateFlock`, preserve entered data after a safe
   mutation error, and prevent duplicate creation while pending.
-- A staged `FlockDetailRoute` and pure `FlockDetailPage` load one RLS-visible
+- `FlockDetailRoute` and pure `FlockDetailPage` load one RLS-visible
   flock by route identifier and cover loading, refresh, not-found, failure, and
   retry states without disclosing hidden flocks.
+- The protected live router exposes `/flocks`, `/flocks/new`, and
+  `/flocks/:flockId` as one complete list, create, and detail workflow.
 
 ## Current application boundary
 
-The live router currently exposes sign-in, the OAuth callback, and the protected
-home shell through explicit route-controller modules. `FlocksRoute` is
-intentionally not registered yet because its create and detail actions do not
-have complete destinations. `CreateFlockRoute` is also intentionally not
-registered because a successful creation does not yet have a valid detail
-destination. `FlockDetailRoute` now provides that destination in code but stays
-unregistered until the list, create, and detail routes can be exposed together.
+The live router exposes sign-in, the OAuth callback, and the protected flock
+workflow through explicit route-controller modules. The protected index and
+`/flocks` both render the flock collection; list actions reach `/flocks/new`
+and `/flocks/:flockId`. Successful creation replaces the completed form route
+with the returned flock detail destination, so browser Back returns to the
+originating list URL without altering a restored authentication destination.
 
 The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
@@ -62,9 +63,7 @@ production branding, and a release candidate suitable for provider review.
 
 ## Next smallest branches
 
-1. Wire the flock list, create, and detail destinations into one honest routed
-   workflow.
-2. Continue the membership slice with invitation creation, invitation
+1. Continue the membership slice with invitation creation, invitation
    acceptance, joining, and the member list in separate small branches.
 
 ## Known follow-ups

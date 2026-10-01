@@ -1,6 +1,6 @@
 # Flock system design
 
-Last reviewed: 2026-09-30
+Last reviewed: 2026-10-01
 
 ## What Flock is
 
@@ -29,7 +29,10 @@ Browser / installed PWA
                     │   │   ├── SignInRoute → SignInPage
                     │   │   └── OAuthCallbackRoute → OAuthCallbackPage
                     │   └── ProtectedRoute
-                    │       └── HomeRoute → HomePage
+                    │       ├── index → FlocksRoute → FlocksPage
+                    │       ├── FlocksRoute → FlocksPage
+                    │       ├── CreateFlockRoute → CreateFlockPage
+                    │       └── FlockDetailRoute → FlockDetailPage
                     └── UpdatePrompt
 ```
 
@@ -166,22 +169,24 @@ contain no React Router, React Query, or Supabase calls.
 `FlocksRoute` calls `useFlocks`, translates React Query state into safe loading,
 refreshing, empty, error, and populated page props, and owns navigation intent
 for creation and flock selection. `FlocksPage` renders those props and remains
-testable without a router or database. The route is intentionally not exposed
-by the router until its create and detail destinations exist.
+testable without a router or database. The protected router exposes the route
+at `/flocks` and also renders it at the application index so authentication can
+restore an exact root URL, including its query and hash.
 
 `CreateFlockRoute` calls `useCreateFlock`, maps pending and failure state into
 safe page props, and forwards normalized creation intent from the pure
 `CreateFlockPage`. The page composes the shared `CreateFlockForm`, so validation,
 input preservation, and duplicate-submit protection keep their established
-owners. This route is staged outside the live router until the flock-detail
-route provides an honest post-create destination.
+owners. The live route at `/flocks/new` navigates to the returned flock's detail
+URL only after creation succeeds. It replaces the completed form in browser
+history so Back returns to the owning list.
 
 `FlockDetailRoute` reads the flock identifier, calls `useFlock`, and maps the
 detail query into loading, refreshing, safe failure, and not-found views around
 the pure `FlockDetailPage`. A missing row and a row hidden by Row Level Security
 both arrive as `null` and deliberately share the same not-found presentation.
-The staged route remains outside the live router until list, create, and detail
-can be registered as one complete navigation flow.
+The protected router exposes the route at `/flocks/:flockId` as the destination
+for list selection and successful creation.
 
 Pages stay in one file while their presentation remains easy to scan. When a
 page grows, it moves into a domain-named directory with page-scoped feature

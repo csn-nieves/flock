@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router'
 
 import { useCreateFlock } from '@src/hooks/useCreateFlock'
 import CreateFlockPage from '@src/pages/flocks/CreateFlockPage'
@@ -8,6 +9,7 @@ const creationError =
 
 function CreateFlockRoute() {
   const createFlockMutation = useCreateFlock()
+  const navigate = useNavigate()
 
   useEffect(() => {
     document.title = 'Create a flock — Flock'
@@ -21,7 +23,18 @@ function CreateFlockRoute() {
     <CreateFlockPage
       error={createFlockMutation.isError ? creationError : undefined}
       isCreating={createFlockMutation.isPending}
-      onCreate={(name) => createFlockMutation.mutate({ name })}
+      onCreate={(name) =>
+        createFlockMutation.mutate(
+          { name },
+          {
+            onSuccess: (flock) => {
+              navigate(`/flocks/${encodeURIComponent(flock.id)}`, {
+                replace: true,
+              })
+            },
+          },
+        )
+      }
     />
   )
 }
