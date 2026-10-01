@@ -5,12 +5,14 @@ import TextField from '@src/primitives/TextField'
 
 export type ProfileFormProps = {
   initialDisplayName: string
+  initialLocation: string | null
   isSubmitting?: boolean
   error?: string
-  onSubmit: (displayName: string) => void
+  onSubmit: (input: { displayName: string; location: string | null }) => void
 }
 
 const maximumDisplayNameLength = 80
+const maximumLocationLength = 120
 
 function getDisplayNameError(displayName: string) {
   const normalizedDisplayName = displayName.trim()
@@ -26,15 +28,26 @@ function getDisplayNameError(displayName: string) {
   return undefined
 }
 
+function getLocationError(location: string) {
+  if (location.trim().length > maximumLocationLength) {
+    return `Use ${maximumLocationLength} characters or fewer.`
+  }
+
+  return undefined
+}
+
 function ProfileForm({
   error,
   initialDisplayName,
+  initialLocation,
   isSubmitting = false,
   onSubmit,
 }: ProfileFormProps) {
   const displayNameInputRef = useRef<HTMLInputElement>(null)
   const [displayName, setDisplayName] = useState(initialDisplayName)
+  const [location, setLocation] = useState(initialLocation ?? '')
   const [displayNameError, setDisplayNameError] = useState<string>()
+  const [locationError, setLocationError] = useState<string>()
   const isDisabled = isSubmitting
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -45,14 +58,19 @@ function ProfileForm({
     }
 
     const nextDisplayNameError = getDisplayNameError(displayName)
+    const nextLocationError = getLocationError(location)
     setDisplayNameError(nextDisplayNameError)
+    setLocationError(nextLocationError)
 
-    if (nextDisplayNameError) {
+    if (nextDisplayNameError || nextLocationError) {
       displayNameInputRef.current?.focus()
       return
     }
 
-    onSubmit(displayName.trim())
+    onSubmit({
+      displayName: displayName.trim(),
+      location: location.trim() || null,
+    })
   }
 
   return (
@@ -89,6 +107,28 @@ function ProfileForm({
 
           if (displayNameError) {
             setDisplayNameError(getDisplayNameError(nextDisplayName))
+          }
+        }}
+      />
+
+      <TextField
+        autoComplete="address-level2"
+        className="mt-4"
+        disabled={isDisabled}
+        error={locationError}
+        hint={`A city or region helps runners know where you are. Optional. ${maximumLocationLength} characters maximum.`}
+        label="Location"
+        maxLength={maximumLocationLength}
+        name="location"
+        placeholder="Portland, Oregon"
+        type="text"
+        value={location}
+        onChange={(event) => {
+          const nextLocation = event.target.value
+          setLocation(nextLocation)
+
+          if (locationError) {
+            setLocationError(getLocationError(nextLocation))
           }
         }}
       />

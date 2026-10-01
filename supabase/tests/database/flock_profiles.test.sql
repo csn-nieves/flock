@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(23);
+select plan(25);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_function(
@@ -14,7 +14,7 @@ select has_function(
 select has_function(
   'public',
   'update_my_profile',
-  array['text'],
+  array['text', 'text'],
   'the profile update function exists'
 );
 
@@ -29,6 +29,7 @@ select hasnt_column(
   'email',
   'public profiles do not expose email addresses'
 );
+select has_column('public', 'profiles', 'location', 'profiles include optional location');
 
 select ok(
   not has_table_privilege('anon', 'public.profiles', 'select,insert,update,delete'),
@@ -117,9 +118,15 @@ select results_eq(
 );
 
 select is(
-  (select display_name from public.update_my_profile('Trail Captain')),
+  (select display_name from public.update_my_profile('Trail Captain', 'Portland, Oregon')),
   'Trail Captain',
   'a runner can update their own display name through the profile function'
+);
+
+select is(
+  (select location from public.profiles where user_id = '11111111-1111-1111-1111-111111111111'),
+  'Portland, Oregon',
+  'the profile location is persisted for the authenticated runner'
 );
 
 select is(

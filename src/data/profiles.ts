@@ -4,11 +4,13 @@ import { supabase } from './supabase'
 
 function toProfile(row: {
   display_name: string
+  location: string | null
   updated_at: string
   user_id: string
 }): Profile {
   return {
     displayName: row.display_name,
+    location: row.location,
     updatedAt: row.updated_at,
     userId: row.user_id,
   }
@@ -17,7 +19,7 @@ function toProfile(row: {
 export async function getMyProfile(): Promise<Profile> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('user_id, display_name, updated_at')
+    .select('user_id, display_name, location, updated_at')
     .single()
 
   if (error) {
@@ -27,9 +29,13 @@ export async function getMyProfile(): Promise<Profile> {
   return toProfile(data)
 }
 
-export async function updateMyProfile(displayName: string): Promise<Profile> {
+export async function updateMyProfile(input: {
+  displayName: string
+  location: string | null
+}): Promise<Profile> {
   const { data, error } = await supabase.rpc('update_my_profile', {
-    next_display_name: displayName,
+    next_display_name: input.displayName,
+    next_location: input.location ?? undefined,
   })
 
   if (error) {

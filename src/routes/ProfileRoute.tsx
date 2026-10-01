@@ -55,9 +55,9 @@ function ProfileRoute() {
       error={updateProfileMutation.isError ? profileError : undefined}
       isSaving={updateProfileMutation.isPending}
       onBack={() => navigate('/flocks', { replace: true })}
-      onSave={(displayName) => {
+      onSave={(input) => {
         setSavedMessage(undefined)
-        updateProfileMutation.mutate(displayName, {
+        updateProfileMutation.mutate(input, {
           onSuccess: () => setSavedMessage('Profile saved.'),
         })
       }}

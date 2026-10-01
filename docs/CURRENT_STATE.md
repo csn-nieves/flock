@@ -55,6 +55,8 @@ outside this slice.
 - Authenticated runners can edit their own display name through the protected
   `/profile` route; the page remains pure while its controller owns query,
   mutation, navigation, and document state.
+- Profiles also support an optional coarse city or region location, with no
+  precise coordinates or street-address storage.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
