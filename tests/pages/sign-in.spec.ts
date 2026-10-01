@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 
 const otpRoute = '**/auth/v1/otp**'
 const oauthRoute = '**/auth/v1/authorize**'
@@ -51,6 +51,12 @@ async function seedAuthenticatedSession(page: Page, destination?: string) {
   )
 }
 
+async function mockFlockCollection(page: Page) {
+  await page.route('**/rest/v1/flocks**', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+}
+
 async function mockSuccessfulOtpVerification(page: Page) {
   await page.route(verifyRoute, async (route) => {
     await route.fulfill({
@@ -64,6 +70,7 @@ test('redirects an authenticated runner away from sign-in', async ({
   page,
 }) => {
   await seedAuthenticatedSession(page, '/?from=invite#members')
+  await mockFlockCollection(page)
   await page.goto('/sign-in')
 
   await expect(page).toHaveURL('/?from=invite#members')
@@ -141,6 +148,7 @@ for (const provider of ['Google', 'Facebook'] as const) {
 test('leaves sign-in after email verification creates a session', async ({
   page,
 }) => {
+  await mockFlockCollection(page)
   await mockSuccessfulOtpRequest(page)
   await mockSuccessfulOtpVerification(page)
   await page.goto('/?from=email#members')

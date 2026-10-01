@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 
 const acceptInvitationRoute = '**/rest/v1/rpc/accept_flock_invitation'
 const authDestinationStorageKey = 'flock.auth.destination'
@@ -32,6 +32,18 @@ async function seedAuthenticatedSession(page: Page) {
   }, createTestSession())
 }
 
+async function mockEventReads(page: Page) {
+  await page.route('**/rest/v1/rpc/list_flock_members', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+  await page.route('**/rest/v1/flock_events**', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+  await page.route('**/rest/v1/flock_event_attendance**', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+}
+
 test('preserves an invitation destination through sign-in', async ({
   page,
 }) => {
@@ -55,6 +67,7 @@ test('accepts an invitation once and opens the joined flock', async ({
   let requestBody: unknown
 
   await seedAuthenticatedSession(page)
+  await mockEventReads(page)
   await page.route(acceptInvitationRoute, async (route) => {
     requestBody = route.request().postDataJSON()
     await acceptanceRequested

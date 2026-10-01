@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 
 const tokenRoute = '**/auth/v1/token**'
 const authDestinationStorageKey = 'flock.auth.destination'
@@ -41,6 +41,12 @@ async function seedOAuthState(page: Page, destination: string) {
   )
 }
 
+async function mockFlockCollection(page: Page) {
+  await page.route('**/rest/v1/flocks**', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+}
+
 test('exchanges the code once and returns to the saved destination', async ({
   page,
 }) => {
@@ -51,6 +57,7 @@ test('exchanges the code once and returns to the saved destination', async ({
     finishExchange = resolve
   })
   await seedOAuthState(page, '/?from=social#members')
+  await mockFlockCollection(page)
   await page.route(tokenRoute, async (route) => {
     exchangeRequests += 1
     exchangeBody = route.request().postDataJSON()
