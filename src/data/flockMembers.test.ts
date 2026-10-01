@@ -22,12 +22,14 @@ describe('flock member data', () => {
       data: [
         {
           display_name: 'Local Organizer',
+          location: 'Portland, Oregon',
           joined_at: '2026-01-01T12:00:00.000Z',
           role: 'owner',
           user_id: 'owner-id',
         },
         {
           display_name: 'Local Runner',
+          location: null,
           joined_at: '2026-01-02T12:00:00.000Z',
           role: 'member',
           user_id: 'runner-id',
@@ -39,12 +41,14 @@ describe('flock member data', () => {
     await expect(listFlockMembers('morning-runners-id')).resolves.toEqual([
       {
         displayName: 'Local Organizer',
+        location: 'Portland, Oregon',
         joinedAt: '2026-01-01T12:00:00.000Z',
         role: 'owner',
         userId: 'owner-id',
       },
       {
         displayName: 'Local Runner',
+        location: null,
         joinedAt: '2026-01-02T12:00:00.000Z',
         role: 'member',
         userId: 'runner-id',
@@ -80,6 +84,7 @@ describe('flock member data', () => {
       data: [
         {
           display_name: 'Unexpected Runner',
+          location: null,
           joined_at: '2026-01-02T12:00:00.000Z',
           role: 'administrator',
           user_id: 'runner-id',

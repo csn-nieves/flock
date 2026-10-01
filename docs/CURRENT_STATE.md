@@ -49,6 +49,8 @@ outside this slice.
   roles. The member section independently covers loading, empty, failure,
   retry, populated, background refresh, and stale-data recovery while keeping
   the flock page usable.
+- Flock rosters also show a runner's optional coarse city or region when one is
+  available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from
   authentication metadata, and are readable only by authenticated runners who
   share a flock. Member emails remain private in Supabase Auth.

@@ -16,12 +16,14 @@ const onBack = () => undefined
 const members = [
   {
     displayName: 'Local Organizer',
+    location: 'Portland, Oregon',
     joinedAt: '2026-01-01T12:00:00.000Z',
     role: 'owner' as const,
     userId: 'owner-id',
   },
   {
     displayName: 'Local Runner',
+    location: null,
     joinedAt: '2026-01-02T12:00:00.000Z',
     role: 'member' as const,
     userId: 'runner-id',

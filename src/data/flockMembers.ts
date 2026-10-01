@@ -27,6 +27,7 @@ export async function listFlockMembers(
 
     return {
       displayName: member.display_name,
+      location: member.location,
       joinedAt: member.joined_at,
       role: member.role,
       userId: member.user_id,

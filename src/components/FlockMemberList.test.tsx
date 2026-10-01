@@ -7,12 +7,14 @@ import FlockMemberList from './FlockMemberList'
 const members: FlockMemberSummary[] = [
   {
     displayName: 'Local Organizer',
+    location: 'Portland, Oregon',
     joinedAt: '2026-01-01T12:00:00.000Z',
     role: 'owner',
     userId: 'owner-id',
   },
   {
     displayName: 'Local Runner',
+    location: null,
     joinedAt: '2026-01-02T12:00:00.000Z',
     role: 'member',
     userId: 'runner-id',
@@ -26,6 +28,7 @@ describe('FlockMemberList', () => {
     expect(screen.getByRole('list', { name: 'Flock members' })).toBeVisible()
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
     expect(screen.getByText('Local Organizer')).toBeVisible()
+    expect(screen.getByText('Portland, Oregon')).toBeVisible()
     expect(screen.getByText('Owner')).toBeVisible()
     expect(screen.getByText('Local Runner')).toBeVisible()
     expect(screen.getByText('Member')).toBeVisible()
