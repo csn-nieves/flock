@@ -66,18 +66,21 @@ export type Database = {
         Row: {
           created_at: string
           display_name: string
+          location: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           display_name: string
+          location?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           display_name?: string
+          location?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -113,9 +116,10 @@ export type Database = {
         }[]
       }
       update_my_profile: {
-        Args: { next_display_name: string }
+        Args: { next_display_name: string; next_location?: string }
         Returns: {
           display_name: string
+          location: string
           updated_at: string
           user_id: string
         }[]

@@ -10,7 +10,7 @@ export type ProfilePageProps = {
   error?: string
   isSaving: boolean
   onBack: () => void
-  onSave: (displayName: string) => void
+  onSave: (input: { displayName: string; location: string | null }) => void
   profile: Profile
   savedMessage?: string
 }
@@ -75,7 +75,7 @@ function ProfilePage({
 }: ProfilePageProps) {
   return (
     <ProfilePageLayout
-      description="Choose the name other runners will see in your flocks."
+      description="Choose the name and general location other runners will see in your flocks."
       heading="Your profile"
       onBack={onBack}
     >
@@ -90,6 +90,7 @@ function ProfilePage({
       <ProfileForm
         error={error}
         initialDisplayName={profile.displayName}
+        initialLocation={profile.location}
         isSubmitting={isSaving}
         onSubmit={onSave}
       />

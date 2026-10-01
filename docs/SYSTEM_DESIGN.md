@@ -211,7 +211,7 @@ successful creation.
 `/profile` destination, and maps loading, retry, save, and success state into
 the pure `ProfilePage`. The update function derives the target from
 `auth.uid()` and the mutation invalidates member-list queries so edited names
-are reflected in flock detail views.
+and locations are reflected in flock detail views.
 
 Pages stay in one file while their presentation remains easy to scan. When a
 page grows, it moves into a domain-named directory with page-scoped feature
@@ -321,7 +321,8 @@ transaction. A partial unique index prevents a second owner membership. Every
 other membership has the `member` role.
 
 `profiles` is the deliberately narrow public identity surface for a member
-list. It contains a user identifier and display name, never an email address or
+list. It contains a user identifier, display name, and optional coarse
+location, never an email address or
 other authentication record. A trigger copies the best available display name
 from authentication metadata for new users and later metadata changes, with a
 neutral `Runner` fallback. Its Row Level Security policy exposes a profile only

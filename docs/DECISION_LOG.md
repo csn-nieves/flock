@@ -499,3 +499,14 @@ means it is the current direction, not that it can never change.
   fields, discovery visibility, and avatar storage remain separate decisions.
 - **Revisit when:** Profile privacy, richer identity, or public runner search
   becomes an active product capability.
+
+## D028 — Store only coarse runner locations
+
+- **Status:** Accepted
+- **Decision:** Extend the self-service profile with an optional city or region
+  string, limited to 120 characters. Do not store precise coordinates or street
+  addresses in this profile slice.
+- **Why:** General location can help flockmates understand local context while
+  avoiding unnecessary precision and location-tracking obligations.
+- **Revisit when:** Discovery needs map-based search or runners explicitly need
+  a more precise, separately consented location feature.
