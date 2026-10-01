@@ -17,6 +17,18 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByRole('list', { name: 'Flock members' }),
   ).toBeVisible()
+  await expect(
+    component.getByRole('heading', { level: 2, name: 'Upcoming events' }),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('heading', { name: 'River loop' }),
+  ).toBeVisible()
+  await expect(
+    component.getByLabel('Attendance: 2 in, 1 maybe, 0 out'),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('button', { name: 'Maybe' }),
+  ).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('keeps the detail screen inside a mobile viewport', async ({

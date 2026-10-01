@@ -30,6 +30,28 @@ const members = [
   },
 ]
 
+const events = {
+  canCreate: false,
+  error: undefined,
+  events: [
+    {
+      attendance: { in: 2, maybe: 1, out: 0, response: 'maybe' as const },
+      createdAt: '2026-01-03T12:00:00.000Z',
+      description: 'A relaxed loop along the river.',
+      flockId: flock.id,
+      id: 'river-loop-id',
+      location: 'Riverside trailhead',
+      startsAt: '2027-01-03T09:00:00.000Z',
+      title: 'River loop',
+    },
+  ],
+  isLoading: false,
+  isSaving: false,
+  onCreate: () => undefined,
+  onRespond: () => undefined,
+  onRetry: () => undefined,
+}
+
 function Canvas({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto min-h-dvh w-full max-w-app px-4">{children}</main>
@@ -52,6 +74,7 @@ export function Loaded() {
         onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => undefined}
+        events={events}
       />
     </Canvas>
   )

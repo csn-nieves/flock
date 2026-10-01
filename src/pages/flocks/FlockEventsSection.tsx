@@ -91,7 +91,10 @@ function FlockEventsSection({
                   {item.description}
                 </p>
               ) : null}
-              <p className="mt-3 mb-2 text-sm text-text-muted">
+              <p
+                aria-label={`Attendance: ${item.attendance.in} in, ${item.attendance.maybe} maybe, ${item.attendance.out} out`}
+                className="mt-3 mb-2 text-sm text-text-muted"
+              >
                 {item.attendance.in} in · {item.attendance.maybe} maybe ·{' '}
                 {item.attendance.out} out
               </p>
@@ -110,6 +113,7 @@ function FlockEventsSection({
                         ? 'primary'
                         : 'secondary'
                     }
+                    aria-pressed={item.attendance.response === response}
                     onClick={() => onRespond(item.id, response)}
                   >
                     {label}
