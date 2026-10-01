@@ -480,3 +480,22 @@ means it is the current direction, not that it can never change.
   own list filters and scroll state when those capabilities are introduced.
 - **Revisit when:** Nested navigation gains restorable list query state,
   multiple legitimate parents, breadcrumbs, or a router-owned origin contract.
+
+## D027 — Let runners edit only their own public display name
+
+- **Status:** Accepted
+- **Decision:** Expose a protected profile page that reads the authenticated
+  runner's profile and updates its display name through a security-definer
+  database function. The page receives typed data and callbacks; URL state,
+  query lifecycle, mutation state, navigation, and document metadata stay in
+  the route controller.
+- **Authorization:** The function derives the target user from `auth.uid()`;
+  it accepts no caller-supplied user identifier and direct table writes remain
+  unavailable to the browser role.
+- **Why:** Runners need a safe way to correct or personalize the identity shown
+  to flockmates without exposing authentication records or coupling the pure
+  page to Supabase.
+- **Tradeoffs:** The first version edits display name only. Broader profile
+  fields, discovery visibility, and avatar storage remain separate decisions.
+- **Revisit when:** Profile privacy, richer identity, or public runner search
+  becomes an active product capability.

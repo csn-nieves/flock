@@ -54,6 +54,7 @@ function FlocksRoute() {
       flocks={flocksQuery.data}
       isRefreshing={flocksQuery.isFetching}
       onCreate={() => navigate('/flocks/new')}
+      onProfile={() => navigate('/profile')}
       onSelect={(flockId) => navigate(`/flocks/${encodeURIComponent(flockId)}`)}
     />
   )

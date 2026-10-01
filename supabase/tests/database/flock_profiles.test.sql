@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(23);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_function(
@@ -10,6 +10,12 @@ select has_function(
   'list_flock_members',
   array['uuid'],
   'the member-list function exists'
+);
+select has_function(
+  'public',
+  'update_my_profile',
+  array['text'],
+  'the profile update function exists'
 );
 
 select ok(
@@ -108,6 +114,18 @@ select results_eq(
   $$,
   array['Local Organizer:owner', 'Local Runner:member'],
   'the roster returns owner first and includes each member role'
+);
+
+select is(
+  (select display_name from public.update_my_profile('Trail Captain')),
+  'Trail Captain',
+  'a runner can update their own display name through the profile function'
+);
+
+select is(
+  (select display_name from public.profiles where user_id = '11111111-1111-1111-1111-111111111111'),
+  'Trail Captain',
+  'the profile update is persisted for the authenticated runner'
 );
 
 select throws_ok(

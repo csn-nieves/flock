@@ -6,6 +6,7 @@ import CreateFlockRoute from '@src/routes/CreateFlockRoute'
 import FlockDetailRoute from '@src/routes/FlockDetailRoute'
 import FlocksRoute from '@src/routes/FlocksRoute'
 import OAuthCallbackRoute from '@src/routes/OAuthCallbackRoute'
+import ProfileRoute from '@src/routes/ProfileRoute'
 import SignInRoute from '@src/routes/SignInRoute'
 import App from './App'
 
@@ -32,6 +33,10 @@ export const routes = [
           {
             path: 'flocks',
             Component: FlocksRoute,
+          },
+          {
+            path: 'profile',
+            Component: ProfileRoute,
           },
           {
             path: 'flocks/new',

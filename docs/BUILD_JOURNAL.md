@@ -1025,6 +1025,21 @@ This is a Chromium, mocked-network, short-duration measurement—not a substitut
 for long-lived token-refresh profiling or Safari/WebKit memory tooling. Those
 remain release-level checks if authentication behavior changes materially.
 
+## 2026-10-01 — Adding self-service runner profiles
+
+### Profile editing at the route boundary
+
+Runners can now open `/profile` from the flock collection, review their current
+display name, and save a trimmed replacement. `ProfileRoute` owns the query,
+mutation, navigation, retry state, and document title while `ProfilePage` and
+`ProfileForm` remain router-agnostic. A security-definer function derives the
+target from `auth.uid()` so the browser cannot update another runner's profile.
+
+The mutation updates the profile cache and invalidates flock member lists so a
+name change is reflected wherever the runner appears. The first slice keeps
+profile scope deliberately narrow; richer identity, privacy controls, and
+runner discovery remain deferred.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

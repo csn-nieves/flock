@@ -52,6 +52,9 @@ outside this slice.
 - Public profiles contain only display names, stay synchronized from
   authentication metadata, and are readable only by authenticated runners who
   share a flock. Member emails remain private in Supabase Auth.
+- Authenticated runners can edit their own display name through the protected
+  `/profile` route; the page remains pure while its controller owns query,
+  mutation, navigation, and document state.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -60,7 +63,7 @@ outside this slice.
   recovery.
 - Invitation acceptance atomically consumes the token and creates membership.
   No runner—including the original recipient—can use it again afterward.
-- The protected live router exposes `/flocks`, `/flocks/new`,
+- The protected live router exposes `/flocks`, `/profile`, `/flocks/new`,
   `/flocks/:flockId`, `/flocks/:flockId/invitations/new`, and
   `/invitations/:invitationToken` as one complete create, invite, and join
   workflow.
@@ -73,7 +76,7 @@ outside this slice.
 
 The live router exposes sign-in, the OAuth callback, and the protected flock
 workflow through explicit route-controller modules. The protected index and
-`/flocks` both render the flock collection; list actions reach `/flocks/new`
+`/flocks` both render the flock collection; list actions reach `/profile` and `/flocks/new`
 and `/flocks/:flockId`. Successful creation replaces the completed form route
 with the returned flock detail destination. Visible app-owned back controls
 return create/detail pages to the collection, invitation creation to its flock,
