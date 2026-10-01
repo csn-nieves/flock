@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { FlockSummary } from '@src/types/flocks'
+import type { FlockMemberSummary } from '@src/types/flockMembers'
 import FlockDetailRoute from './FlockDetailRoute'
 
 const flockQuery = vi.hoisted(() => ({
@@ -15,9 +16,22 @@ const flockQuery = vi.hoisted(() => ({
   refetch: vi.fn(),
 }))
 const useFlockMock = vi.hoisted(() => vi.fn(() => flockQuery))
+const membersQuery = vi.hoisted(() => ({
+  data: undefined as FlockMemberSummary[] | undefined,
+  error: null as Error | null,
+  isError: false,
+  isFetching: false,
+  isPending: false,
+  refetch: vi.fn(),
+}))
+const useFlockMembersMock = vi.hoisted(() => vi.fn(() => membersQuery))
 
 vi.mock('@src/hooks/useFlock', () => ({
   useFlock: useFlockMock,
+}))
+
+vi.mock('@src/hooks/useFlockMembers', () => ({
+  useFlockMembers: useFlockMembersMock,
 }))
 
 const flock: FlockSummary = {
@@ -25,6 +39,21 @@ const flock: FlockSummary = {
   name: 'Morning Runners',
   owner_id: 'owner-id',
 }
+
+const members: FlockMemberSummary[] = [
+  {
+    displayName: 'Local Organizer',
+    joinedAt: '2026-01-01T12:00:00.000Z',
+    role: 'owner',
+    userId: 'owner-id',
+  },
+  {
+    displayName: 'Local Runner',
+    joinedAt: '2026-01-02T12:00:00.000Z',
+    role: 'member',
+    userId: 'runner-id',
+  },
+]
 
 function renderFlockDetailRoute(path = `/flocks/${flock.id}`) {
   const router = createMemoryRouter(
@@ -54,16 +83,25 @@ describe('FlockDetailRoute', () => {
     flockQuery.isError = false
     flockQuery.isFetching = false
     flockQuery.isPending = false
+    membersQuery.data = members
+    membersQuery.error = null
+    membersQuery.isError = false
+    membersQuery.isFetching = false
+    membersQuery.isPending = false
   })
 
   it('loads the flock identified by the route and renders its pure page', () => {
     renderFlockDetailRoute()
 
     expect(useFlockMock).toHaveBeenCalledWith(flock.id)
+    expect(useFlockMembersMock).toHaveBeenCalledWith(flock.id)
     expect(document.title).toBe('Morning Runners — Flock')
     expect(
       screen.getByRole('heading', { level: 1, name: 'Morning Runners' }),
     ).toBeVisible()
+    expect(screen.getByRole('list', { name: 'Flock members' })).toBeVisible()
+    expect(screen.getByText('Local Organizer')).toBeVisible()
+    expect(screen.getByText('Local Runner')).toBeVisible()
   })
 
   it('opens invitation creation for the visible flock', async () => {
@@ -149,5 +187,51 @@ describe('FlockDetailRoute', () => {
 
     fireEvent.click(retryButton)
     expect(flockQuery.refetch).not.toHaveBeenCalled()
+  })
+
+  it('keeps the flock visible while its members load', () => {
+    membersQuery.data = undefined
+    membersQuery.isFetching = true
+    membersQuery.isPending = true
+    renderFlockDetailRoute()
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Morning Runners' }),
+    ).toBeVisible()
+    expect(screen.getByRole('status')).toHaveTextContent('Loading members…')
+  })
+
+  it('scopes member failures to the member section and retries safely', () => {
+    membersQuery.data = undefined
+    membersQuery.error = new Error('raw member database failure')
+    membersQuery.isError = true
+    renderFlockDetailRoute()
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Morning Runners' }),
+    ).toBeVisible()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'We could not load the member list. Check your connection and try again.',
+    )
+    expect(
+      screen.queryByText('raw member database failure'),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(membersQuery.refetch).toHaveBeenCalledOnce()
+  })
+
+  it('keeps stale members visible when a background refresh fails', () => {
+    membersQuery.error = new Error('raw member database failure')
+    membersQuery.isError = true
+    renderFlockDetailRoute()
+
+    expect(screen.getByText('Local Runner')).toBeVisible()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'The member list may be out of date.',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh members' }))
+    expect(membersQuery.refetch).toHaveBeenCalledOnce()
   })
 })

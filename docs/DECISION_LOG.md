@@ -438,3 +438,24 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Product evidence supports a high-value app-specific share
   destination, browsers converge on a richer sharing contract, or invitations
   gain server-side delivery channels.
+
+## D025 — Expose member identity through narrow flock-scoped profiles
+
+- **Status:** Accepted
+- **Decision:** Keep authentication records private and introduce a public
+  profile containing only `user_id` and `display_name` for roster identity.
+  Synchronize the display name from authentication metadata and return roster
+  summaries through one security-invoker database function.
+- **Authorization:** Profile Row Level Security permits a runner to read their
+  own profile and profiles belonging to runners who share a flock. The roster
+  function relies on the existing membership and profile policies; callers do
+  not supply a user or owner identifier and never receive an email address.
+- **Why:** A useful member list needs a human-readable identity, but the browser
+  cannot and should not join against `auth.users`. A narrow public table keeps
+  that boundary explicit, while one joined query avoids an N+1 request pattern.
+- **Tradeoffs:** Authentication metadata is currently the source of the public
+  name, and the neutral `Runner` fallback may not distinguish multiple people.
+  Profile editing and stronger naming rules remain separate product work.
+- **Revisit when:** Members can edit profiles, privacy controls distinguish
+  public discovery from flockmate visibility, or richer profile fields earn a
+  documented product purpose.

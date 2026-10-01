@@ -5,4 +5,7 @@ export const flockQueryKeys = {
   details: () => [...flockRootKey, 'detail'] as const,
   detail: (flockId: string) => [...flockQueryKeys.details(), flockId] as const,
   lists: () => [...flockRootKey, 'list'] as const,
+  memberLists: () => [...flockRootKey, 'members'] as const,
+  members: (flockId: string) =>
+    [...flockQueryKeys.memberLists(), flockId] as const,
 }

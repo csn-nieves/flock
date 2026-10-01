@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const flocksRoute = '**/rest/v1/flocks**'
+const flockMembersRoute = '**/rest/v1/rpc/list_flock_members'
 
 type TestFlock = {
   id: string
@@ -71,6 +72,20 @@ async function mockFlockWorkflow(page: Page) {
 
     await route.fulfill({ json: flocks, status: 200 })
   })
+
+  await page.route(flockMembersRoute, async (route) => {
+    await route.fulfill({
+      json: [
+        {
+          display_name: 'Local Runner',
+          joined_at: '2026-01-01T12:00:00.000Z',
+          role: 'owner',
+          user_id: 'runner-id',
+        },
+      ],
+      status: 200,
+    })
+  })
 }
 
 test('routes through the complete flock list, create, and detail workflow', async ({
@@ -100,6 +115,9 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(
     page.getByRole('heading', { level: 1, name: 'Sunrise Striders' }),
   ).toBeVisible()
+  await expect(page.getByRole('list', { name: 'Flock members' })).toContainText(
+    'Local Runner',
+  )
 
   await page.goBack()
   await expect(page).toHaveURL('/')

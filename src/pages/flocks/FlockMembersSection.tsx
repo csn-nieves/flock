@@ -1,0 +1,134 @@
+import type { ReactNode } from 'react'
+
+import FlockMemberList from '@src/components/FlockMemberList'
+import Button from '@src/primitives/Button'
+import PendingIndicator from '@src/primitives/PendingIndicator'
+import type { FlockMemberSummary } from '@src/types/flockMembers'
+
+export type FlockMemberListState =
+  | {
+      status: 'loading'
+    }
+  | {
+      isRetrying: boolean
+      status: 'error'
+    }
+  | {
+      hasRefreshError: boolean
+      isRefreshing: boolean
+      isRetrying: boolean
+      members: readonly FlockMemberSummary[]
+      status: 'ready'
+    }
+
+type FlockMembersSectionProps = {
+  memberList: FlockMemberListState
+  onRetry: () => void
+}
+
+function FlockMembersSection({
+  memberList,
+  onRetry,
+}: FlockMembersSectionProps) {
+  let content: ReactNode
+  let memberCount: ReactNode = null
+
+  if (memberList.status === 'loading') {
+    content = (
+      <div
+        className="flex min-h-32 items-center justify-center gap-3 rounded-lg border border-border bg-surface-subtle px-4 py-8 text-text-muted"
+        role="status"
+      >
+        <PendingIndicator />
+        <span>Loading members…</span>
+      </div>
+    )
+  } else if (memberList.status === 'error') {
+    content = (
+      <div
+        className="rounded-lg border border-accent bg-surface-subtle px-4 py-5"
+        role="alert"
+      >
+        <p className="mt-0 mb-4 leading-6 text-text">
+          We could not load the member list. Check your connection and try
+          again.
+        </p>
+        <Button
+          isPending={memberList.isRetrying}
+          pendingLabel="Trying again"
+          variant="secondary"
+          onClick={onRetry}
+        >
+          Try again
+        </Button>
+      </div>
+    )
+  } else {
+    const memberLabel = memberList.members.length === 1 ? 'member' : 'members'
+    memberCount = (
+      <span className="text-sm text-text-muted">
+        {memberList.members.length} {memberLabel}
+      </span>
+    )
+
+    if (memberList.members.length === 0) {
+      content = (
+        <p className="m-0 rounded-lg border border-border bg-surface-subtle px-4 py-5 leading-6 text-text-muted">
+          No members are visible yet.
+        </p>
+      )
+    } else {
+      content = <FlockMemberList members={memberList.members} />
+    }
+
+    if (memberList.hasRefreshError) {
+      content = (
+        <>
+          <div
+            className="mb-3 rounded-lg border border-accent bg-surface-subtle px-4 py-4"
+            role="alert"
+          >
+            <p className="mt-0 mb-3 leading-6 text-text">
+              The member list may be out of date.
+            </p>
+            <Button
+              isPending={memberList.isRetrying}
+              pendingLabel="Refreshing members"
+              variant="secondary"
+              onClick={onRetry}
+            >
+              Refresh members
+            </Button>
+          </div>
+          {content}
+        </>
+      )
+    } else if (memberList.isRefreshing) {
+      content = (
+        <>
+          <p className="sr-only" role="status">
+            Refreshing members…
+          </p>
+          {content}
+        </>
+      )
+    }
+  }
+
+  return (
+    <section aria-labelledby="flock-members-heading" className="mt-10">
+      <div className="mb-3 flex items-baseline justify-between gap-4">
+        <h2
+          className="m-0 font-display text-xl font-bold tracking-[-0.02em] text-text"
+          id="flock-members-heading"
+        >
+          Members
+        </h2>
+        {memberCount}
+      </div>
+      {content}
+    </section>
+  )
+}
+
+export default FlockMembersSection

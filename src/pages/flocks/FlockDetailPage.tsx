@@ -3,11 +3,16 @@ import type { ReactNode } from 'react'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSummary } from '@src/types/flocks'
+import FlockMembersSection, {
+  type FlockMemberListState,
+} from './FlockMembersSection'
 
 export type FlockDetailPageProps = {
   flock: FlockSummary
   isRefreshing: boolean
+  memberList: FlockMemberListState
   onInvite: () => void
+  onRetryMembers: () => void
 }
 
 type FlockDetailErrorPageProps = {
@@ -64,7 +69,9 @@ function FlockDetailPageLayout({
 function FlockDetailPage({
   flock,
   isRefreshing,
+  memberList,
   onInvite,
+  onRetryMembers,
 }: FlockDetailPageProps) {
   return (
     <FlockDetailPageLayout description="Your run club." heading={flock.name}>
@@ -76,6 +83,7 @@ function FlockDetailPage({
           Refreshing flock…
         </p>
       ) : null}
+      <FlockMembersSection memberList={memberList} onRetry={onRetryMembers} />
     </FlockDetailPageLayout>
   )
 }
