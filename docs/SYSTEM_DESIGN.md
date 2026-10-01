@@ -188,12 +188,15 @@ owners. The live route at `/flocks/new` navigates to the returned flock's detail
 URL only after creation succeeds. It replaces the completed form in browser
 history so Back returns to the owning list.
 
-`FlockDetailRoute` reads the flock identifier, calls `useFlock`, and maps the
-detail query into loading, refreshing, safe failure, and not-found views around
-the pure `FlockDetailPage`. A missing row and a row hidden by Row Level Security
-both arrive as `null` and deliberately share the same not-found presentation.
-The protected router exposes the route at `/flocks/:flockId` as the destination
-for list selection and successful creation.
+`FlockDetailRoute` reads the flock identifier, calls `useFlock` and
+`useFlockMembers` in parallel, and maps those query results around the pure
+`FlockDetailPage`. A missing row and a row hidden by Row Level Security both
+arrive as `null` and deliberately share the same not-found presentation. The
+member section has its own loading, empty, failure, retry, populated,
+background-refresh, and stale-refresh-failure states, so a roster problem does
+not replace an otherwise usable flock page. The protected router exposes the
+route at `/flocks/:flockId` as the destination for list selection and
+successful creation.
 
 Pages stay in one file while their presentation remains easy to scan. When a
 page grows, it moves into a domain-named directory with page-scoped feature
@@ -288,11 +291,18 @@ and recovery actions.
 ## Flock and membership data
 
 Postgres migrations are the source of truth for product data. The membership
-model contains public `flocks` and `flock_members` tables plus private
-`flock_invitations`. A flock has one canonical `owner_id`, and the same user
+model contains public `flocks`, `flock_members`, and `profiles` tables plus
+private `flock_invitations`. A flock has one canonical `owner_id`, and the same user
 receives an `owner` membership from an after-insert trigger in the same
 transaction. A partial unique index prevents a second owner membership. Every
 other membership has the `member` role.
+
+`profiles` is the deliberately narrow public identity surface for a member
+list. It contains a user identifier and display name, never an email address or
+other authentication record. A trigger copies the best available display name
+from authentication metadata for new users and later metadata changes, with a
+neutral `Runner` fallback. Its Row Level Security policy exposes a profile only
+to that runner and authenticated runners who share at least one flock.
 
 The explicit owner column makes ownership checks and account-deletion behavior
 simple: the owner alone can update or delete a flock, and deleting the owner's
@@ -305,6 +315,14 @@ out users receive no table privileges. Signed-in users can create flocks. The
 canonical owner can read the new flock immediately, while other users can read
 only flocks and rosters where they hold membership. They cannot write the
 membership or invitation tables directly.
+
+The browser loads a roster through `list_flock_members`, a stable
+security-invoker database function that joins visible memberships to visible
+profiles in one request. Table Row Level Security remains authoritative for
+both sides of the join. The function returns only user identifier, display
+name, role, and join time, ordered with the owner first and other runners by
+display name. `src/data/flockMembers.ts` validates the role at the network
+boundary and translates the result into application-shaped member summaries.
 
 Invitation creation uses a `security definer` database function rather than a
 table grant. The function verifies that the authenticated caller currently
@@ -342,9 +360,10 @@ execution privileges, and an index supporting its user-and-flock lookup.
 
 Database behavior is tested below the frontend with transactional pgTAP tests.
 The suite verifies schema protections, grants, owner creation, member and non-
-member visibility, owner-only writes, the single-owner constraint, cascading
-membership cleanup, invitation authorization, token hashing, unique links, and
-the 24-hour lifetime. Acceptance coverage verifies membership creation, strict
+member visibility, profile privacy and synchronization, roster ordering,
+owner-only writes, the single-owner constraint, cascading membership cleanup,
+invitation authorization, token hashing, unique links, and the 24-hour
+lifetime. Acceptance coverage verifies membership creation, strict
 single-use replay protection for every caller, expiry, and safe handling of
 malformed tokens.
 

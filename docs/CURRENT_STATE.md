@@ -45,6 +45,13 @@ outside this slice.
 - `FlockDetailRoute` and pure `FlockDetailPage` load one RLS-visible
   flock by route identifier and cover loading, refresh, not-found, failure, and
   retry states without disclosing hidden flocks.
+- Flock detail loads an ordered member roster with display names and owner/member
+  roles. The member section independently covers loading, empty, failure,
+  retry, populated, background refresh, and stale-data recovery while keeping
+  the flock page usable.
+- Public profiles contain only display names, stay synchronized from
+  authentication metadata, and are readable only by authenticated runners who
+  share a flock. Member emails remain private in Supabase Auth.
 - Any flock member can create an opaque invitation that expires after 24 hours.
   Private storage keeps only its token hash, and the generated link supports
   native device sharing when available, copy fallback, and manual-copy
@@ -78,7 +85,8 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Add the member list as a separate small branch.
+1. Add a visible, mobile-friendly back-navigation control to every applicable
+   page, with a safe route fallback when no meaningful in-app history exists.
 
 ## Known follow-ups
 

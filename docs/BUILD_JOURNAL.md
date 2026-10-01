@@ -956,6 +956,28 @@ the pure page story and route-controller tests.
 Browser capability detection and Web Share calls remain in the route
 controller; the page receives only typed callbacks.
 
+## 2026-10-01 — Completing the first membership slice
+
+### Flock-scoped public profiles and resilient member lists
+
+Flock detail now shows an ordered roster with each runner's display name and
+owner or member role. The roster query begins beside the flock query, and the
+pure page keeps its member loading, empty, error, retry, background refresh,
+and stale-refresh-failure states scoped to that section. A member-list failure
+therefore does not replace an otherwise usable flock page.
+
+Authentication emails remain private. A narrow public profile stores only a
+display name synchronized from user metadata, with a neutral fallback, and Row
+Level Security exposes it only to the runner and runners who share a flock. A
+single security-invoker database function joins RLS-visible memberships and
+profiles, avoiding both browser access to `auth.users` and one request per
+member. Database tests cover grants, privacy, synchronization, roster ordering,
+and outsider exclusion.
+
+This completes the create, invite, join, and view-members milestone. Visible
+app-owned back navigation is the next focused usability branch so phone users
+do not depend on browser chrome to leave nested screens.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
