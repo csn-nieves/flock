@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import { useFlock } from '@src/hooks/useFlock'
 import FlockDetailPage, {
@@ -11,6 +11,7 @@ import FlockDetailPage, {
 function FlockDetailRoute() {
   const { flockId } = useParams<{ flockId: string }>()
   const flockQuery = useFlock(flockId)
+  const navigate = useNavigate()
   let title = 'Flock not found — Flock'
 
   if (flockId === undefined) {
@@ -56,6 +57,9 @@ function FlockDetailRoute() {
     <FlockDetailPage
       flock={flockQuery.data}
       isRefreshing={flockQuery.isFetching}
+      onInvite={() =>
+        navigate(`/flocks/${encodeURIComponent(flockId)}/invitations/new`)
+      }
     />
   )
 }

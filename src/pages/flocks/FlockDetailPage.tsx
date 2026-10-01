@@ -7,6 +7,7 @@ import type { FlockSummary } from '@src/types/flocks'
 export type FlockDetailPageProps = {
   flock: FlockSummary
   isRefreshing: boolean
+  onInvite: () => void
 }
 
 type FlockDetailErrorPageProps = {
@@ -60,9 +61,16 @@ function FlockDetailPageLayout({
   )
 }
 
-function FlockDetailPage({ flock, isRefreshing }: FlockDetailPageProps) {
+function FlockDetailPage({
+  flock,
+  isRefreshing,
+  onInvite,
+}: FlockDetailPageProps) {
   return (
     <FlockDetailPageLayout description="Your run club." heading={flock.name}>
+      <Button className="w-full" onClick={onInvite}>
+        Invite a runner
+      </Button>
       {isRefreshing ? (
         <p className="sr-only" role="status">
           Refreshing flock…

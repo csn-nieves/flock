@@ -404,9 +404,11 @@ means it is the current direction, not that it can never change.
   before the product needs them.
 - **Authorization:** Creation is exposed only through a reviewed database
   function that checks the caller's current membership. The private invitation
-  table has no browser-facing grants. Acceptance must later hash the supplied
-  token and atomically mark an unused, unexpired row consumed while creating
-  the membership; client-side checks are not authoritative.
+  table has no browser-facing grants. Acceptance hashes the supplied token and
+  atomically marks an unused, unexpired row consumed while creating membership;
+  client-side checks are not authoritative. Every later use—including by the
+  consuming runner—receives the same unavailable result as an invalid or
+  expired link.
 - **Tradeoffs:** A runner whose link was already consumed or expired needs a new
   link even though the flock may eventually be discoverable through search.
   Multiple outstanding links for the same flock are allowed, so revocation and

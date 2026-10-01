@@ -310,17 +310,24 @@ Invitation creation uses a `security definer` database function rather than a
 table grant. The function verifies that the authenticated caller currently
 belongs to the target flock, creates 32 random bytes of token entropy, stores
 only its SHA-256 hash in the private schema, and returns the raw token once. An
-invitation expires 24 hours after creation and has nullable consumption fields
-reserved for one atomic acceptance. Members may create multiple invitations,
-but each individual token can be used only once. The staged frontend mutation,
-route controller, and pure page cover creation and copying; the route is not
-registered until the acceptance destination exists.
+invitation expires 24 hours after creation and records one atomic consumption.
+Members may create multiple invitations, but each individual token can add only
+one runner.
 
-Invitation acceptance and membership creation remain the next database
-boundary. They must be implemented together in a reviewed function that hashes
-the presented token and consumes an unused, unexpired invitation in the same
-transaction that inserts the member. A read followed by separate client-side
-writes would permit replay and is not acceptable.
+Invitation acceptance and membership creation happen inside one reviewed
+`security definer` function. A conditional update claims the matching unused,
+unexpired token before inserting membership, so concurrent callers cannot both
+win. Every later call, including one from the consuming runner, receives the
+same unavailable result as an invalid or expired token. The function returns
+the joined flock on its sole successful use so the route can seed its detail
+cache and replace the token-bearing URL.
+
+The live protected router exposes creation from flock detail and acceptance at
+`/invitations/:invitationToken`. Signed-out runners preserve the complete
+invitation path through authentication. A signed-in runner accepts immediately,
+matching the first-slice product contract, then lands on the joined flock. The
+token is never placed in document titles, feedback text, logs, or persistent
+client storage beyond the existing short-lived authentication destination.
 
 Membership-backed read policies use a `security definer` helper in the private,
 non-exposed schema. This avoids recursive policies on `flock_members`. The
@@ -331,7 +338,9 @@ Database behavior is tested below the frontend with transactional pgTAP tests.
 The suite verifies schema protections, grants, owner creation, member and non-
 member visibility, owner-only writes, the single-owner constraint, cascading
 membership cleanup, invitation authorization, token hashing, unique links, and
-the 24-hour lifetime.
+the 24-hour lifetime. Acceptance coverage verifies membership creation, strict
+single-use replay protection for every caller, expiry, and safe handling of
+malformed tokens.
 
 ## Authentication design
 

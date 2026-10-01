@@ -6,6 +6,9 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByRole('heading', { level: 1, name: 'Morning Runners' }),
   ).toBeVisible()
+  await expect(
+    component.getByRole('button', { name: 'Invite a runner' }),
+  ).toBeVisible()
   await expect(component.getByText('Your run club.')).toBeVisible()
 })
 

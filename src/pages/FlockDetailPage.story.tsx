@@ -21,7 +21,11 @@ function Canvas({ children }: { children: ReactNode }) {
 export function Loaded() {
   return (
     <Canvas>
-      <FlockDetailPage flock={flock} isRefreshing={false} />
+      <FlockDetailPage
+        flock={flock}
+        isRefreshing={false}
+        onInvite={() => undefined}
+      />
     </Canvas>
   )
 }
@@ -29,7 +33,7 @@ export function Loaded() {
 export function Refreshing() {
   return (
     <Canvas>
-      <FlockDetailPage flock={flock} isRefreshing />
+      <FlockDetailPage flock={flock} isRefreshing onInvite={() => undefined} />
     </Canvas>
   )
 }
