@@ -13,17 +13,6 @@ import type { FlockInvitationLink } from '@src/types/invitations'
 const creationError =
   'We could not create an invitation. Check your connection and try again.'
 
-function getEmailHref(flockName: string, invitationUrl?: string) {
-  if (!invitationUrl) {
-    return 'mailto:'
-  }
-
-  const subject = `Join ${flockName} on Flock`
-  const body = `${subject}:\n\n${invitationUrl}`
-
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-}
-
 function isShareCancellation(error: unknown) {
   return (
     typeof error === 'object' &&
@@ -96,7 +85,6 @@ function CreateFlockInvitationRoute() {
   }
 
   const flock = flockQuery.data
-  const emailHref = getEmailHref(flock.name, invitation?.url)
   const onShare =
     invitation && typeof navigator.share === 'function'
       ? async (invitationUrl: string) => {
@@ -121,7 +109,6 @@ function CreateFlockInvitationRoute() {
 
   return (
     <CreateFlockInvitationPage
-      emailHref={emailHref}
       error={invitationMutation.isError ? creationError : undefined}
       flock={flock}
       invitation={invitation}

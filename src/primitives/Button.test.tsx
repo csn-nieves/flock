@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import Button, { ButtonLink } from './Button'
+import Button from './Button'
 
 describe('Button', () => {
   it('renders a primary button with a safe default type', () => {
@@ -80,18 +80,5 @@ describe('Button', () => {
     expect(button).toBeEnabled()
     expect(button).not.toHaveAttribute('aria-busy')
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
-  })
-
-  it('renders navigation actions as styled links', () => {
-    render(
-      <ButtonLink href="mailto:runner@example.com" variant="secondary">
-        Email invitation
-      </ButtonLink>,
-    )
-
-    const link = screen.getByRole('link', { name: 'Email invitation' })
-
-    expect(link).toHaveAttribute('href', 'mailto:runner@example.com')
-    expect(link).toHaveClass('border-border', 'bg-background', 'text-text')
   })
 })

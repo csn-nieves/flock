@@ -16,8 +16,6 @@ const invitation = {
   token: 'invitation-token',
   url: 'https://flock.test/invitations/invitation-token',
 }
-const emailHref =
-  'mailto:?subject=Join%20Morning%20Runners%20on%20Flock&body=Join%20Morning%20Runners%20on%20Flock%3A%0A%0Ahttps%3A%2F%2Fflock.test%2Finvitations%2Finvitation-token'
 
 function Canvas({ children }: { children: ReactNode }) {
   return (
@@ -31,7 +29,6 @@ export function Default() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref="mailto:"
         flock={flock}
         isCreating={false}
         onCopy={() => Promise.resolve()}
@@ -48,7 +45,6 @@ export function Creating() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref="mailto:"
         flock={flock}
         isCreating
         onCopy={() => Promise.resolve()}
@@ -62,7 +58,6 @@ export function Error() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref="mailto:"
         error="We could not create an invitation. Check your connection and try again."
         flock={flock}
         isCreating={false}
@@ -80,7 +75,6 @@ export function Ready() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref={emailHref}
         flock={flock}
         invitation={invitation}
         isCreating={false}
@@ -108,7 +102,6 @@ export function CopyError() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref={emailHref}
         flock={flock}
         invitation={invitation}
         isCreating={false}
@@ -125,7 +118,6 @@ export function ShareError() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref={emailHref}
         flock={flock}
         invitation={invitation}
         isCreating={false}
@@ -143,7 +135,6 @@ export function ShareCancelled() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref={emailHref}
         flock={flock}
         invitation={invitation}
         isCreating={false}
@@ -159,7 +150,6 @@ export function Sharing() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref={emailHref}
         flock={flock}
         invitation={invitation}
         isCreating={false}
@@ -175,7 +165,6 @@ export function SharingUnavailable() {
   return (
     <Canvas>
       <CreateFlockInvitationPage
-        emailHref={emailHref}
         flock={flock}
         invitation={invitation}
         isCreating={false}

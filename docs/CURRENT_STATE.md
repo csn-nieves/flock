@@ -47,8 +47,8 @@ outside this slice.
   retry states without disclosing hidden flocks.
 - Any flock member can create an opaque invitation that expires after 24 hours.
   Private storage keeps only its token hash, and the generated link supports
-  native device sharing when available, copy and email fallbacks, and
-  manual-copy recovery.
+  native device sharing when available, copy fallback, and manual-copy
+  recovery.
 - Invitation acceptance atomically consumes the token and creates membership.
   No runner—including the original recipient—can use it again afterward.
 - The protected live router exposes `/flocks`, `/flocks/new`,

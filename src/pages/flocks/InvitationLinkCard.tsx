@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react'
 
-import Button, { ButtonLink } from '@src/primitives/Button'
+import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 
 export type ShareInvitationResult = 'shared' | 'cancelled'
@@ -15,14 +15,12 @@ type InvitationActionStatus =
   | 'copy-error'
 
 export type InvitationLinkCardProps = {
-  emailHref: string
   invitationUrl: string
   onCopy: (invitationUrl: string) => Promise<void>
   onShare?: (invitationUrl: string) => Promise<ShareInvitationResult>
 }
 
 function InvitationLinkCard({
-  emailHref,
   invitationUrl,
   onCopy,
   onShare,
@@ -41,7 +39,7 @@ function InvitationLinkCard({
   } else if (actionStatus === 'share-error') {
     hint = (
       <span role="alert">
-        We could not open sharing options. Copy the link or send it by email.
+        We could not open sharing options. Copy the link instead.
       </span>
     )
   } else if (actionStatus === 'copied') {
@@ -125,10 +123,6 @@ function InvitationLinkCard({
         >
           Copy invitation link
         </Button>
-
-        <ButtonLink href={emailHref} variant="secondary">
-          Email invitation
-        </ButtonLink>
       </div>
     </div>
   )

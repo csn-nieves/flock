@@ -27,14 +27,11 @@ test('keeps the invitation workflow inside a mobile viewport', async ({
   const copyButton = component.getByRole('button', {
     name: 'Copy invitation link',
   })
-  const emailLink = component.getByRole('link', {
-    name: 'Email invitation',
-  })
   const viewport = page.viewportSize()
 
   expect(viewport).not.toBeNull()
 
-  for (const control of [input, shareButton, copyButton, emailLink]) {
+  for (const control of [input, shareButton, copyButton]) {
     const controlBox = await control.boundingBox()
 
     expect(controlBox).not.toBeNull()
@@ -118,30 +115,20 @@ test('treats closing the share sheet as cancellation', async ({ mount }) => {
   ).toBeVisible()
 })
 
-test('shows copy and email recovery when native sharing fails', async ({
-  mount,
-}) => {
+test('shows copy recovery when native sharing fails', async ({ mount }) => {
   const component = await mount('pages/CreateFlockInvitationPage/ShareError')
 
   await component.getByRole('button', { name: 'Share invitation' }).click()
 
   await expect(component.getByRole('alert')).toHaveText(
-    'We could not open sharing options. Copy the link or send it by email.',
+    'We could not open sharing options. Copy the link instead.',
   )
   await expect(
     component.getByRole('button', { name: 'Copy invitation link' }),
   ).toBeEnabled()
-  await expect(
-    component.getByRole('link', { name: 'Email invitation' }),
-  ).toHaveAttribute(
-    'href',
-    'mailto:?subject=Join%20Morning%20Runners%20on%20Flock&body=Join%20Morning%20Runners%20on%20Flock%3A%0A%0Ahttps%3A%2F%2Fflock.test%2Finvitations%2Finvitation-token',
-  )
 })
 
-test('keeps copy and email available without native sharing', async ({
-  mount,
-}) => {
+test('keeps copy available without native sharing', async ({ mount }) => {
   const component = await mount(
     'pages/CreateFlockInvitationPage/SharingUnavailable',
   )
@@ -151,9 +138,6 @@ test('keeps copy and email available without native sharing', async ({
   ).toHaveCount(0)
   await expect(
     component.getByRole('button', { name: 'Copy invitation link' }),
-  ).toBeVisible()
-  await expect(
-    component.getByRole('link', { name: 'Email invitation' }),
   ).toBeVisible()
 })
 

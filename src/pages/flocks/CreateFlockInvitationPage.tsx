@@ -9,7 +9,6 @@ import InvitationLinkCard, {
 } from './InvitationLinkCard'
 
 export type CreateFlockInvitationPageProps = {
-  emailHref: string
   flock: FlockSummary
   isCreating: boolean
   onCopy: (invitationUrl: string) => Promise<void>
@@ -71,7 +70,6 @@ export function FlockInvitationPageLayout({
 }
 
 function CreateFlockInvitationPage({
-  emailHref,
   error,
   flock,
   invitation,
@@ -87,7 +85,6 @@ function CreateFlockInvitationPage({
     >
       {invitation ? (
         <InvitationLinkCard
-          emailHref={emailHref}
           invitationUrl={invitation.url}
           onCopy={onCopy}
           onShare={onShare}

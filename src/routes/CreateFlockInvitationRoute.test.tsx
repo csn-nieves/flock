@@ -181,21 +181,6 @@ describe('CreateFlockInvitationRoute', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
-  it('provides an encoded email fallback for the invitation', () => {
-    invitationMutation.data = {
-      expiresAt: '2026-10-02T12:00:00.000Z',
-      token: 'invitation-token',
-    }
-    renderCreateFlockInvitationRoute()
-
-    expect(
-      screen.getByRole('link', { name: 'Email invitation' }),
-    ).toHaveAttribute(
-      'href',
-      'mailto:?subject=Join%20Morning%20Runners%20on%20Flock&body=Join%20Morning%20Runners%20on%20Flock%3A%0A%0Ahttp%3A%2F%2Flocalhost%3A3000%2Finvitations%2Finvitation-token',
-    )
-  })
-
   it('shows loading, missing, and recoverable query states', () => {
     flockQuery.data = undefined
     flockQuery.isFetching = true
