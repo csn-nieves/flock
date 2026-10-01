@@ -17,9 +17,23 @@ function toProfile(row: {
 }
 
 export async function getMyProfile(): Promise<Profile> {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError) {
+    throw authError
+  }
+
+  if (!user) {
+    throw new Error('An authenticated runner is required to load a profile.')
+  }
+
   const { data, error } = await supabase
     .from('profiles')
     .select('user_id, display_name, location, updated_at')
+    .eq('user_id', user.id)
     .single()
 
   if (error) {
