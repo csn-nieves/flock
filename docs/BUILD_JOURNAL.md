@@ -974,6 +974,11 @@ profiles, avoiding both browser access to `auth.users` and one request per
 member. Database tests cover grants, privacy, synchronization, roster ordering,
 and outsider exclusion.
 
+The deterministic local seed now includes three additional runners. Its flocks
+exercise an owner-only roster, a two-person roster, and a five-person roster
+with varied display-name lengths, so local development demonstrates the member
+list without manual account setup.
+
 This completes the create, invite, join, and view-members milestone. Visible
 app-owned back navigation is the next focused usability branch so phone users
 do not depend on browser chrome to leave nested screens.

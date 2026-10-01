@@ -52,6 +52,8 @@ outside this slice.
 - Public profiles contain only display names, stay synchronized from
   authentication metadata, and are readable only by authenticated runners who
   share a flock. Member emails remain private in Supabase Auth.
+- Deterministic local data includes owner-only, two-person, and five-person
+  rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
   Private storage keeps only its token hash, and the generated link supports
   native device sharing when available, copy fallback, and manual-copy
