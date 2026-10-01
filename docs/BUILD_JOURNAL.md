@@ -875,6 +875,23 @@ create navigation, successful mutation, detail destination, Back behavior,
 refetched list, and list-to-detail selection across desktop Chrome, Android-sized
 Chrome, and iPhone WebKit.
 
+## 2026-10-01 — Starting the complete local stack with one command
+
+### Just orchestration and deterministic development data
+
+Local development now has one explicit entry point: `just dev` starts the
+Docker-backed Supabase services and then runs Vite against the public URL and
+publishable key reported by that exact local stack. The values are scoped to
+the Vite process instead of written into `.env.local`, so hosted configuration
+cannot be mistaken for local configuration and private Supabase credentials do
+not enter the browser environment.
+
+The local seed creates two OTP-capable development accounts and three flocks,
+including both owned and joined membership states. Supabase applies that seed
+on first startup and on `just reset`; normal startup deliberately preserves
+local changes. Just remains a convenience layer over npm scripts so CI and
+contributors without it keep the same lower-level commands.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

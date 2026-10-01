@@ -2,3 +2,18 @@ project_id = "flock"
 
 [db]
 major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/auth/callback"]
+
+[auth.email]
+otp_length = 6
+
+[auth.email.template.magic_link]
+subject = "{{ .Token }} is your Flock sign-in code"
+content_path = "./supabase/templates/magic_link.html"

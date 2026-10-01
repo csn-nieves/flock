@@ -363,3 +363,26 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** A framework-owned route convention replaces the explicit
   controller files or repeated route behavior has a clear shared abstraction
   that preserves pure page contracts.
+
+## D022 — Orchestrate local development with Just
+
+- **Status:** Accepted
+- **Decision:** Use `just dev` as the optional one-command entry point for the
+  Docker-backed Supabase stack and Vite. Resolve the running local stack's
+  public URL and publishable key at startup rather than writing generated
+  environment files. Keep npm scripts as the underlying commands used by Just
+  and CI.
+- **Seed policy:** Apply deterministic local-only users and product records on
+  the first database start and on explicit reset. Ordinary startup preserves
+  local database changes; `just reset` is the clearly named destructive path.
+- **Why:** One command removes recurring local configuration work without
+  making the task runner a hidden requirement for CI or individual tools.
+  Runtime configuration cannot drift from the containers that are actually
+  running, and seed data exercises ownership and membership under normal RLS.
+- **Tradeoffs:** Contributors who want the convenience command must install
+  Just, while Docker and the project dependencies remain prerequisites. The
+  seed uses Supabase Auth's local schema and may require maintenance when a CLI
+  upgrade changes that schema.
+- **Revisit when:** The repository adds another local service, moves away from
+  Supabase CLI, or needs an environment manager with cross-project lifecycle
+  ownership.
