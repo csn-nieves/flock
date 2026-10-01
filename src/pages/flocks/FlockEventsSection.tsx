@@ -16,6 +16,7 @@ export type FlockEventsSectionProps = {
   onCreate: (input: CreateFlockEventInput) => void
   onRetry: () => void
   onRespond: (eventId: string, response: EventResponse) => void
+  onUpdate: (eventId: string, input: CreateFlockEventInput) => void
 }
 
 function FlockEventsSection({
@@ -27,11 +28,13 @@ function FlockEventsSection({
   onCreate,
   onRetry,
   onRespond,
+  onUpdate,
 }: FlockEventsSectionProps) {
   const [title, setTitle] = useState('')
   const [startsAt, setStartsAt] = useState('')
   const [location, setLocation] = useState('')
   const [description, setDescription] = useState('')
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!title.trim() || !startsAt || !location.trim()) return
@@ -45,6 +48,25 @@ function FlockEventsSection({
     setStartsAt('')
     setLocation('')
     setDescription('')
+  }
+  function startEditing(item: FlockEvent) {
+    setEditingEventId(item.id)
+    setTitle(item.title)
+    setStartsAt(item.startsAt.slice(0, 16))
+    setLocation(item.location)
+    setDescription(item.description)
+  }
+  function submitEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!editingEventId || !title.trim() || !startsAt || !location.trim())
+      return
+    onUpdate(editingEventId, {
+      description: description.trim(),
+      location: location.trim(),
+      startsAt: new Date(startsAt).toISOString(),
+      title: title.trim(),
+    })
+    setEditingEventId(null)
   }
   return (
     <section aria-labelledby="flock-events-heading" className="mt-8">
@@ -120,6 +142,63 @@ function FlockEventsSection({
                   </Button>
                 ))}
               </div>
+              {canCreate && editingEventId === item.id ? (
+                <form className="mt-4 space-y-3" onSubmit={submitEdit}>
+                  <TextField
+                    label="Title"
+                    name={`edit-title-${item.id}`}
+                    required
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                  />
+                  <TextField
+                    label="Date and time"
+                    name={`edit-starts-${item.id}`}
+                    required
+                    type="datetime-local"
+                    value={startsAt}
+                    onChange={(event) => setStartsAt(event.target.value)}
+                  />
+                  <TextField
+                    label="Location"
+                    name={`edit-location-${item.id}`}
+                    required
+                    value={location}
+                    onChange={(event) => setLocation(event.target.value)}
+                  />
+                  <TextField
+                    label="Description"
+                    name={`edit-description-${item.id}`}
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      isPending={isSaving}
+                      pendingLabel="Saving event"
+                      type="submit"
+                    >
+                      Save event
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setEditingEventId(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              ) : null}
+              {canCreate && editingEventId !== item.id ? (
+                <Button
+                  className="mt-3"
+                  variant="secondary"
+                  onClick={() => startEditing(item)}
+                >
+                  Edit event
+                </Button>
+              ) : null}
             </li>
           ))}
         </ul>

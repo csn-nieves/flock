@@ -6,10 +6,11 @@ import type {
 import { supabase } from './supabase'
 
 const eventFields =
-  'id, flock_id, title, starts_at, location, description, created_at'
+  'id, flock_id, created_by, title, starts_at, location, description, created_at'
 
 function toEvent(row: {
   created_at: string
+  created_by: string
   description: string
   flock_id: string
   id: string
@@ -20,6 +21,7 @@ function toEvent(row: {
   return {
     attendance: { in: 0, maybe: 0, out: 0, response: null },
     createdAt: row.created_at,
+    createdBy: row.created_by,
     description: row.description,
     flockId: row.flock_id,
     id: row.id,
@@ -90,5 +92,22 @@ export async function createFlockEvent(
   if (error) throw error
   const event = data[0]
   if (!event) throw new Error('The event creation did not return an event.')
+  return toEvent(event)
+}
+
+export async function updateFlockEvent(
+  eventId: string,
+  input: CreateFlockEventInput,
+): Promise<FlockEvent> {
+  const { data, error } = await supabase.rpc('update_flock_event', {
+    target_event_id: eventId,
+    event_title: input.title,
+    event_starts_at: input.startsAt,
+    event_location: input.location,
+    event_description: input.description,
+  })
+  if (error) throw error
+  const event = data[0]
+  if (!event) throw new Error('The event update did not return an event.')
   return toEvent(event)
 }

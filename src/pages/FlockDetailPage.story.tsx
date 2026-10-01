@@ -31,12 +31,13 @@ const members = [
 ]
 
 const events = {
-  canCreate: false,
+  canCreate: true,
   error: undefined,
   events: [
     {
       attendance: { in: 2, maybe: 1, out: 0, response: 'maybe' as const },
       createdAt: '2026-01-03T12:00:00.000Z',
+      createdBy: flock.owner_id,
       description: 'A relaxed loop along the river.',
       flockId: flock.id,
       id: 'river-loop-id',
@@ -50,6 +51,7 @@ const events = {
   onCreate: () => undefined,
   onRespond: () => undefined,
   onRetry: () => undefined,
+  onUpdate: () => undefined,
 }
 
 function Canvas({ children }: { children: ReactNode }) {
