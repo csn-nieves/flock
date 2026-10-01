@@ -67,6 +67,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_flock_invitation: {
+        Args: { invitation_token: string }
+        Returns: {
+          id: string
+          name: string
+          owner_id: string
+        }[]
+      }
       create_flock_invitation: {
         Args: { target_flock_id: string }
         Returns: {

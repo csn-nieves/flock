@@ -26,7 +26,7 @@ type FlockInvitationPageLayoutProps = {
   heading: string
 }
 
-function FlockInvitationPageLayout({
+export function FlockInvitationPageLayout({
   children,
   description,
   heading,

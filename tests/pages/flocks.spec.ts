@@ -109,4 +109,11 @@ test('routes through the complete flock list, create, and detail workflow', asyn
 
   await page.getByRole('button', { name: 'Open Sunrise Striders' }).click()
   await expect(page).toHaveURL('/flocks/sunrise-striders-id')
+
+  await page.getByRole('button', { name: 'Invite a runner' }).click()
+  await expect(page).toHaveURL('/flocks/sunrise-striders-id/invitations/new')
+  await expect(page).toHaveTitle('Invite to Sunrise Striders — Flock')
+  await expect(
+    page.getByRole('button', { name: 'Create invitation link' }),
+  ).toBeVisible()
 })

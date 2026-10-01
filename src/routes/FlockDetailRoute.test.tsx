@@ -33,11 +33,17 @@ function renderFlockDetailRoute(path = `/flocks/${flock.id}`) {
         path: '/flocks/:flockId?',
         element: <FlockDetailRoute />,
       },
+      {
+        path: '/flocks/:flockId/invitations/new',
+        element: <p>Create invitation destination</p>,
+      },
     ],
     { initialEntries: [path] },
   )
 
   render(<RouterProvider router={router} />)
+
+  return router
 }
 
 describe('FlockDetailRoute', () => {
@@ -58,6 +64,19 @@ describe('FlockDetailRoute', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Morning Runners' }),
     ).toBeVisible()
+  })
+
+  it('opens invitation creation for the visible flock', async () => {
+    const router = renderFlockDetailRoute()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Invite a runner' }))
+
+    expect(
+      await screen.findByText('Create invitation destination'),
+    ).toBeVisible()
+    expect(router.state.location.pathname).toBe(
+      '/flocks/morning-runners-id/invitations/new',
+    )
   })
 
   it('shows an honest initial loading state', () => {

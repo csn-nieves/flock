@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createFlockInvitation } from './invitations'
+import {
+  acceptFlockInvitation,
+  createFlockInvitation,
+  InvitationUnavailableError,
+} from './invitations'
 
 const invitationMocks = vi.hoisted(() => ({
   rpc: vi.fn(),
@@ -47,6 +51,53 @@ describe('invitation data', () => {
     })
 
     await expect(createFlockInvitation('morning-runners-id')).rejects.toBe(
+      mutationError,
+    )
+  })
+
+  it('accepts an invitation through the atomic database function', async () => {
+    invitationMocks.single.mockResolvedValue({
+      data: {
+        id: 'morning-runners-id',
+        name: 'Morning Runners',
+        owner_id: 'owner-id',
+      },
+      error: null,
+    })
+
+    await expect(acceptFlockInvitation('invitation-token')).resolves.toEqual({
+      id: 'morning-runners-id',
+      name: 'Morning Runners',
+      owner_id: 'owner-id',
+    })
+    expect(invitationMocks.rpc).toHaveBeenCalledWith(
+      'accept_flock_invitation',
+      { invitation_token: 'invitation-token' },
+    )
+  })
+
+  it('maps invalid, expired, and consumed invitations to one safe error', async () => {
+    invitationMocks.single.mockResolvedValue({
+      data: null,
+      error: {
+        code: 'P0002',
+        message: 'raw database message',
+      },
+    })
+
+    await expect(
+      acceptFlockInvitation('unavailable-token'),
+    ).rejects.toBeInstanceOf(InvitationUnavailableError)
+  })
+
+  it('preserves unexpected acceptance failures for route-level recovery', async () => {
+    const mutationError = new Error('Connection unavailable.')
+    invitationMocks.single.mockResolvedValue({
+      data: null,
+      error: mutationError,
+    })
+
+    await expect(acceptFlockInvitation('invitation-token')).rejects.toBe(
       mutationError,
     )
   })

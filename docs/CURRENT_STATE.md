@@ -45,13 +45,15 @@ outside this slice.
 - `FlockDetailRoute` and pure `FlockDetailPage` load one RLS-visible
   flock by route identifier and cover loading, refresh, not-found, failure, and
   retry states without disclosing hidden flocks.
-- A staged invitation-creation foundation lets any flock member request an
-  opaque, single-use link that expires after 24 hours. Private storage keeps
-  only the token hash, pgTAP covers authorization and lifetime rules, and the
-  typed data, hook, route-controller, pure page, copy recovery, and browser
-  stories are ready to connect once invitation acceptance exists.
-- The protected live router exposes `/flocks`, `/flocks/new`, and
-  `/flocks/:flockId` as one complete list, create, and detail workflow.
+- Any flock member can create an opaque invitation that expires after 24 hours.
+  Private storage keeps only its token hash, and the generated link supports
+  copy success and manual-copy recovery.
+- Invitation acceptance atomically consumes the token and creates membership.
+  No runner—including the original recipient—can use it again afterward.
+- The protected live router exposes `/flocks`, `/flocks/new`,
+  `/flocks/:flockId`, `/flocks/:flockId/invitations/new`, and
+  `/invitations/:invitationToken` as one complete create, invite, and join
+  workflow.
 
 ## Current application boundary
 
@@ -66,15 +68,17 @@ The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
 production branding, and a release candidate suitable for provider review.
 
-Invitation creation is intentionally staged outside the live router. Exposing
-it now would generate links to an acceptance destination that does not exist.
-Invitations are a convenient path into a flock, not an invitation-only privacy
-gate; flock discovery remains deferred.
+Signed-out invitation recipients preserve the complete link through sign-in.
+Once authenticated, acceptance joins them immediately and replaces the
+token-bearing URL with the returned flock detail destination. Invalid, expired,
+and already-consumed invitations share one non-disclosing unavailable state.
+Invitations remain a convenient path into a flock, not an invitation-only
+privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Add atomic invitation acceptance and membership creation, then register the
-   complete invitation routes in one small branch.
+1. Add native device sharing with copy and email fallbacks in a focused
+   invitation-sharing branch.
 2. Add the member list as a separate small branch.
 
 ## Known follow-ups

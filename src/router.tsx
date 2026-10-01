@@ -1,5 +1,7 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import ProtectedRoute from '@src/auth/ProtectedRoute'
+import AcceptFlockInvitationRoute from '@src/routes/AcceptFlockInvitationRoute'
+import CreateFlockInvitationRoute from '@src/routes/CreateFlockInvitationRoute'
 import CreateFlockRoute from '@src/routes/CreateFlockRoute'
 import FlockDetailRoute from '@src/routes/FlockDetailRoute'
 import FlocksRoute from '@src/routes/FlocksRoute'
@@ -36,8 +38,16 @@ export const routes = [
             Component: CreateFlockRoute,
           },
           {
+            path: 'flocks/:flockId/invitations/new',
+            Component: CreateFlockInvitationRoute,
+          },
+          {
             path: 'flocks/:flockId',
             Component: FlockDetailRoute,
+          },
+          {
+            path: 'invitations/:invitationToken',
+            Component: AcceptFlockInvitationRoute,
           },
         ],
       },

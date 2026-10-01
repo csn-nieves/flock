@@ -915,6 +915,29 @@ acceptance would produce broken share links. The next branch should validate
 and consume the token in the same database transaction that creates membership,
 then expose the complete create-and-accept route pair.
 
+## 2026-10-01 — Completing invitation acceptance and joining
+
+### Atomic single-use acceptance and live invitation routes
+
+Invitation links now complete the first usable join path. The acceptance
+database function hashes the presented token, conditionally claims an unused
+and unexpired invitation, and inserts membership in one transaction. PostgreSQL
+row locking and the conditional update ensure concurrent runners cannot both
+consume the link. Invalid, expired, and previously consumed tokens return the
+same unavailable result so the interface does not reveal invitation history.
+
+Once acceptance succeeds, every later call receives the same unavailable result
+as an invalid or expired token—even when the caller is the runner who consumed
+it. This strict behavior follows the product rule that use itself expires the
+link rather than turning it into a durable membership credential.
+
+The protected router now exposes invitation creation from flock detail and
+acceptance at `/invitations/:invitationToken`. Signed-out recipients retain the
+full invitation destination through sign-in. Authenticated recipients join
+immediately, then the route replaces the token-bearing URL with the joined
+flock detail page. Loading, unavailable, recoverable failure, retry, and narrow
+mobile states are covered in the component gallery and routed browser tests.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
