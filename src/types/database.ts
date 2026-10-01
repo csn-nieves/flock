@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      flock_event_attendance: {
+        Row: {
+          event_id: string
+          response: Database['public']['Enums']['flock_event_response']
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          response: Database['public']['Enums']['flock_event_response']
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          response?: Database['public']['Enums']['flock_event_response']
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'flock_event_attendance_event_id_fkey'
+            columns: ['event_id']
+            isOneToOne: false
+            referencedRelation: 'flock_events'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       flock_events: {
         Row: {
           created_at: string
@@ -182,6 +211,24 @@ export type Database = {
           user_id: string
         }[]
       }
+      set_flock_event_response: {
+        Args: {
+          next_response: Database['public']['Enums']['flock_event_response']
+          target_event_id: string
+        }
+        Returns: {
+          event_id: string
+          response: Database['public']['Enums']['flock_event_response']
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_event_attendance'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_my_profile: {
         Args: { next_display_name: string; next_location?: string }
         Returns: {
@@ -193,7 +240,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      flock_event_response: 'in' | 'out' | 'maybe'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -317,6 +364,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      flock_event_response: ['in', 'out', 'maybe'],
+    },
   },
 } as const

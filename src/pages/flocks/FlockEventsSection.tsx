@@ -1,7 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
-import type { CreateFlockEventInput, FlockEvent } from '@src/types/events'
+import type {
+  CreateFlockEventInput,
+  EventResponse,
+  FlockEvent,
+} from '@src/types/events'
 
 export type FlockEventsSectionProps = {
   error?: string
@@ -11,6 +15,7 @@ export type FlockEventsSectionProps = {
   canCreate: boolean
   onCreate: (input: CreateFlockEventInput) => void
   onRetry: () => void
+  onRespond: (eventId: string, response: EventResponse) => void
 }
 
 function FlockEventsSection({
@@ -21,6 +26,7 @@ function FlockEventsSection({
   isSaving,
   onCreate,
   onRetry,
+  onRespond,
 }: FlockEventsSectionProps) {
   const [title, setTitle] = useState('')
   const [startsAt, setStartsAt] = useState('')
@@ -85,6 +91,31 @@ function FlockEventsSection({
                   {item.description}
                 </p>
               ) : null}
+              <p className="mt-3 mb-2 text-sm text-text-muted">
+                {item.attendance.in} in · {item.attendance.maybe} maybe ·{' '}
+                {item.attendance.out} out
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ['in', "I'm in"],
+                    ['maybe', 'Maybe'],
+                    ['out', "I'm out"],
+                  ] as const
+                ).map(([response, label]) => (
+                  <Button
+                    key={response}
+                    variant={
+                      item.attendance.response === response
+                        ? 'primary'
+                        : 'secondary'
+                    }
+                    onClick={() => onRespond(item.id, response)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
             </li>
           ))}
         </ul>

@@ -1,4 +1,8 @@
-import type { CreateFlockEventInput, FlockEvent } from '@src/types/events'
+import type {
+  CreateFlockEventInput,
+  EventResponse,
+  FlockEvent,
+} from '@src/types/events'
 import { supabase } from './supabase'
 
 const eventFields =
@@ -14,6 +18,7 @@ function toEvent(row: {
   title: string
 }): FlockEvent {
   return {
+    attendance: { in: 0, maybe: 0, out: 0, response: null },
     createdAt: row.created_at,
     description: row.description,
     flockId: row.flock_id,
@@ -32,7 +37,43 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
     .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
   if (error) throw error
-  return data.map(toEvent)
+  const events = data.map(toEvent)
+  if (events.length === 0) return events
+  const { data: attendance, error: attendanceError } = await supabase
+    .from('flock_event_attendance')
+    .select('event_id, user_id, response')
+    .in(
+      'event_id',
+      events.map((event) => event.id),
+    )
+  if (attendanceError) throw attendanceError
+  const { data: userData } = await supabase.auth.getUser()
+  return events.map((event) => {
+    const responses = attendance.filter((item) => item.event_id === event.id)
+    return {
+      ...event,
+      attendance: {
+        in: responses.filter((item) => item.response === 'in').length,
+        maybe: responses.filter((item) => item.response === 'maybe').length,
+        out: responses.filter((item) => item.response === 'out').length,
+        response:
+          (responses.find((item) => item.user_id === userData.user?.id)
+            ?.response as EventResponse | undefined) ?? null,
+      },
+    }
+  })
+}
+
+export async function setFlockEventResponse(
+  eventId: string,
+  response: EventResponse,
+) {
+  const { data, error } = await supabase.rpc('set_flock_event_response', {
+    target_event_id: eventId,
+    next_response: response,
+  })
+  if (error) throw error
+  return data
 }
 
 export async function createFlockEvent(
