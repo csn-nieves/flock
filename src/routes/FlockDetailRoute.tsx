@@ -6,6 +6,7 @@ import { useFlockMembers } from '@src/hooks/useFlockMembers'
 import { useFlockEvents } from '@src/hooks/useFlockEvents'
 import { useCreateFlockEvent } from '@src/hooks/useCreateFlockEvent'
 import { useAuthSession } from '@src/hooks/useAuthSession'
+import { useSetFlockEventResponse } from '@src/hooks/useSetFlockEventResponse'
 import FlockDetailPage, {
   FlockDetailErrorPage,
   FlockDetailLoadingPage,
@@ -21,6 +22,7 @@ function FlockDetailRoute() {
   const createEventMutation = useCreateFlockEvent(flockId ?? '')
   const navigate = useNavigate()
   const { session } = useAuthSession()
+  const responseMutation = useSetFlockEventResponse(flockId ?? '')
   const onBack = () => navigate('/flocks', { replace: true })
   let title = 'Flock not found — Flock'
 
@@ -106,6 +108,8 @@ function FlockDetailRoute() {
         isSaving: createEventMutation.isPending,
         onCreate: (input) => createEventMutation.mutate(input),
         onRetry: () => void eventsQuery.refetch(),
+        onRespond: (eventId, response) =>
+          responseMutation.mutate({ eventId, response }),
       }}
     />
   )
