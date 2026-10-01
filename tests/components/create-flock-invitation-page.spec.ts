@@ -21,14 +21,20 @@ test('keeps the invitation workflow inside a mobile viewport', async ({
 }) => {
   const component = await mount('pages/CreateFlockInvitationPage/Ready')
   const input = component.getByRole('textbox', { name: 'Invitation link' })
-  const button = component.getByRole('button', {
+  const shareButton = component.getByRole('button', {
+    name: 'Share invitation',
+  })
+  const copyButton = component.getByRole('button', {
     name: 'Copy invitation link',
+  })
+  const emailLink = component.getByRole('link', {
+    name: 'Email invitation',
   })
   const viewport = page.viewportSize()
 
   expect(viewport).not.toBeNull()
 
-  for (const control of [input, button]) {
+  for (const control of [input, shareButton, copyButton, emailLink]) {
     const controlBox = await control.boundingBox()
 
     expect(controlBox).not.toBeNull()
@@ -70,6 +76,85 @@ test('copies the generated link and announces success', async ({ mount }) => {
   await component.getByRole('button', { name: 'Copy invitation link' }).click()
   await expect(component.getByTestId('copied-value')).toHaveText(invitationUrl)
   await expect(component.getByText('Invitation link copied.')).toBeVisible()
+})
+
+test('shares the generated link and announces success', async ({ mount }) => {
+  const component = await mount('pages/CreateFlockInvitationPage/Ready')
+
+  await component.getByRole('button', { name: 'Share invitation' }).click()
+  await expect(component.getByTestId('shared-value')).toHaveText(invitationUrl)
+  await expect(component.getByText('Invitation shared.')).toBeVisible()
+})
+
+test('keeps share progress stable and blocks another action', async ({
+  mount,
+}) => {
+  const component = await mount('pages/CreateFlockInvitationPage/Sharing')
+
+  await component.getByRole('button', { name: 'Share invitation' }).click()
+
+  const shareButton = component.getByRole('button', {
+    name: 'Opening sharing options',
+  })
+  await expect(shareButton).toBeDisabled()
+  await expect(shareButton).toHaveAttribute('aria-busy', 'true')
+  await expect(
+    component.getByRole('button', { name: 'Copy invitation link' }),
+  ).toBeDisabled()
+})
+
+test('treats closing the share sheet as cancellation', async ({ mount }) => {
+  const component = await mount(
+    'pages/CreateFlockInvitationPage/ShareCancelled',
+  )
+
+  await component.getByRole('button', { name: 'Share invitation' }).click()
+
+  await expect(component.getByRole('alert')).toHaveCount(0)
+  await expect(
+    component.getByText(
+      'This link works once and expires 24 hours after creation.',
+    ),
+  ).toBeVisible()
+})
+
+test('shows copy and email recovery when native sharing fails', async ({
+  mount,
+}) => {
+  const component = await mount('pages/CreateFlockInvitationPage/ShareError')
+
+  await component.getByRole('button', { name: 'Share invitation' }).click()
+
+  await expect(component.getByRole('alert')).toHaveText(
+    'We could not open sharing options. Copy the link or send it by email.',
+  )
+  await expect(
+    component.getByRole('button', { name: 'Copy invitation link' }),
+  ).toBeEnabled()
+  await expect(
+    component.getByRole('link', { name: 'Email invitation' }),
+  ).toHaveAttribute(
+    'href',
+    'mailto:?subject=Join%20Morning%20Runners%20on%20Flock&body=Join%20Morning%20Runners%20on%20Flock%3A%0A%0Ahttps%3A%2F%2Fflock.test%2Finvitations%2Finvitation-token',
+  )
+})
+
+test('keeps copy and email available without native sharing', async ({
+  mount,
+}) => {
+  const component = await mount(
+    'pages/CreateFlockInvitationPage/SharingUnavailable',
+  )
+
+  await expect(
+    component.getByRole('button', { name: 'Share invitation' }),
+  ).toHaveCount(0)
+  await expect(
+    component.getByRole('button', { name: 'Copy invitation link' }),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('link', { name: 'Email invitation' }),
+  ).toBeVisible()
 })
 
 test('keeps the link selectable when clipboard access fails', async ({

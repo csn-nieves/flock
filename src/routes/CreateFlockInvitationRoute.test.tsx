@@ -66,6 +66,10 @@ describe('CreateFlockInvitationRoute', () => {
     invitationMutation.error = null
     invitationMutation.isError = false
     invitationMutation.isPending = false
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: undefined,
+    })
   })
 
   it('loads the flock and creates an invitation for it', () => {
@@ -129,6 +133,67 @@ describe('CreateFlockInvitationRoute', () => {
       'http://localhost:3000/invitations/invitation-token',
     )
     expect(await screen.findByText('Invitation link copied.')).toBeVisible()
+  })
+
+  it('uses native sharing when the browser supports it', async () => {
+    const share = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: share,
+    })
+    invitationMutation.data = {
+      expiresAt: '2026-10-02T12:00:00.000Z',
+      token: 'invitation-token',
+    }
+    renderCreateFlockInvitationRoute()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Share invitation' }))
+
+    expect(share).toHaveBeenCalledWith({
+      text: 'Join Morning Runners on Flock.',
+      title: 'Join Morning Runners on Flock',
+      url: 'http://localhost:3000/invitations/invitation-token',
+    })
+    expect(await screen.findByText('Invitation shared.')).toBeVisible()
+  })
+
+  it('does not report closing the native share sheet as an error', async () => {
+    const share = vi
+      .fn()
+      .mockRejectedValue(new DOMException('Share cancelled.', 'AbortError'))
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: share,
+    })
+    invitationMutation.data = {
+      expiresAt: '2026-10-02T12:00:00.000Z',
+      token: 'invitation-token',
+    }
+    renderCreateFlockInvitationRoute()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Share invitation' }))
+
+    expect(
+      await screen.findByText(
+        'This link works once and expires 24 hours after creation.',
+      ),
+    ).toBeVisible()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('provides an encoded email fallback for the invitation', () => {
+    invitationMutation.data = {
+      expiresAt: '2026-10-02T12:00:00.000Z',
+      token: 'invitation-token',
+    }
+    renderCreateFlockInvitationRoute()
+
+    expect(
+      screen.getByRole('link', { name: 'Email invitation' }),
+    ).toHaveAttribute(
+      'href',
+      'mailto:?subject=Join%20Morning%20Runners%20on%20Flock&body=Join%20Morning%20Runners%20on%20Flock%3A%0A%0Ahttp%3A%2F%2Flocalhost%3A3000%2Finvitations%2Finvitation-token',
+    )
   })
 
   it('shows loading, missing, and recoverable query states', () => {

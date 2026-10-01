@@ -138,6 +138,8 @@ an action-specific pending label while retaining ownership of the underlying
 request state. The primitive disables duplicate activation, exposes busy
 semantics and a polite status announcement, composes `PendingIndicator`, and
 reserves both labels' geometry so progress never moves surrounding controls.
+`ButtonLink` reuses the same visual variants for real navigation, preserving
+link semantics for destinations such as an email composer.
 
 ### Components
 
@@ -328,6 +330,13 @@ invitation path through authentication. A signed-in runner accepts immediately,
 matching the first-slice product contract, then lands on the joined flock. The
 token is never placed in document titles, feedback text, logs, or persistent
 client storage beyond the existing short-lived authentication destination.
+
+After creation, the route controller feature-detects the browser's native Web
+Share API and passes a share callback into the pure page only when it is
+available. Closing the operating-system share sheet is treated as cancellation,
+not failure. Copy and encoded `mailto:` actions remain visible as portable
+fallbacks, and a clipboard failure leaves the invitation URL selected for
+manual copying.
 
 Membership-backed read policies use a `security definer` helper in the private,
 non-exposed schema. This avoids recursive policies on `flock_members`. The

@@ -938,6 +938,27 @@ immediately, then the route replaces the token-bearing URL with the joined
 flock detail page. Loading, unavailable, recoverable failure, retry, and narrow
 mobile states are covered in the component gallery and routed browser tests.
 
+## 2026-10-01 — Sharing flock invitations across devices
+
+### Native share with copy and email recovery
+
+Generated invitation cards now offer the operating system's native share sheet
+when the browser supports it. The share payload names the flock and carries the
+single-use URL, allowing mobile users to choose from the applications installed
+on their device without adding vendor-specific integrations. Closing the share
+sheet is treated as cancellation rather than a failure.
+
+Copy and email remain visible on every platform. The email link uses a real
+`mailto:` destination with an encoded subject and body, while clipboard failure
+continues to focus and select the URL for manual copying. Share, cancellation,
+failure, pending, copy, email, desktop, Android-sized, and iPhone states are
+covered through the pure page story and route-controller tests.
+
+The shared action primitive now exposes `ButtonLink` so navigation can retain
+native anchor semantics while using the established button hierarchy. Browser
+capability detection and Web Share calls remain in the route controller; the
+page receives only typed callbacks and destinations.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
