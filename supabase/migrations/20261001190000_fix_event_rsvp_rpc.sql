@@ -26,7 +26,7 @@ begin
   return query
   insert into public.flock_event_attendance (event_id, user_id, response, updated_at)
   values (target_event_id, (select auth.uid()), next_response, clock_timestamp())
-  on conflict (event_id, user_id) do update
+  on conflict on constraint flock_event_attendance_pkey do update
   set response = excluded.response, updated_at = excluded.updated_at
   returning flock_event_attendance.event_id, flock_event_attendance.user_id,
     flock_event_attendance.response, flock_event_attendance.updated_at;
