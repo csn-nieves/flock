@@ -10,6 +10,9 @@ export const test = base.extend({
     }
 
     await page.route('**/rest/**', failOnUnexpectedRequest)
+
+    // Playwright's fixture callback is named `use`; it is not a React hook.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(page)
   },
 })
