@@ -80,6 +80,13 @@ PWA and Tailwind plugins. Flock does not currently need server-side rendering;
 the first workflows are authenticated application screens rather than public
 search pages.
 
+Local development uses a Just recipe as a thin orchestration layer. `just dev`
+starts the Docker-backed Supabase stack, reads its current public API URL and
+publishable key, and supplies only those values to the Vite process. The npm
+scripts remain the canonical underlying commands for CI and environments
+without Just. Local migrations and deterministic seed data are replayed
+explicitly with `just reset`; ordinary startup preserves database changes.
+
 ### React Router
 
 React Router owns client-side routes. Shareable invitation URLs and the OAuth

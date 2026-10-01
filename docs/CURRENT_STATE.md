@@ -28,8 +28,8 @@ outside this slice.
   Facebook OAuth using PKCE, protected routes, safe destination restoration,
   and a dedicated callback route.
 - Local Supabase development, migrations, generated frontend database types,
-  Row Level Security, ownership and membership constraints, and transactional
-  pgTAP coverage.
+  deterministic seed data, a `just dev` full-stack startup, Row Level Security,
+  ownership and membership constraints, and transactional pgTAP coverage.
 - React Query provider, query-key conventions, typed flock read and create data
   functions, `useFlocks`, and `useCreateFlock`.
 - Presentational `FlockList` and `CreateFlockForm`, including complete async and
