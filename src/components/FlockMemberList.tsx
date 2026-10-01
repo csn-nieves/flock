@@ -29,8 +29,15 @@ function FlockMemberList({ members }: FlockMemberListProps) {
           >
             {getInitial(member.displayName)}
           </span>
-          <span className="min-w-0 flex-1 font-display text-base font-bold leading-6 text-text [overflow-wrap:anywhere]">
-            {member.displayName}
+          <span className="min-w-0 flex-1">
+            <span className="block font-display text-base font-bold leading-6 text-text [overflow-wrap:anywhere]">
+              {member.displayName}
+            </span>
+            {member.location ? (
+              <span className="block text-sm leading-5 text-text-muted [overflow-wrap:anywhere]">
+                {member.location}
+              </span>
+            ) : null}
           </span>
           <span className="shrink-0 rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-bold text-text-muted">
             {member.role === 'owner' ? 'Owner' : 'Member'}

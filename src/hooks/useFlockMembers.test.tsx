@@ -14,6 +14,7 @@ vi.mock('@src/data/flockMembers', () => ({
 const members: FlockMemberSummary[] = [
   {
     displayName: 'Local Organizer',
+    location: 'Portland, Oregon',
     joinedAt: '2026-01-01T12:00:00.000Z',
     role: 'owner',
     userId: 'owner-id',

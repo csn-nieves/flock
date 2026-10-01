@@ -4,12 +4,14 @@ import FlockMemberList from './FlockMemberList'
 const members: FlockMemberSummary[] = [
   {
     displayName: 'Local Organizer',
+    location: 'Portland, Oregon',
     joinedAt: '2026-01-01T12:00:00.000Z',
     role: 'owner',
     userId: 'owner-id',
   },
   {
     displayName: 'Local Runner',
+    location: null,
     joinedAt: '2026-01-02T12:00:00.000Z',
     role: 'member',
     userId: 'runner-id',
@@ -27,6 +29,7 @@ export function LongName() {
         {
           displayName:
             'Alexandria Montgomery-Rutherford Who Runs Every Riverside Trail',
+          location: 'Seattle, Washington',
           joinedAt: '2026-01-02T12:00:00.000Z',
           role: 'member',
           userId: 'long-name-id',
