@@ -59,6 +59,8 @@ outside this slice.
   mutation, navigation, and document state.
 - Profiles also support an optional coarse city or region location, with no
   precise coordinates or street-address storage.
+- Flock members can view upcoming events, and flock owners can create events
+  with a title, date/time, location, and description.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.

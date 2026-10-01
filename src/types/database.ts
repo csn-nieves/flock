@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      flock_events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string
+          flock_id: string
+          id?: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          flock_id?: string
+          id?: string
+          location?: string
+          starts_at?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'flock_events_flock_id_fkey'
+            columns: ['flock_id']
+            isOneToOne: false
+            referencedRelation: 'flocks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       flock_members: {
         Row: {
           flock_id: string
@@ -98,6 +139,31 @@ export type Database = {
           name: string
           owner_id: string
         }[]
+      }
+      create_flock_event: {
+        Args: {
+          event_description?: string
+          event_location: string
+          event_starts_at: string
+          event_title: string
+          target_flock_id: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_events'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       create_flock_invitation: {
         Args: { target_flock_id: string }
