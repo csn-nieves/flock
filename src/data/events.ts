@@ -88,5 +88,7 @@ export async function createFlockEvent(
     event_description: input.description,
   })
   if (error) throw error
-  return toEvent(data)
+  const event = data[0]
+  if (!event) throw new Error('The event creation did not return an event.')
+  return toEvent(event)
 }
