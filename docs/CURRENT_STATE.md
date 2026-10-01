@@ -94,8 +94,9 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Run production-like authentication lifecycle and memory profiling before
-   treating the authentication foundation as finished.
+1. Select the next product capability after a short review of the completed
+   membership slice. Events, routes, discovery, notifications, and monetization
+   remain intentionally deferred until that review chooses one.
 
 ## Known follow-ups
 
