@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import PageBackButton from '@src/components/PageBackButton'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSummary } from '@src/types/flocks'
@@ -11,12 +12,14 @@ export type FlockDetailPageProps = {
   flock: FlockSummary
   isRefreshing: boolean
   memberList: FlockMemberListState
+  onBack: () => void
   onInvite: () => void
   onRetryMembers: () => void
 }
 
 type FlockDetailErrorPageProps = {
   isRetrying: boolean
+  onBack: () => void
   onRetry: () => void
 }
 
@@ -24,20 +27,24 @@ type FlockDetailPageLayoutProps = {
   children?: ReactNode
   description: string
   heading: string
+  onBack: () => void
 }
 
 function FlockDetailPageLayout({
   children,
   description,
   heading,
+  onBack,
 }: FlockDetailPageLayoutProps) {
   return (
     <section
       aria-labelledby="flock-detail-heading"
       className="mx-auto w-full py-8 sm:py-12"
     >
+      <PageBackButton label="Back to your flocks" onBack={onBack} />
+
       <header>
-        <div className="mb-8 flex items-center gap-3">
+        <div className="mt-6 mb-8 flex items-center gap-3">
           <img
             alt=""
             className="size-12 shrink-0 rounded-lg"
@@ -70,11 +77,16 @@ function FlockDetailPage({
   flock,
   isRefreshing,
   memberList,
+  onBack,
   onInvite,
   onRetryMembers,
 }: FlockDetailPageProps) {
   return (
-    <FlockDetailPageLayout description="Your run club." heading={flock.name}>
+    <FlockDetailPageLayout
+      description="Your run club."
+      heading={flock.name}
+      onBack={onBack}
+    >
       <Button className="w-full" onClick={onInvite}>
         Invite a runner
       </Button>
@@ -88,11 +100,12 @@ function FlockDetailPage({
   )
 }
 
-export function FlockDetailLoadingPage() {
+export function FlockDetailLoadingPage({ onBack }: { onBack: () => void }) {
   return (
     <FlockDetailPageLayout
       description="Getting your run club ready."
       heading="Flock details"
+      onBack={onBack}
     >
       <div
         className="flex min-h-32 items-center justify-center gap-3 rounded-lg border border-border bg-surface-subtle px-4 py-8 text-text-muted"
@@ -105,23 +118,26 @@ export function FlockDetailLoadingPage() {
   )
 }
 
-export function FlockDetailNotFoundPage() {
+export function FlockDetailNotFoundPage({ onBack }: { onBack: () => void }) {
   return (
     <FlockDetailPageLayout
       description="This flock may have been removed, or you may not have access to it."
       heading="Flock not found"
+      onBack={onBack}
     />
   )
 }
 
 export function FlockDetailErrorPage({
   isRetrying,
+  onBack,
   onRetry,
 }: FlockDetailErrorPageProps) {
   return (
     <FlockDetailPageLayout
       description="We could not load this flock. Check your connection and try again."
       heading="Flock unavailable"
+      onBack={onBack}
     >
       <div
         className="rounded-lg border border-accent bg-surface-subtle px-4 py-5"

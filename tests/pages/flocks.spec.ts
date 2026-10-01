@@ -105,6 +105,12 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(page).toHaveURL('/flocks/new')
   await expect(page).toHaveTitle('Create a flock — Flock')
 
+  await page.getByRole('button', { name: 'Back to your flocks' }).click()
+  await expect(page).toHaveURL('/flocks')
+
+  await page.getByRole('button', { name: 'Create a flock' }).click()
+  await expect(page).toHaveURL('/flocks/new')
+
   await page
     .getByRole('textbox', { name: 'Flock name' })
     .fill('Sunrise Striders')
@@ -119,8 +125,8 @@ test('routes through the complete flock list, create, and detail workflow', asyn
     'Local Runner',
   )
 
-  await page.goBack()
-  await expect(page).toHaveURL('/')
+  await page.getByRole('button', { name: 'Back to your flocks' }).click()
+  await expect(page).toHaveURL('/flocks')
   await expect(
     page.getByRole('button', { name: 'Open Sunrise Striders' }),
   ).toBeVisible()
@@ -134,4 +140,7 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(
     page.getByRole('button', { name: 'Create invitation link' }),
   ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Back to flock' }).click()
+  await expect(page).toHaveURL('/flocks/sunrise-striders-id')
 })

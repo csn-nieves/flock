@@ -64,6 +64,10 @@ outside this slice.
   `/flocks/:flockId`, `/flocks/:flockId/invitations/new`, and
   `/invitations/:invitationToken` as one complete create, invite, and join
   workflow.
+- Every nested flock page exposes a labeled, touch-sized back control in all
+  route states. Route controllers use deterministic parent destinations rather
+  than raw browser history, so direct links and restored auth flows have a safe
+  fallback.
 
 ## Current application boundary
 
@@ -71,8 +75,11 @@ The live router exposes sign-in, the OAuth callback, and the protected flock
 workflow through explicit route-controller modules. The protected index and
 `/flocks` both render the flock collection; list actions reach `/flocks/new`
 and `/flocks/:flockId`. Successful creation replaces the completed form route
-with the returned flock detail destination, so browser Back returns to the
-originating list URL without altering a restored authentication destination.
+with the returned flock detail destination. Visible app-owned back controls
+return create/detail pages to the collection, invitation creation to its flock,
+and invitation acceptance to the collection. These actions replace the current
+nested entry and do not depend on browser history, which may contain an
+external site or an authentication callback.
 
 The hosted OAuth providers remain restricted to development/test access until
 Flock has a deployed production domain, privacy policy, data-deletion process,
@@ -87,13 +94,11 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Add a visible, mobile-friendly back-navigation control to every applicable
-   page, with a safe route fallback when no meaningful in-app history exists.
+1. Run production-like authentication lifecycle and memory profiling before
+   treating the authentication foundation as finished.
 
 ## Known follow-ups
 
-- Run production-like authentication lifecycle and memory profiling before
-  treating the auth foundation as finished.
 - Revisit route-level code splitting as the application grows; the current
   production build reports a JavaScript chunk above Vite's 500 kB warning.
 - Expand the current visual foundation into a broader component design system

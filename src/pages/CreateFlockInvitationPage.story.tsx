@@ -11,6 +11,7 @@ const flock = {
   name: 'Morning Runners',
   owner_id: 'owner-id',
 }
+const onBack = () => undefined
 const invitation = {
   expiresAt: '2026-10-02T12:00:00.000Z',
   token: 'invitation-token',
@@ -31,6 +32,7 @@ export function Default() {
       <CreateFlockInvitationPage
         flock={flock}
         isCreating={false}
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => setCreateCount((count) => count + 1)}
       />
@@ -47,6 +49,7 @@ export function Creating() {
       <CreateFlockInvitationPage
         flock={flock}
         isCreating
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
       />
@@ -61,6 +64,7 @@ export function Error() {
         error="We could not create an invitation. Check your connection and try again."
         flock={flock}
         isCreating={false}
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
       />
@@ -78,6 +82,7 @@ export function Ready() {
         flock={flock}
         invitation={invitation}
         isCreating={false}
+        onBack={onBack}
         onCopy={(value) => {
           setCopiedValue(value)
           return Promise.resolve()
@@ -105,6 +110,7 @@ export function CopyError() {
         flock={flock}
         invitation={invitation}
         isCreating={false}
+        onBack={onBack}
         onCopy={() =>
           Promise.reject(new globalThis.Error('Clipboard unavailable.'))
         }
@@ -121,6 +127,7 @@ export function ShareError() {
         flock={flock}
         invitation={invitation}
         isCreating={false}
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
         onShare={() =>
@@ -138,6 +145,7 @@ export function ShareCancelled() {
         flock={flock}
         invitation={invitation}
         isCreating={false}
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
         onShare={() => Promise.resolve('cancelled')}
@@ -153,6 +161,7 @@ export function Sharing() {
         flock={flock}
         invitation={invitation}
         isCreating={false}
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
         onShare={() => new Promise(() => undefined)}
@@ -168,6 +177,7 @@ export function SharingUnavailable() {
         flock={flock}
         invitation={invitation}
         isCreating={false}
+        onBack={onBack}
         onCopy={() => Promise.resolve()}
         onCreate={() => undefined}
       />
@@ -178,7 +188,7 @@ export function SharingUnavailable() {
 export function Loading() {
   return (
     <Canvas>
-      <FlockInvitationLoadingPage />
+      <FlockInvitationLoadingPage onBack={onBack} />
     </Canvas>
   )
 }
@@ -186,7 +196,7 @@ export function Loading() {
 export function NotFound() {
   return (
     <Canvas>
-      <FlockInvitationNotFoundPage />
+      <FlockInvitationNotFoundPage onBack={onBack} />
     </Canvas>
   )
 }
@@ -198,6 +208,7 @@ export function QueryError() {
     <Canvas>
       <FlockInvitationErrorPage
         isRetrying={false}
+        onBack={onBack}
         onRetry={() => setIntent('retry')}
       />
       <output className="sr-only" data-testid="page-intent">
@@ -210,7 +221,11 @@ export function QueryError() {
 export function Retrying() {
   return (
     <Canvas>
-      <FlockInvitationErrorPage isRetrying onRetry={() => undefined} />
+      <FlockInvitationErrorPage
+        isRetrying
+        onBack={onBack}
+        onRetry={() => undefined}
+      />
     </Canvas>
   )
 }

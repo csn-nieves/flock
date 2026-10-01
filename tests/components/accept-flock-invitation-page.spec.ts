@@ -17,7 +17,9 @@ test('keeps invitation acceptance inside a mobile viewport', async ({
   const section = component.getByRole('region', {
     name: 'Invitation unavailable',
   })
-  const button = component.getByRole('button', { name: 'View your flocks' })
+  const button = component.getByRole('button', {
+    name: 'Back to your flocks',
+  })
   const sectionBox = await section.boundingBox()
   const buttonBox = await button.boundingBox()
   const viewport = page.viewportSize()
@@ -40,7 +42,7 @@ test('explains an unavailable invitation and returns to flocks', async ({
   await expect(
     component.getByText(/expired, has already been used, or is not valid/),
   ).toBeVisible()
-  await component.getByRole('button', { name: 'View your flocks' }).click()
+  await component.getByRole('button', { name: 'Back to your flocks' }).click()
   await expect(component.getByTestId('page-intent')).toHaveText('view-flocks')
 })
 

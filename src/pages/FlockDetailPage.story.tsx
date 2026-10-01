@@ -11,6 +11,7 @@ const flock = {
   name: 'Morning Runners',
   owner_id: 'owner-id',
 }
+const onBack = () => undefined
 
 const members = [
   {
@@ -46,6 +47,7 @@ export function Loaded() {
           members,
           status: 'ready',
         }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => undefined}
       />
@@ -66,6 +68,7 @@ export function Refreshing() {
           members,
           status: 'ready',
         }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => undefined}
       />
@@ -80,6 +83,7 @@ export function MembersLoading() {
         flock={flock}
         isRefreshing={false}
         memberList={{ status: 'loading' }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => undefined}
       />
@@ -100,6 +104,7 @@ export function MembersEmpty() {
           members: [],
           status: 'ready',
         }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => undefined}
       />
@@ -120,6 +125,7 @@ export function MembersRefreshing() {
           members,
           status: 'ready',
         }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => undefined}
       />
@@ -136,6 +142,7 @@ export function MembersError() {
         flock={flock}
         isRefreshing={false}
         memberList={{ isRetrying: false, status: 'error' }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => setIntent('retry-members')}
       />
@@ -161,6 +168,7 @@ export function MembersRefreshError() {
           members,
           status: 'ready',
         }}
+        onBack={onBack}
         onInvite={() => undefined}
         onRetryMembers={() => setIntent('refresh-members')}
       />
@@ -174,7 +182,7 @@ export function MembersRefreshError() {
 export function Loading() {
   return (
     <Canvas>
-      <FlockDetailLoadingPage />
+      <FlockDetailLoadingPage onBack={onBack} />
     </Canvas>
   )
 }
@@ -182,7 +190,7 @@ export function Loading() {
 export function NotFound() {
   return (
     <Canvas>
-      <FlockDetailNotFoundPage />
+      <FlockDetailNotFoundPage onBack={onBack} />
     </Canvas>
   )
 }
@@ -194,6 +202,7 @@ export function Error() {
     <Canvas>
       <FlockDetailErrorPage
         isRetrying={false}
+        onBack={onBack}
         onRetry={() => setIntent('retry')}
       />
       <output className="sr-only" data-testid="page-intent">
@@ -206,7 +215,11 @@ export function Error() {
 export function Retrying() {
   return (
     <Canvas>
-      <FlockDetailErrorPage isRetrying onRetry={() => undefined} />
+      <FlockDetailErrorPage
+        isRetrying
+        onBack={onBack}
+        onRetry={() => undefined}
+      />
     </Canvas>
   )
 }

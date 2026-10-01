@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import PageBackButton from '@src/components/PageBackButton'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSummary } from '@src/types/flocks'
@@ -11,6 +12,7 @@ import InvitationLinkCard, {
 export type CreateFlockInvitationPageProps = {
   flock: FlockSummary
   isCreating: boolean
+  onBack: () => void
   onCopy: (invitationUrl: string) => Promise<void>
   onCreate: () => void
   error?: string
@@ -20,27 +22,34 @@ export type CreateFlockInvitationPageProps = {
 
 type FlockInvitationErrorPageProps = {
   isRetrying: boolean
+  onBack: () => void
   onRetry: () => void
 }
 
 type FlockInvitationPageLayoutProps = {
+  backLabel: string
   children?: ReactNode
   description: string
   heading: string
+  onBack: () => void
 }
 
 export function FlockInvitationPageLayout({
+  backLabel,
   children,
   description,
   heading,
+  onBack,
 }: FlockInvitationPageLayoutProps) {
   return (
     <section
       aria-labelledby="flock-invitation-heading"
       className="mx-auto w-full py-8 sm:py-12"
     >
+      <PageBackButton label={backLabel} onBack={onBack} />
+
       <header>
-        <div className="mb-8 flex items-center gap-3">
+        <div className="mt-6 mb-8 flex items-center gap-3">
           <img
             alt=""
             className="size-12 shrink-0 rounded-lg"
@@ -74,14 +83,17 @@ function CreateFlockInvitationPage({
   flock,
   invitation,
   isCreating,
+  onBack,
   onCopy,
   onCreate,
   onShare,
 }: CreateFlockInvitationPageProps) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to flock"
       description={`Create a single-use link that takes one runner straight to ${flock.name}.`}
       heading="Invite a runner"
+      onBack={onBack}
     >
       {invitation ? (
         <InvitationLinkCard
@@ -114,11 +126,13 @@ function CreateFlockInvitationPage({
   )
 }
 
-export function FlockInvitationLoadingPage() {
+export function FlockInvitationLoadingPage({ onBack }: { onBack: () => void }) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to flock"
       description="Getting the flock ready to share."
       heading="Invite a runner"
+      onBack={onBack}
     >
       <div
         className="flex min-h-32 items-center justify-center gap-3 rounded-lg border border-border bg-surface-subtle px-4 py-8 text-text-muted"
@@ -131,23 +145,32 @@ export function FlockInvitationLoadingPage() {
   )
 }
 
-export function FlockInvitationNotFoundPage() {
+export function FlockInvitationNotFoundPage({
+  onBack,
+}: {
+  onBack: () => void
+}) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to your flocks"
       description="This flock may have been removed, or you may not have access to it."
       heading="Flock not found"
+      onBack={onBack}
     />
   )
 }
 
 export function FlockInvitationErrorPage({
   isRetrying,
+  onBack,
   onRetry,
 }: FlockInvitationErrorPageProps) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to flock"
       description="We could not load this flock. Check your connection and try again."
       heading="Flock unavailable"
+      onBack={onBack}
     >
       <div
         className="rounded-lg border border-accent bg-surface-subtle px-4 py-5"

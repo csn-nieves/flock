@@ -148,6 +148,14 @@ Components combine primitives into reusable interface patterns. For example,
 provider-specific pending presentation. They receive data and callbacks rather
 than calling Supabase directly.
 
+`PageBackButton` is the shared app-owned return control for nested product
+pages. It composes the canonical secondary `Button`, keeps a labeled 44-pixel
+touch target visible across loading and failure states, and emits intent rather
+than reading the router. The route controller chooses the known parent
+destination and replaces the current nested entry, so direct links have the
+same safe result as in-app navigation without replaying uncertain browser
+history.
+
 `FlockList` receives typed flock summaries and emits the selected flock
 identifier. It owns accessible list and selection semantics but not fetching,
 navigation, or empty-state copy. Long names remain fully readable on narrow
@@ -203,6 +211,14 @@ page grows, it moves into a domain-named directory with page-scoped feature
 components. Route orchestration stays separately visible in `src/routes`.
 Page-only pieces remain beside their page rather than entering `src/components`;
 only behavior reused across pages is promoted.
+
+The flock collection is the parent for flock creation, flock detail, and
+invitation acceptance. A flock detail page is the parent for invitation
+creation. Those nested pages render the shared back control in every route
+state, including loading, not-found, and recoverable failure. The collection
+itself is top-level. Sign-in and OAuth callback routes keep their task-specific
+recovery actions because treating an external authentication handoff as a
+normal product parent would be misleading.
 
 ### Hooks, providers, and data access
 

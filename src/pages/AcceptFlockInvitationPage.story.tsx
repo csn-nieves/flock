@@ -15,7 +15,7 @@ function Canvas({ children }: { children: ReactNode }) {
 export function Joining() {
   return (
     <Canvas>
-      <FlockInvitationJoiningPage />
+      <FlockInvitationJoiningPage onBack={() => undefined} />
     </Canvas>
   )
 }
@@ -25,9 +25,7 @@ export function Unavailable() {
 
   return (
     <Canvas>
-      <FlockInvitationUnavailablePage
-        onViewFlocks={() => setIntent('view-flocks')}
-      />
+      <FlockInvitationUnavailablePage onBack={() => setIntent('view-flocks')} />
       <output className="sr-only" data-testid="page-intent">
         {intent}
       </output>
@@ -42,6 +40,7 @@ export function Error() {
     <Canvas>
       <FlockInvitationAcceptanceErrorPage
         isRetrying={false}
+        onBack={() => setIntent('view-flocks')}
         onRetry={() => setIntent('retry')}
       />
       <output className="sr-only" data-testid="page-intent">
@@ -56,6 +55,7 @@ export function Retrying() {
     <Canvas>
       <FlockInvitationAcceptanceErrorPage
         isRetrying
+        onBack={() => undefined}
         onRetry={() => undefined}
       />
     </Canvas>
