@@ -23,6 +23,7 @@ function CreateFlockRoute() {
     <CreateFlockPage
       error={createFlockMutation.isError ? creationError : undefined}
       isCreating={createFlockMutation.isPending}
+      onBack={() => navigate('/flocks', { replace: true })}
       onCreate={(name) =>
         createFlockMutation.mutate(
           { name },

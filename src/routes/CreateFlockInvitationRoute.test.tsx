@@ -47,11 +47,21 @@ function renderCreateFlockInvitationRoute(
         path: '/flocks/:flockId/invitations/new',
         element: <CreateFlockInvitationRoute />,
       },
+      {
+        path: '/flocks/:flockId',
+        element: <p>Flock detail destination</p>,
+      },
+      {
+        path: '/flocks',
+        element: <p>Flock collection destination</p>,
+      },
     ],
     { initialEntries: [path] },
   )
 
-  return render(<RouterProvider router={router} />)
+  const rendered = render(<RouterProvider router={router} />)
+
+  return { ...rendered, router }
 }
 
 describe('CreateFlockInvitationRoute', () => {
@@ -83,6 +93,15 @@ describe('CreateFlockInvitationRoute', () => {
     )
 
     expect(invitationMutation.mutate).toHaveBeenCalledWith(flock.id)
+  })
+
+  it('returns to the owning flock instead of depending on browser history', async () => {
+    const { router } = renderCreateFlockInvitationRoute()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to flock' }))
+
+    expect(await screen.findByText('Flock detail destination')).toBeVisible()
+    expect(router.state.location.pathname).toBe('/flocks/morning-runners-id')
   })
 
   it('maps pending creation to stable duplicate-safe progress', () => {

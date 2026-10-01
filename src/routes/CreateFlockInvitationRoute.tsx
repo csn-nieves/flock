@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import { useCreateFlockInvitation } from '@src/hooks/useCreateFlockInvitation'
 import { useFlock } from '@src/hooks/useFlock'
@@ -43,6 +43,15 @@ function CreateFlockInvitationRoute() {
   const flockQuery = useFlock(flockId)
   const invitationMutation = useCreateFlockInvitation()
   const invitation = getInvitationLink(invitationMutation.data)
+  const navigate = useNavigate()
+  const onBackToFlock = () => {
+    if (flockId === undefined) {
+      navigate('/flocks', { replace: true })
+      return
+    }
+
+    navigate(`/flocks/${encodeURIComponent(flockId)}`, { replace: true })
+  }
   let title = 'Flock not found — Flock'
 
   if (flockId === undefined) {
@@ -64,24 +73,33 @@ function CreateFlockInvitationRoute() {
   }, [title])
 
   if (flockId === undefined) {
-    return <FlockInvitationNotFoundPage />
+    return (
+      <FlockInvitationNotFoundPage
+        onBack={() => navigate('/flocks', { replace: true })}
+      />
+    )
   }
 
   if (flockQuery.isPending) {
-    return <FlockInvitationLoadingPage />
+    return <FlockInvitationLoadingPage onBack={onBackToFlock} />
   }
 
   if (flockQuery.isError) {
     return (
       <FlockInvitationErrorPage
         isRetrying={flockQuery.isFetching}
+        onBack={onBackToFlock}
         onRetry={() => void flockQuery.refetch()}
       />
     )
   }
 
   if (!flockQuery.data) {
-    return <FlockInvitationNotFoundPage />
+    return (
+      <FlockInvitationNotFoundPage
+        onBack={() => navigate('/flocks', { replace: true })}
+      />
+    )
   }
 
   const flock = flockQuery.data
@@ -113,6 +131,7 @@ function CreateFlockInvitationRoute() {
       flock={flock}
       invitation={invitation}
       isCreating={invitationMutation.isPending}
+      onBack={onBackToFlock}
       onCopy={async (invitationUrl) => {
         await navigator.clipboard.writeText(invitationUrl)
       }}

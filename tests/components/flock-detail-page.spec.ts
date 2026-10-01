@@ -25,15 +25,21 @@ test('keeps the detail screen inside a mobile viewport', async ({
 }) => {
   const component = await mount('pages/FlockDetailPage/Loaded')
   const section = component.getByRole('region', { name: 'Morning Runners' })
+  const backButton = component.getByRole('button', {
+    name: 'Back to your flocks',
+  })
   const sectionBox = await section.boundingBox()
+  const backButtonBox = await backButton.boundingBox()
   const viewport = page.viewportSize()
 
   expect(sectionBox).not.toBeNull()
+  expect(backButtonBox).not.toBeNull()
   expect(viewport).not.toBeNull()
   expect(sectionBox?.x).toBeGreaterThanOrEqual(0)
   expect((sectionBox?.x ?? 0) + (sectionBox?.width ?? 0)).toBeLessThanOrEqual(
     viewport?.width ?? 0,
   )
+  expect(backButtonBox?.height).toBeGreaterThanOrEqual(44)
 })
 
 test('presents loading and background refresh distinctly', async ({

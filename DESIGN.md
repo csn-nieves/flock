@@ -136,7 +136,7 @@ Social sign-in uses the shared secondary button treatment so Google and Facebook
 
 ### Navigation and data display
 
-Navigation will be introduced only when there are real destinations. Mobile controls must not depend on hover. Lists prioritize names and participation details over decorative metadata.
+Navigation is introduced only for real destinations. Every nested product page exposes one visible, labeled back control before the page identity; it uses the shared secondary-button treatment, retains the 44px touch target, and names the destination rather than relying on an icon alone. Route controllers send that action to the known parent destination so direct links and authentication redirects never depend on uncertain browser history. Top-level pages and transient authentication callbacks do not show a misleading back control. Mobile controls must not depend on hover. Lists prioritize names and participation details over decorative metadata.
 
 ### Forms and overlays
 

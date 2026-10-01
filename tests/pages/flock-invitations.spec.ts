@@ -85,6 +85,9 @@ test('shows the same safe result for an unavailable invitation', async ({
   page,
 }) => {
   await seedAuthenticatedSession(page)
+  await page.route('**/rest/v1/flocks**', async (route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
   await page.route(acceptInvitationRoute, async (route) => {
     await route.fulfill({
       json: {
@@ -106,4 +109,8 @@ test('shows the same safe result for an unavailable invitation', async ({
     }),
   ).toBeVisible()
   await expect(page.getByText('raw database message')).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Back to your flocks' }).click()
+  await expect(page).toHaveURL('/flocks')
+  await expect(page).toHaveTitle('Your flocks — Flock')
 })

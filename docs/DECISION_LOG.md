@@ -459,3 +459,24 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Members can edit profiles, privacy controls distinguish
   public discovery from flockmate visibility, or richer profile fields earn a
   documented product purpose.
+
+## D026 — Use deterministic parent navigation on nested pages
+
+- **Status:** Accepted
+- **Decision:** Show one shared, labeled back control on every nested product
+  page and keep it visible across loading, not-found, failure, and successful
+  states. Route controllers navigate to the route's known parent and replace
+  the current entry instead of calling browser-history Back.
+- **Hierarchy:** Flock creation, flock detail, and invitation acceptance return
+  to the flock collection. Invitation creation returns to its flock. The flock
+  collection remains top-level; sign-in and OAuth callback routes retain their
+  task-specific recovery controls.
+- **Why:** Mobile browser chrome is not a dependable product control, and raw
+  history can point outside Flock or back into a sign-in or callback route.
+  A named parent remains correct for direct links, restored authentication
+  destinations, and ordinary in-app navigation.
+- **Tradeoffs:** The action does not replay every intermediate route or preserve
+  an arbitrary referrer. Parent destinations should therefore preserve their
+  own list filters and scroll state when those capabilities are introduced.
+- **Revisit when:** Nested navigation gains restorable list query state,
+  multiple legitimate parents, breadcrumbs, or a router-owned origin contract.

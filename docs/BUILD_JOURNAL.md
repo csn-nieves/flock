@@ -983,6 +983,27 @@ This completes the create, invite, join, and view-members milestone. Visible
 app-owned back navigation is the next focused usability branch so phone users
 do not depend on browser chrome to leave nested screens.
 
+## 2026-10-01 — Adding app-owned back navigation
+
+### Deterministic parent routes for nested screens
+
+Every nested flock screen now starts with one visible, labeled back control
+that keeps the shared 44-pixel touch target across successful, loading,
+not-found, and recoverable error states. Flock creation, detail, and invitation
+acceptance return to the flock collection; invitation creation returns to the
+owning flock.
+
+The route controllers own these destinations and replace the current nested
+entry. They deliberately do not replay raw browser history, because a direct
+link or restored authentication flow may otherwise send a runner back to an
+external page, sign-in, or the OAuth callback. Pages remain router-agnostic and
+receive only back intent through typed props, while the shared component owns
+the familiar arrow, label, focus behavior, and touch geometry.
+
+Top-level flock collection and authentication handoff screens do not receive a
+misleading generic back control. Their existing task-specific destinations
+remain the appropriate recovery paths.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

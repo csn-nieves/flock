@@ -2,20 +2,25 @@ import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import { FlockInvitationPageLayout } from './CreateFlockInvitationPage'
 
-type FlockInvitationUnavailablePageProps = {
-  onViewFlocks: () => void
-}
-
 type FlockInvitationAcceptanceErrorPageProps = {
   isRetrying: boolean
+  onBack: () => void
   onRetry: () => void
 }
 
-export function FlockInvitationJoiningPage() {
+type FlockInvitationNavigationProps = {
+  onBack: () => void
+}
+
+export function FlockInvitationJoiningPage({
+  onBack,
+}: FlockInvitationNavigationProps) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to your flocks"
       description="Confirming your invitation and adding you to the flock."
       heading="Joining flock"
+      onBack={onBack}
     >
       <div
         className="flex min-h-32 items-center justify-center gap-3 rounded-lg border border-border bg-surface-subtle px-4 py-8 text-text-muted"
@@ -29,28 +34,29 @@ export function FlockInvitationJoiningPage() {
 }
 
 export function FlockInvitationUnavailablePage({
-  onViewFlocks,
-}: FlockInvitationUnavailablePageProps) {
+  onBack,
+}: FlockInvitationNavigationProps) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to your flocks"
       description="This invitation has expired, has already been used, or is not valid. Ask a flock member for a new link."
       heading="Invitation unavailable"
-    >
-      <Button className="w-full" variant="secondary" onClick={onViewFlocks}>
-        View your flocks
-      </Button>
-    </FlockInvitationPageLayout>
+      onBack={onBack}
+    />
   )
 }
 
 export function FlockInvitationAcceptanceErrorPage({
   isRetrying,
+  onBack,
   onRetry,
 }: FlockInvitationAcceptanceErrorPageProps) {
   return (
     <FlockInvitationPageLayout
+      backLabel="Back to your flocks"
       description="We could not join the flock. Check your connection and try again."
       heading="Could not join flock"
+      onBack={onBack}
     >
       <div
         className="rounded-lg border border-accent bg-surface-subtle px-4 py-5"

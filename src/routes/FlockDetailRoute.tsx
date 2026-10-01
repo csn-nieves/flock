@@ -15,6 +15,7 @@ function FlockDetailRoute() {
   const flockQuery = useFlock(flockId)
   const membersQuery = useFlockMembers(flockId)
   const navigate = useNavigate()
+  const onBack = () => navigate('/flocks', { replace: true })
   let title = 'Flock not found — Flock'
 
   if (flockId === undefined) {
@@ -36,24 +37,25 @@ function FlockDetailRoute() {
   }, [title])
 
   if (flockId === undefined) {
-    return <FlockDetailNotFoundPage />
+    return <FlockDetailNotFoundPage onBack={onBack} />
   }
 
   if (flockQuery.isPending) {
-    return <FlockDetailLoadingPage />
+    return <FlockDetailLoadingPage onBack={onBack} />
   }
 
   if (flockQuery.isError) {
     return (
       <FlockDetailErrorPage
         isRetrying={flockQuery.isFetching}
+        onBack={onBack}
         onRetry={() => void flockQuery.refetch()}
       />
     )
   }
 
   if (!flockQuery.data) {
-    return <FlockDetailNotFoundPage />
+    return <FlockDetailNotFoundPage onBack={onBack} />
   }
 
   let memberList: FlockMemberListState
@@ -80,6 +82,7 @@ function FlockDetailRoute() {
       flock={flockQuery.data}
       isRefreshing={flockQuery.isFetching}
       memberList={memberList}
+      onBack={onBack}
       onInvite={() =>
         navigate(`/flocks/${encodeURIComponent(flockId)}/invitations/new`)
       }

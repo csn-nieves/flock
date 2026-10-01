@@ -14,6 +14,7 @@ function AcceptFlockInvitationRoute() {
   const invitationMutation = useAcceptFlockInvitation()
   const attemptedTokenRef = useRef<string | undefined>(undefined)
   const navigate = useNavigate()
+  const onBack = () => navigate('/flocks', { replace: true })
   const isUnavailable =
     invitationToken === undefined ||
     invitationMutation.error instanceof InvitationUnavailableError
@@ -58,23 +59,20 @@ function AcceptFlockInvitationRoute() {
   }, [acceptInvitation, invitationToken])
 
   if (isUnavailable) {
-    return (
-      <FlockInvitationUnavailablePage
-        onViewFlocks={() => navigate('/flocks', { replace: true })}
-      />
-    )
+    return <FlockInvitationUnavailablePage onBack={onBack} />
   }
 
   if (invitationMutation.isError) {
     return (
       <FlockInvitationAcceptanceErrorPage
         isRetrying={invitationMutation.isPending}
+        onBack={onBack}
         onRetry={acceptInvitation}
       />
     )
   }
 
-  return <FlockInvitationJoiningPage />
+  return <FlockInvitationJoiningPage onBack={onBack} />
 }
 
 export default AcceptFlockInvitationRoute

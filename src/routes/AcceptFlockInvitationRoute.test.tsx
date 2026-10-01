@@ -107,7 +107,7 @@ describe('AcceptFlockInvitationRoute', () => {
     invitationMutation.isPending = false
     const router = renderAcceptFlockInvitationRoute()
 
-    fireEvent.click(screen.getByRole('button', { name: 'View your flocks' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Back to your flocks' }))
 
     expect(
       await screen.findByText('Flock collection destination'),

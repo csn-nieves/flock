@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react'
 
 import CreateFlockPage from './flocks/CreateFlockPage'
 
+const onBack = () => undefined
+
 function Canvas({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto min-h-dvh w-full max-w-app px-4">{children}</main>
@@ -13,7 +15,11 @@ function InteractivePage() {
 
   return (
     <Canvas>
-      <CreateFlockPage isCreating={false} onCreate={setCreatedName} />
+      <CreateFlockPage
+        isCreating={false}
+        onBack={onBack}
+        onCreate={setCreatedName}
+      />
       <output className="sr-only" data-testid="created-name">
         {createdName}
       </output>
@@ -31,6 +37,7 @@ export function Error() {
       <CreateFlockPage
         error="We could not create your flock. Check your connection and try again."
         isCreating={false}
+        onBack={onBack}
         onCreate={() => undefined}
       />
     </Canvas>
@@ -40,7 +47,7 @@ export function Error() {
 export function Creating() {
   return (
     <Canvas>
-      <CreateFlockPage isCreating onCreate={() => undefined} />
+      <CreateFlockPage isCreating onBack={onBack} onCreate={() => undefined} />
     </Canvas>
   )
 }
