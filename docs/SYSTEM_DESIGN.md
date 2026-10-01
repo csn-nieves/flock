@@ -287,11 +287,12 @@ and recovery actions.
 
 ## Flock and membership data
 
-Postgres migrations are the source of truth for product data. The first model
-contains `flocks` and `flock_members`. A flock has one canonical `owner_id`, and
-the same user receives an `owner` membership from an after-insert trigger in the
-same transaction. A partial unique index prevents a second owner membership.
-Every other membership has the `member` role.
+Postgres migrations are the source of truth for product data. The membership
+model contains public `flocks` and `flock_members` tables plus private
+`flock_invitations`. A flock has one canonical `owner_id`, and the same user
+receives an `owner` membership from an after-insert trigger in the same
+transaction. A partial unique index prevents a second owner membership. Every
+other membership has the `member` role.
 
 The explicit owner column makes ownership checks and account-deletion behavior
 simple: the owner alone can update or delete a flock, and deleting the owner's
@@ -303,8 +304,23 @@ Both public tables have Row Level Security enabled and explicit grants. Signed-
 out users receive no table privileges. Signed-in users can create flocks. The
 canonical owner can read the new flock immediately, while other users can read
 only flocks and rosters where they hold membership. They cannot write the
-membership table directly; future invitation and join operations must add a
-narrow policy or database function with their own authorization tests.
+membership or invitation tables directly.
+
+Invitation creation uses a `security definer` database function rather than a
+table grant. The function verifies that the authenticated caller currently
+belongs to the target flock, creates 32 random bytes of token entropy, stores
+only its SHA-256 hash in the private schema, and returns the raw token once. An
+invitation expires 24 hours after creation and has nullable consumption fields
+reserved for one atomic acceptance. Members may create multiple invitations,
+but each individual token can be used only once. The staged frontend mutation,
+route controller, and pure page cover creation and copying; the route is not
+registered until the acceptance destination exists.
+
+Invitation acceptance and membership creation remain the next database
+boundary. They must be implemented together in a reviewed function that hashes
+the presented token and consumes an unused, unexpired invitation in the same
+transaction that inserts the member. A read followed by separate client-side
+writes would permit replay and is not acceptable.
 
 Membership-backed read policies use a `security definer` helper in the private,
 non-exposed schema. This avoids recursive policies on `flock_members`. The
@@ -313,8 +329,9 @@ execution privileges, and an index supporting its user-and-flock lookup.
 
 Database behavior is tested below the frontend with transactional pgTAP tests.
 The suite verifies schema protections, grants, owner creation, member and non-
-member visibility, owner-only writes, the single-owner constraint, and cascading
-membership cleanup.
+member visibility, owner-only writes, the single-owner constraint, cascading
+membership cleanup, invitation authorization, token hashing, unique links, and
+the 24-hour lifetime.
 
 ## Authentication design
 
@@ -494,10 +511,11 @@ state out of pure pages.
 
 ### Backend authorization
 
-The first flock and membership tables have Row Level Security policies and
-authorization tests. Every new operation must extend both explicit grants and
-policies deliberately; hiding a control in the UI will never be treated as
-authorization.
+The flock and membership tables have Row Level Security policies and
+authorization tests. Private invitation storage has no client grants; its
+creation function has explicit execution privileges and caller authorization.
+Every new operation must extend the database boundary deliberately; hiding a
+control in the UI will never be treated as authorization.
 
 ## A short explanation of the architecture
 

@@ -1,6 +1,6 @@
 # Flock decision log
 
-Last reviewed: 2026-09-29
+Last reviewed: 2026-10-01
 
 This log records decisions that shape future work. Each entry includes the
 reasoning and the conditions that would justify another decision. “Accepted”
@@ -386,3 +386,31 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** The repository adds another local service, moves away from
   Supabase CLI, or needs an environment manager with cross-project lifecycle
   ownership.
+
+## D023 — Make flock invitations single-use conveniences
+
+- **Status:** Accepted
+- **Decision:** Let any current flock member create multiple invitation links.
+  Each link contains an opaque token, can be consumed exactly once, and expires
+  24 hours after creation if it remains unused. Store only a SHA-256 token hash
+  in the database and return the raw token only when the invitation is created.
+- **Product boundary:** Invitations make it easy to direct a runner to the
+  intended flock; they do not make flocks invitation-only. Public flock
+  discovery remains a later feature. Global user discovery is not implied and
+  should be designed separately with privacy and enumeration risks in mind.
+- **Why:** A one-time link limits accidental forwarding and replay while the
+  short lifetime bounds exposure. Allowing every member to invite matches the
+  social behavior of a running group without introducing administrator roles
+  before the product needs them.
+- **Authorization:** Creation is exposed only through a reviewed database
+  function that checks the caller's current membership. The private invitation
+  table has no browser-facing grants. Acceptance must later hash the supplied
+  token and atomically mark an unused, unexpired row consumed while creating
+  the membership; client-side checks are not authoritative.
+- **Tradeoffs:** A runner whose link was already consumed or expired needs a new
+  link even though the flock may eventually be discoverable through search.
+  Multiple outstanding links for the same flock are allowed, so revocation and
+  invitation management remain separate future product decisions.
+- **Revisit when:** Flocks gain privacy modes, administrator roles, explicit
+  invite revocation, longer-lived share links, or evidence that 24 hours is too
+  short for real invitation behavior.
