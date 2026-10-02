@@ -105,7 +105,7 @@ function FlockEventsSection({
                 {item.attendance.in} in · {item.attendance.maybe} maybe ·{' '}
                 {item.attendance.out} out
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {(
                   [
                     ['in', "I'm in"],
@@ -160,15 +160,17 @@ function FlockEventsSection({
                 </Modal>
               ) : null}
               {canCreate && editingEventId !== item.id ? (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   <Button
+                    className="w-full"
                     variant="secondary"
                     onClick={() => startEditing(item)}
                   >
                     Edit event
                   </Button>
                   <Button
-                    variant="secondary"
+                    className="w-full"
+                    variant="danger"
                     onClick={() => setCancelingEvent(item)}
                   >
                     Cancel event
