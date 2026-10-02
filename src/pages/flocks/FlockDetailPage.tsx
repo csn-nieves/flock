@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-import PageBackButton from '@src/components/PageBackButton'
 import FlockSectionNav from '@src/components/FlockSectionNav'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
@@ -39,15 +38,12 @@ function FlockDetailPageLayout({
   children,
   description,
   heading,
-  onBack,
 }: FlockDetailPageLayoutProps) {
   return (
     <section
       aria-labelledby="flock-detail-heading"
       className="relative mx-auto w-full max-w-xl py-8 sm:py-12"
     >
-      <PageBackButton label="Back to your flocks" onBack={onBack} />
-
       <header>
         <h1
           className="m-0 font-display text-3xl leading-tight font-bold tracking-[-0.025em] text-text"

@@ -1,5 +1,4 @@
 import CreateFlockForm from '@src/components/CreateFlockForm'
-import PageBackButton from '@src/components/PageBackButton'
 
 export type CreateFlockPageProps = {
   isCreating: boolean
@@ -11,7 +10,6 @@ export type CreateFlockPageProps = {
 function CreateFlockPage({
   error,
   isCreating,
-  onBack,
   onCreate,
 }: CreateFlockPageProps) {
   return (
@@ -19,8 +17,6 @@ function CreateFlockPage({
       aria-labelledby="create-flock-heading"
       className="relative mx-auto w-full max-w-xl py-8 sm:py-12"
     >
-      <PageBackButton label="Back to your flocks" onBack={onBack} />
-
       <header>
         <h1
           className="m-0 font-display text-3xl leading-tight font-bold tracking-[-0.025em] text-text"

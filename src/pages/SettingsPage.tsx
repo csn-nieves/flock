@@ -1,16 +1,9 @@
-import PageBackButton from '@src/components/PageBackButton'
-
-type SettingsPageProps = {
-  onBack: () => void
-}
-
-function SettingsPage({ onBack }: SettingsPageProps) {
+function SettingsPage() {
   return (
     <section
       aria-labelledby="settings-heading"
       className="relative mx-auto w-full max-w-xl py-8 sm:py-12"
     >
-      <PageBackButton label="Back to your flocks" onBack={onBack} />
       <header className="mt-6">
         <h1
           className="m-0 font-display text-3xl font-bold leading-tight tracking-[-0.025em] text-text"

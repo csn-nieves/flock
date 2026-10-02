@@ -101,20 +101,6 @@ describe('AcceptFlockInvitationRoute', () => {
     expect(screen.getByText(/expired, has already been used/)).toBeVisible()
   })
 
-  it('returns from an unavailable invitation to the flock collection', async () => {
-    invitationMutation.error = new InvitationUnavailableError()
-    invitationMutation.isError = true
-    invitationMutation.isPending = false
-    const router = renderAcceptFlockInvitationRoute()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Back to your flocks' }))
-
-    expect(
-      await screen.findByText('Flock collection destination'),
-    ).toBeVisible()
-    expect(router.state.location.pathname).toBe('/flocks')
-  })
-
   it('retries a connection failure without exposing transport details', async () => {
     invitationMutation.error = new Error('raw database failure')
     invitationMutation.isError = true

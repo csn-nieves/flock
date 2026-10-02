@@ -17,7 +17,6 @@ export function FlockInvitationJoiningPage({
 }: FlockInvitationNavigationProps) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to your flocks"
       description="Confirming your invitation and adding you to the flock."
       heading="Joining flock"
       onBack={onBack}
@@ -38,7 +37,6 @@ export function FlockInvitationUnavailablePage({
 }: FlockInvitationNavigationProps) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to your flocks"
       description="This invitation has expired, has already been used, or is not valid. Ask a flock member for a new link."
       heading="Invitation unavailable"
       onBack={onBack}
@@ -53,7 +51,6 @@ export function FlockInvitationAcceptanceErrorPage({
 }: FlockInvitationAcceptanceErrorPageProps) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to your flocks"
       description="We could not join the flock. Check your connection and try again."
       heading="Could not join flock"
       onBack={onBack}

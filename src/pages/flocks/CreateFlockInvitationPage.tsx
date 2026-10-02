@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-import PageBackButton from '@src/components/PageBackButton'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSummary } from '@src/types/flocks'
@@ -27,7 +26,6 @@ type FlockInvitationErrorPageProps = {
 }
 
 type FlockInvitationPageLayoutProps = {
-  backLabel: string
   children?: ReactNode
   description: string
   heading: string
@@ -35,19 +33,15 @@ type FlockInvitationPageLayoutProps = {
 }
 
 export function FlockInvitationPageLayout({
-  backLabel,
   children,
   description,
   heading,
-  onBack,
 }: FlockInvitationPageLayoutProps) {
   return (
     <section
       aria-labelledby="flock-invitation-heading"
       className="relative mx-auto w-full max-w-xl py-8 sm:py-12"
     >
-      <PageBackButton label={backLabel} onBack={onBack} />
-
       <header>
         <h1
           className="m-0 font-display text-3xl leading-tight font-bold tracking-[-0.025em] text-text"
@@ -77,7 +71,6 @@ function CreateFlockInvitationPage({
 }: CreateFlockInvitationPageProps) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to flock"
       description={`Create a single-use link that takes one runner straight to ${flock.name}.`}
       heading="Invite a runner"
       onBack={onBack}
@@ -116,7 +109,6 @@ function CreateFlockInvitationPage({
 export function FlockInvitationLoadingPage({ onBack }: { onBack: () => void }) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to flock"
       description="Getting the flock ready to share."
       heading="Invite a runner"
       onBack={onBack}
@@ -139,7 +131,6 @@ export function FlockInvitationNotFoundPage({
 }) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to your flocks"
       description="This flock may have been removed, or you may not have access to it."
       heading="Flock not found"
       onBack={onBack}
@@ -154,7 +145,6 @@ export function FlockInvitationErrorPage({
 }: FlockInvitationErrorPageProps) {
   return (
     <FlockInvitationPageLayout
-      backLabel="Back to flock"
       description="We could not load this flock. Check your connection and try again."
       heading="Flock unavailable"
       onBack={onBack}

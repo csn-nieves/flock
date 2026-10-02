@@ -74,17 +74,6 @@ describe('CreateFlockRoute', () => {
     )
   })
 
-  it('returns to the flock collection with an app-owned back action', async () => {
-    const router = renderCreateFlockRoute()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Back to your flocks' }))
-
-    expect(
-      await screen.findByText('Flock collection destination'),
-    ).toBeVisible()
-    expect(router.state.location.pathname).toBe('/flocks')
-  })
-
   it('maps pending mutation state to stable, duplicate-safe form progress', () => {
     createFlockMutation.isPending = true
     renderCreateFlockRoute()
