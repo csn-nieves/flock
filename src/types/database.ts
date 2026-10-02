@@ -229,6 +229,13 @@ export type Database = {
           token: string
         }[]
       }
+      create_targeted_event_invitation: {
+        Args: { target_event_id: string; target_recipient_user_id: string }
+        Returns: {
+          expires_at: string
+          token: string
+        }[]
+      }
       create_user_event: {
         Args: {
           event_description?: string
