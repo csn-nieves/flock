@@ -75,5 +75,6 @@ Every feature branch should include, as applicable:
    and iPhone sizes.
 6. Database tests for migrations, RLS, RPC privileges, and authorization.
 
-The audit is complete when each Priority 0 item has a test or an explicit
-documented reason for being covered indirectly.
+The audit is complete for the current application surface. New behavior should
+follow the checklist above, and future audits should be triggered by meaningful
+feature growth rather than deferred until the end of a milestone.
