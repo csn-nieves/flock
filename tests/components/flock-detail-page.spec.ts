@@ -13,7 +13,11 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByRole('heading', { name: 'Members' }),
   ).toBeVisible()
-  await expect(component.getByText('2 members')).toBeVisible()
+  await expect(component.getByText('2', { exact: true })).toBeVisible()
+  await expect(
+    component.getByRole('list', { name: 'Flock members' }),
+  ).not.toBeVisible()
+  await component.getByRole('button', { name: 'Show' }).click()
   await expect(
     component.getByRole('list', { name: 'Flock members' }),
   ).toBeVisible()
@@ -118,7 +122,7 @@ test('shows scoped member loading and empty states', async ({ mount }) => {
 
   await loading.unmount()
   const empty = await mount('pages/FlockDetailPage/MembersEmpty')
-  await expect(empty.getByText('0 members')).toBeVisible()
+  await expect(empty.getByText('0', { exact: true })).toBeVisible()
   await expect(empty.getByText('No members are visible yet.')).toBeVisible()
 })
 
@@ -128,6 +132,7 @@ test('keeps members visible during refresh and refresh failure', async ({
   const refreshing = await mount('pages/FlockDetailPage/MembersRefreshing')
 
   await expect(refreshing.getByRole('status')).toHaveText('Refreshing members…')
+  await refreshing.getByRole('button', { name: 'Show' }).click()
   await expect(refreshing.getByText('Local Runner')).toBeVisible()
 
   await refreshing.unmount()

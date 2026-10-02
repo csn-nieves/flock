@@ -6,10 +6,11 @@ import type {
 import { supabase } from './supabase'
 
 const eventFields =
-  'id, flock_id, created_by, title, starts_at, location, description, created_at'
+  'id, flock_id, created_by, title, starts_at, location, description, created_at, canceled_at'
 
 function toEvent(row: {
   created_at: string
+  canceled_at: string | null
   created_by: string
   description: string
   flock_id: string
@@ -20,6 +21,7 @@ function toEvent(row: {
 }): FlockEvent {
   return {
     attendance: { in: 0, maybe: 0, out: 0, response: null },
+    canceledAt: row.canceled_at,
     createdAt: row.created_at,
     createdBy: row.created_by,
     description: row.description,
@@ -37,6 +39,7 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
     .select(eventFields)
     .eq('flock_id', flockId)
     .gte('starts_at', new Date().toISOString())
+    .is('canceled_at', null)
     .order('starts_at', { ascending: true })
   if (error) throw error
   const events = data.map(toEvent)
@@ -64,6 +67,13 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
       },
     }
   })
+}
+
+export async function cancelFlockEvent(eventId: string): Promise<void> {
+  const { error } = await supabase.rpc('cancel_flock_event', {
+    target_event_id: eventId,
+  })
+  if (error) throw error
 }
 
 export async function setFlockEventResponse(

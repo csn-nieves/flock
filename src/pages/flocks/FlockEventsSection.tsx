@@ -14,8 +14,10 @@ export type FlockEventsSectionProps = {
   events?: readonly FlockEvent[]
   isLoading: boolean
   isSaving: boolean
+  isCanceling: boolean
   canCreate: boolean
   onCreate: (input: CreateFlockEventInput) => void
+  onCancel: (eventId: string) => Promise<void>
   onRetry: () => void
   onRespond: (eventId: string, response: EventResponse) => void
   onUpdate: (eventId: string, input: CreateFlockEventInput) => Promise<void>
@@ -28,7 +30,9 @@ function FlockEventsSection({
   events,
   isLoading,
   isSaving,
+  isCanceling,
   onCreate,
+  onCancel,
   onRetry,
   onRespond,
   onUpdate,
@@ -36,6 +40,7 @@ function FlockEventsSection({
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
   function startEditing(item: FlockEvent) {
     setEditingEventId(item.id)
     setEditingEvent(item)
@@ -151,13 +156,20 @@ function FlockEventsSection({
                 </Modal>
               ) : null}
               {canCreate && editingEventId !== item.id ? (
-                <Button
-                  className="mt-3"
-                  variant="secondary"
-                  onClick={() => startEditing(item)}
-                >
-                  Edit event
-                </Button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => startEditing(item)}
+                  >
+                    Edit event
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setCancelingEvent(item)}
+                  >
+                    Cancel event
+                  </Button>
+                </div>
               ) : null}
             </li>
           ))}
@@ -182,6 +194,37 @@ function FlockEventsSection({
                   setIsCreating(false)
                 }}
               />
+            </Modal>
+          ) : null}
+          {cancelingEvent ? (
+            <Modal
+              description={`This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`}
+              onClose={() => setCancelingEvent(null)}
+              title="Cancel event?"
+            >
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  isPending={isCanceling}
+                  pendingLabel="Canceling event"
+                  onClick={async () => {
+                    try {
+                      await onCancel(cancelingEvent.id)
+                      setCancelingEvent(null)
+                    } catch {
+                      // Keep the confirmation open so the owner can retry.
+                    }
+                  }}
+                >
+                  Cancel event
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setCancelingEvent(null)}
+                >
+                  Keep event
+                </Button>
+              </div>
             </Modal>
           ) : null}
         </>

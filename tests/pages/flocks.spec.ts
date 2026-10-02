@@ -130,6 +130,7 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(
     page.getByRole('heading', { level: 1, name: 'Sunrise Striders' }),
   ).toBeVisible()
+  await page.getByRole('button', { name: 'Show' }).click()
   await expect(page.getByRole('list', { name: 'Flock members' })).toContainText(
     'Local Runner',
   )

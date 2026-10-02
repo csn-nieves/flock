@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
 import FlockMemberList from '@src/components/FlockMemberList'
 import Button from '@src/primitives/Button'
@@ -30,8 +30,10 @@ function FlockMembersSection({
   memberList,
   onRetry,
 }: FlockMembersSectionProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
   let content: ReactNode
   let memberCount: ReactNode = null
+  let memberPreview: ReactNode = null
 
   if (memberList.status === 'loading') {
     content = (
@@ -64,11 +66,22 @@ function FlockMembersSection({
       </div>
     )
   } else {
-    const memberLabel = memberList.members.length === 1 ? 'member' : 'members'
     memberCount = (
-      <span className="text-sm text-text-muted">
-        {memberList.members.length} {memberLabel}
+      <span className="text-sm font-semibold text-text-muted">
+        {memberList.members.length}
       </span>
+    )
+    memberPreview = (
+      <div aria-hidden="true" className="flex -space-x-2">
+        {memberList.members.slice(0, 5).map((member) => (
+          <span
+            className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-surface-subtle font-display text-xs font-bold text-primary-strong"
+            key={member.userId}
+          >
+            {member.displayName.trim().charAt(0).toLocaleUpperCase() || 'R'}
+          </span>
+        ))}
+      </div>
     )
 
     if (memberList.members.length === 0) {
@@ -117,16 +130,47 @@ function FlockMembersSection({
 
   return (
     <section aria-labelledby="flock-members-heading" className="mt-10">
-      <div className="mb-3 flex items-baseline justify-between gap-4">
-        <h2
-          className="m-0 font-display text-xl font-bold tracking-[-0.02em] text-text"
-          id="flock-members-heading"
-        >
-          Members
-        </h2>
-        {memberCount}
+      <div className="mb-3 flex items-center justify-between gap-4">
+        {memberList.status === 'ready' ? (
+          <>
+            <div className="flex min-w-0 items-center gap-3">
+              <h2
+                className="m-0 font-display text-xl font-bold tracking-[-0.02em] text-text"
+                id="flock-members-heading"
+              >
+                Members
+              </h2>
+              {memberCount}
+              {memberPreview}
+            </div>
+            <button
+              aria-controls="flock-member-roster"
+              aria-expanded={isExpanded}
+              className="ml-auto min-h-touch shrink-0 rounded-md px-2 text-sm font-semibold text-text underline decoration-border underline-offset-4 hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              onClick={() => setIsExpanded((expanded) => !expanded)}
+              type="button"
+            >
+              {isExpanded ? 'Hide' : 'Show'}
+            </button>
+          </>
+        ) : (
+          <h2
+            className="m-0 font-display text-xl font-bold tracking-[-0.02em] text-text"
+            id="flock-members-heading"
+          >
+            Members
+          </h2>
+        )}
       </div>
-      {content}
+      {memberList.status === 'ready' &&
+      !isExpanded &&
+      memberList.members.length > 0 &&
+      !memberList.isRefreshing &&
+      !memberList.hasRefreshError ? (
+        <div aria-hidden="true" />
+      ) : (
+        <div id="flock-member-roster">{content}</div>
+      )}
     </section>
   )
 }
