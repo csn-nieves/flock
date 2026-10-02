@@ -44,7 +44,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string
-          flock_id: string
+          flock_id: string | null
           id: string
           location: string
           starts_at: string
@@ -55,7 +55,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string
-          flock_id: string
+          flock_id?: string | null
           id?: string
           location: string
           starts_at: string
@@ -66,7 +66,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string
-          flock_id?: string
+          flock_id?: string | null
           id?: string
           location?: string
           starts_at?: string
@@ -172,6 +172,10 @@ export type Database = {
           owner_id: string
         }[]
       }
+      cancel_flock_event: {
+        Args: { target_event_id: string }
+        Returns: undefined
+      }
       create_flock_event: {
         Args: {
           event_description?: string
@@ -181,7 +185,6 @@ export type Database = {
           target_flock_id: string
         }
         Returns: {
-          canceled_at: string | null
           created_at: string
           created_by: string
           description: string
@@ -191,30 +194,6 @@ export type Database = {
           starts_at: string
           title: string
         }[]
-      }
-      update_flock_event: {
-        Args: {
-          event_description?: string
-          event_location: string
-          event_starts_at: string
-          event_title: string
-          target_event_id: string
-        }
-        Returns: {
-          canceled_at: string | null
-          created_at: string
-          created_by: string
-          description: string
-          flock_id: string
-          id: string
-          location: string
-          starts_at: string
-          title: string
-        }[]
-      }
-      cancel_flock_event: {
-        Args: { target_event_id: string }
-        Returns: undefined
       }
       create_flock_invitation: {
         Args: { target_flock_id: string }
@@ -222,6 +201,31 @@ export type Database = {
           expires_at: string
           token: string
         }[]
+      }
+      create_user_event: {
+        Args: {
+          event_description?: string
+          event_location: string
+          event_starts_at: string
+          event_title: string
+        }
+        Returns: {
+          canceled_at: string | null
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string | null
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_events'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       list_flock_members: {
         Args: { target_flock_id: string }
@@ -243,10 +247,30 @@ export type Database = {
           response: Database['public']['Enums']['flock_event_response']
           updated_at: string
           user_id: string
+        }[]
+      }
+      update_flock_event: {
+        Args: {
+          event_description?: string
+          event_location: string
+          event_starts_at: string
+          event_title: string
+          target_event_id: string
+        }
+        Returns: {
+          canceled_at: string | null
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string | null
+          id: string
+          location: string
+          starts_at: string
+          title: string
         }
         SetofOptions: {
           from: '*'
-          to: 'flock_event_attendance'
+          to: 'flock_events'
           isOneToOne: true
           isSetofReturn: false
         }
