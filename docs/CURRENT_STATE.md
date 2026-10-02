@@ -91,6 +91,9 @@ outside this slice.
 - Authenticated runners can search discoverable runner display names and flock
   names from the protected `/discover` route through limited, authenticated
   database functions.
+- A seeded `organizer@flock.com` account has the server-enforced
+  `superadmin` role, which can read and manage all current flock and event
+  records through expanded RLS policies and protected RPCs.
 
 ## Current application boundary
 
@@ -117,8 +120,8 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Use discovery results in event audience selection so runners can invite
-   individuals or whole flocks to personal events.
+1. Add a dedicated superadmin route and explicit destructive flock-management
+   controls, then use discovery results in event audience selection.
 
 ## Known follow-ups
 

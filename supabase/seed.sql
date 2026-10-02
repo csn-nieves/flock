@@ -47,7 +47,7 @@ values
     '',
     '',
     '',
-    '{"provider":"email","providers":["email"]}',
+    '{"provider":"email","providers":["email"],"role":"superadmin"}',
     '{"display_name":"Local Organizer"}',
     '2026-01-15 12:00:00+00',
     '2026-01-15 12:00:00+00'
