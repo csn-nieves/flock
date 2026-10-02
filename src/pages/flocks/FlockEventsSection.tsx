@@ -201,9 +201,11 @@ function FlockEventsSection({
               description={`This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`}
               onClose={() => setCancelingEvent(null)}
               title="Cancel event?"
+              tone="danger"
             >
-              <div className="flex flex-wrap gap-2">
+              <div className="grid gap-2 sm:flex sm:flex-row-reverse">
                 <Button
+                  className="w-full sm:w-auto"
                   isPending={isCanceling}
                   pendingLabel="Canceling event"
                   onClick={async () => {
@@ -214,10 +216,12 @@ function FlockEventsSection({
                       // Keep the confirmation open so the owner can retry.
                     }
                   }}
+                  variant="danger"
                 >
                   Cancel event
                 </Button>
                 <Button
+                  className="w-full sm:w-auto"
                   type="button"
                   variant="secondary"
                   onClick={() => setCancelingEvent(null)}
