@@ -115,8 +115,8 @@ function EventsRoute() {
       onUpdate={async (eventId, input) => {
         await updateMutation.mutateAsync({ eventId, input })
       }}
-      onCancelEvent={(eventId) => {
-        cancelMutation.mutate(eventId)
+      onCancelEvent={async (eventId) => {
+        await cancelMutation.mutateAsync(eventId)
       }}
       onCreate={async (input) => {
         await createMutation.mutateAsync(input)

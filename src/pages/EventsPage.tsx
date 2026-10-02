@@ -36,7 +36,7 @@ export type EventsPageProps = {
       NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
     >[0],
   ) => Promise<void>
-  onCancelEvent: (eventId: string) => void
+  onCancelEvent: (eventId: string) => Promise<void>
   managementError?: string
 }
 
@@ -62,6 +62,7 @@ function EventsPage({
   managementError,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
   let invitationDialog = null
 
   if (invitationUrl) {
@@ -195,7 +196,7 @@ function EventsPage({
                 </Button>
                 <Button
                   variant="danger"
-                  onClick={() => onCancelEvent(event.id)}
+                  onClick={() => setCancelingEvent(event)}
                 >
                   Cancel event
                 </Button>
@@ -206,6 +207,42 @@ function EventsPage({
       )}
 
       {invitationDialog}
+
+      {cancelingEvent ? (
+        <Modal
+          description={`This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`}
+          onClose={() => setCancelingEvent(null)}
+          title="Cancel event?"
+          tone="danger"
+        >
+          <div className="grid gap-2 sm:flex sm:flex-row-reverse">
+            <Button
+              className="w-full sm:w-auto"
+              isPending={isSaving}
+              pendingLabel="Canceling event"
+              variant="danger"
+              onClick={async () => {
+                try {
+                  await onCancelEvent(cancelingEvent.id)
+                  setCancelingEvent(null)
+                } catch {
+                  // Keep the confirmation open so the owner can retry.
+                }
+              }}
+            >
+              Cancel event
+            </Button>
+            <Button
+              className="w-full sm:w-auto"
+              type="button"
+              variant="secondary"
+              onClick={() => setCancelingEvent(null)}
+            >
+              Keep event
+            </Button>
+          </div>
+        </Modal>
+      ) : null}
 
       {managementError ? (
         <p className="mt-4 text-sm text-text" role="alert">
