@@ -56,6 +56,20 @@ export async function createEventInvitation(
   return { expiresAt: data.expires_at, token: data.token }
 }
 
+export async function createTargetedEventInvitation(
+  eventId: string,
+  recipientUserId: string,
+): Promise<FlockInvitation> {
+  const { data, error } = await supabase
+    .rpc('create_targeted_event_invitation', {
+      target_event_id: eventId,
+      target_recipient_user_id: recipientUserId,
+    })
+    .single()
+  if (error) throw error
+  return { expiresAt: data.expires_at, token: data.token }
+}
+
 export async function acceptEventInvitation(
   token: string,
 ): Promise<FlockEvent> {

@@ -16,12 +16,14 @@ type InvitationActionStatus =
 
 export type InvitationLinkCardProps = {
   invitationUrl: string
+  recipientName?: string
   onCopy: (invitationUrl: string) => Promise<void>
   onShare?: (invitationUrl: string) => Promise<ShareInvitationResult>
 }
 
 function InvitationLinkCard({
   invitationUrl,
+  recipientName,
   onCopy,
   onShare,
 }: InvitationLinkCardProps) {
@@ -90,7 +92,9 @@ function InvitationLinkCard({
         Invitation ready
       </h2>
       <p className="mt-0 mb-5 leading-6 text-text-muted">
-        Send this link to the runner you want to join.
+        {recipientName
+          ? `This link can only be used by ${recipientName}.`
+          : 'Send this link to the runner you want to join.'}
       </p>
 
       <TextField
