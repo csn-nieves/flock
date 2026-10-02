@@ -13,6 +13,7 @@ import EventsRoute from '@src/routes/EventsRoute'
 import AcceptEventInvitationRoute from '@src/routes/AcceptEventInvitationRoute'
 import DiscoverRoute from '@src/routes/DiscoverRoute'
 import App from './App'
+import AdminRoute from '@src/routes/AdminRoute'
 
 export const routes = [
   {
@@ -53,6 +54,10 @@ export const routes = [
           {
             path: 'discover',
             Component: DiscoverRoute,
+          },
+          {
+            path: 'admin',
+            Component: AdminRoute,
           },
           {
             path: 'event-invitations/:invitationToken',
