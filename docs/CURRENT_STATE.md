@@ -110,9 +110,8 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Address the remaining lower-risk shell navigation and event mutation
-   resilience coverage documented in `docs/TEST_AUDIT.md` when those areas
-   change next.
+1. Continue adding tests alongside new product work; the planned audit gaps are
+   now covered.
 
 ## Known follow-ups
 
