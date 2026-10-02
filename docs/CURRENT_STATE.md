@@ -84,10 +84,11 @@ outside this slice.
   `/flocks/:flockId`, `/flocks/:flockId/invitations/new`, and
   `/invitations/:invitationToken` as one complete create, invite, and join
   workflow.
-- Every nested flock page exposes a labeled, touch-sized back control in all
-  route states. Route controllers use deterministic parent destinations rather
-  than raw browser history, so direct links and restored auth flows have a safe
-  fallback.
+- Route controllers keep navigation deterministic for direct links and restored
+  auth flows, without depending on browser history.
+- Authenticated runners can search discoverable runner display names and flock
+  names from the protected `/discover` route through limited, authenticated
+  database functions.
 
 ## Current application boundary
 
@@ -110,12 +111,12 @@ Once authenticated, acceptance joins them immediately and replaces the
 token-bearing URL with the returned flock detail destination. Invalid, expired,
 and already-consumed invitations share one non-disclosing unavailable state.
 Invitations remain a convenient path into a flock, not an invitation-only
-privacy gate; flock discovery remains deferred.
+privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Continue adding tests alongside new product work; the planned audit gaps are
-   now covered.
+1. Use discovery results in event audience selection so runners can invite
+   individuals or whole flocks to personal events.
 
 ## Known follow-ups
 

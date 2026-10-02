@@ -264,6 +264,21 @@ export type Database = {
           user_id: string
         }[]
       }
+      search_flocks: {
+        Args: { search_term: string }
+        Returns: {
+          id: string
+          name: string
+          owner_id: string
+        }[]
+      }
+      search_runners: {
+        Args: { search_term: string }
+        Returns: {
+          display_name: string
+          user_id: string
+        }[]
+      }
       set_flock_event_response: {
         Args: {
           next_response: Database['public']['Enums']['flock_event_response']
