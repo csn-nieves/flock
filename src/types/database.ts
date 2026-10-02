@@ -222,6 +222,15 @@ export type Database = {
           title: string
         }[]
       }
+      create_flock_event_invitations: {
+        Args: { target_event_id: string; target_flock_id: string }
+        Returns: {
+          expires_at: string
+          recipient_display_name: string
+          recipient_user_id: string
+          token: string
+        }[]
+      }
       create_flock_invitation: {
         Args: { target_flock_id: string }
         Returns: {

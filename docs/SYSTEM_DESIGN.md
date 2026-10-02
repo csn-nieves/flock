@@ -391,6 +391,34 @@ lifetime. Acceptance coverage verifies membership creation, strict
 single-use replay protection for every caller, expiry, and safe handling of
 malformed tokens.
 
+## Personal event invitation audiences
+
+Runner-owned personal events can invite either one discovered runner or the
+current membership of a discovered flock. Both choices create private,
+recipient-bound links: the token remains single-use, expires after 24 hours,
+and can be accepted only by the authenticated runner named on its invitation.
+
+Whole-flock expansion happens in one `security definer` database function. The
+function verifies personal-event ownership, reads the selected flock's roster
+server-side, generates one independent token per current member, stores only
+the token hashes, and returns the raw tokens once with their recipient display
+names. Every invitation in the batch receives the same creation-time expiry.
+The browser never supplies member identifiers for a flock audience and cannot
+substitute a different roster.
+
+The roster is intentionally a snapshot. A runner who joins after creation does
+not receive an invitation from the earlier batch. A runner who leaves after
+creation keeps the already-issued recipient-bound invitation because later
+membership changes do not rewrite invitation history. Creating another batch
+produces a new independent set from the then-current roster.
+
+`EventsRoute` owns runner and flock discovery queries, both invitation
+mutations, URL creation, and raw failure translation. The pure events page
+opens a shared audience picker and renders the returned per-recipient links for
+copying or native sharing. Database tests enforce event ownership, execution
+grants, roster expansion, recipient binding, expiration, single use, and both
+post-snapshot membership cases.
+
 ## Authentication design
 
 Supabase Auth is the authentication system. Flock plans to support Google,

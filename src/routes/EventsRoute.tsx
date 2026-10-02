@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCreateUserEvent } from '@src/hooks/useCreateUserEvent'
-import { useCreateEventInvitation } from '@src/hooks/useCreateEventInvitation'
+import {
+  useCreateFlockEventInvitations,
+  useCreateTargetedEventInvitation,
+} from '@src/hooks/useCreateEventInvitation'
+import { useFlockSearch, useRunnerSearch } from '@src/hooks/useDiscoverySearch'
 import { useSetUserEventResponse } from '@src/hooks/useSetUserEventResponse'
 import { useUpdateUserEvent } from '@src/hooks/useUpdateUserEvent'
 import { useCancelUserEvent } from '@src/hooks/useCancelUserEvent'
@@ -10,16 +14,29 @@ import EventsPage, {
   EventsErrorPage,
   EventsLoadingPage,
 } from '@src/pages/EventsPage'
+import type { EventAudienceType } from '@src/components/EventAudiencePicker'
 import type { ShareInvitationResult } from '@src/pages/flocks/InvitationLinkCard'
+import type { EventRecipientInvitationLink } from '@src/types/invitations'
 
 function EventsRoute() {
   const eventsQuery = useUserEvents()
   const createMutation = useCreateUserEvent()
-  const invitationMutation = useCreateEventInvitation()
+  const targetedInvitationMutation = useCreateTargetedEventInvitation()
+  const flockInvitationMutation = useCreateFlockEventInvitations()
   const responseMutation = useSetUserEventResponse()
   const updateMutation = useUpdateUserEvent()
   const cancelMutation = useCancelUserEvent()
-  const [invitationUrl, setInvitationUrl] = useState<string>()
+  const [audienceType, setAudienceType] = useState<EventAudienceType>('runner')
+  const [audienceSearchTerm, setAudienceSearchTerm] = useState('')
+  const [invitationLinks, setInvitationLinks] = useState<
+    EventRecipientInvitationLink[]
+  >([])
+  const runnerSearch = useRunnerSearch(
+    audienceType === 'runner' ? audienceSearchTerm : '',
+  )
+  const flockSearch = useFlockSearch(
+    audienceType === 'flock' ? audienceSearchTerm : '',
+  )
   const navigate = useNavigate()
   const title = useMemo(() => {
     if (eventsQuery.isPending) return 'Loading events… — Flock'
@@ -34,6 +51,18 @@ function EventsRoute() {
     }
   }, [title])
 
+  let invitationError
+  if (targetedInvitationMutation.isError || flockInvitationMutation.isError) {
+    invitationError =
+      'We could not create an invitation. Check your connection and try again.'
+  } else if (audienceType === 'runner' && runnerSearch.isError) {
+    invitationError =
+      'We could not search runners. Check your connection and try again.'
+  } else if (audienceType === 'flock' && flockSearch.isError) {
+    invitationError =
+      'We could not search flocks. Check your connection and try again.'
+  }
+
   if (eventsQuery.isPending) return <EventsLoadingPage />
   if (eventsQuery.isError)
     return (
@@ -45,22 +74,77 @@ function EventsRoute() {
 
   return (
     <EventsPage
+      audienceSearchTerm={audienceSearchTerm}
+      audienceType={audienceType}
       events={eventsQuery.data}
+      flockResults={flockSearch.data ?? []}
       isRefreshing={eventsQuery.isFetching}
+      isSearchingAudience={
+        audienceType === 'runner'
+          ? runnerSearch.isFetching
+          : flockSearch.isFetching
+      }
+      runnerResults={runnerSearch.data ?? []}
       isCreating={createMutation.isPending}
       createError={
         createMutation.isError
           ? 'We could not create this event. Check your connection and try again.'
           : undefined
       }
-      invitationUrl={invitationUrl}
-      onCloseInvitation={() => setInvitationUrl(undefined)}
-      invitationError={
-        invitationMutation.isError
-          ? 'We could not create an invitation. Check your connection and try again.'
-          : undefined
+      invitationLinks={invitationLinks}
+      onCloseInvitation={() => setInvitationLinks([])}
+      invitationError={invitationError}
+      isInviting={
+        targetedInvitationMutation.isPending ||
+        flockInvitationMutation.isPending
       }
-      isInviting={invitationMutation.isPending}
+      onAudienceTypeChange={(nextAudienceType) => {
+        setAudienceType(nextAudienceType)
+        setAudienceSearchTerm('')
+        targetedInvitationMutation.reset()
+        flockInvitationMutation.reset()
+      }}
+      onAudienceSearchTermChange={(searchTerm) => {
+        setAudienceSearchTerm(searchTerm)
+        targetedInvitationMutation.reset()
+        flockInvitationMutation.reset()
+      }}
+      onInviteRunner={async (
+        eventId,
+        recipientUserId,
+        recipientDisplayName,
+      ) => {
+        const invitation = await targetedInvitationMutation.mutateAsync({
+          eventId,
+          recipientUserId,
+        })
+        setInvitationLinks([
+          {
+            ...invitation,
+            recipientDisplayName,
+            recipientUserId,
+            url: new URL(
+              `/event-invitations/${encodeURIComponent(invitation.token)}`,
+              window.location.origin,
+            ).toString(),
+          },
+        ])
+      }}
+      onInviteFlock={async (eventId, flockId) => {
+        const invitations = await flockInvitationMutation.mutateAsync({
+          eventId,
+          flockId,
+        })
+        setInvitationLinks(
+          invitations.map((invitation) => ({
+            ...invitation,
+            url: new URL(
+              `/event-invitations/${encodeURIComponent(invitation.token)}`,
+              window.location.origin,
+            ).toString(),
+          })),
+        )
+      }}
       onCopyInvitation={async (url) => {
         await navigator.clipboard.writeText(url)
       }}

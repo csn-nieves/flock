@@ -1040,6 +1040,29 @@ name change is reflected wherever the runner appears. The first slice keeps
 profile scope deliberately narrow; richer identity, privacy controls, and
 runner discovery remain deferred.
 
+## 2026-10-02 — Inviting a whole flock to a personal event
+
+### Snapshot-based recipient invitations
+
+Personal-event creators can now choose one runner or a discovered flock as the
+invitation audience. Selecting a flock expands its roster inside a reviewed
+database function and creates one unique, recipient-bound link per current
+member. The interface returns the named links as a batch so the creator can
+copy or share each one without exposing a reusable audience-wide credential.
+
+The expansion is deliberately a snapshot rather than a live membership rule.
+Runners who join later are not silently added to an earlier event, and runners
+who leave keep the invitation that was already issued to them. This preserves
+the existing 24-hour expiration and strict single-use behavior without making
+event access depend on mutable flock membership after creation.
+
+The route controller owns discovery and invitation mutations while the page
+and audience picker remain transport-agnostic. Database coverage verifies
+authorization, exact roster expansion, unique token hashes, shared expiry,
+recipient enforcement, replay rejection, and membership changes on both sides
+of the snapshot. Distribution remains manual through each runner's private
+link; notifications and dynamic audience management remain deferred.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

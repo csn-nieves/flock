@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   acceptFlockInvitation,
+  createFlockEventInvitations,
   createFlockInvitation,
+  createTargetedEventInvitation,
   InvitationUnavailableError,
 } from './invitations'
 
@@ -52,6 +54,74 @@ describe('invitation data', () => {
 
     await expect(createFlockInvitation('morning-runners-id')).rejects.toBe(
       mutationError,
+    )
+  })
+
+  it('creates a recipient-bound invitation for one runner', async () => {
+    invitationMocks.single.mockResolvedValue({
+      data: {
+        expires_at: '2026-10-03T12:00:00.000Z',
+        token: 'runner-token',
+      },
+      error: null,
+    })
+
+    await expect(
+      createTargetedEventInvitation('event-id', 'runner-id'),
+    ).resolves.toEqual({
+      expiresAt: '2026-10-03T12:00:00.000Z',
+      token: 'runner-token',
+    })
+    expect(invitationMocks.rpc).toHaveBeenCalledWith(
+      'create_targeted_event_invitation',
+      {
+        target_event_id: 'event-id',
+        target_recipient_user_id: 'runner-id',
+      },
+    )
+  })
+
+  it('creates one recipient-bound invitation per snapshotted flock member', async () => {
+    invitationMocks.rpc.mockResolvedValueOnce({
+      data: [
+        {
+          expires_at: '2026-10-03T12:00:00.000Z',
+          recipient_display_name: 'Maya Chen',
+          recipient_user_id: 'maya-id',
+          token: 'maya-token',
+        },
+        {
+          expires_at: '2026-10-03T12:00:00.000Z',
+          recipient_display_name: 'Theo Brooks',
+          recipient_user_id: 'theo-id',
+          token: 'theo-token',
+        },
+      ],
+      error: null,
+    })
+
+    await expect(
+      createFlockEventInvitations('event-id', 'flock-id'),
+    ).resolves.toEqual([
+      {
+        expiresAt: '2026-10-03T12:00:00.000Z',
+        recipientDisplayName: 'Maya Chen',
+        recipientUserId: 'maya-id',
+        token: 'maya-token',
+      },
+      {
+        expiresAt: '2026-10-03T12:00:00.000Z',
+        recipientDisplayName: 'Theo Brooks',
+        recipientUserId: 'theo-id',
+        token: 'theo-token',
+      },
+    ])
+    expect(invitationMocks.rpc).toHaveBeenCalledWith(
+      'create_flock_event_invitations',
+      {
+        target_event_id: 'event-id',
+        target_flock_id: 'flock-id',
+      },
     )
   })
 
