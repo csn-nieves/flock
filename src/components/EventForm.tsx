@@ -39,7 +39,7 @@ function EventForm({
   }
 
   return (
-    <form className="space-y-3" onSubmit={submit}>
+    <form noValidate className="space-y-3" onSubmit={submit}>
       {error ? (
         <p className="m-0 text-sm text-text" role="alert">
           {error}

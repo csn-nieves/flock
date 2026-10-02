@@ -63,6 +63,7 @@ function DiscoverPage() {
       </h1>
       <p className="mt-2 text-text-muted">Find runners and flocks by name.</p>
       <form
+        noValidate
         className="mt-6 flex gap-2"
         onSubmit={(event) => {
           event.preventDefault()

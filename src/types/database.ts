@@ -184,6 +184,26 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      accept_event_invitation_by_id: {
+        Args: { target_invitation_id: string }
+        Returns: {
+          canceled_at: string | null
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string | null
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_events'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       accept_flock_invitation: {
         Args: { invitation_token: string }
         Returns: {
@@ -222,12 +242,10 @@ export type Database = {
           title: string
         }[]
       }
-      create_flock_event_invitations: {
+      create_flock_event_invitation: {
         Args: { target_event_id: string; target_flock_id: string }
         Returns: {
           expires_at: string
-          recipient_display_name: string
-          recipient_user_id: string
           token: string
         }[]
       }
@@ -278,6 +296,20 @@ export type Database = {
           location: string
           role: string
           user_id: string
+        }[]
+      }
+      list_pending_event_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          audience_name: string
+          event_description: string
+          event_id: string
+          event_location: string
+          event_starts_at: string
+          event_title: string
+          expires_at: string
+          invitation_id: string
+          invitation_kind: string
         }[]
       }
       search_flocks: {

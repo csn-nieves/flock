@@ -17,6 +17,7 @@ export const profileQueryKeys = {
 }
 
 export const eventQueryKeys = {
+  invitations: () => [...eventRootKey, 'invitations'] as const,
   mine: () => [...eventRootKey, 'mine'] as const,
   flock: (flockId: string) => [...eventRootKey, flockId] as const,
 }

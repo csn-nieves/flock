@@ -21,7 +21,7 @@ test('selects one runner or a whole flock', async ({ mount }) => {
   )
 })
 
-test('explains snapshot membership and clears flock search', async ({
+test('explains live flock membership and clears flock search', async ({
   mount,
 }) => {
   const component = await mount('components/EventAudiencePicker/Interactive')
@@ -33,7 +33,7 @@ test('explains snapshot membership and clears flock search', async ({
   await flockSearch.fill('harbor')
 
   await expect(
-    component.getByText(/Later membership changes will not change/),
+    component.getByText(/including anyone who joins before it expires/),
   ).toBeVisible()
   await component.getByRole('button', { name: 'Clear flock search' }).click()
   await expect(flockSearch).toBeFocused()
@@ -65,9 +65,7 @@ test('blocks duplicate selection while invitations are being created', async ({
 }) => {
   const component = await mount('components/EventAudiencePicker/Creating')
 
-  await expect(component.getByRole('status')).toHaveText(
-    'Creating invitations…',
-  )
+  await expect(component.getByRole('status')).toHaveText('Creating invitation…')
   await expect(
     component.getByRole('button', { name: 'Harbor Long Run' }),
   ).toBeDisabled()

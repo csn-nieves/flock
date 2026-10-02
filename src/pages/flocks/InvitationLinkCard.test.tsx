@@ -3,6 +3,29 @@ import { describe, expect, it, vi } from 'vitest'
 import InvitationLinkCard from './InvitationLinkCard'
 
 describe('InvitationLinkCard', () => {
+  it('explains a seven-day universal flock link', () => {
+    render(
+      <InvitationLinkCard
+        expiresInLabel="7 days"
+        invitationUrl="https://example.test/event"
+        linkScope="flock"
+        recipientName="Harbor Long Run"
+        onCopy={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.getByText(
+        'Any current member of Harbor Long Run can use this link.',
+      ),
+    ).toBeVisible()
+    expect(
+      screen.getByText(
+        'Each eligible flock member can accept once. This link expires 7 days after creation.',
+      ),
+    ).toBeVisible()
+  })
+
   it('copies an invitation link and reports success', async () => {
     const onCopy = vi.fn().mockResolvedValue(undefined)
     render(

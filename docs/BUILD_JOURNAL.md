@@ -1063,6 +1063,29 @@ recipient enforcement, replay rejection, and membership changes on both sides
 of the snapshot. Distribution remains manual through each runner's private
 link; notifications and dynamic audience management remain deferred.
 
+## 2026-10-02 — Making flock event invitations live and visible in app
+
+### Universal flock audiences with in-app acceptance
+
+Whole-flock personal-event invitations now persist one flock audience instead
+of expanding the roster. Eligibility follows current membership for the full
+seven-day invitation window: later joins become eligible, departures lose an
+unaccepted invitation, and an accepted runner keeps event and RSVP access if
+they leave later. One optional link can serve every eligible member, with
+acceptance recorded once per runner.
+
+The Events screen now loads a separate invitation inbox with responsive
+loading, failure, retry, pending, and acceptance states. Both live-flock and
+recipient-bound invitations can be accepted in app, removing the requirement
+for organizers to distribute every link manually. Creator-only controls remain
+hidden when an accepted invitee views an event.
+
+OS-level push notifications remain a separate branch because they require
+user permission, one or more device subscriptions per runner, server-side push
+delivery, subscription cleanup, and platform-specific PWA verification. The
+in-app inbox is the durable source of truth that future push notifications can
+deep-link into.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

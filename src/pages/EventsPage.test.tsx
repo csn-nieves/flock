@@ -24,17 +24,22 @@ const event = {
 const defaultProps: EventsPageProps = {
   audienceSearchTerm: '',
   audienceType: 'runner',
+  canManageAllEvents: false,
+  currentUserId: 'user',
   events: [],
   flockResults: [],
-  invitationLinks: [],
+  invitationLink: undefined,
   isCreating: false,
   isInviting: false,
+  isLoadingInvitations: false,
   isRefreshing: false,
+  isRefreshingInvitations: false,
   isResponding: false,
   isSaving: false,
   isSearchingAudience: false,
   onAudienceSearchTermChange: vi.fn(),
   onAudienceTypeChange: vi.fn(),
+  onAcceptInvitation: vi.fn().mockResolvedValue(undefined),
   onCancelEvent: vi.fn().mockResolvedValue(undefined),
   onCloseInvitation: vi.fn(),
   onCopyInvitation: vi.fn(),
@@ -42,7 +47,9 @@ const defaultProps: EventsPageProps = {
   onInviteFlock: vi.fn().mockResolvedValue(undefined),
   onInviteRunner: vi.fn().mockResolvedValue(undefined),
   onRespond: vi.fn(),
+  onRetryInvitations: vi.fn(),
   onUpdate: vi.fn(),
+  pendingInvitations: [],
   runnerResults: [],
 }
 
@@ -104,6 +111,38 @@ describe('EventsPage', () => {
     )
   })
 
+  it('keeps creator controls hidden for accepted invitees', () => {
+    render(
+      <EventsPage {...defaultProps} currentUserId="invitee" events={[event]} />,
+    )
+
+    expect(
+      screen.queryByRole('button', { name: 'Invite runners' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Edit event' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Cancel event' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: "I'm in" })).toBeVisible()
+  })
+
+  it('keeps event controls available to superadmins', () => {
+    render(
+      <EventsPage
+        {...defaultProps}
+        canManageAllEvents
+        currentUserId="superadmin"
+        events={[event]}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Invite runners' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Edit event' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Cancel event' })).toBeVisible()
+  })
+
   it('sends an RSVP response for a personal event', () => {
     const onRespond = vi.fn()
     render(
@@ -127,21 +166,52 @@ describe('EventsPage', () => {
     expect(onRespond).toHaveBeenCalledWith('event', 'in')
   })
 
+  it('shows and accepts an in-app flock invitation', async () => {
+    const onAcceptInvitation = vi.fn().mockResolvedValue(undefined)
+    render(
+      <EventsPage
+        {...defaultProps}
+        onAcceptInvitation={onAcceptInvitation}
+        pendingInvitations={[
+          {
+            audienceName: 'Harbor Long Run',
+            audienceType: 'flock',
+            eventDescription: 'Easy miles together.',
+            eventId: 'invited-event',
+            eventLocation: 'Riverside Park',
+            eventStartsAt: '2026-10-10T12:00:00Z',
+            eventTitle: 'Cross-flock social run',
+            expiresAt: '2026-10-09T12:00:00Z',
+            invitationId: 'invitation-id',
+          },
+        ]}
+      />,
+    )
+
+    expect(
+      screen.getByRole('heading', { name: 'Event invitations' }),
+    ).toBeVisible()
+    expect(screen.getByText('Invited with Harbor Long Run')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Accept invitation' }))
+
+    await waitFor(() => {
+      expect(onAcceptInvitation).toHaveBeenCalledWith('invitation-id')
+    })
+  })
+
   it('shows the invitation link inside a modal and closes it', () => {
     const onCloseInvitation = vi.fn()
     render(
       <EventsPage
         {...defaultProps}
         events={[]}
-        invitationLinks={[
-          {
-            expiresAt: '2026-10-03T12:00:00Z',
-            recipientDisplayName: 'Maya Chen',
-            recipientUserId: 'maya-id',
-            token: 'invite',
-            url: 'https://example.test/invite',
-          },
-        ]}
+        invitationLink={{
+          audienceName: 'Maya Chen',
+          audienceType: 'runner',
+          expiresAt: '2026-10-09T12:00:00Z',
+          token: 'invite',
+          url: 'https://example.test/invite',
+        }}
         isCreating={false}
         isInviting={false}
         isRefreshing={false}
@@ -156,7 +226,7 @@ describe('EventsPage', () => {
       />,
     )
     expect(
-      screen.getByRole('dialog', { name: 'Invitation ready' }),
+      screen.getByRole('dialog', { name: 'Invitation sent' }),
     ).toBeVisible()
     expect(screen.getByText(/only be used by Maya Chen/)).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
@@ -197,7 +267,7 @@ describe('EventsPage', () => {
     expect(onCancelEvent).toHaveBeenCalledWith('event')
   })
 
-  it('selects a whole flock as a snapshot audience', async () => {
+  it('selects a whole flock as a live audience', async () => {
     const onInviteFlock = vi.fn().mockResolvedValue(undefined)
     render(
       <EventsPage
@@ -216,7 +286,11 @@ describe('EventsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Harbor Long Run' }))
 
     await waitFor(() => {
-      expect(onInviteFlock).toHaveBeenCalledWith('event', 'harbor-id')
+      expect(onInviteFlock).toHaveBeenCalledWith(
+        'event',
+        'harbor-id',
+        'Harbor Long Run',
+      )
     })
   })
 })

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import {
   createEventInvitation,
-  createFlockEventInvitations,
+  createFlockEventInvitation,
   createTargetedEventInvitation,
 } from '@src/data/invitations'
 
@@ -21,9 +21,9 @@ export function useCreateTargetedEventInvitation() {
   })
 }
 
-export function useCreateFlockEventInvitations() {
+export function useCreateFlockEventInvitation() {
   return useMutation({
     mutationFn: ({ eventId, flockId }: { eventId: string; flockId: string }) =>
-      createFlockEventInvitations(eventId, flockId),
+      createFlockEventInvitation(eventId, flockId),
   })
 }

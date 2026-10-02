@@ -65,7 +65,7 @@ slice.
 - Authenticated runners can open `/events` from the application navigation,
   view their upcoming personal events, and create a user-owned event through a
   reusable modal form.
-- User-owned events now have single-use, 24-hour invitation tokens, an
+- User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
   them through native device sharing when available, or copy them manually.
@@ -76,12 +76,15 @@ slice.
 - Personal event creators can edit or cancel their events through the personal
   events UI, with creator-only database authorization.
 - Personal event creators can search for an individual runner and generate a
-  recipient-bound invitation link that expires after 24 hours and can only be
+  recipient-bound invitation link that expires after seven days and can only be
   accepted by that runner.
-- Personal event creators can search for a flock and snapshot its current
-  roster into one recipient-bound, single-use, 24-hour invitation per member.
-  Later joins receive no retroactive invitation, while members who leave keep
-  the invitation created for them.
+- Personal event creators can search for a flock and create one universal,
+  seven-day invitation whose eligibility follows live flock membership. Later
+  joins become eligible, departures lose unaccepted access, and each accepted
+  runner keeps durable event access.
+- Eligible runners see pending personal-event invitations on the Events screen
+  and can accept them in app. Shared links remain an optional fallback rather
+  than the required delivery path.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -130,7 +133,9 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Extend the superadmin dashboard with global event and membership controls.
+1. Define cross-device web-push permission, subscription, delivery, and cleanup
+   behavior, then select the push provider for that focused branch.
+2. Extend the superadmin dashboard with global event and membership controls.
 
 ## Known follow-ups
 
