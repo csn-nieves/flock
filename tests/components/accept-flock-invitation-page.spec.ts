@@ -17,24 +17,18 @@ test('keeps invitation acceptance inside a mobile viewport', async ({
   const section = component.getByRole('region', {
     name: 'Invitation unavailable',
   })
-  const button = component.getByRole('button', {
-    name: 'Back to your flocks',
-  })
   const sectionBox = await section.boundingBox()
-  const buttonBox = await button.boundingBox()
   const viewport = page.viewportSize()
 
   expect(sectionBox).not.toBeNull()
-  expect(buttonBox).not.toBeNull()
   expect(viewport).not.toBeNull()
   expect(sectionBox?.x).toBeGreaterThanOrEqual(0)
   expect((sectionBox?.x ?? 0) + (sectionBox?.width ?? 0)).toBeLessThanOrEqual(
     viewport?.width ?? 0,
   )
-  expect(buttonBox?.height).toBeGreaterThanOrEqual(44)
 })
 
-test('explains an unavailable invitation and returns to flocks', async ({
+test('explains an unavailable invitation without exposing internals', async ({
   mount,
 }) => {
   const component = await mount('pages/AcceptFlockInvitationPage/Unavailable')
@@ -42,8 +36,6 @@ test('explains an unavailable invitation and returns to flocks', async ({
   await expect(
     component.getByText(/expired, has already been used, or is not valid/),
   ).toBeVisible()
-  await component.getByRole('button', { name: 'Back to your flocks' }).click()
-  await expect(component.getByTestId('page-intent')).toHaveText('view-flocks')
 })
 
 test('offers safe retry after a connection failure', async ({ mount }) => {

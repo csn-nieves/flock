@@ -1,4 +1,6 @@
-import { expect, test, type Page } from './fixtures'
+import { type Page, type Route } from '@playwright/test'
+
+import { expect, test } from './fixtures'
 
 const acceptInvitationRoute = '**/rest/v1/rpc/accept_flock_invitation'
 const authDestinationStorageKey = 'flock.auth.destination'
@@ -24,7 +26,7 @@ function createTestSession() {
 }
 
 async function seedAuthenticatedSession(page: Page) {
-  await page.addInitScript((session) => {
+  await page.addInitScript((session: ReturnType<typeof createTestSession>) => {
     window.localStorage.setItem(
       'sb-example-auth-token',
       JSON.stringify(session),
@@ -33,15 +35,21 @@ async function seedAuthenticatedSession(page: Page) {
 }
 
 async function mockEventReads(page: Page) {
-  await page.route('**/rest/v1/rpc/list_flock_members', async (route) => {
+  await page.route(
+    '**/rest/v1/rpc/list_flock_members',
+    async (route: Route) => {
+      await route.fulfill({ json: [], status: 200 })
+    },
+  )
+  await page.route('**/rest/v1/flock_events**', async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
   })
-  await page.route('**/rest/v1/flock_events**', async (route) => {
-    await route.fulfill({ json: [], status: 200 })
-  })
-  await page.route('**/rest/v1/flock_event_attendance**', async (route) => {
-    await route.fulfill({ json: [], status: 200 })
-  })
+  await page.route(
+    '**/rest/v1/flock_event_attendance**',
+    async (route: Route) => {
+      await route.fulfill({ json: [], status: 200 })
+    },
+  )
 }
 
 test('preserves an invitation destination through sign-in', async ({
@@ -123,7 +131,7 @@ test('shows the same safe result for an unavailable invitation', async ({
   ).toBeVisible()
   await expect(page.getByText('raw database message')).toHaveCount(0)
 
-  await page.getByRole('button', { name: 'Back to your flocks' }).click()
+  await page.getByRole('link', { name: 'Flock home' }).click()
   await expect(page).toHaveURL('/flocks')
   await expect(page).toHaveTitle('Your flocks — Flock')
 })

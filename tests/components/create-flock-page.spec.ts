@@ -24,14 +24,11 @@ test('keeps the create workflow inside a mobile viewport', async ({
   const component = await mount('pages/CreateFlockPage/Default')
   const input = component.getByRole('textbox', { name: 'Flock name' })
   const button = component.getByRole('button', { name: 'Create flock' })
-  const backButton = component.getByRole('button', {
-    name: 'Back to your flocks',
-  })
   const viewport = page.viewportSize()
 
   expect(viewport).not.toBeNull()
 
-  for (const control of [backButton, input, button]) {
+  for (const control of [input, button]) {
     const controlBox = await control.boundingBox()
 
     expect(controlBox).not.toBeNull()

@@ -1,4 +1,6 @@
-import { expect, test, type Page } from './fixtures'
+import { type Page, type Route } from '@playwright/test'
+
+import { expect, test } from './fixtures'
 
 const flocksRoute = '**/rest/v1/flocks**'
 const flockMembersRoute = '**/rest/v1/rpc/list_flock_members'
@@ -32,7 +34,7 @@ function createTestSession() {
 }
 
 async function seedAuthenticatedSession(page: Page) {
-  await page.addInitScript((session) => {
+  await page.addInitScript((session: ReturnType<typeof createTestSession>) => {
     window.localStorage.setItem(
       'sb-example-auth-token',
       JSON.stringify(session),
@@ -43,7 +45,7 @@ async function seedAuthenticatedSession(page: Page) {
 async function mockFlockWorkflow(page: Page) {
   const flocks: TestFlock[] = []
 
-  await page.route(flocksRoute, async (route) => {
+  await page.route(flocksRoute, async (route: Route) => {
     const request = route.request()
     const url = new URL(request.url())
 
@@ -75,7 +77,7 @@ async function mockFlockWorkflow(page: Page) {
     await route.fulfill({ json: flocks, status: 200 })
   })
 
-  await page.route(flockMembersRoute, async (route) => {
+  await page.route(flockMembersRoute, async (route: Route) => {
     await route.fulfill({
       json: [
         {
@@ -89,10 +91,10 @@ async function mockFlockWorkflow(page: Page) {
     })
   })
 
-  await page.route(flockEventsRoute, async (route) => {
+  await page.route(flockEventsRoute, async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
   })
-  await page.route(flockAttendanceRoute, async (route) => {
+  await page.route(flockAttendanceRoute, async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
   })
 }
@@ -114,7 +116,7 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(page).toHaveURL('/flocks/new')
   await expect(page).toHaveTitle('Create a flock — Flock')
 
-  await page.getByRole('button', { name: 'Back to your flocks' }).click()
+  await page.getByRole('link', { name: 'Flock home' }).click()
   await expect(page).toHaveURL('/flocks')
 
   await page.getByRole('button', { name: 'Create a flock' }).click()
@@ -135,7 +137,7 @@ test('routes through the complete flock list, create, and detail workflow', asyn
     'Local Runner',
   )
 
-  await page.getByRole('button', { name: 'Back to your flocks' }).click()
+  await page.getByRole('link', { name: 'Flock home' }).click()
   await expect(page).toHaveURL('/flocks')
   await expect(
     page.getByRole('button', { name: 'Open Sunrise Striders' }),
@@ -150,7 +152,4 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(
     page.getByRole('button', { name: 'Create invitation link' }),
   ).toBeVisible()
-
-  await page.getByRole('button', { name: 'Back to flock' }).click()
-  await expect(page).toHaveURL('/flocks/sunrise-striders-id')
 })
