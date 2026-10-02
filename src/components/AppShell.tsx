@@ -31,6 +31,7 @@ function NavigationLink({ label, to }: { label: string; to: string }) {
 function AppShell() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { session } = useAuthSession()
+  const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const displayName =
     session?.user.user_metadata?.display_name ??
     session?.user.user_metadata?.full_name ??
@@ -101,6 +102,9 @@ function AppShell() {
                     <NavigationLink {...item} />
                   </div>
                 ))}
+                {isSuperadmin ? (
+                  <NavigationLink label="Admin" to="/admin" />
+                ) : null}
               </div>
               <div className="mt-4 grid gap-2 border-t border-border pt-4">
                 <div onClick={closeMenu}>
@@ -144,6 +148,7 @@ function AppShell() {
           {navigation.map((item) => (
             <NavigationLink key={item.to} {...item} />
           ))}
+          {isSuperadmin ? <NavigationLink label="Admin" to="/admin" /> : null}
         </nav>
         <div className="mt-auto grid gap-2 border-t border-border pt-4">
           <NavLink

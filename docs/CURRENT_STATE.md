@@ -94,6 +94,8 @@ outside this slice.
 - A seeded `organizer@flock.com` account has the server-enforced
   `superadmin` role, which can read and manage all current flock and event
   records through expanded RLS policies and protected RPCs.
+- Superadmins can open the protected `/admin` dashboard to review all seeded
+  flocks and runners and delete a flock through a confirmation dialog.
 
 ## Current application boundary
 
@@ -120,8 +122,8 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Add a dedicated superadmin route and explicit destructive flock-management
-   controls, then use discovery results in event audience selection.
+1. Extend the superadmin dashboard with global event and membership controls,
+   then use discovery results in event audience selection.
 
 ## Known follow-ups
 
