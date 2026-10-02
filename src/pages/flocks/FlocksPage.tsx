@@ -9,7 +9,6 @@ export type FlocksPageProps = {
   flocks: readonly FlockSummary[]
   isRefreshing: boolean
   onCreate: () => void
-  onProfile: () => void
   onSelect: (flockId: string) => void
 }
 
@@ -22,22 +21,9 @@ function FlocksPageLayout({ children }: { children: ReactNode }) {
   return (
     <section
       aria-labelledby="flocks-heading"
-      className="mx-auto w-full py-8 sm:py-12"
+      className="mx-auto w-full max-w-xl py-8 sm:py-12"
     >
       <header>
-        <div className="mb-8 flex items-center gap-3">
-          <img
-            alt=""
-            className="size-12 shrink-0 rounded-lg"
-            height="48"
-            src="/icons/flock-mark.svg"
-            width="48"
-          />
-          <span className="font-display text-xl font-bold tracking-[-0.02em] text-text">
-            Flock
-          </span>
-        </div>
-
         <h1
           className="m-0 font-display text-3xl font-bold leading-tight tracking-[-0.025em] text-text"
           id="flocks-heading"
@@ -58,7 +44,6 @@ function FlocksPage({
   flocks,
   isRefreshing,
   onCreate,
-  onProfile,
   onSelect,
 }: FlocksPageProps) {
   return (
@@ -67,7 +52,6 @@ function FlocksPage({
         flocks={flocks}
         isRefreshing={isRefreshing}
         onCreate={onCreate}
-        onProfile={onProfile}
         onSelect={onSelect}
       />
     </FlocksPageLayout>

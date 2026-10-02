@@ -176,17 +176,6 @@ describe('FlockDetailRoute', () => {
     )
   })
 
-  it('returns to the flock collection instead of depending on browser history', async () => {
-    const router = renderFlockDetailRoute()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Back to your flocks' }))
-
-    expect(
-      await screen.findByText('Flock collection destination'),
-    ).toBeVisible()
-    expect(router.state.location.pathname).toBe('/flocks')
-  })
-
   it('shows an honest initial loading state', () => {
     flockQuery.data = undefined
     flockQuery.isFetching = true

@@ -8,8 +8,8 @@ test('renders the primary variant with a mobile-safe touch target', async ({
   const button = component.getByRole('button', { name: 'Join a flock' })
 
   await expect(button).toHaveAttribute('type', 'button')
-  await expect(button).toHaveCSS('background-color', 'rgb(54, 159, 96)')
-  await expect(button).toHaveCSS('color', 'rgb(16, 36, 62)')
+  await expect(button).toHaveCSS('background-color', 'rgb(36, 122, 75)')
+  await expect(button).toHaveCSS('color', 'rgb(255, 255, 255)')
 
   const buttonBox = await button.boundingBox()
   const viewport = page.viewportSize()
@@ -130,7 +130,7 @@ test('shows desktop hover and pressed states', async ({
   const button = component.getByRole('button', { name: 'Join a flock' })
 
   await button.hover()
-  await expect(button).toHaveCSS('background-color', 'rgb(66, 173, 108)')
+  await expect(button).toHaveCSS('background-color', 'rgb(47, 143, 88)')
 
   const buttonBox = await button.boundingBox()
 
@@ -147,7 +147,7 @@ test('shows desktop hover and pressed states', async ({
   await page.mouse.down()
 
   try {
-    await expect(button).toHaveCSS('background-color', 'rgb(36, 107, 65)')
+    await expect(button).toHaveCSS('background-color', 'rgb(24, 92, 56)')
   } finally {
     await page.mouse.up()
   }

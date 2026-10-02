@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import PageBackButton from '@src/components/PageBackButton'
+import FlockSectionNav from '@src/components/FlockSectionNav'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSummary } from '@src/types/flocks'
@@ -38,36 +38,20 @@ function FlockDetailPageLayout({
   children,
   description,
   heading,
-  onBack,
 }: FlockDetailPageLayoutProps) {
   return (
     <section
       aria-labelledby="flock-detail-heading"
-      className="mx-auto w-full py-8 sm:py-12"
+      className="relative mx-auto w-full max-w-xl py-8 sm:py-12"
     >
-      <PageBackButton label="Back to your flocks" onBack={onBack} />
-
       <header>
-        <div className="mt-6 mb-8 flex items-center gap-3">
-          <img
-            alt=""
-            className="size-12 shrink-0 rounded-lg"
-            height="48"
-            src="/icons/flock-mark.svg"
-            width="48"
-          />
-          <span className="font-display text-xl font-bold tracking-[-0.02em] text-text">
-            Flock
-          </span>
-        </div>
-
         <h1
           className="m-0 font-display text-3xl leading-tight font-bold tracking-[-0.025em] text-text"
           id="flock-detail-heading"
         >
           {heading}
         </h1>
-        <p className="mt-2 mb-0 max-w-sm leading-6 text-text-muted">
+        <p className="mt-6 mb-0 max-w-sm leading-6 text-text-muted">
           {description}
         </p>
       </header>
@@ -92,6 +76,9 @@ function FlockDetailPage({
       heading={flock.name}
       onBack={onBack}
     >
+      <div id="flock-overview">
+        <FlockSectionNav />
+      </div>
       <Button className="w-full" onClick={onInvite}>
         Invite a runner
       </Button>

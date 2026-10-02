@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 
 import AuthPageLayout from '@src/components/AuthPageLayout'
+import AppShell from '@src/components/AppShell'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { preserveAuthDestination } from './destination'
 
@@ -54,7 +55,7 @@ function ProtectedRoute() {
     )
   }
 
-  return <Outlet />
+  return <AppShell />
 }
 
 export default ProtectedRoute

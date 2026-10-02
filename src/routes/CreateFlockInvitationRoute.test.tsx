@@ -95,15 +95,6 @@ describe('CreateFlockInvitationRoute', () => {
     expect(invitationMutation.mutate).toHaveBeenCalledWith(flock.id)
   })
 
-  it('returns to the owning flock instead of depending on browser history', async () => {
-    const { router } = renderCreateFlockInvitationRoute()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Back to flock' }))
-
-    expect(await screen.findByText('Flock detail destination')).toBeVisible()
-    expect(router.state.location.pathname).toBe('/flocks/morning-runners-id')
-  })
-
   it('maps pending creation to stable duplicate-safe progress', () => {
     invitationMutation.isPending = true
     renderCreateFlockInvitationRoute()

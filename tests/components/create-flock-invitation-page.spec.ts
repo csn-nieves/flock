@@ -27,12 +27,11 @@ test('keeps the invitation workflow inside a mobile viewport', async ({
   const copyButton = component.getByRole('button', {
     name: 'Copy invitation link',
   })
-  const backButton = component.getByRole('button', { name: 'Back to flock' })
   const viewport = page.viewportSize()
 
   expect(viewport).not.toBeNull()
 
-  for (const control of [backButton, input, shareButton, copyButton]) {
+  for (const control of [input, shareButton, copyButton]) {
     const controlBox = await control.boundingBox()
 
     expect(controlBox).not.toBeNull()
