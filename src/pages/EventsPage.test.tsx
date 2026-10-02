@@ -61,6 +61,16 @@ describe('EventsPage', () => {
     )
     expect(screen.getByRole('heading', { name: 'Saturday run' })).toBeVisible()
     expect(screen.getByText(/Riverside/)).toBeVisible()
+    const inviteButton = screen.getByRole('button', { name: 'Invite runners' })
+    expect(inviteButton).toHaveClass('bg-primary', 'shrink-0')
+    expect(inviteButton.parentElement).toHaveClass('justify-between')
+    expect(screen.getByRole('button', { name: "I'm in" })).toHaveClass(
+      'bg-background',
+    )
+    expect(screen.getByRole('button', { name: 'Cancel event' })).toHaveClass(
+      'bg-danger',
+      'w-full',
+    )
   })
 
   it('sends an RSVP response for a personal event', () => {
