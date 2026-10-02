@@ -61,6 +61,9 @@ outside this slice.
   precise coordinates or street-address storage.
 - Flock members can view upcoming events, and flock owners can create events
   with a title, date/time, location, and description.
+- Authenticated runners can open `/events` from the application navigation,
+  view their upcoming personal events, and create a user-owned event through a
+  reusable modal form.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -103,9 +106,7 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Select the next product capability after a short review of the completed
-   membership slice. Events, routes, discovery, notifications, and monetization
-   remain intentionally deferred until that review chooses one.
+1. Add invitations and attendance responses for user-owned events.
 
 ## Known follow-ups
 
