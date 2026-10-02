@@ -21,8 +21,11 @@ describe('EventsPage', () => {
       <EventsPage
         events={[]}
         isCreating={false}
+        isInviting={false}
         isRefreshing={false}
+        onCopyInvitation={vi.fn()}
         onCreate={vi.fn()}
+        onInvite={vi.fn()}
       />,
     )
     expect(screen.getByText('No personal events yet')).toBeVisible()
@@ -37,8 +40,11 @@ describe('EventsPage', () => {
       <EventsPage
         events={[event]}
         isCreating={false}
+        isInviting={false}
         isRefreshing={false}
+        onCopyInvitation={vi.fn()}
         onCreate={vi.fn()}
+        onInvite={vi.fn()}
       />,
     )
     expect(screen.getByRole('heading', { name: 'Saturday run' })).toBeVisible()

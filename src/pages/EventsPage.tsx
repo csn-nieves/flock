@@ -4,6 +4,9 @@ import Modal from '@src/components/Modal'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockEvent } from '@src/types/events'
+import InvitationLinkCard, {
+  type ShareInvitationResult,
+} from './flocks/InvitationLinkCard'
 
 export type EventsPageProps = {
   events: readonly FlockEvent[]
@@ -15,6 +18,12 @@ export type EventsPageProps = {
   ) => void
   isCreating: boolean
   createError?: string
+  invitationUrl?: string
+  invitationError?: string
+  isInviting: boolean
+  onInvite: (eventId: string) => void
+  onCopyInvitation: (url: string) => Promise<void>
+  onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
 }
 
 function EventsPage({
@@ -23,8 +32,33 @@ function EventsPage({
   isCreating,
   isRefreshing,
   onCreate,
+  invitationError,
+  invitationUrl,
+  isInviting,
+  onCopyInvitation,
+  onInvite,
+  onShareInvitation,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  let invitationContent = null
+
+  if (invitationUrl) {
+    invitationContent = (
+      <div className="mt-6">
+        <InvitationLinkCard
+          invitationUrl={invitationUrl}
+          onCopy={onCopyInvitation}
+          onShare={onShareInvitation}
+        />
+      </div>
+    )
+  } else if (invitationError) {
+    invitationContent = (
+      <p className="mt-6 text-sm text-text" role="alert">
+        {invitationError}
+      </p>
+    )
+  }
 
   return (
     <section
@@ -80,10 +114,21 @@ function EventsPage({
                   {event.description}
                 </p>
               ) : null}
+              <Button
+                className="mt-3"
+                isPending={isInviting}
+                pendingLabel="Creating invitation"
+                variant="secondary"
+                onClick={() => onInvite(event.id)}
+              >
+                Invite runners
+              </Button>
             </li>
           ))}
         </ul>
       )}
+
+      {invitationContent}
 
       {isCreateOpen ? (
         <Modal

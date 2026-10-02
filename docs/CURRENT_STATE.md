@@ -66,6 +66,8 @@ outside this slice.
   reusable modal form.
 - User-owned events now have single-use, 24-hour invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
+- Personal event owners can generate invitation links from `/events`, share
+  them through native device sharing when available, or copy them manually.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -108,8 +110,7 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Add event invitation creation and sharing controls to the personal events UI.
-2. Work through the prioritized gaps in `docs/TEST_AUDIT.md`, starting with
+1. Work through the prioritized gaps in `docs/TEST_AUDIT.md`, starting with
    direct coverage for the personal events workflow.
 
 ## Known follow-ups
