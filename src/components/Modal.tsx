@@ -1,5 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 
+import Button from '@src/primitives/Button'
+
 type ModalProps = {
   children: ReactNode
   description: string
@@ -40,14 +42,14 @@ function Modal({ children, description, onClose, title }: ModalProps) {
               {description}
             </p>
           </div>
-          <button
+          <Button
             aria-label="Close"
-            className="min-h-touch min-w-touch rounded-md text-2xl leading-none text-text-muted hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="min-w-touch px-2 text-2xl leading-none text-text-muted"
             onClick={onClose}
-            type="button"
+            variant="ghost"
           >
             ×
-          </button>
+          </Button>
         </div>
         <div className="mt-5">{children}</div>
       </div>

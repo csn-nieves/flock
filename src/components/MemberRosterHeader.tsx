@@ -1,4 +1,5 @@
 import type { FlockMemberSummary } from '@src/types/flockMembers'
+import Button from '@src/primitives/Button'
 
 type MemberRosterHeaderProps = {
   isExpanded: boolean
@@ -34,15 +35,15 @@ function MemberRosterHeader({
           ))}
         </div>
       </div>
-      <button
+      <Button
         aria-controls="flock-member-roster"
         aria-expanded={isExpanded}
-        className="ml-auto min-h-touch shrink-0 rounded-md px-2 text-sm font-semibold text-text underline decoration-border underline-offset-4 hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="ml-auto shrink-0 px-2 text-sm font-semibold underline decoration-border underline-offset-4"
         onClick={onToggle}
-        type="button"
+        variant="ghost"
       >
         {isExpanded ? 'Hide' : 'Show'}
-      </button>
+      </Button>
     </div>
   )
 }
