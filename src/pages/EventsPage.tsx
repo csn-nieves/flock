@@ -131,9 +131,20 @@ function EventsPage({
               className="rounded-lg border border-border bg-background p-4"
               key={event.id}
             >
-              <h2 className="m-0 font-display text-base font-bold text-text">
-                {event.title}
-              </h2>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="m-0 font-display text-base font-bold text-text">
+                  {event.title}
+                </h2>
+                <Button
+                  className="shrink-0"
+                  isPending={isInviting}
+                  pendingLabel="Creating invitation"
+                  variant="primary"
+                  onClick={() => onInvite(event.id)}
+                >
+                  Invite runners
+                </Button>
+              </div>
               <p className="mt-1 mb-0 text-sm text-text-muted">
                 {new Date(event.startsAt).toLocaleString()} · {event.location}
               </p>
@@ -149,7 +160,7 @@ function EventsPage({
                 {event.attendance.in} in · {event.attendance.maybe} maybe ·{' '}
                 {event.attendance.out} out
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {(
                   [
                     ['in', "I'm in"],
@@ -178,23 +189,16 @@ function EventsPage({
                   {responseError}
                 </p>
               ) : null}
-              <Button
-                className="mt-3"
-                isPending={isInviting}
-                pendingLabel="Creating invitation"
-                variant="secondary"
-                onClick={() => onInvite(event.id)}
-              >
-                Invite runners
-              </Button>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 <Button
+                  className="w-full"
                   variant="secondary"
                   onClick={() => setEditingEvent(event)}
                 >
                   Edit event
                 </Button>
                 <Button
+                  className="w-full"
                   variant="danger"
                   onClick={() => setCancelingEvent(event)}
                 >
