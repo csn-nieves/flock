@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCreateUserEvent } from '@src/hooks/useCreateUserEvent'
 import { useCreateEventInvitation } from '@src/hooks/useCreateEventInvitation'
+import { useSetUserEventResponse } from '@src/hooks/useSetUserEventResponse'
 import { useUserEvents } from '@src/hooks/useUserEvents'
 import EventsPage, {
   EventsErrorPage,
@@ -13,6 +14,7 @@ function EventsRoute() {
   const eventsQuery = useUserEvents()
   const createMutation = useCreateUserEvent()
   const invitationMutation = useCreateEventInvitation()
+  const responseMutation = useSetUserEventResponse()
   const [invitationUrl, setInvitationUrl] = useState<string>()
   const navigate = useNavigate()
   const title = useMemo(() => {
@@ -89,6 +91,15 @@ function EventsRoute() {
               }
             }
           : undefined
+      }
+      isResponding={responseMutation.isPending}
+      responseError={
+        responseMutation.isError
+          ? 'We could not save your response. Check your connection and try again.'
+          : undefined
+      }
+      onRespond={(eventId, response) =>
+        responseMutation.mutate({ eventId, response })
       }
       onCreate={async (input) => {
         await createMutation.mutateAsync(input)
