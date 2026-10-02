@@ -28,6 +28,9 @@ describe('EventsPage', () => {
         onInvite={vi.fn()}
         isResponding={false}
         onRespond={vi.fn()}
+        isSaving={false}
+        onUpdate={vi.fn()}
+        onCancelEvent={vi.fn()}
       />,
     )
     expect(screen.getByText('No personal events yet')).toBeVisible()
@@ -49,6 +52,9 @@ describe('EventsPage', () => {
         onInvite={vi.fn()}
         isResponding={false}
         onRespond={vi.fn()}
+        isSaving={false}
+        onUpdate={vi.fn()}
+        onCancelEvent={vi.fn()}
       />,
     )
     expect(screen.getByRole('heading', { name: 'Saturday run' })).toBeVisible()
@@ -68,6 +74,9 @@ describe('EventsPage', () => {
         onCreate={vi.fn()}
         onInvite={vi.fn()}
         onRespond={onRespond}
+        isSaving={false}
+        onUpdate={vi.fn()}
+        onCancelEvent={vi.fn()}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
