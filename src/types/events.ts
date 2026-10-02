@@ -9,7 +9,7 @@ export type FlockEvent = {
   createdAt: string
   createdBy: string
   description: string
-  flockId: string
+  flockId: string | null
   id: string
   location: string
   startsAt: string

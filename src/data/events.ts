@@ -10,10 +10,10 @@ const eventFields =
 
 function toEvent(row: {
   created_at: string
-  canceled_at: string | null
+  canceled_at?: string | null
   created_by: string
   description: string
-  flock_id: string
+  flock_id: string | null
   id: string
   location: string
   starts_at: string
@@ -21,7 +21,7 @@ function toEvent(row: {
 }): FlockEvent {
   return {
     attendance: { in: 0, maybe: 0, out: 0, response: null },
-    canceledAt: row.canceled_at,
+    canceledAt: row.canceled_at ?? null,
     createdAt: row.created_at,
     createdBy: row.created_by,
     description: row.description,
@@ -100,7 +100,7 @@ export async function createFlockEvent(
     event_description: input.description,
   })
   if (error) throw error
-  const event = data[0]
+  const event = Array.isArray(data) ? data[0] : data
   if (!event) throw new Error('The event creation did not return an event.')
   return toEvent(event)
 }
@@ -117,7 +117,7 @@ export async function updateFlockEvent(
     event_description: input.description,
   })
   if (error) throw error
-  const event = data[0]
+  const event = Array.isArray(data) ? data[0] : data
   if (!event) throw new Error('The event update did not return an event.')
   return toEvent(event)
 }
