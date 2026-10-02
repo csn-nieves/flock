@@ -10,10 +10,10 @@ work newer than this file.
 ## Current milestone
 
 Flock has completed its first usable membership flow and now supports the
-initial personal-event invitation workflow. The next increment is operational
-control for superadmins across global event and membership records. Routes,
-pace groups, chat, notifications, and monetization remain outside the current
-slice.
+initial personal-event invitation workflow, including opt-in Web Push delivery
+for event invitations. The next increment is operational control for
+superadmins across global event and membership records. Routes, pace groups,
+chat, and monetization remain outside the current slice.
 
 ## Completed foundation
 
@@ -85,6 +85,15 @@ slice.
 - Eligible runners see pending personal-event invitations on the Events screen
   and can accept them in app. Shared links remain an optional fallback rather
   than the required delivery path.
+- Runners can opt each supported browser or installed PWA into personal-event
+  invitation alerts from Settings. Standards-based Web Push queues targeted
+  runners, current flock members, and later flock joiners; server-side claims
+  recheck live eligibility, deliver across registered devices, remove stale
+  endpoints, and deep-link back to the Events invitation inbox.
+- iPhone and iPad notification setup explains the required Home Screen install.
+  Hosted delivery still requires the documented VAPID secrets, frontend public
+  key, Edge Function deployment, and authenticated database webhook; none are
+  applied to a hosted environment by this branch.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -133,14 +142,14 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Define cross-device web-push permission, subscription, delivery, and cleanup
-   behavior, then select the push provider for that focused branch.
-2. Extend the superadmin dashboard with global event and membership controls.
+1. Extend the superadmin dashboard with global event and membership controls.
 
 ## Known follow-ups
 
 - Revisit route-level code splitting as the application grows; the current
   production build reports a JavaScript chunk above Vite's 500 kB warning.
+- Add notification categories, delivery retry scheduling, and an operational
+  delivery dashboard only after real notification volume justifies them.
 - Expand the current visual foundation into a broader component design system
   only after enough real screens exist to reveal repeated product needs.
 - Extract a reusable authenticated-PWA starter only after the first complete

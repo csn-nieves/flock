@@ -17,3 +17,6 @@ otp_length = 6
 [auth.email.template.magic_link]
 subject = "{{ .Token }} is your Flock sign-in code"
 content_path = "./supabase/templates/magic_link.html"
+
+[functions.send-event-invitation-notification]
+verify_jwt = false

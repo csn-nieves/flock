@@ -2,10 +2,20 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import SettingsPage from './SettingsPage'
 
+const defaultProps = {
+  notificationPendingAction: undefined,
+  notificationStatus: 'off' as const,
+  onDisableNotifications: vi.fn(),
+  onEnableNotifications: vi.fn(),
+  onRetryNotifications: vi.fn(),
+  onThemeChange: vi.fn(),
+  preference: 'system' as const,
+}
+
 describe('SettingsPage', () => {
   it('renders all appearance choices and selects the current preference', () => {
     const onThemeChange = vi.fn()
-    render(<SettingsPage onThemeChange={onThemeChange} preference="system" />)
+    render(<SettingsPage {...defaultProps} onThemeChange={onThemeChange} />)
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Appearance' })).toBeVisible()
     expect(
@@ -22,11 +32,55 @@ describe('SettingsPage', () => {
 
   it('reflects light and dark preferences', () => {
     const { rerender } = render(
-      <SettingsPage onThemeChange={() => undefined} preference="light" />,
+      <SettingsPage {...defaultProps} preference="light" />,
     )
     expect(screen.getByRole('radio', { name: 'Light mode' })).toBeChecked()
 
-    rerender(<SettingsPage onThemeChange={() => undefined} preference="dark" />)
+    rerender(<SettingsPage {...defaultProps} preference="dark" />)
     expect(screen.getByRole('radio', { name: 'Dark mode' })).toBeChecked()
+  })
+
+  it('lets a runner turn event invitation alerts on for this device', () => {
+    const onEnableNotifications = vi.fn()
+    render(
+      <SettingsPage
+        {...defaultProps}
+        onEnableNotifications={onEnableNotifications}
+      />,
+    )
+
+    expect(screen.getByText('Off for this device')).toBeVisible()
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Turn on notifications' }),
+    )
+    expect(onEnableNotifications).toHaveBeenCalledOnce()
+  })
+
+  it('explains the iPhone and iPad Home Screen requirement', () => {
+    render(
+      <SettingsPage {...defaultProps} notificationStatus="needs-ios-install" />,
+    )
+
+    expect(
+      screen.getByText('Add Flock to your Home Screen first'),
+    ).toBeVisible()
+    expect(screen.getByText(/Share → Add to Home Screen/)).toBeVisible()
+    expect(
+      screen.queryByRole('button', { name: 'Turn on notifications' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps notification recovery on the page after a sync error', () => {
+    const onRetryNotifications = vi.fn()
+    render(
+      <SettingsPage
+        {...defaultProps}
+        notificationStatus="error"
+        onRetryNotifications={onRetryNotifications}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(onRetryNotifications).toHaveBeenCalledOnce()
   })
 })

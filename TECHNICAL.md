@@ -15,11 +15,34 @@ Flock will begin as a single-page application. Server-side rendering is not requ
 
 ## Progressive web app
 
-- Use **vite-plugin-pwa** to generate the web app manifest and service worker.
+- Use **vite-plugin-pwa** to generate the web app manifest and compile Flock's
+  custom service worker. Workbox owns precaching and SPA navigation fallback;
+  the custom worker also handles Web Push and notification clicks.
 - Support installation on mobile home screens from the first release.
 - Cache the application shell and essential static assets.
 - Do not support offline data changes initially. Membership actions require a network connection and must show a clear connection error when unavailable.
 - Prompt people before activating an update that would reload an open screen.
+
+### Push notifications
+
+- Use standards-based Web Push rather than a proprietary notification SDK.
+  Browser push services remain the transport; a Supabase Edge Function signs
+  and sends messages with VAPID.
+- Request notification permission only after a direct action in Settings.
+  Store one private subscription per browser or installed PWA, and let people
+  disable only the current device.
+- Keep the Events invitation inbox authoritative. A notification only announces
+  a server-authorized pending invitation and deep-links to that inbox.
+- Queue targeted recipients and current flock members when an invitation is
+  created. Queue a later joiner while a universal flock invitation is active,
+  and recheck membership, acceptance, cancellation, event time, and expiration
+  immediately before delivery.
+- Remove device subscriptions when a push service returns `404` or `410`.
+  Delivery is best effort: operating systems and browsers may still suppress an
+  alert after Flock successfully hands it to the push service.
+- Keep the VAPID private key only in Supabase Edge Function secrets. The VAPID
+  public key is intentionally supplied to both the frontend build and Edge
+  Function.
 
 ## Backend and data
 
@@ -220,7 +243,6 @@ Do not select these until the corresponding feature branch begins:
 - Map and route provider
 - Email delivery provider
 - Analytics and error monitoring
-- Push notification provider
 - Payment provider and subscription model
 
 ## References

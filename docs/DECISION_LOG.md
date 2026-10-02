@@ -541,3 +541,34 @@ means it is the current direction, not that it can never change.
   and device-cleanup foundation and are not implied by this decision.
 - **Revisit when:** The push-notification branch selects a provider and defines
   per-device permission, subscription, and delivery behavior.
+
+## D031 — Deliver invitation alerts with standards-based Web Push
+
+- **Status:** Accepted; code complete, hosted secrets and webhook configuration
+  pending deployment
+- **Decision:** Use browser push services through the Web Push standard rather
+  than adding OneSignal, Firebase Messaging, or another proprietary client SDK.
+  A Supabase Edge Function signs encrypted requests with VAPID and delivers to
+  every subscription currently registered for the invited runner.
+- **Permission behavior:** Never prompt on page load. Runners opt in from
+  Settings and control the current browser or installed PWA independently.
+  iPhone and iPad users must first add Flock to the Home Screen because Web Push
+  is available there only to installed web apps. A denied permission remains a
+  browser/device-settings recovery path rather than repeated prompts.
+- **Authorization and lifecycle:** Subscription endpoints and keys stay in the
+  private schema. Invitation creation queues recipient-bound jobs, later flock
+  joins queue active universal invitations, and the delivery claim rechecks the
+  same membership, acceptance, cancellation, event-time, and expiration rules
+  as the inbox. Push-service `404` and `410` responses remove stale devices.
+- **Why:** Standards-based delivery covers supported desktop browsers, Android,
+  macOS Safari, and installed iPhone/iPad PWAs without adding a new analytics or
+  user-data processor. It also keeps the persisted Events inbox authoritative
+  instead of making a third-party notification product part of event access.
+- **Tradeoffs:** Hosted deployment needs VAPID secrets plus a database webhook,
+  and successful push-service delivery cannot guarantee that an operating
+  system will display an alert. Browser and OS support differs, especially on
+  iOS where non-installed browser tabs cannot subscribe.
+- **Revisit when:** Native applications need APNs/FCM tokens, delivery volume
+  warrants a managed provider, the product needs notification preferences by
+  category, or operational evidence requires retries beyond the current
+  idempotent job and webhook path.
