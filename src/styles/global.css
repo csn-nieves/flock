@@ -12,6 +12,10 @@
   --color-surface-subtle: var(--flock-color-surface-subtle);
   --color-border: var(--flock-color-border);
   --color-accent: var(--flock-color-accent);
+  --color-danger: var(--flock-color-danger);
+  --color-danger-bright: var(--flock-color-danger-bright);
+  --color-danger-strong: var(--flock-color-danger-strong);
+  --color-on-danger: var(--flock-color-on-danger);
   --color-focus: var(--flock-color-focus);
   --font-display: var(--flock-font-display);
   --font-sans: var(--flock-font-body);

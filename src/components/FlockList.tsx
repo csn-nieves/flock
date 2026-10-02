@@ -1,4 +1,5 @@
 import type { FlockSummary } from '@src/types/flocks'
+import Button from '@src/primitives/Button'
 
 export type FlockListProps = {
   flocks: readonly FlockSummary[]
@@ -14,11 +15,11 @@ function FlockList({ flocks, onSelect }: FlockListProps) {
     <ul aria-label="Your flocks" className="m-0 grid list-none gap-3 p-0">
       {flocks.map((flock) => (
         <li key={flock.id}>
-          <button
+          <Button
             aria-label={`Open ${flock.name}`}
-            className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-4 rounded-lg border border-border bg-background px-4 py-3 text-left transition-[background-color,border-color] duration-fast ease-out hover:border-primary hover:bg-surface-subtle active:border-primary-strong active:bg-surface-subtle"
-            type="button"
+            className="w-full justify-between gap-4 rounded-lg px-4 py-3 text-left hover:border-primary active:border-primary-strong"
             onClick={() => onSelect(flock.id)}
+            variant="secondary"
           >
             <span className="min-w-0 font-display text-base font-bold leading-6 tracking-[-0.01em] text-text [overflow-wrap:anywhere]">
               {flock.name}
@@ -29,7 +30,7 @@ function FlockList({ flocks, onSelect }: FlockListProps) {
             >
               Open <span>→</span>
             </span>
-          </button>
+          </Button>
         </li>
       ))}
     </ul>

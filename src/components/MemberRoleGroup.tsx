@@ -2,6 +2,7 @@ import type {
   FlockMemberRole,
   FlockMemberSummary,
 } from '@src/types/flockMembers'
+import Button from '@src/primitives/Button'
 
 type MemberRoleGroupProps = {
   isCollapsed: boolean
@@ -19,11 +20,11 @@ function MemberRoleGroup({
   const label = role === 'owner' ? 'Owners' : 'Members'
   return (
     <section>
-      <button
+      <Button
         aria-expanded={!isCollapsed}
-        className="flex min-h-touch w-full items-center justify-between rounded-md px-2 text-left font-semibold text-text hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="w-full justify-between px-2 text-left font-semibold"
         onClick={onToggle}
-        type="button"
+        variant="ghost"
       >
         <span>
           {label} ({members.length})
@@ -32,7 +33,7 @@ function MemberRoleGroup({
           aria-hidden="true"
           className={`inline-block size-2.5 border-r-2 border-b-2 border-text transition-transform ${isCollapsed ? 'rotate-45 -translate-y-0.5' : '-rotate-[135deg] translate-y-0.5'}`}
         />
-      </button>
+      </Button>
       {!isCollapsed ? (
         <ul className="m-0 list-none divide-y divide-border overflow-hidden rounded-lg border border-border bg-background p-0">
           {members.map((member) => (

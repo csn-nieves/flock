@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react'
 
 import PendingIndicator from './PendingIndicator'
 
-export type ButtonVariant = 'primary' | 'secondary'
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost'
 
 type ButtonPendingProps =
   | {
@@ -27,6 +27,10 @@ const variantClasses: Record<ButtonVariant, string> = {
     'border border-transparent bg-primary text-on-primary hover:bg-primary-bright active:bg-primary-strong active:text-background disabled:bg-primary disabled:text-on-primary',
   secondary:
     'border border-border bg-background text-text hover:bg-surface-subtle active:border-text active:bg-surface-subtle disabled:border-border disabled:bg-background disabled:text-text',
+  danger:
+    'border border-transparent bg-danger text-on-danger hover:bg-danger-bright active:bg-danger-strong active:text-on-danger disabled:bg-danger disabled:text-on-danger',
+  ghost:
+    'border border-transparent bg-transparent text-text hover:bg-surface-subtle active:bg-surface-subtle disabled:bg-transparent disabled:text-text-muted',
 }
 
 function Button({

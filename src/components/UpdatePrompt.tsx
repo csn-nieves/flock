@@ -1,5 +1,7 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 
+import Button from '@src/primitives/Button'
+
 function UpdatePrompt() {
   const {
     needRefresh: [needsRefresh, setNeedsRefresh],
@@ -18,20 +20,19 @@ function UpdatePrompt() {
     >
       <p className="m-0 leading-6">A new version of Flock is ready.</p>
       <div className="flex flex-wrap gap-2">
-        <button
-          className="min-h-touch cursor-pointer rounded-md border-0 bg-primary px-4 py-2 font-bold leading-5 text-on-primary transition-[color,background-color,transform] duration-fast ease-out hover:bg-primary-bright active:translate-y-px"
-          type="button"
+        <Button
+          className="bg-primary text-on-primary hover:bg-primary-bright"
           onClick={() => void updateServiceWorker(true)}
         >
           Update now
-        </button>
-        <button
-          className="min-h-touch cursor-pointer rounded-md border border-white/55 bg-transparent px-4 py-2 font-bold leading-5 text-background transition-[color,background-color,transform] duration-fast ease-out hover:bg-white/12 active:translate-y-px"
-          type="button"
+        </Button>
+        <Button
+          className="border-white/55 text-background hover:bg-white/12"
           onClick={() => setNeedsRefresh(false)}
+          variant="ghost"
         >
           Later
-        </button>
+        </Button>
       </div>
     </aside>
   )
