@@ -14,9 +14,17 @@ const flocksQuery = vi.hoisted(() => ({
   isPending: false,
   refetch: vi.fn(),
 }))
+const createFlockMutation = vi.hoisted(() => ({
+  isError: false,
+  isPending: false,
+  mutate: vi.fn(),
+}))
 
 vi.mock('@src/hooks/useFlocks', () => ({
   useFlocks: () => flocksQuery,
+}))
+vi.mock('@src/hooks/useCreateFlock', () => ({
+  useCreateFlock: () => createFlockMutation,
 }))
 
 const flocks: FlockSummary[] = [
@@ -114,8 +122,9 @@ describe('FlocksRoute', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Create a flock' }))
 
-    expect(await screen.findByText('Create flock destination')).toBeVisible()
-    expect(router.state.location.pathname).toBe('/flocks/new')
+    expect(await screen.findByRole('dialog')).toBeVisible()
+    expect(screen.getByRole('textbox', { name: 'Flock name' })).toBeVisible()
+    expect(router.state.location.pathname).toBe('/flocks')
   })
 
   it('presents safe query recovery and retries without exposing internals', () => {

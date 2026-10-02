@@ -49,6 +49,14 @@ const updateEventMock = vi.hoisted(() =>
 const cancelEventMock = vi.hoisted(() =>
   vi.fn(() => ({ isError: false, isPending: false, mutateAsync: vi.fn() })),
 )
+const invitationMutationMock = vi.hoisted(() =>
+  vi.fn(() => ({
+    data: undefined,
+    isError: false,
+    isPending: false,
+    mutate: vi.fn(),
+  })),
+)
 
 vi.mock('@src/hooks/useFlock', () => ({
   useFlock: useFlockMock,
@@ -80,6 +88,10 @@ vi.mock('@src/hooks/useUpdateFlockEvent', () => ({
 
 vi.mock('@src/hooks/useCancelFlockEvent', () => ({
   useCancelFlockEvent: cancelEventMock,
+}))
+
+vi.mock('@src/hooks/useCreateFlockInvitation', () => ({
+  useCreateFlockInvitation: invitationMutationMock,
 }))
 
 const flock: FlockSummary = {
@@ -168,12 +180,11 @@ describe('FlockDetailRoute', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Invite a runner' }))
 
+    expect(await screen.findByRole('dialog')).toBeVisible()
     expect(
-      await screen.findByText('Create invitation destination'),
+      screen.getByRole('button', { name: 'Create invitation link' }),
     ).toBeVisible()
-    expect(router.state.location.pathname).toBe(
-      '/flocks/morning-runners-id/invitations/new',
-    )
+    expect(router.state.location.pathname).toBe('/flocks/morning-runners-id')
   })
 
   it('shows an honest initial loading state', () => {

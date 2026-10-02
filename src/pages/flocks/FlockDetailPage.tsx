@@ -79,7 +79,7 @@ function FlockDetailPage({
       <div id="flock-overview">
         <FlockSectionNav />
       </div>
-      <Button className="w-full" onClick={onInvite}>
+      <Button className="mt-6 w-full" onClick={onInvite}>
         Invite a runner
       </Button>
       {isRefreshing ? (
