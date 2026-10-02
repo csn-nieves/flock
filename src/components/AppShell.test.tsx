@@ -29,6 +29,12 @@ describe('AppShell', () => {
       screen.getAllByRole('link', { name: 'Events' }).length,
     ).toBeGreaterThan(0)
     expect(screen.getAllByText('Local').length).toBeGreaterThan(0)
+    expect(screen.getByRole('complementary')).toHaveClass(
+      'h-dvh',
+      'max-h-dvh',
+      'sticky',
+      'top-0',
+    )
   })
 
   it('opens and closes the mobile menu with Escape', () => {

@@ -131,7 +131,7 @@ function AppShell() {
         ) : null}
       </header>
 
-      <aside className="hidden w-60 shrink-0 border-r border-border bg-surface-subtle lg:flex lg:flex-col lg:p-5">
+      <aside className="sticky top-0 hidden h-dvh max-h-dvh w-60 shrink-0 self-start overflow-y-auto border-r border-border bg-surface-subtle lg:flex lg:flex-col lg:p-5">
         <NavLink
           aria-label="Flock home"
           className="flex items-center gap-3 font-display text-xl font-bold text-text"
