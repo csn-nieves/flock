@@ -110,8 +110,9 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Work through the prioritized gaps in `docs/TEST_AUDIT.md`, starting with
-   direct coverage for the personal events workflow.
+1. Address the remaining lower-risk shell navigation and event mutation
+   resilience coverage documented in `docs/TEST_AUDIT.md` when those areas
+   change next.
 
 ## Known follow-ups
 
