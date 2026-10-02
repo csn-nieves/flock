@@ -120,6 +120,13 @@ Flock should feel like the moment a run club gathers at a familiar trailhead: en
 
 Shamrock `#369F60` is the brand primary. Deep navy carries text and focus because it remains legible in daylight. Warm coral is a restrained accent for exceptional emphasis, not a competing primary. The application canvas is true white; pale green-gray is reserved for subtle supporting surfaces. Filled controls must use a foreground/background pairing that meets WCAG 2.2 AA rather than assuming white text works on shamrock.
 
+Flock supports light, dark, and device-synchronized themes. Dark mode uses a
+deep green-black canvas, softened green-gray surfaces, and light text rather
+than pure black and white to reduce glare during low-light use. The semantic
+runtime tokens in `src/styles/tokens.css` are the single source of truth for
+both palettes; components must continue to consume semantic Tailwind aliases
+instead of adding theme-specific colors locally.
+
 ## Typography
 
 Display moments may use Avenir Next or the closest rounded system fallback. Product copy uses the system sans stack to avoid a blocking font download and preserve native legibility. Body text starts at 16px on phones. Sentence case is the default; uppercase is reserved for compact metadata only when letter spacing and readability are preserved.

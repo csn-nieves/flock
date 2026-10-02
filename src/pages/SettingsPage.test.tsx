@@ -4,9 +4,11 @@ import SettingsPage from './SettingsPage'
 
 describe('SettingsPage', () => {
   it('renders appearance settings copy', () => {
-    render(<SettingsPage />)
+    render(<SettingsPage onThemeChange={() => undefined} preference="system" />)
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Appearance' })).toBeVisible()
-    expect(screen.getByText(/coming soon/)).toBeVisible()
+    expect(
+      screen.getByRole('radio', { name: 'Use device setting' }),
+    ).toBeChecked()
   })
 })

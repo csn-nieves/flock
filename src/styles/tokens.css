@@ -32,3 +32,23 @@
     0 0 0 0.3125rem var(--flock-color-focus);
   --flock-shadow-floating: 0 0.75rem 2.5rem rgb(16 36 62 / 18%);
 }
+
+[data-theme='dark'] {
+  --flock-color-primary: #56c982;
+  --flock-color-primary-bright: #6fda98;
+  --flock-color-primary-strong: #3cae6b;
+  --flock-color-on-primary: #082315;
+  --flock-color-text: #e8f0eb;
+  --flock-color-text-muted: #a9b9b0;
+  --flock-color-background: #101714;
+  --flock-color-surface-subtle: #18231e;
+  --flock-color-border: #304139;
+  --flock-color-accent: #f17b68;
+  --flock-color-danger: #e16a6c;
+  --flock-color-danger-bright: #f18080;
+  --flock-color-danger-strong: #c85157;
+  --flock-color-on-danger: #240b0d;
+  --flock-color-focus: #b9f4cc;
+  --flock-color-scrollbar-thumb: #557568;
+  --flock-color-scrollbar-track: #18231e;
+}
