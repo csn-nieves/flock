@@ -436,6 +436,24 @@ history. Row Level Security remains the authority for the global read, and
 database coverage verifies that a superadmin can cancel another runner's
 personal event while preserving its row.
 
+## Superadmin membership operations
+
+The admin dashboard loads global flock memberships in independent pages of 20,
+ordered by join date with the latest first. Membership page state uses its own
+`membersPage` URL parameter so event and membership navigation remain
+independent and restorable. Each record shows the runner, flock, role, and join
+date; the responsive representation preserves the same information and action
+on phone and desktop.
+
+Only ordinary `member` records can be removed. Owner memberships are the
+database mirror of each flock's canonical `owner_id`, so the interface marks
+them as protected and the database function rejects their removal. The
+`remove_flock_member` security-definer function requires the server-issued
+`superadmin` role, remains safe to repeat after a completed removal, and does
+not grant clients direct membership-table writes. Removal revokes access that
+depends on current flock membership while preserving the runner account, flock,
+and independently owned or previously accepted personal events.
+
 ## Personal event invitation audiences
 
 Runner-owned personal events can invite either one discovered runner or the

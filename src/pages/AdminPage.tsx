@@ -1,8 +1,14 @@
 import { useMemo, useState } from 'react'
 
 import Modal from '@src/components/Modal'
-import type { AdminEvent, AdminFlock, AdminUser } from '@src/data/admin'
+import type {
+  AdminEvent,
+  AdminFlock,
+  AdminMembership,
+  AdminUser,
+} from '@src/data/admin'
 import Button from '@src/primitives/Button'
+import AdminMembershipSection from './admin/AdminMembershipSection'
 
 type AdminPageProps = {
   currentEventPage: number
@@ -10,14 +16,23 @@ type AdminPageProps = {
   flocks: readonly AdminFlock[]
   isCancelingEvent: boolean
   isDeleting: boolean
+  isRemovingMembership: boolean
+  memberships: readonly AdminMembership[]
   onCancelEvent: (eventId: string) => Promise<void>
   onDeleteFlock: (flockId: string) => Promise<void>
   onDismissCancelEventError: () => void
+  onDismissRemoveMembershipError: () => void
   onEventPageChange: (page: number) => void
+  onMembershipPageChange: (page: number) => void
+  onRemoveMembership: (membership: AdminMembership) => Promise<void>
+  currentMembershipPage: number
   totalEventCount: number
   totalEventPages: number
+  totalMembershipCount: number
+  totalMembershipPages: number
   users: readonly AdminUser[]
   cancelEventError?: string
+  removeMembershipError?: string
 }
 
 export function AdminLoadingPage() {
@@ -65,16 +80,25 @@ export function AdminErrorPage({
 function AdminPage({
   cancelEventError,
   currentEventPage,
+  currentMembershipPage,
   events,
   flocks,
   isCancelingEvent,
   isDeleting,
+  isRemovingMembership,
+  memberships,
   onCancelEvent,
   onDeleteFlock,
   onDismissCancelEventError,
+  onDismissRemoveMembershipError,
   onEventPageChange,
+  onMembershipPageChange,
+  onRemoveMembership,
+  removeMembershipError,
   totalEventCount,
   totalEventPages,
+  totalMembershipCount,
+  totalMembershipPages,
   users,
 }: AdminPageProps) {
   const [cancelingEvent, setCancelingEvent] = useState<AdminEvent | null>(null)
@@ -101,7 +125,7 @@ function AdminPage({
         Admin
       </h1>
       <p className="mt-2 text-text-muted">
-        Global event, flock, and runner management.
+        Global event, flock, membership, and runner management.
       </p>
 
       <section aria-labelledby="admin-events-heading" className="mt-8">
@@ -235,6 +259,19 @@ function AdminPage({
           ))}
         </ul>
       </section>
+
+      <AdminMembershipSection
+        currentPage={currentMembershipPage}
+        isRemoving={isRemovingMembership}
+        memberships={memberships}
+        onDismissRemoveError={onDismissRemoveMembershipError}
+        onPageChange={onMembershipPageChange}
+        onRemove={onRemoveMembership}
+        removeError={removeMembershipError}
+        totalCount={totalMembershipCount}
+        totalPages={totalMembershipPages}
+        userNames={userNames}
+      />
 
       <section aria-labelledby="admin-users-heading" className="mt-8">
         <h2

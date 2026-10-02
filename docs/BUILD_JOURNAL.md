@@ -1133,6 +1133,27 @@ metadata, responsive layout, confirmation, recovery, and cancellation of a
 personal event owned by another runner. Global membership controls remain the
 next focused admin increment.
 
+## 2026-10-02 — Giving superadmins global membership controls
+
+### Protected member removal without ownership drift
+
+The admin dashboard now lists every flock membership in server-paginated pages
+that remain independent from event pagination. Each record identifies the
+runner, flock, role, and join date. Ordinary members expose a confirmed removal
+action; owner records explain why they cannot be removed from this workflow.
+
+Removal is enforced by a new superadmin-only database function rather than a
+direct table grant. It is safe to repeat after uncertain completion, rejects
+owner removal, and leaves the runner account, flock, and personal events
+intact. The interface waits for server confirmation, keeps failures inside the
+dialog, announces success, and restores focus to the membership section.
+
+Data, hook, route, page, browser-component, and pgTAP coverage verify paging,
+role validation, owner protection, authorization, retry safety, responsive
+layout, and success/failure behavior. The current planned admin operations are
+complete; the next product milestone should follow organizer and runner
+validation rather than speculative admin expansion.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

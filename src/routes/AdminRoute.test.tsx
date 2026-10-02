@@ -1,9 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { AdminEventPage, AdminFlock, AdminUser } from '@src/data/admin'
+import type {
+  AdminEventPage,
+  AdminFlock,
+  AdminMembershipPage,
+  AdminUser,
+} from '@src/data/admin'
 import AdminRoute from './AdminRoute'
 
 const auth = vi.hoisted(() => ({
@@ -38,6 +43,24 @@ const flocksQuery = vi.hoisted(() => ({
   isPending: false,
   refetch: vi.fn(),
 }))
+const membershipsQuery = vi.hoisted(() => ({
+  data: {
+    memberships: [
+      {
+        flockId: 'flock-id',
+        flockName: 'Morning Miles',
+        joinedAt: '2026-10-01T12:00:00Z',
+        role: 'member',
+        userId: 'runner-id',
+      },
+    ],
+    totalCount: 42,
+  } as AdminMembershipPage | undefined,
+  isError: false,
+  isFetching: false,
+  isPending: false,
+  refetch: vi.fn(),
+}))
 const usersQuery = vi.hoisted(() => ({
   data: [] as AdminUser[] | undefined,
   isError: false,
@@ -55,7 +78,14 @@ const deleteMutation = vi.hoisted(() => ({
   isPending: false,
   mutateAsync: vi.fn(),
 }))
+const removeMembershipMutation = vi.hoisted(() => ({
+  isError: false,
+  isPending: false,
+  mutateAsync: vi.fn(),
+  reset: vi.fn(),
+}))
 const useAdminEvents = vi.hoisted(() => vi.fn(() => eventsQuery))
+const useAdminMemberships = vi.hoisted(() => vi.fn(() => membershipsQuery))
 
 vi.mock('@src/hooks/useAuthSession', () => ({
   useAuthSession: () => auth,
@@ -63,6 +93,7 @@ vi.mock('@src/hooks/useAuthSession', () => ({
 vi.mock('@src/hooks/useAdminDashboard', () => ({
   useAdminEvents,
   useAdminFlocks: () => flocksQuery,
+  useAdminMemberships,
   useAdminUsers: () => usersQuery,
 }))
 vi.mock('@src/hooks/useCancelAdminEvent', () => ({
@@ -70,6 +101,9 @@ vi.mock('@src/hooks/useCancelAdminEvent', () => ({
 }))
 vi.mock('@src/hooks/useDeleteAdminFlock', () => ({
   useDeleteAdminFlock: () => deleteMutation,
+}))
+vi.mock('@src/hooks/useRemoveAdminMembership', () => ({
+  useRemoveAdminMembership: () => removeMembershipMutation,
 }))
 
 function renderAdminRoute(initialEntry = '/admin') {
@@ -109,6 +143,21 @@ describe('AdminRoute', () => {
     flocksQuery.isError = false
     flocksQuery.isFetching = false
     flocksQuery.isPending = false
+    membershipsQuery.data = {
+      memberships: [
+        {
+          flockId: 'flock-id',
+          flockName: 'Morning Miles',
+          joinedAt: '2026-10-01T12:00:00Z',
+          role: 'member',
+          userId: 'runner-id',
+        },
+      ],
+      totalCount: 42,
+    }
+    membershipsQuery.isError = false
+    membershipsQuery.isFetching = false
+    membershipsQuery.isPending = false
     usersQuery.data = []
     usersQuery.isError = false
     usersQuery.isFetching = false
@@ -117,9 +166,14 @@ describe('AdminRoute', () => {
 
   it('keeps event pagination in the URL', () => {
     const router = renderAdminRoute()
+    const eventNavigation = screen.getByRole('navigation', {
+      name: 'Event pages',
+    })
 
     expect(document.title).toBe('Admin — Flock')
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    fireEvent.click(
+      within(eventNavigation).getByRole('button', { name: 'Next' }),
+    )
     expect(router.state.location.search).toBe('?page=2')
     expect(useAdminEvents).toHaveBeenLastCalledWith(2)
   })
@@ -136,6 +190,27 @@ describe('AdminRoute', () => {
 
     await vi.waitFor(() =>
       expect(outOfRangeRouter.state.location.search).toBe('?page=3'),
+    )
+  })
+
+  it('keeps membership pagination independent in the URL', () => {
+    const router = renderAdminRoute('/admin?page=2')
+    const membershipNavigation = screen.getByRole('navigation', {
+      name: 'Membership pages',
+    })
+
+    fireEvent.click(
+      within(membershipNavigation).getByRole('button', { name: 'Next' }),
+    )
+    expect(router.state.location.search).toBe('?page=2&membersPage=2')
+    expect(useAdminMemberships).toHaveBeenLastCalledWith(2)
+  })
+
+  it('clamps an out-of-range membership page', async () => {
+    const router = renderAdminRoute('/admin?membersPage=99')
+
+    await vi.waitFor(() =>
+      expect(router.state.location.search).toBe('?membersPage=3'),
     )
   })
 
@@ -164,6 +239,7 @@ describe('AdminRoute', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
     expect(eventsQuery.refetch).toHaveBeenCalledOnce()
     expect(flocksQuery.refetch).toHaveBeenCalledOnce()
+    expect(membershipsQuery.refetch).toHaveBeenCalledOnce()
     expect(usersQuery.refetch).toHaveBeenCalledOnce()
   })
 

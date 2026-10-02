@@ -2,8 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   ADMIN_EVENTS_PAGE_SIZE,
+  ADMIN_MEMBERSHIPS_PAGE_SIZE,
   cancelAdminEvent,
   listAdminEvents,
+  listAdminMemberships,
+  removeAdminMembership,
 } from './admin'
 
 const mocks = vi.hoisted(() => ({
@@ -99,12 +102,101 @@ describe('admin data', () => {
     })
   })
 
+  it('lists one server-paginated page of global memberships', async () => {
+    const query = {
+      order: vi.fn(),
+      range: vi.fn(),
+      select: vi.fn(),
+    }
+    query.select.mockReturnValue(query)
+    query.order.mockReturnValue(query)
+    query.range.mockResolvedValue({
+      count: 28,
+      data: [
+        {
+          flock_id: 'flock-id',
+          flocks: { name: 'Morning Miles' },
+          joined_at: '2026-10-01T12:00:00Z',
+          role: 'member',
+          user_id: 'runner-id',
+        },
+      ],
+      error: null,
+    })
+    mocks.from.mockReturnValue(query)
+
+    await expect(listAdminMemberships(2)).resolves.toEqual({
+      memberships: [
+        {
+          flockId: 'flock-id',
+          flockName: 'Morning Miles',
+          joinedAt: '2026-10-01T12:00:00Z',
+          role: 'member',
+          userId: 'runner-id',
+        },
+      ],
+      totalCount: 28,
+    })
+    expect(mocks.from).toHaveBeenCalledWith('flock_members')
+    expect(query.select).toHaveBeenCalledWith(
+      expect.stringContaining('flocks(name)'),
+      { count: 'exact' },
+    )
+    expect(query.order).toHaveBeenCalledWith('joined_at', {
+      ascending: false,
+    })
+    expect(query.range).toHaveBeenCalledWith(
+      ADMIN_MEMBERSHIPS_PAGE_SIZE,
+      ADMIN_MEMBERSHIPS_PAGE_SIZE * 2 - 1,
+    )
+  })
+
+  it('rejects an unsupported membership role at the admin data boundary', async () => {
+    const query = {
+      order: vi.fn(),
+      range: vi.fn(),
+      select: vi.fn(),
+    }
+    query.select.mockReturnValue(query)
+    query.order.mockReturnValue(query)
+    query.range.mockResolvedValue({
+      count: 1,
+      data: [
+        {
+          flock_id: 'flock-id',
+          flocks: { name: 'Morning Miles' },
+          joined_at: '2026-10-01T12:00:00Z',
+          role: 'administrator',
+          user_id: 'runner-id',
+        },
+      ],
+      error: null,
+    })
+    mocks.from.mockReturnValue(query)
+
+    await expect(listAdminMemberships(1)).rejects.toThrow(
+      'unsupported member role',
+    )
+  })
+
   it('cancels an event through the authorized event RPC', async () => {
     mocks.rpc.mockResolvedValue({ data: null, error: null })
 
     await expect(cancelAdminEvent('event-id')).resolves.toBeUndefined()
     expect(mocks.rpc).toHaveBeenCalledWith('cancel_flock_event', {
       target_event_id: 'event-id',
+    })
+  })
+
+  it('removes a membership through the superadmin RPC', async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null })
+
+    await expect(
+      removeAdminMembership({ flockId: 'flock-id', userId: 'runner-id' }),
+    ).resolves.toBeUndefined()
+    expect(mocks.rpc).toHaveBeenCalledWith('remove_flock_member', {
+      target_flock_id: 'flock-id',
+      target_user_id: 'runner-id',
     })
   })
 })

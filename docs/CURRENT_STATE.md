@@ -12,8 +12,8 @@ work newer than this file.
 Flock has completed its first usable membership flow and now supports the
 initial personal-event invitation workflow, including opt-in Web Push delivery
 for event invitations. Superadmins can now review and cancel global event
-records. The next increment is operational control for superadmins across
-global membership records. Routes, pace groups, chat, and monetization remain
+records and remove ordinary members from any flock. The current planned admin
+operations are complete. Routes, pace groups, chat, and monetization remain
 outside the current slice.
 
 ## Completed foundation
@@ -121,6 +121,11 @@ outside the current slice.
   and personal event, including creator, type, schedule, location, and status.
   A superadmin can cancel an upcoming event through the existing protected
   cancellation transaction without deleting its record or attendance history.
+- Superadmins can review all flock memberships in a separate server-paginated
+  view and remove an ordinary member through a protected database function.
+  Owner memberships remain visibly protected because ownership transfer is not
+  supported; removing a member does not delete the runner, flock, or personal
+  events.
 
 ## Current application boundary
 
@@ -147,7 +152,9 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Extend the superadmin dashboard with global membership controls.
+1. Validate the current flock, event, invitation, notification, and admin
+   workflows with organizers and runners before selecting the next product
+   milestone.
 
 ## Known follow-ups
 
