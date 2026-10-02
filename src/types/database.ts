@@ -40,6 +40,7 @@ export type Database = {
       }
       flock_events: {
         Row: {
+          canceled_at: string | null
           created_at: string
           created_by: string
           description: string
@@ -50,6 +51,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          canceled_at?: string | null
           created_at?: string
           created_by: string
           description?: string
@@ -60,6 +62,7 @@ export type Database = {
           title: string
         }
         Update: {
+          canceled_at?: string | null
           created_at?: string
           created_by?: string
           description?: string
@@ -178,6 +181,7 @@ export type Database = {
           target_flock_id: string
         }
         Returns: {
+          canceled_at: string | null
           created_at: string
           created_by: string
           description: string
@@ -197,6 +201,7 @@ export type Database = {
           target_event_id: string
         }
         Returns: {
+          canceled_at: string | null
           created_at: string
           created_by: string
           description: string
@@ -206,6 +211,10 @@ export type Database = {
           starts_at: string
           title: string
         }[]
+      }
+      cancel_flock_event: {
+        Args: { target_event_id: string }
+        Returns: undefined
       }
       create_flock_invitation: {
         Args: { target_flock_id: string }

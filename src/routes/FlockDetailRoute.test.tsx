@@ -46,6 +46,9 @@ const responseMutationMock = vi.hoisted(() =>
 const updateEventMock = vi.hoisted(() =>
   vi.fn(() => ({ isError: false, isPending: false, mutate: vi.fn() })),
 )
+const cancelEventMock = vi.hoisted(() =>
+  vi.fn(() => ({ isError: false, isPending: false, mutateAsync: vi.fn() })),
+)
 
 vi.mock('@src/hooks/useFlock', () => ({
   useFlock: useFlockMock,
@@ -73,6 +76,10 @@ vi.mock('@src/hooks/useSetFlockEventResponse', () => ({
 
 vi.mock('@src/hooks/useUpdateFlockEvent', () => ({
   useUpdateFlockEvent: updateEventMock,
+}))
+
+vi.mock('@src/hooks/useCancelFlockEvent', () => ({
+  useCancelFlockEvent: cancelEventMock,
 }))
 
 const flock: FlockSummary = {
