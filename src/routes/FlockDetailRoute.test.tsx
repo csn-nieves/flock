@@ -150,6 +150,7 @@ describe('FlockDetailRoute', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Morning Runners' }),
     ).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Show' }))
     expect(screen.getByRole('list', { name: 'Flock members' })).toBeVisible()
     expect(screen.getByText('Local Organizer')).toBeVisible()
     expect(screen.getByText('Local Runner')).toBeVisible()
