@@ -78,10 +78,8 @@ function FlockMemberList({ members }: FlockMemberListProps) {
                   </span>
                   <span
                     aria-hidden="true"
-                    className={`inline-flex size-5 items-center justify-center text-lg leading-none transition-transform ${isCollapsed ? '' : 'rotate-180'}`}
-                  >
-                    ⌄
-                  </span>
+                    className={`inline-block size-2.5 border-r-2 border-b-2 border-text transition-transform ${isCollapsed ? 'rotate-45 -translate-y-0.5' : '-rotate-[135deg] translate-y-0.5'}`}
+                  />
                 </button>
                 {!isCollapsed ? (
                   <ul className="m-0 list-none divide-y divide-border overflow-hidden rounded-lg border border-border bg-background p-0">
