@@ -73,8 +73,9 @@ function EventForm({
         value={description}
         onChange={(event) => setDescription(event.target.value)}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="grid gap-2 sm:flex sm:flex-row-reverse">
         <Button
+          className="w-full sm:w-auto"
           isPending={isPending}
           pendingLabel={mode === 'create' ? 'Creating event' : 'Saving event'}
           type="submit"
@@ -82,7 +83,12 @@ function EventForm({
           {mode === 'create' ? 'Create event' : 'Save event'}
         </Button>
         {onCancel ? (
-          <Button type="button" variant="secondary" onClick={onCancel}>
+          <Button
+            className="w-full sm:w-auto"
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+          >
             Cancel
           </Button>
         ) : null}

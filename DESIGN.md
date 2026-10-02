@@ -13,6 +13,10 @@ colors:
   surface-subtle: '#F3F7F4'
   border: '#D6E0D9'
   accent: '#D95F4C'
+  danger: '#A63D40'
+  danger-bright: '#BB5051'
+  danger-strong: '#843136'
+  on-danger: '#FFFFFF'
   focus: '#10243E'
   scrollbar-thumb: '#8BA897'
   scrollbar-track: '#EDF3EF'
@@ -56,6 +60,16 @@ components:
     height: '{spacing.touch-target}'
   button-secondary-hover:
     backgroundColor: '{colors.surface-subtle}'
+  button-danger:
+    backgroundColor: '{colors.danger}'
+    textColor: '{colors.on-danger}'
+    rounded: '{rounded.md}'
+    height: '{spacing.touch-target}'
+  button-danger-hover:
+    backgroundColor: '{colors.danger-bright}'
+  button-danger-strong:
+    backgroundColor: '{colors.danger-strong}'
+    textColor: '{colors.on-danger}'
   text-field:
     backgroundColor: '{colors.background}'
     textColor: '{colors.text}'

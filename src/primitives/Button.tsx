@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react'
+import { forwardRef, type ComponentProps } from 'react'
 
 import PendingIndicator from './PendingIndicator'
 
@@ -33,18 +33,21 @@ const variantClasses: Record<ButtonVariant, string> = {
     'border border-transparent bg-transparent text-text hover:bg-surface-subtle active:bg-surface-subtle disabled:bg-transparent disabled:text-text-muted',
 }
 
-function Button({
-  'aria-label': ariaLabel,
-  children,
-  className,
-  disabled = false,
-  isPending = false,
-  onClick,
-  pendingLabel,
-  type = 'button',
-  variant = 'primary',
-  ...props
-}: ButtonProps) {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    'aria-label': ariaLabel,
+    children,
+    className,
+    disabled = false,
+    isPending = false,
+    onClick,
+    pendingLabel,
+    type = 'button',
+    variant = 'primary',
+    ...props
+  },
+  ref,
+) {
   const isDisabled = disabled || isPending
   const classes = [baseClasses, variantClasses[variant], className]
     .filter(Boolean)
@@ -56,6 +59,7 @@ function Button({
         aria-label={ariaLabel}
         className={classes}
         disabled={isDisabled}
+        ref={ref}
         type={type}
         onClick={onClick}
         {...props}
@@ -72,6 +76,7 @@ function Button({
         aria-label={isPending ? pendingLabel : ariaLabel}
         className={classes}
         disabled={isDisabled}
+        ref={ref}
         type={type}
         onClick={onClick}
         {...props}
@@ -104,6 +109,8 @@ function Button({
       ) : null}
     </>
   )
-}
+})
+
+Button.displayName = 'Button'
 
 export default Button
