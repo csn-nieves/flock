@@ -109,6 +109,8 @@ privacy gate; flock discovery remains deferred.
 ## Next smallest branches
 
 1. Add event invitation creation and sharing controls to the personal events UI.
+2. Work through the prioritized gaps in `docs/TEST_AUDIT.md`, starting with
+   direct coverage for the personal events workflow.
 
 ## Known follow-ups
 
