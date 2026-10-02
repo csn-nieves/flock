@@ -11,9 +11,10 @@ work newer than this file.
 
 Flock has completed its first usable membership flow and now supports the
 initial personal-event invitation workflow, including opt-in Web Push delivery
-for event invitations. The next increment is operational control for
-superadmins across global event and membership records. Routes, pace groups,
-chat, and monetization remain outside the current slice.
+for event invitations. Superadmins can now review and cancel global event
+records. The next increment is operational control for superadmins across
+global membership records. Routes, pace groups, chat, and monetization remain
+outside the current slice.
 
 ## Completed foundation
 
@@ -116,6 +117,10 @@ chat, and monetization remain outside the current slice.
   records through expanded RLS policies and protected RPCs.
 - Superadmins can open the protected `/admin` dashboard to review all seeded
   flocks and runners and delete a flock through a confirmation dialog.
+- The superadmin dashboard also provides a server-paginated view of every flock
+  and personal event, including creator, type, schedule, location, and status.
+  A superadmin can cancel an upcoming event through the existing protected
+  cancellation transaction without deleting its record or attendance history.
 
 ## Current application boundary
 
@@ -142,7 +147,7 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Extend the superadmin dashboard with global event and membership controls.
+1. Extend the superadmin dashboard with global membership controls.
 
 ## Known follow-ups
 

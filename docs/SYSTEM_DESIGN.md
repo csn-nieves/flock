@@ -418,6 +418,24 @@ lifetime. Acceptance coverage verifies membership creation, strict
 single-use replay protection for every caller, expiry, and safe handling of
 malformed tokens.
 
+## Superadmin event operations
+
+The protected `/admin` route is available only when the authenticated session
+contains the server-issued `superadmin` role. It loads global event records in
+pages of 20, ordered by scheduled date with the latest first, and combines them
+with the existing global runner list to present creator names without exposing
+authentication records. URL query state owns the current page so navigation is
+repeatable and invalid or out-of-range pages are replaced with a safe value.
+
+The page distinguishes flock and personal events and shows upcoming, past, and
+canceled states. Only upcoming events offer a cancellation action. The route
+uses the existing `cancel_flock_event` database function, whose server-side
+authorization permits the event owner or a superadmin. Cancellation is
+pessimistic and retains the event and attendance records rather than deleting
+history. Row Level Security remains the authority for the global read, and
+database coverage verifies that a superadmin can cancel another runner's
+personal event while preserving its row.
+
 ## Personal event invitation audiences
 
 Runner-owned personal events can invite either one discovered runner or the
