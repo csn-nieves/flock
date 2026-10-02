@@ -1,4 +1,17 @@
-function SettingsPage() {
+import type { ThemePreference } from '@src/theme/types'
+
+type SettingsPageProps = {
+  preference: ThemePreference
+  onThemeChange: (preference: ThemePreference) => void
+}
+
+function getThemeLabel(option: 'system' | 'light' | 'dark') {
+  if (option === 'dark') return 'Dark mode'
+  if (option === 'light') return 'Light mode'
+  return 'Use device setting'
+}
+
+function SettingsPage({ onThemeChange, preference }: SettingsPageProps) {
   return (
     <section
       aria-labelledby="settings-heading"
@@ -20,8 +33,27 @@ function SettingsPage() {
           Appearance
         </h2>
         <p className="mt-2 mb-0 leading-6 text-text-muted">
-          Dark mode and other appearance controls are coming soon.
+          Choose the palette that feels best for your run planning.
         </p>
+        <fieldset className="mt-5 grid gap-2 sm:grid-cols-2">
+          <legend className="sr-only">Color theme</legend>
+          {(['system', 'light', 'dark'] as const).map((option) => (
+            <label
+              className="flex min-h-touch cursor-pointer items-center gap-3 rounded-md border border-border bg-background px-3 py-2 text-sm font-bold text-text hover:bg-surface-subtle"
+              key={option}
+            >
+              <input
+                checked={preference === option}
+                className="size-4 accent-primary"
+                name="theme"
+                type="radio"
+                value={option}
+                onChange={() => onThemeChange(option)}
+              />
+              {getThemeLabel(option)}
+            </label>
+          ))}
+        </fieldset>
       </section>
     </section>
   )

@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 import { AuthSessionProvider } from '@src/auth/AuthSessionProvider'
 import { createAppQueryClient } from '@src/data/queryClient'
+import { ThemeProvider } from '@src/theme/ThemeProvider'
 import '@src/styles/global.css'
 import router from './router'
 
@@ -18,7 +19,9 @@ createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthSessionProvider>
-        <RouterProvider router={router} />
+        <ThemeProvider>
+          <RouterProvider router={router} />
+        </ThemeProvider>
       </AuthSessionProvider>
     </QueryClientProvider>
   </StrictMode>,
