@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EventsPage from './EventsPage'
 
@@ -31,7 +31,7 @@ describe('EventsPage', () => {
         onRespond={vi.fn()}
         isSaving={false}
         onUpdate={vi.fn()}
-        onCancelEvent={vi.fn()}
+        onCancelEvent={vi.fn().mockResolvedValue(undefined)}
       />,
     )
     expect(screen.getByText('No personal events yet')).toBeVisible()
@@ -56,7 +56,7 @@ describe('EventsPage', () => {
         onRespond={vi.fn()}
         isSaving={false}
         onUpdate={vi.fn()}
-        onCancelEvent={vi.fn()}
+        onCancelEvent={vi.fn().mockResolvedValue(undefined)}
       />,
     )
     expect(screen.getByRole('heading', { name: 'Saturday run' })).toBeVisible()
@@ -79,7 +79,7 @@ describe('EventsPage', () => {
         onRespond={onRespond}
         isSaving={false}
         onUpdate={vi.fn()}
-        onCancelEvent={vi.fn()}
+        onCancelEvent={vi.fn().mockResolvedValue(undefined)}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
@@ -103,11 +103,45 @@ describe('EventsPage', () => {
         onInvite={vi.fn()}
         onRespond={vi.fn()}
         onUpdate={vi.fn()}
-        onCancelEvent={vi.fn()}
+        onCancelEvent={vi.fn().mockResolvedValue(undefined)}
       />,
     )
     expect(screen.getByRole('dialog', { name: 'Invite runners' })).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
     expect(onCloseInvitation).toHaveBeenCalledOnce()
+  })
+
+  it('requires confirmation before canceling an event', async () => {
+    const onCancelEvent = vi.fn().mockResolvedValue(undefined)
+    render(
+      <EventsPage
+        events={[event]}
+        isCreating={false}
+        isInviting={false}
+        isRefreshing={false}
+        isResponding={false}
+        isSaving={false}
+        onCloseInvitation={vi.fn()}
+        onCopyInvitation={vi.fn()}
+        onCreate={vi.fn()}
+        onInvite={vi.fn()}
+        onRespond={vi.fn()}
+        onUpdate={vi.fn()}
+        onCancelEvent={onCancelEvent}
+      />,
+    )
+    fireEvent.click(screen.getAllByRole('button', { name: 'Cancel event' })[0])
+    expect(screen.getByRole('dialog', { name: 'Cancel event?' })).toBeVisible()
+    expect(onCancelEvent).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Keep event' }))
+    expect(
+      screen.queryByRole('dialog', { name: 'Cancel event?' }),
+    ).not.toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Cancel event' })[0])
+    const dialog = screen.getByRole('dialog', { name: 'Cancel event?' })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Cancel event' }),
+    )
+    expect(onCancelEvent).toHaveBeenCalledWith('event')
   })
 })
