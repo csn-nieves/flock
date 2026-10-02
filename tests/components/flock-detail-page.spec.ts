@@ -122,7 +122,7 @@ test('shows scoped member loading and empty states', async ({ mount }) => {
 
   await loading.unmount()
   const empty = await mount('pages/FlockDetailPage/MembersEmpty')
-  await expect(empty.getByText('0 members')).toBeVisible()
+  await expect(empty.getByText('0', { exact: true })).toBeVisible()
   await expect(empty.getByText('No members are visible yet.')).toBeVisible()
 })
 

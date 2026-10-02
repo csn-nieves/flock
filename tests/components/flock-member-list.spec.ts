@@ -8,9 +8,9 @@ test('renders each member name and role in a semantic list', async ({
 
   await expect(list.getByRole('listitem')).toHaveCount(2)
   await expect(list.getByText('Local Organizer')).toBeVisible()
-  await expect(list.getByText('Owner')).toBeVisible()
+  await expect(list.getByText('Owner', { exact: true })).toBeVisible()
   await expect(list.getByText('Local Runner')).toBeVisible()
-  await expect(list.getByText('Member')).toBeVisible()
+  await expect(list.getByText('Member', { exact: true })).toBeVisible()
 })
 
 test('wraps a long member name without horizontal overflow', async ({
