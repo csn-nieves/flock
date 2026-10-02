@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import type { FlockMemberSummary } from '@src/types/flockMembers'
@@ -38,5 +38,19 @@ describe('FlockMemberList', () => {
     render(<FlockMemberList members={[]} />)
 
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
+  })
+
+  it('groups members and filters the roster by name or location', () => {
+    render(<FlockMemberList members={members} />)
+
+    expect(screen.getByRole('button', { name: 'Owners (1)' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Members (1)' })).toBeVisible()
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search members' }), {
+      target: { value: 'Portland' },
+    })
+
+    expect(screen.getByText('Local Organizer')).toBeVisible()
+    expect(screen.queryByText('Local Runner')).not.toBeInTheDocument()
   })
 })

@@ -13,7 +13,11 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByRole('heading', { name: 'Members' }),
   ).toBeVisible()
-  await expect(component.getByText('2 members')).toBeVisible()
+  await expect(component.getByText('2', { exact: true })).toBeVisible()
+  await expect(
+    component.getByRole('list', { name: 'Flock members' }),
+  ).not.toBeVisible()
+  await component.getByRole('button', { name: 'Show members' }).click()
   await expect(
     component.getByRole('list', { name: 'Flock members' }),
   ).toBeVisible()
@@ -128,6 +132,7 @@ test('keeps members visible during refresh and refresh failure', async ({
   const refreshing = await mount('pages/FlockDetailPage/MembersRefreshing')
 
   await expect(refreshing.getByRole('status')).toHaveText('Refreshing members…')
+  await refreshing.getByRole('button', { name: 'Show members' }).click()
   await expect(refreshing.getByText('Local Runner')).toBeVisible()
 
   await refreshing.unmount()
