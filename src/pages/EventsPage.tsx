@@ -4,6 +4,7 @@ import Modal from '@src/components/Modal'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockEvent } from '@src/types/events'
+import type { EventResponse } from '@src/types/events'
 import InvitationLinkCard, {
   type ShareInvitationResult,
 } from './flocks/InvitationLinkCard'
@@ -24,6 +25,9 @@ export type EventsPageProps = {
   onInvite: (eventId: string) => void
   onCopyInvitation: (url: string) => Promise<void>
   onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
+  isResponding: boolean
+  responseError?: string
+  onRespond: (eventId: string, response: EventResponse) => void
 }
 
 function EventsPage({
@@ -38,6 +42,9 @@ function EventsPage({
   onCopyInvitation,
   onInvite,
   onShareInvitation,
+  isResponding,
+  onRespond,
+  responseError,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   let invitationContent = null
@@ -112,6 +119,42 @@ function EventsPage({
               {event.description ? (
                 <p className="mt-2 mb-0 text-sm leading-5 text-text-muted">
                   {event.description}
+                </p>
+              ) : null}
+              <p
+                aria-label={`Attendance: ${event.attendance.in} in, ${event.attendance.maybe} maybe, ${event.attendance.out} out`}
+                className="mt-3 mb-2 text-sm text-text-muted"
+              >
+                {event.attendance.in} in · {event.attendance.maybe} maybe ·{' '}
+                {event.attendance.out} out
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ['in', "I'm in"],
+                    ['maybe', 'Maybe'],
+                    ['out', "I'm out"],
+                  ] as const
+                ).map(([response, label]) => (
+                  <Button
+                    key={response}
+                    aria-pressed={event.attendance.response === response}
+                    isPending={isResponding}
+                    pendingLabel="Saving response"
+                    variant={
+                      event.attendance.response === response
+                        ? 'primary'
+                        : 'secondary'
+                    }
+                    onClick={() => onRespond(event.id, response)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+              {responseError ? (
+                <p className="mt-2 mb-0 text-sm text-text" role="alert">
+                  {responseError}
                 </p>
               ) : null}
               <Button

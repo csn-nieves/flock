@@ -26,6 +26,8 @@ describe('EventsPage', () => {
         onCopyInvitation={vi.fn()}
         onCreate={vi.fn()}
         onInvite={vi.fn()}
+        isResponding={false}
+        onRespond={vi.fn()}
       />,
     )
     expect(screen.getByText('No personal events yet')).toBeVisible()
@@ -45,9 +47,30 @@ describe('EventsPage', () => {
         onCopyInvitation={vi.fn()}
         onCreate={vi.fn()}
         onInvite={vi.fn()}
+        isResponding={false}
+        onRespond={vi.fn()}
       />,
     )
     expect(screen.getByRole('heading', { name: 'Saturday run' })).toBeVisible()
     expect(screen.getByText(/Riverside/)).toBeVisible()
+  })
+
+  it('sends an RSVP response for a personal event', () => {
+    const onRespond = vi.fn()
+    render(
+      <EventsPage
+        events={[event]}
+        isCreating={false}
+        isInviting={false}
+        isRefreshing={false}
+        isResponding={false}
+        onCopyInvitation={vi.fn()}
+        onCreate={vi.fn()}
+        onInvite={vi.fn()}
+        onRespond={onRespond}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
+    expect(onRespond).toHaveBeenCalledWith('event', 'in')
   })
 })

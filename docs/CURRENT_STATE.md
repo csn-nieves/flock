@@ -68,6 +68,8 @@ outside this slice.
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
   them through native device sharing when available, or copy them manually.
+- Personal event invitees can see attendance counts and respond with “I’m in,”
+  “Maybe,” or “I’m out” from the personal events view.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.

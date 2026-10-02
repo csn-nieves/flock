@@ -78,7 +78,31 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
     .is('canceled_at', null)
     .order('starts_at', { ascending: true })
   if (error) throw error
-  return data.map(toEvent)
+  const events = data.map(toEvent)
+  if (events.length === 0) return events
+  const { data: attendance, error: attendanceError } = await supabase
+    .from('flock_event_attendance')
+    .select('event_id, user_id, response')
+    .in(
+      'event_id',
+      events.map((event) => event.id),
+    )
+  if (attendanceError) throw attendanceError
+  const { data: userData } = await supabase.auth.getSession()
+  return events.map((event) => {
+    const responses = attendance.filter((item) => item.event_id === event.id)
+    return {
+      ...event,
+      attendance: {
+        in: responses.filter((item) => item.response === 'in').length,
+        maybe: responses.filter((item) => item.response === 'maybe').length,
+        out: responses.filter((item) => item.response === 'out').length,
+        response:
+          (responses.find((item) => item.user_id === userData.session?.user.id)
+            ?.response as EventResponse | undefined) ?? null,
+      },
+    }
+  })
 }
 
 export async function createUserEvent(
