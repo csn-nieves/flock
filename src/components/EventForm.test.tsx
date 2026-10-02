@@ -23,11 +23,12 @@ describe('EventForm', () => {
       target: { value: ' Riverside ' },
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+    const expectedStartsAt = new Date('2026-10-03T08:30').toISOString()
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Saturday run',
         location: 'Riverside',
-        startsAt: '2026-10-03T12:30:00.000Z',
+        startsAt: expectedStartsAt,
       }),
     )
   })
