@@ -25,10 +25,11 @@ coverage:
 - `src/routes/AcceptEventInvitationRoute.tsx` and its page states: success,
   unavailable, retry, missing token, and navigation replacement.
 
-This audit branch adds coverage for the personal events page, event form,
-personal-event hooks, modal behavior, profile form, and event invitation data,
-hook, and acceptance route. The remaining event-data mapping cases and profile
-data functions should be addressed before those modules grow further.
+The audit branches add coverage for the personal events page, event form,
+personal-event hooks, modal behavior, profile form and data functions, event
+data mapping, settings, section navigation, and event invitation data, hook,
+and acceptance route. Remaining gaps are lower-risk shell navigation and some
+event mutation resilience paths.
 
 ## Priority 1: shared interaction and navigation coverage
 
