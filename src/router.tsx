@@ -10,6 +10,7 @@ import ProfileRoute from '@src/routes/ProfileRoute'
 import SignInRoute from '@src/routes/SignInRoute'
 import SettingsRoute from '@src/routes/SettingsRoute'
 import EventsRoute from '@src/routes/EventsRoute'
+import AcceptEventInvitationRoute from '@src/routes/AcceptEventInvitationRoute'
 import App from './App'
 
 export const routes = [
@@ -47,6 +48,10 @@ export const routes = [
           {
             path: 'events',
             Component: EventsRoute,
+          },
+          {
+            path: 'event-invitations/:invitationToken',
+            Component: AcceptEventInvitationRoute,
           },
           {
             path: 'flocks/new',
