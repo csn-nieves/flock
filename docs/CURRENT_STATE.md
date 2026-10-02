@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-01
+Last reviewed: 2026-10-02
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -9,10 +9,11 @@ work newer than this file.
 
 ## Current milestone
 
-Flock is building the first usable membership flow: authenticate, create a
-flock, invite another runner, join the flock, and view its members. Events,
-routes, pace groups, chat, discovery, notifications, and monetization remain
-outside this slice.
+Flock has completed its first usable membership flow and now supports the
+initial personal-event invitation workflow. The next increment is operational
+control for superadmins across global event and membership records. Routes,
+pace groups, chat, notifications, and monetization remain outside the current
+slice.
 
 ## Completed foundation
 
@@ -74,6 +75,13 @@ outside this slice.
   accepted invitees, so RSVP counts reflect persisted responses.
 - Personal event creators can edit or cancel their events through the personal
   events UI, with creator-only database authorization.
+- Personal event creators can search for an individual runner and generate a
+  recipient-bound invitation link that expires after 24 hours and can only be
+  accepted by that runner.
+- Personal event creators can search for a flock and snapshot its current
+  roster into one recipient-bound, single-use, 24-hour invitation per member.
+  Later joins receive no retroactive invitation, while members who leave keep
+  the invitation created for them.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -122,8 +130,7 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Extend the superadmin dashboard with global event and membership controls,
-   then use discovery results in event audience selection.
+1. Extend the superadmin dashboard with global event and membership controls.
 
 ## Known follow-ups
 

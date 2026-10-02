@@ -20,21 +20,26 @@ function Modal({
   const titleId = useId()
   const descriptionId = useId()
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const onCloseRef = useRef(onClose)
   const previouslyFocused = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     previouslyFocused.current = document.activeElement as HTMLElement | null
     closeButtonRef.current?.focus()
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       previouslyFocused.current?.focus()
     }
-  }, [onClose])
+  }, [])
 
   const surfaceClasses = [
     'max-h-[min(86svh,42rem)] w-full max-w-app overflow-y-auto rounded-t-2xl border border-border bg-background px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-lg sm:rounded-2xl sm:py-5',

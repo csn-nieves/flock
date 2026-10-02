@@ -3,52 +3,78 @@ import EventForm from '@src/components/EventForm'
 import Modal from '@src/components/Modal'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
+import type { FlockSearchResult, RunnerSearchResult } from '@src/data/discovery'
 import type { FlockEvent } from '@src/types/events'
 import type { EventResponse } from '@src/types/events'
+import type { EventRecipientInvitationLink } from '@src/types/invitations'
 import InvitationLinkCard, {
   type ShareInvitationResult,
 } from './flocks/InvitationLinkCard'
-import EventRunnerPicker from '@src/components/EventRunnerPicker'
+import EventAudiencePicker, {
+  type EventAudienceType,
+} from '@src/components/EventAudiencePicker'
 
 export type EventsPageProps = {
+  audienceSearchTerm: string
+  audienceType: EventAudienceType
   events: readonly FlockEvent[]
+  flockResults: readonly FlockSearchResult[]
+  isCreating: boolean
+  isInviting: boolean
+  invitationLinks: readonly EventRecipientInvitationLink[]
   isRefreshing: boolean
+  isResponding: boolean
+  isSaving: boolean
+  isSearchingAudience: boolean
+  runnerResults: readonly RunnerSearchResult[]
+  onAudienceSearchTermChange: (searchTerm: string) => void
+  onAudienceTypeChange: (audienceType: EventAudienceType) => void
+  onCancelEvent: (eventId: string) => Promise<void>
+  onCloseInvitation: () => void
+  onCopyInvitation: (url: string) => Promise<void>
   onCreate: (
     input: Parameters<
       NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
     >[0],
   ) => void
-  isCreating: boolean
-  createError?: string
-  invitationUrl?: string
-  invitationError?: string
-  isInviting: boolean
-  onCopyInvitation: (url: string) => Promise<void>
-  onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
-  onCloseInvitation: () => void
-  isResponding: boolean
-  responseError?: string
+  onInviteFlock: (eventId: string, flockId: string) => Promise<void>
+  onInviteRunner: (
+    eventId: string,
+    recipientUserId: string,
+    recipientDisplayName: string,
+  ) => Promise<void>
   onRespond: (eventId: string, response: EventResponse) => void
-  isSaving: boolean
   onUpdate: (
     eventId: string,
     input: Parameters<
       NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
     >[0],
   ) => Promise<void>
-  onCancelEvent: (eventId: string) => Promise<void>
+  createError?: string
+  invitationError?: string
   managementError?: string
+  onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
+  responseError?: string
 }
 
 function EventsPage({
+  audienceSearchTerm,
+  audienceType,
   createError,
   events,
+  flockResults,
   isCreating,
   isRefreshing,
+  isSearchingAudience,
+  runnerResults,
+  onAudienceSearchTermChange,
+  onAudienceTypeChange,
   onCreate,
   invitationError,
-  invitationUrl,
+  invitationLinks,
   isInviting,
+  onInviteFlock,
+  onInviteRunner,
   onCopyInvitation,
   onShareInvitation,
   onCloseInvitation,
@@ -65,25 +91,33 @@ function EventsPage({
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
   let invitationDialog = null
 
-  if (invitationUrl) {
+  if (invitationLinks.length > 0) {
     invitationDialog = (
       <Modal
-        description="Send this link to the runners you want to invite."
+        description={
+          invitationLinks.length === 1
+            ? 'Share this private link with its runner.'
+            : `Share each private link with the named runner. ${invitationLinks.length} invitations were created from the flock’s current members.`
+        }
         onClose={onCloseInvitation}
-        title="Invite runners"
+        title={
+          invitationLinks.length === 1
+            ? 'Invitation ready'
+            : 'Flock invitations ready'
+        }
       >
-        <InvitationLinkCard
-          invitationUrl={invitationUrl}
-          onCopy={onCopyInvitation}
-          onShare={onShareInvitation}
-        />
+        <div className="grid gap-4">
+          {invitationLinks.map((invitation) => (
+            <InvitationLinkCard
+              invitationUrl={invitation.url}
+              key={invitation.recipientUserId}
+              recipientName={invitation.recipientDisplayName}
+              onCopy={onCopyInvitation}
+              onShare={onShareInvitation}
+            />
+          ))}
+        </div>
       </Modal>
-    )
-  } else if (invitationError) {
-    invitationDialog = (
-      <p className="mt-4 text-sm text-text" role="alert">
-        {invitationError}
-      </p>
     )
   }
   const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
@@ -213,14 +247,45 @@ function EventsPage({
       {invitationDialog}
       {invitingEventId ? (
         <Modal
-          description="Search for a runner to receive a private invitation link."
-          onClose={() => setInvitingEventId(undefined)}
-          title="Invite a runner"
+          description="Choose one runner or snapshot a flock’s current members."
+          onClose={() => {
+            setInvitingEventId(undefined)
+            onAudienceSearchTermChange('')
+          }}
+          title="Choose an audience"
         >
-          <EventRunnerPicker
-            isPending={false}
-            onCancel={() => setInvitingEventId(undefined)}
-            onSelect={() => setInvitingEventId(undefined)}
+          <EventAudiencePicker
+            audienceType={audienceType}
+            flocks={flockResults}
+            isInviting={isInviting}
+            isSearching={isSearchingAudience}
+            runners={runnerResults}
+            searchError={invitationError}
+            searchTerm={audienceSearchTerm}
+            onAudienceTypeChange={onAudienceTypeChange}
+            onCancel={() => {
+              setInvitingEventId(undefined)
+              onAudienceSearchTermChange('')
+            }}
+            onSearchTermChange={onAudienceSearchTermChange}
+            onSelectFlock={async (flockId) => {
+              try {
+                await onInviteFlock(invitingEventId, flockId)
+                setInvitingEventId(undefined)
+                onAudienceSearchTermChange('')
+              } catch {
+                // Keep the picker open so the owner can retry.
+              }
+            }}
+            onSelectRunner={async (userId, displayName) => {
+              try {
+                await onInviteRunner(invitingEventId, userId, displayName)
+                setInvitingEventId(undefined)
+                onAudienceSearchTermChange('')
+              } catch {
+                // Keep the picker open so the owner can retry.
+              }
+            }}
           />
         </Modal>
       ) : null}

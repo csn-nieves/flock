@@ -1,6 +1,12 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import EventsPage from './EventsPage'
+import EventsPage, { type EventsPageProps } from './EventsPage'
 
 const event = {
   attendance: { in: 0, maybe: 0, out: 0, response: null },
@@ -15,10 +21,36 @@ const event = {
   title: 'Saturday run',
 }
 
+const defaultProps: EventsPageProps = {
+  audienceSearchTerm: '',
+  audienceType: 'runner',
+  events: [],
+  flockResults: [],
+  invitationLinks: [],
+  isCreating: false,
+  isInviting: false,
+  isRefreshing: false,
+  isResponding: false,
+  isSaving: false,
+  isSearchingAudience: false,
+  onAudienceSearchTermChange: vi.fn(),
+  onAudienceTypeChange: vi.fn(),
+  onCancelEvent: vi.fn().mockResolvedValue(undefined),
+  onCloseInvitation: vi.fn(),
+  onCopyInvitation: vi.fn(),
+  onCreate: vi.fn(),
+  onInviteFlock: vi.fn().mockResolvedValue(undefined),
+  onInviteRunner: vi.fn().mockResolvedValue(undefined),
+  onRespond: vi.fn(),
+  onUpdate: vi.fn(),
+  runnerResults: [],
+}
+
 describe('EventsPage', () => {
   it('shows an empty state and opens the create modal', () => {
     render(
       <EventsPage
+        {...defaultProps}
         events={[]}
         isCreating={false}
         isInviting={false}
@@ -43,6 +75,7 @@ describe('EventsPage', () => {
   it('renders personal events', () => {
     render(
       <EventsPage
+        {...defaultProps}
         events={[event]}
         isCreating={false}
         isInviting={false}
@@ -75,6 +108,7 @@ describe('EventsPage', () => {
     const onRespond = vi.fn()
     render(
       <EventsPage
+        {...defaultProps}
         events={[event]}
         isCreating={false}
         isInviting={false}
@@ -97,8 +131,17 @@ describe('EventsPage', () => {
     const onCloseInvitation = vi.fn()
     render(
       <EventsPage
+        {...defaultProps}
         events={[]}
-        invitationUrl="https://example.test/invite"
+        invitationLinks={[
+          {
+            expiresAt: '2026-10-03T12:00:00Z',
+            recipientDisplayName: 'Maya Chen',
+            recipientUserId: 'maya-id',
+            token: 'invite',
+            url: 'https://example.test/invite',
+          },
+        ]}
         isCreating={false}
         isInviting={false}
         isRefreshing={false}
@@ -112,7 +155,10 @@ describe('EventsPage', () => {
         onCancelEvent={vi.fn().mockResolvedValue(undefined)}
       />,
     )
-    expect(screen.getByRole('dialog', { name: 'Invite runners' })).toBeVisible()
+    expect(
+      screen.getByRole('dialog', { name: 'Invitation ready' }),
+    ).toBeVisible()
+    expect(screen.getByText(/only be used by Maya Chen/)).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
     expect(onCloseInvitation).toHaveBeenCalledOnce()
   })
@@ -121,6 +167,7 @@ describe('EventsPage', () => {
     const onCancelEvent = vi.fn().mockResolvedValue(undefined)
     render(
       <EventsPage
+        {...defaultProps}
         events={[event]}
         isCreating={false}
         isInviting={false}
@@ -148,5 +195,28 @@ describe('EventsPage', () => {
       within(dialog).getByRole('button', { name: 'Cancel event' }),
     )
     expect(onCancelEvent).toHaveBeenCalledWith('event')
+  })
+
+  it('selects a whole flock as a snapshot audience', async () => {
+    const onInviteFlock = vi.fn().mockResolvedValue(undefined)
+    render(
+      <EventsPage
+        {...defaultProps}
+        audienceSearchTerm="harbor"
+        audienceType="flock"
+        events={[event]}
+        flockResults={[
+          { id: 'harbor-id', name: 'Harbor Long Run', owner_id: 'owner-id' },
+        ]}
+        onInviteFlock={onInviteFlock}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Invite runners' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Harbor Long Run' }))
+
+    await waitFor(() => {
+      expect(onInviteFlock).toHaveBeenCalledWith('event', 'harbor-id')
+    })
   })
 })

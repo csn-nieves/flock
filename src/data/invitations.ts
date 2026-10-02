@@ -1,4 +1,7 @@
-import type { FlockInvitation } from '@src/types/invitations'
+import type {
+  EventRecipientInvitation,
+  FlockInvitation,
+} from '@src/types/invitations'
 import type { FlockSummary } from '@src/types/flocks'
 import type { FlockEvent } from '@src/types/events'
 
@@ -68,6 +71,23 @@ export async function createTargetedEventInvitation(
     .single()
   if (error) throw error
   return { expiresAt: data.expires_at, token: data.token }
+}
+
+export async function createFlockEventInvitations(
+  eventId: string,
+  flockId: string,
+): Promise<EventRecipientInvitation[]> {
+  const { data, error } = await supabase.rpc('create_flock_event_invitations', {
+    target_event_id: eventId,
+    target_flock_id: flockId,
+  })
+  if (error) throw error
+  return data.map((invitation) => ({
+    expiresAt: invitation.expires_at,
+    recipientDisplayName: invitation.recipient_display_name,
+    recipientUserId: invitation.recipient_user_id,
+    token: invitation.token,
+  }))
 }
 
 export async function acceptEventInvitation(
