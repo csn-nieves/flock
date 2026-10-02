@@ -1,14 +1,14 @@
 # Flock system design
 
-Last reviewed: 2026-10-01
+Last reviewed: 2026-10-02
 
 ## What Flock is
 
 Flock is a mobile-first application for organizing run clubs. A run club is a
 “flock.” The first complete product slice will let an organizer create a flock,
 share an invitation, let another runner join, and show the flock's member list.
-Events, routes, pace groups, chat, and monetization are intentionally deferred
-until the membership workflow is useful.
+Routes, pace groups, chat, cross-device push notifications, and monetization
+remain outside the current implemented boundary.
 
 Flock is being built as a progressive web app so runners can install and use it
 from a phone without requiring an App Store release, native mobile toolchain, or
@@ -394,30 +394,29 @@ malformed tokens.
 ## Personal event invitation audiences
 
 Runner-owned personal events can invite either one discovered runner or the
-current membership of a discovered flock. Both choices create private,
-recipient-bound links: the token remains single-use, expires after 24 hours,
-and can be accepted only by the authenticated runner named on its invitation.
+live membership of a discovered flock. Personal-event invitations expire after
+seven days. A targeted runner invitation remains recipient-bound and
+single-use. A flock audience creates one private invitation row with one token
+hash and one flock identifier rather than expanding or storing its roster.
 
-Whole-flock expansion happens in one `security definer` database function. The
-function verifies personal-event ownership, reads the selected flock's roster
-server-side, generates one independent token per current member, stores only
-the token hashes, and returns the raw tokens once with their recipient display
-names. Every invitation in the batch receives the same creation-time expiry.
-The browser never supplies member identifiers for a flock audience and cannot
-substitute a different roster.
+The flock invitation's eligibility is evaluated against current membership.
+Members who join before expiration can see and accept it, while members who
+leave before accepting can no longer do either. Each accepted member receives a
+private acceptance record, so the universal link can serve multiple eligible
+runners while remaining single-use per runner. That acceptance grants durable
+event and attendance access even if the runner later leaves the flock.
 
-The roster is intentionally a snapshot. A runner who joins after creation does
-not receive an invitation from the earlier batch. A runner who leaves after
-creation keeps the already-issued recipient-bound invitation because later
-membership changes do not rewrite invitation history. Creating another batch
-produces a new independent set from the then-current roster.
+`list_pending_event_invitations` returns only active, upcoming invitations for
+the authenticated runner. It supports both recipient-bound and live-flock
+audiences without exposing private token hashes. Runners accept those records
+through `accept_event_invitation_by_id`, while the token route remains an
+optional sharing fallback. `EventsRoute` owns the inbox query, acceptance and
+creation mutations, URL creation, and raw failure translation. The pure page
+shows responsive loading, error, retry, pending, and acceptance states.
 
-`EventsRoute` owns runner and flock discovery queries, both invitation
-mutations, URL creation, and raw failure translation. The pure events page
-opens a shared audience picker and renders the returned per-recipient links for
-copying or native sharing. Database tests enforce event ownership, execution
-grants, roster expansion, recipient binding, expiration, single use, and both
-post-snapshot membership cases.
+Database tests enforce event ownership, execution grants, seven-day expiry,
+live join and leave behavior, per-runner replay protection, multiple members
+using one universal link, and durable access after acceptance.
 
 ## Authentication design
 

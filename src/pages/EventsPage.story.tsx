@@ -25,6 +25,8 @@ export function InvitationAudience() {
       <EventsPage
         audienceSearchTerm={searchTerm}
         audienceType={audienceType}
+        canManageAllEvents={false}
+        currentUserId="owner-id"
         events={[event]}
         flockResults={[
           {
@@ -33,10 +35,12 @@ export function InvitationAudience() {
             owner_id: 'flock-owner-id',
           },
         ]}
-        invitationLinks={[]}
+        invitationLink={undefined}
         isCreating={false}
         isInviting={false}
+        isLoadingInvitations={false}
         isRefreshing={false}
+        isRefreshingInvitations={false}
         isResponding={false}
         isSaving={false}
         isSearchingAudience={false}
@@ -46,6 +50,7 @@ export function InvitationAudience() {
           setAudienceType(nextAudienceType)
           setSearchTerm('')
         }}
+        onAcceptInvitation={async () => undefined}
         onCancelEvent={async () => undefined}
         onCloseInvitation={() => undefined}
         onCopyInvitation={async () => undefined}
@@ -53,6 +58,58 @@ export function InvitationAudience() {
         onInviteFlock={async () => undefined}
         onInviteRunner={async () => undefined}
         onRespond={() => undefined}
+        onRetryInvitations={() => undefined}
+        onUpdate={async () => undefined}
+        pendingInvitations={[]}
+      />
+    </div>
+  )
+}
+
+export function PendingInvitation() {
+  return (
+    <div className="mx-auto w-full max-w-app px-4">
+      <EventsPage
+        audienceSearchTerm=""
+        audienceType="runner"
+        canManageAllEvents={false}
+        currentUserId="runner-id"
+        events={[]}
+        flockResults={[]}
+        invitationLink={undefined}
+        isCreating={false}
+        isInviting={false}
+        isLoadingInvitations={false}
+        isRefreshing={false}
+        isRefreshingInvitations={false}
+        isResponding={false}
+        isSaving={false}
+        isSearchingAudience={false}
+        pendingInvitations={[
+          {
+            audienceName: 'Harbor Long Run',
+            audienceType: 'flock',
+            eventDescription: 'Easy miles together before coffee.',
+            eventId: 'invited-event-id',
+            eventLocation: 'Riverside Park',
+            eventStartsAt: '2026-10-10T12:00:00Z',
+            eventTitle: 'Cross-flock social run',
+            expiresAt: '2026-10-09T12:00:00Z',
+            invitationId: 'invitation-id',
+          },
+        ]}
+        runnerResults={[]}
+        onAcceptInvitation={async () => undefined}
+        onAudienceSearchTermChange={() => undefined}
+        onAudienceTypeChange={() => undefined}
+        onCancelEvent={async () => undefined}
+        onCloseInvitation={() => undefined}
+        onCopyInvitation={async () => undefined}
+        onCreate={() => undefined}
+        onInviteFlock={async () => undefined}
+        onInviteRunner={async () => undefined}
+        onRespond={() => undefined}
+        onRetryInvitations={() => undefined}
         onUpdate={async () => undefined}
       />
     </div>

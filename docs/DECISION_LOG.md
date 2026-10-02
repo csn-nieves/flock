@@ -1,6 +1,6 @@
 # Flock decision log
 
-Last reviewed: 2026-10-01
+Last reviewed: 2026-10-02
 
 This log records decisions that shape future work. Each entry includes the
 reasoning and the conditions that would justify another decision. “Accepted”
@@ -515,12 +515,29 @@ means it is the current direction, not that it can never change.
 
 - **Status:** Accepted
 - **Decision:** Keep runner-owned personal events separate from flock events.
-  Their creators may invite a specific runner or snapshot an entire flock's
-  current roster, even when the invitees belong to different flocks. A flock
-  audience becomes one recipient-bound invitation per member at creation time;
-  later joins and departures do not rewrite that snapshot.
+  Their creators may invite a specific runner or an entire flock, even when the
+  invitees belong to different flocks. A flock audience is one seven-day
+  invitation whose eligibility follows live membership until each runner
+  accepts. A runner who joins while it is active becomes eligible; a runner who
+  leaves before accepting loses eligibility. Acceptance creates durable event
+  access for that runner even if they later leave the flock.
 - **Why:** Event coordination is broader than flock administration. Sarah may
   belong to one flock and still organize a run with Gary or another flock's
   members without requiring ownership of their flock.
-- **Revisit when:** Organizers need dynamic audiences, revocation, a durable
-  delivery channel, or automatic invitations for runners who join later.
+- **Revisit when:** Organizers need audience revocation, membership-independent
+  eligibility, or expiration periods that vary by event.
+
+## D030 — Make in-app event invitations the primary delivery path
+
+- **Status:** Accepted
+- **Decision:** Show eligible personal-event invitations inside the protected
+  Events screen and let runners accept them there without opening a shared
+  link. Keep audience-appropriate links as an optional delivery fallback.
+- **Why:** Runners should not depend on an organizer manually delivering a link
+  when Flock already knows the intended runner or flock. The persisted inbox
+  also gives every supported viewport the same recoverable invitation state.
+- **Tradeoffs:** An in-app inbox is visible only after a runner opens Flock. OS
+  push notifications require a separate permission, subscription, delivery,
+  and device-cleanup foundation and are not implied by this decision.
+- **Revisit when:** The push-notification branch selects a provider and defines
+  per-device permission, subscription, and delivery behavior.

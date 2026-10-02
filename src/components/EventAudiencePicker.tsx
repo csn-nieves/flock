@@ -15,7 +15,7 @@ export type EventAudiencePickerProps = {
   onAudienceTypeChange: (audienceType: EventAudienceType) => void
   onCancel: () => void
   onSearchTermChange: (searchTerm: string) => void
-  onSelectFlock: (flockId: string) => void
+  onSelectFlock: (flockId: string, flockName: string) => void
   onSelectRunner: (userId: string, displayName: string) => void
   searchError?: string
 }
@@ -71,7 +71,7 @@ export default function EventAudiencePicker({
                   className="w-full justify-start"
                   disabled={isInviting}
                   variant="secondary"
-                  onClick={() => onSelectFlock(flock.id)}
+                  onClick={() => onSelectFlock(flock.id, flock.name)}
                 >
                   {flock.name}
                 </Button>
@@ -108,8 +108,8 @@ export default function EventAudiencePicker({
 
       <p className="mt-4 mb-3 text-sm leading-5 text-text-muted">
         {audienceType === 'runner'
-          ? 'Choose one runner. Their link will only work for them.'
-          : 'Everyone who belongs to the flock now will get their own link. Later membership changes will not change this invitation list.'}
+          ? 'Choose one runner. They will see the invitation in Flock, and their optional link will only work for them.'
+          : 'Invite the flock as one live audience. Current members will see it in Flock, including anyone who joins before it expires.'}
       </p>
 
       <div className="relative">
@@ -145,7 +145,7 @@ export default function EventAudiencePicker({
       ) : null}
       {isInviting ? (
         <p className="mt-0 text-sm text-text-muted" role="status">
-          Creating invitations…
+          Creating invitation…
         </p>
       ) : null}
       {searchError ? (

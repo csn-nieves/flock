@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  acceptEventInvitationById,
   acceptFlockInvitation,
-  createFlockEventInvitations,
+  createFlockEventInvitation,
   createFlockInvitation,
   createTargetedEventInvitation,
   InvitationUnavailableError,
+  listPendingEventInvitations,
 } from './invitations'
 
 const invitationMocks = vi.hoisted(() => ({
@@ -81,47 +83,88 @@ describe('invitation data', () => {
     )
   })
 
-  it('creates one recipient-bound invitation per snapshotted flock member', async () => {
+  it('creates one universal invitation for a live flock audience', async () => {
+    invitationMocks.single.mockResolvedValue({
+      data: {
+        expires_at: '2026-10-09T12:00:00.000Z',
+        token: 'flock-token',
+      },
+      error: null,
+    })
+
+    await expect(
+      createFlockEventInvitation('event-id', 'flock-id'),
+    ).resolves.toEqual({
+      expiresAt: '2026-10-09T12:00:00.000Z',
+      token: 'flock-token',
+    })
+    expect(invitationMocks.rpc).toHaveBeenCalledWith(
+      'create_flock_event_invitation',
+      {
+        target_event_id: 'event-id',
+        target_flock_id: 'flock-id',
+      },
+    )
+  })
+
+  it('lists pending in-app event invitations', async () => {
     invitationMocks.rpc.mockResolvedValueOnce({
       data: [
         {
-          expires_at: '2026-10-03T12:00:00.000Z',
-          recipient_display_name: 'Maya Chen',
-          recipient_user_id: 'maya-id',
-          token: 'maya-token',
-        },
-        {
-          expires_at: '2026-10-03T12:00:00.000Z',
-          recipient_display_name: 'Theo Brooks',
-          recipient_user_id: 'theo-id',
-          token: 'theo-token',
+          audience_name: 'Harbor Long Run',
+          event_description: 'Easy miles together.',
+          event_id: 'event-id',
+          event_location: 'Riverside Park',
+          event_starts_at: '2026-10-10T12:00:00.000Z',
+          event_title: 'Saturday social run',
+          expires_at: '2026-10-09T12:00:00.000Z',
+          invitation_id: 'invitation-id',
+          invitation_kind: 'flock',
         },
       ],
       error: null,
     })
 
-    await expect(
-      createFlockEventInvitations('event-id', 'flock-id'),
-    ).resolves.toEqual([
+    await expect(listPendingEventInvitations()).resolves.toEqual([
       {
-        expiresAt: '2026-10-03T12:00:00.000Z',
-        recipientDisplayName: 'Maya Chen',
-        recipientUserId: 'maya-id',
-        token: 'maya-token',
-      },
-      {
-        expiresAt: '2026-10-03T12:00:00.000Z',
-        recipientDisplayName: 'Theo Brooks',
-        recipientUserId: 'theo-id',
-        token: 'theo-token',
+        audienceName: 'Harbor Long Run',
+        audienceType: 'flock',
+        eventDescription: 'Easy miles together.',
+        eventId: 'event-id',
+        eventLocation: 'Riverside Park',
+        eventStartsAt: '2026-10-10T12:00:00.000Z',
+        eventTitle: 'Saturday social run',
+        expiresAt: '2026-10-09T12:00:00.000Z',
+        invitationId: 'invitation-id',
       },
     ])
     expect(invitationMocks.rpc).toHaveBeenCalledWith(
-      'create_flock_event_invitations',
-      {
-        target_event_id: 'event-id',
-        target_flock_id: 'flock-id',
+      'list_pending_event_invitations',
+    )
+  })
+
+  it('accepts an in-app event invitation by identifier', async () => {
+    invitationMocks.rpc.mockResolvedValueOnce({
+      data: {
+        canceled_at: null,
+        created_at: '2026-10-01T12:00:00.000Z',
+        created_by: 'owner-id',
+        description: '',
+        flock_id: null,
+        id: 'event-id',
+        location: 'Riverside Park',
+        starts_at: '2026-10-10T12:00:00.000Z',
+        title: 'Saturday social run',
       },
+      error: null,
+    })
+
+    await expect(acceptEventInvitationById('invitation-id')).resolves.toEqual(
+      expect.objectContaining({ id: 'event-id', title: 'Saturday social run' }),
+    )
+    expect(invitationMocks.rpc).toHaveBeenCalledWith(
+      'accept_event_invitation_by_id',
+      { target_invitation_id: 'invitation-id' },
     )
   })
 

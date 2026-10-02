@@ -6,22 +6,31 @@ import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSearchResult, RunnerSearchResult } from '@src/data/discovery'
 import type { FlockEvent } from '@src/types/events'
 import type { EventResponse } from '@src/types/events'
-import type { EventRecipientInvitationLink } from '@src/types/invitations'
+import type {
+  EventAudienceInvitationLink,
+  PendingEventInvitation,
+} from '@src/types/invitations'
 import InvitationLinkCard, {
   type ShareInvitationResult,
 } from './flocks/InvitationLinkCard'
 import EventAudiencePicker, {
   type EventAudienceType,
 } from '@src/components/EventAudiencePicker'
+import EventInvitationsSection from './events/EventInvitationsSection'
 
 export type EventsPageProps = {
   audienceSearchTerm: string
   audienceType: EventAudienceType
+  canManageAllEvents: boolean
+  currentUserId: string
   events: readonly FlockEvent[]
   flockResults: readonly FlockSearchResult[]
+  pendingInvitations: readonly PendingEventInvitation[]
   isCreating: boolean
   isInviting: boolean
-  invitationLinks: readonly EventRecipientInvitationLink[]
+  invitationLink: EventAudienceInvitationLink | undefined
+  isLoadingInvitations: boolean
+  isRefreshingInvitations: boolean
   isRefreshing: boolean
   isResponding: boolean
   isSaving: boolean
@@ -29,6 +38,7 @@ export type EventsPageProps = {
   runnerResults: readonly RunnerSearchResult[]
   onAudienceSearchTermChange: (searchTerm: string) => void
   onAudienceTypeChange: (audienceType: EventAudienceType) => void
+  onAcceptInvitation: (invitationId: string) => Promise<void>
   onCancelEvent: (eventId: string) => Promise<void>
   onCloseInvitation: () => void
   onCopyInvitation: (url: string) => Promise<void>
@@ -37,13 +47,18 @@ export type EventsPageProps = {
       NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
     >[0],
   ) => void
-  onInviteFlock: (eventId: string, flockId: string) => Promise<void>
+  onInviteFlock: (
+    eventId: string,
+    flockId: string,
+    flockName: string,
+  ) => Promise<void>
   onInviteRunner: (
     eventId: string,
     recipientUserId: string,
     recipientDisplayName: string,
   ) => Promise<void>
   onRespond: (eventId: string, response: EventResponse) => void
+  onRetryInvitations: () => void
   onUpdate: (
     eventId: string,
     input: Parameters<
@@ -51,6 +66,8 @@ export type EventsPageProps = {
     >[0],
   ) => Promise<void>
   createError?: string
+  acceptingInvitationId?: string
+  invitationInboxError?: string
   invitationError?: string
   managementError?: string
   onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
@@ -60,9 +77,12 @@ export type EventsPageProps = {
 function EventsPage({
   audienceSearchTerm,
   audienceType,
+  canManageAllEvents,
   createError,
+  currentUserId,
   events,
   flockResults,
+  pendingInvitations,
   isCreating,
   isRefreshing,
   isSearchingAudience,
@@ -71,7 +91,9 @@ function EventsPage({
   onAudienceTypeChange,
   onCreate,
   invitationError,
-  invitationLinks,
+  invitationLink,
+  isLoadingInvitations,
+  isRefreshingInvitations,
   isInviting,
   onInviteFlock,
   onInviteRunner,
@@ -85,38 +107,38 @@ function EventsPage({
   onUpdate,
   onCancelEvent,
   managementError,
+  acceptingInvitationId,
+  invitationInboxError,
+  onAcceptInvitation,
+  onRetryInvitations,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [invitingEventId, setInvitingEventId] = useState<string>()
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
+  const canManageEvent = (event: FlockEvent) =>
+    canManageAllEvents || event.createdBy === currentUserId
   let invitationDialog = null
 
-  if (invitationLinks.length > 0) {
+  if (invitationLink) {
+    const isFlockInvitation = invitationLink.audienceType === 'flock'
     invitationDialog = (
       <Modal
         description={
-          invitationLinks.length === 1
-            ? 'Share this private link with its runner.'
-            : `Share each private link with the named runner. ${invitationLinks.length} invitations were created from the flock’s current members.`
+          isFlockInvitation
+            ? `${invitationLink.audienceName} members will see this invitation in Flock. The link is optional.`
+            : `${invitationLink.audienceName} will see this invitation in Flock. The private link is optional.`
         }
         onClose={onCloseInvitation}
-        title={
-          invitationLinks.length === 1
-            ? 'Invitation ready'
-            : 'Flock invitations ready'
-        }
+        title="Invitation sent"
       >
-        <div className="grid gap-4">
-          {invitationLinks.map((invitation) => (
-            <InvitationLinkCard
-              invitationUrl={invitation.url}
-              key={invitation.recipientUserId}
-              recipientName={invitation.recipientDisplayName}
-              onCopy={onCopyInvitation}
-              onShare={onShareInvitation}
-            />
-          ))}
-        </div>
+        <InvitationLinkCard
+          expiresInLabel="7 days"
+          invitationUrl={invitationLink.url}
+          linkScope={isFlockInvitation ? 'flock' : 'single-use'}
+          recipientName={invitationLink.audienceName}
+          onCopy={onCopyInvitation}
+          onShare={onShareInvitation}
+        />
       </Modal>
     )
   }
@@ -149,6 +171,15 @@ function EventsPage({
           Refreshing your events…
         </p>
       ) : null}
+      <EventInvitationsSection
+        acceptingInvitationId={acceptingInvitationId}
+        error={invitationInboxError}
+        invitations={pendingInvitations}
+        isLoading={isLoadingInvitations}
+        isRefreshing={isRefreshingInvitations}
+        onAccept={onAcceptInvitation}
+        onRetry={onRetryInvitations}
+      />
       {events.length === 0 ? (
         <div className="mt-8 rounded-lg border border-border bg-surface-subtle px-4 py-5">
           <h2 className="m-0 font-display text-lg font-bold text-text">
@@ -169,15 +200,17 @@ function EventsPage({
                 <h2 className="m-0 font-display text-base font-bold text-text">
                   {event.title}
                 </h2>
-                <Button
-                  className="shrink-0"
-                  isPending={isInviting}
-                  pendingLabel="Creating invitation"
-                  variant="primary"
-                  onClick={() => setInvitingEventId(event.id)}
-                >
-                  Invite runners
-                </Button>
+                {canManageEvent(event) ? (
+                  <Button
+                    className="shrink-0"
+                    isPending={isInviting}
+                    pendingLabel="Creating invitation"
+                    variant="primary"
+                    onClick={() => setInvitingEventId(event.id)}
+                  >
+                    Invite runners
+                  </Button>
+                ) : null}
               </div>
               <p className="mt-1 mb-0 text-sm text-text-muted">
                 {new Date(event.startsAt).toLocaleString()} · {event.location}
@@ -223,22 +256,24 @@ function EventsPage({
                   {responseError}
                 </p>
               ) : null}
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <Button
-                  className="w-full"
-                  variant="secondary"
-                  onClick={() => setEditingEvent(event)}
-                >
-                  Edit event
-                </Button>
-                <Button
-                  className="w-full"
-                  variant="danger"
-                  onClick={() => setCancelingEvent(event)}
-                >
-                  Cancel event
-                </Button>
-              </div>
+              {canManageEvent(event) ? (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <Button
+                    className="w-full"
+                    variant="secondary"
+                    onClick={() => setEditingEvent(event)}
+                  >
+                    Edit event
+                  </Button>
+                  <Button
+                    className="w-full"
+                    variant="danger"
+                    onClick={() => setCancelingEvent(event)}
+                  >
+                    Cancel event
+                  </Button>
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -247,7 +282,7 @@ function EventsPage({
       {invitationDialog}
       {invitingEventId ? (
         <Modal
-          description="Choose one runner or snapshot a flock’s current members."
+          description="Choose one runner or invite a flock as a live audience."
           onClose={() => {
             setInvitingEventId(undefined)
             onAudienceSearchTermChange('')
@@ -268,9 +303,9 @@ function EventsPage({
               onAudienceSearchTermChange('')
             }}
             onSearchTermChange={onAudienceSearchTermChange}
-            onSelectFlock={async (flockId) => {
+            onSelectFlock={async (flockId, flockName) => {
               try {
-                await onInviteFlock(invitingEventId, flockId)
+                await onInviteFlock(invitingEventId, flockId, flockName)
                 setInvitingEventId(undefined)
                 onAudienceSearchTermChange('')
               } catch {

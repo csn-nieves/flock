@@ -16,13 +16,17 @@ type InvitationActionStatus =
 
 export type InvitationLinkCardProps = {
   invitationUrl: string
-  recipientName?: string
   onCopy: (invitationUrl: string) => Promise<void>
+  expiresInLabel?: string
+  linkScope?: 'flock' | 'single-use'
+  recipientName?: string
   onShare?: (invitationUrl: string) => Promise<ShareInvitationResult>
 }
 
 function InvitationLinkCard({
   invitationUrl,
+  expiresInLabel = '24 hours',
+  linkScope = 'single-use',
   recipientName,
   onCopy,
   onShare,
@@ -33,8 +37,17 @@ function InvitationLinkCard({
   const isCopying = actionStatus === 'copying'
   const isSharing = actionStatus === 'sharing'
   const isBusy = isCopying || isSharing
+  let description = 'Send this link to the runner you want to join.'
   let hint: ReactNode =
-    'This link works once and expires 24 hours after creation.'
+    linkScope === 'flock'
+      ? `Each eligible flock member can accept once. This link expires ${expiresInLabel} after creation.`
+      : `This link works once and expires ${expiresInLabel} after creation.`
+
+  if (linkScope === 'flock' && recipientName) {
+    description = `Any current member of ${recipientName} can use this link.`
+  } else if (recipientName) {
+    description = `This link can only be used by ${recipientName}.`
+  }
 
   if (actionStatus === 'shared') {
     hint = <span role="status">Invitation shared.</span>
@@ -91,11 +104,7 @@ function InvitationLinkCard({
       <h2 className="mt-0 mb-1 font-display text-xl font-bold text-text">
         Invitation ready
       </h2>
-      <p className="mt-0 mb-5 leading-6 text-text-muted">
-        {recipientName
-          ? `This link can only be used by ${recipientName}.`
-          : 'Send this link to the runner you want to join.'}
-      </p>
+      <p className="mt-0 mb-5 leading-6 text-text-muted">{description}</p>
 
       <TextField
         hint={hint}

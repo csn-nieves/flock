@@ -2,9 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCreateUserEvent } from '@src/hooks/useCreateUserEvent'
 import {
-  useCreateFlockEventInvitations,
+  useCreateFlockEventInvitation,
   useCreateTargetedEventInvitation,
 } from '@src/hooks/useCreateEventInvitation'
+import { useAcceptEventInvitationById } from '@src/hooks/useAcceptEventInvitation'
+import { usePendingEventInvitations } from '@src/hooks/usePendingEventInvitations'
+import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useFlockSearch, useRunnerSearch } from '@src/hooks/useDiscoverySearch'
 import { useSetUserEventResponse } from '@src/hooks/useSetUserEventResponse'
 import { useUpdateUserEvent } from '@src/hooks/useUpdateUserEvent'
@@ -16,21 +19,24 @@ import EventsPage, {
 } from '@src/pages/EventsPage'
 import type { EventAudienceType } from '@src/components/EventAudiencePicker'
 import type { ShareInvitationResult } from '@src/pages/flocks/InvitationLinkCard'
-import type { EventRecipientInvitationLink } from '@src/types/invitations'
+import type { EventAudienceInvitationLink } from '@src/types/invitations'
 
 function EventsRoute() {
+  const { session } = useAuthSession()
   const eventsQuery = useUserEvents()
   const createMutation = useCreateUserEvent()
   const targetedInvitationMutation = useCreateTargetedEventInvitation()
-  const flockInvitationMutation = useCreateFlockEventInvitations()
+  const flockInvitationMutation = useCreateFlockEventInvitation()
+  const pendingInvitationsQuery = usePendingEventInvitations()
+  const acceptInvitationMutation = useAcceptEventInvitationById()
   const responseMutation = useSetUserEventResponse()
   const updateMutation = useUpdateUserEvent()
   const cancelMutation = useCancelUserEvent()
   const [audienceType, setAudienceType] = useState<EventAudienceType>('runner')
   const [audienceSearchTerm, setAudienceSearchTerm] = useState('')
-  const [invitationLinks, setInvitationLinks] = useState<
-    EventRecipientInvitationLink[]
-  >([])
+  const [invitationLink, setInvitationLink] = useState<
+    EventAudienceInvitationLink | undefined
+  >()
   const runnerSearch = useRunnerSearch(
     audienceType === 'runner' ? audienceSearchTerm : '',
   )
@@ -63,6 +69,15 @@ function EventsRoute() {
       'We could not search flocks. Check your connection and try again.'
   }
 
+  let invitationInboxError
+  if (pendingInvitationsQuery.isError) {
+    invitationInboxError =
+      'We could not load your event invitations. Check your connection and try again.'
+  } else if (acceptInvitationMutation.isError) {
+    invitationInboxError =
+      'This invitation could not be accepted. It may have expired or your flock membership may have changed.'
+  }
+
   if (eventsQuery.isPending) return <EventsLoadingPage />
   if (eventsQuery.isError)
     return (
@@ -76,8 +91,15 @@ function EventsRoute() {
     <EventsPage
       audienceSearchTerm={audienceSearchTerm}
       audienceType={audienceType}
+      canManageAllEvents={session?.user.app_metadata?.role === 'superadmin'}
+      currentUserId={session?.user.id ?? ''}
       events={eventsQuery.data}
       flockResults={flockSearch.data ?? []}
+      pendingInvitations={pendingInvitationsQuery.data ?? []}
+      acceptingInvitationId={acceptInvitationMutation.variables}
+      invitationInboxError={invitationInboxError}
+      isLoadingInvitations={pendingInvitationsQuery.isPending}
+      isRefreshingInvitations={pendingInvitationsQuery.isFetching}
       isRefreshing={eventsQuery.isFetching}
       isSearchingAudience={
         audienceType === 'runner'
@@ -91,8 +113,8 @@ function EventsRoute() {
           ? 'We could not create this event. Check your connection and try again.'
           : undefined
       }
-      invitationLinks={invitationLinks}
-      onCloseInvitation={() => setInvitationLinks([])}
+      invitationLink={invitationLink}
+      onCloseInvitation={() => setInvitationLink(undefined)}
       invitationError={invitationError}
       isInviting={
         targetedInvitationMutation.isPending ||
@@ -109,6 +131,14 @@ function EventsRoute() {
         targetedInvitationMutation.reset()
         flockInvitationMutation.reset()
       }}
+      onAcceptInvitation={async (invitationId) => {
+        try {
+          await acceptInvitationMutation.mutateAsync(invitationId)
+        } catch (error) {
+          await pendingInvitationsQuery.refetch()
+          throw error
+        }
+      }}
       onInviteRunner={async (
         eventId,
         recipientUserId,
@@ -118,32 +148,34 @@ function EventsRoute() {
           eventId,
           recipientUserId,
         })
-        setInvitationLinks([
-          {
-            ...invitation,
-            recipientDisplayName,
-            recipientUserId,
-            url: new URL(
-              `/event-invitations/${encodeURIComponent(invitation.token)}`,
-              window.location.origin,
-            ).toString(),
-          },
-        ])
+        setInvitationLink({
+          ...invitation,
+          audienceName: recipientDisplayName,
+          audienceType: 'runner',
+          url: new URL(
+            `/event-invitations/${encodeURIComponent(invitation.token)}`,
+            window.location.origin,
+          ).toString(),
+        })
       }}
-      onInviteFlock={async (eventId, flockId) => {
-        const invitations = await flockInvitationMutation.mutateAsync({
+      onInviteFlock={async (eventId, flockId, flockName) => {
+        const invitation = await flockInvitationMutation.mutateAsync({
           eventId,
           flockId,
         })
-        setInvitationLinks(
-          invitations.map((invitation) => ({
-            ...invitation,
-            url: new URL(
-              `/event-invitations/${encodeURIComponent(invitation.token)}`,
-              window.location.origin,
-            ).toString(),
-          })),
-        )
+        setInvitationLink({
+          ...invitation,
+          audienceName: flockName,
+          audienceType: 'flock',
+          url: new URL(
+            `/event-invitations/${encodeURIComponent(invitation.token)}`,
+            window.location.origin,
+          ).toString(),
+        })
+      }}
+      onRetryInvitations={() => {
+        acceptInvitationMutation.reset()
+        void pendingInvitationsQuery.refetch()
       }}
       onCopyInvitation={async (url) => {
         await navigator.clipboard.writeText(url)
