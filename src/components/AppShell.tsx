@@ -3,7 +3,10 @@ import { NavLink, Outlet } from 'react-router'
 
 import { useAuthSession } from '@src/hooks/useAuthSession'
 
-const navigation = [{ label: 'Flocks', to: '/flocks' }]
+const navigation = [
+  { label: 'Flocks', to: '/flocks' },
+  { label: 'Events', to: '/events' },
+]
 
 function NavigationLink({ label, to }: { label: string; to: string }) {
   return (

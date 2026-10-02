@@ -69,6 +69,32 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
   })
 }
 
+export async function listUserEvents(): Promise<FlockEvent[]> {
+  const { data, error } = await supabase
+    .from('flock_events')
+    .select(eventFields)
+    .is('flock_id', null)
+    .gte('starts_at', new Date().toISOString())
+    .is('canceled_at', null)
+    .order('starts_at', { ascending: true })
+  if (error) throw error
+  return data.map(toEvent)
+}
+
+export async function createUserEvent(
+  input: CreateFlockEventInput,
+): Promise<FlockEvent> {
+  const { data, error } = await supabase.rpc('create_user_event', {
+    event_title: input.title,
+    event_starts_at: input.startsAt,
+    event_location: input.location,
+    event_description: input.description,
+  })
+  if (error) throw error
+  if (!data) throw new Error('The event creation did not return an event.')
+  return toEvent(data)
+}
+
 export async function cancelFlockEvent(eventId: string): Promise<void> {
   const { error } = await supabase.rpc('cancel_flock_event', {
     target_event_id: eventId,

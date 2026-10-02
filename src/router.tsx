@@ -9,6 +9,7 @@ import OAuthCallbackRoute from '@src/routes/OAuthCallbackRoute'
 import ProfileRoute from '@src/routes/ProfileRoute'
 import SignInRoute from '@src/routes/SignInRoute'
 import SettingsRoute from '@src/routes/SettingsRoute'
+import EventsRoute from '@src/routes/EventsRoute'
 import App from './App'
 
 export const routes = [
@@ -42,6 +43,10 @@ export const routes = [
           {
             path: 'settings',
             Component: SettingsRoute,
+          },
+          {
+            path: 'events',
+            Component: EventsRoute,
           },
           {
             path: 'flocks/new',
