@@ -102,20 +102,23 @@ function FlockDetailRoute() {
           session?.user.id && session.user.id === flockQuery.data.owner_id,
         ),
         error:
-          eventsQuery.isError ||
-          createEventMutation.isError ||
-          updateEventMutation.isError
+          eventsQuery.isError || createEventMutation.isError
             ? 'Events are unavailable.'
             : undefined,
+        editError: updateEventMutation.isError
+          ? 'Event update failed.'
+          : undefined,
         events: eventsQuery.data,
         isLoading: eventsQuery.isPending,
-        isSaving: createEventMutation.isPending,
+        isSaving:
+          createEventMutation.isPending || updateEventMutation.isPending,
         onCreate: (input) => createEventMutation.mutate(input),
         onRetry: () => void eventsQuery.refetch(),
         onRespond: (eventId, response) =>
           responseMutation.mutate({ eventId, response }),
-        onUpdate: (eventId, input) =>
-          updateEventMutation.mutate({ eventId, input }),
+        onUpdate: async (eventId, input) => {
+          await updateEventMutation.mutateAsync({ eventId, input })
+        },
       }}
     />
   )
