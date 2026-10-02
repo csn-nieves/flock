@@ -25,6 +25,7 @@ export type EventsPageProps = {
   onInvite: (eventId: string) => void
   onCopyInvitation: (url: string) => Promise<void>
   onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
+  onCloseInvitation: () => void
   isResponding: boolean
   responseError?: string
   onRespond: (eventId: string, response: EventResponse) => void
@@ -51,6 +52,7 @@ function EventsPage({
   onCopyInvitation,
   onInvite,
   onShareInvitation,
+  onCloseInvitation,
   isResponding,
   onRespond,
   responseError,
@@ -60,26 +62,30 @@ function EventsPage({
   managementError,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
-  let invitationContent = null
+  let invitationDialog = null
 
   if (invitationUrl) {
-    invitationContent = (
-      <div className="mt-6">
+    invitationDialog = (
+      <Modal
+        description="Send this link to the runners you want to invite."
+        onClose={onCloseInvitation}
+        title="Invite runners"
+      >
         <InvitationLinkCard
           invitationUrl={invitationUrl}
           onCopy={onCopyInvitation}
           onShare={onShareInvitation}
         />
-      </div>
+      </Modal>
     )
   } else if (invitationError) {
-    invitationContent = (
-      <p className="mt-6 text-sm text-text" role="alert">
+    invitationDialog = (
+      <p className="mt-4 text-sm text-text" role="alert">
         {invitationError}
       </p>
     )
   }
+  const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
 
   return (
     <section
@@ -199,7 +205,7 @@ function EventsPage({
         </ul>
       )}
 
-      {invitationContent}
+      {invitationDialog}
 
       {managementError ? (
         <p className="mt-4 text-sm text-text" role="alert">

@@ -24,6 +24,7 @@ describe('EventsPage', () => {
         isInviting={false}
         isRefreshing={false}
         onCopyInvitation={vi.fn()}
+        onCloseInvitation={vi.fn()}
         onCreate={vi.fn()}
         onInvite={vi.fn()}
         isResponding={false}
@@ -48,6 +49,7 @@ describe('EventsPage', () => {
         isInviting={false}
         isRefreshing={false}
         onCopyInvitation={vi.fn()}
+        onCloseInvitation={vi.fn()}
         onCreate={vi.fn()}
         onInvite={vi.fn()}
         isResponding={false}
@@ -71,6 +73,7 @@ describe('EventsPage', () => {
         isRefreshing={false}
         isResponding={false}
         onCopyInvitation={vi.fn()}
+        onCloseInvitation={vi.fn()}
         onCreate={vi.fn()}
         onInvite={vi.fn()}
         onRespond={onRespond}
@@ -81,5 +84,30 @@ describe('EventsPage', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
     expect(onRespond).toHaveBeenCalledWith('event', 'in')
+  })
+
+  it('shows the invitation link inside a modal and closes it', () => {
+    const onCloseInvitation = vi.fn()
+    render(
+      <EventsPage
+        events={[]}
+        invitationUrl="https://example.test/invite"
+        isCreating={false}
+        isInviting={false}
+        isRefreshing={false}
+        isResponding={false}
+        isSaving={false}
+        onCloseInvitation={onCloseInvitation}
+        onCopyInvitation={vi.fn()}
+        onCreate={vi.fn()}
+        onInvite={vi.fn()}
+        onRespond={vi.fn()}
+        onUpdate={vi.fn()}
+        onCancelEvent={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('dialog', { name: 'Invite runners' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
+    expect(onCloseInvitation).toHaveBeenCalledOnce()
   })
 })

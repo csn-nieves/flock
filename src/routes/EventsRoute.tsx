@@ -54,6 +54,7 @@ function EventsRoute() {
           : undefined
       }
       invitationUrl={invitationUrl}
+      onCloseInvitation={() => setInvitationUrl(undefined)}
       invitationError={
         invitationMutation.isError
           ? 'We could not create an invitation. Check your connection and try again.'
