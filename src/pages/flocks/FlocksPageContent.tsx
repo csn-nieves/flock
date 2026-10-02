@@ -6,7 +6,6 @@ type FlocksPageContentProps = {
   flocks: readonly FlockSummary[]
   isRefreshing: boolean
   onCreate: () => void
-  onProfile: () => void
   onSelect: (flockId: string) => void
 }
 
@@ -30,29 +29,16 @@ function FlocksPageContent({
   flocks,
   isRefreshing,
   onCreate,
-  onProfile,
   onSelect,
 }: FlocksPageContentProps) {
   if (flocks.length === 0) {
-    return (
-      <>
-        <Button className="mb-4 w-full" variant="secondary" onClick={onProfile}>
-          Your profile
-        </Button>
-        <EmptyFlocks onCreate={onCreate} />
-      </>
-    )
+    return <EmptyFlocks onCreate={onCreate} />
   }
 
   return (
     <>
-      <div className="mb-6 grid gap-3 sm:grid-cols-2">
-        <Button variant="secondary" onClick={onProfile}>
-          Your profile
-        </Button>
-        <Button variant="secondary" onClick={onCreate}>
-          Create a flock
-        </Button>
+      <div className="mb-6">
+        <Button onClick={onCreate}>Create a flock</Button>
       </div>
       <FlockList flocks={flocks} onSelect={onSelect} />
       {isRefreshing ? (

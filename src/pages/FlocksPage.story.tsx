@@ -53,7 +53,6 @@ function Story({ state }: { state: StoryState }) {
         flocks={state.flocks}
         isRefreshing={state.isRefreshing}
         onCreate={() => setIntent('create')}
-        onProfile={() => setIntent('profile')}
         onSelect={(flockId) => setIntent(`open:${flockId}`)}
       />
     )

@@ -7,7 +7,7 @@ type PageBackButtonProps = {
 
 function PageBackButton({ label, onBack }: PageBackButtonProps) {
   return (
-    <Button className="w-fit px-3" variant="secondary" onClick={onBack}>
+    <Button className="!hidden" variant="secondary" onClick={onBack}>
       <svg
         aria-hidden="true"
         className="size-4 shrink-0"

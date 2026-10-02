@@ -110,7 +110,11 @@ function FlockMembersSection({
   }
 
   return (
-    <section aria-labelledby="flock-members-heading" className="mt-10">
+    <section
+      aria-labelledby="flock-members-heading"
+      className="mt-10 scroll-mt-6"
+      id="flock-members"
+    >
       <div className="mb-3">
         {memberList.status === 'ready' ? (
           <MemberRosterHeader

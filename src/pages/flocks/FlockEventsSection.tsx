@@ -50,7 +50,11 @@ function FlockEventsSection({
     setEditingEvent(null)
   }
   return (
-    <section aria-labelledby="flock-events-heading" className="mt-8">
+    <section
+      aria-labelledby="flock-events-heading"
+      className="mt-8 scroll-mt-6"
+      id="flock-events"
+    >
       <h2
         className="font-display text-xl font-bold text-text"
         id="flock-events-heading"
