@@ -70,6 +70,8 @@ outside this slice.
   them through native device sharing when available, or copy them manually.
 - Personal event invitees can see attendance counts and respond with “I’m in,”
   “Maybe,” or “I’m out” from the personal events view.
+- Personal event attendance reads now include responses from event owners and
+  accepted invitees, so RSVP counts reflect persisted responses.
 - Personal event creators can edit or cancel their events through the personal
   events UI, with creator-only database authorization.
 - Deterministic local data includes owner-only, two-person, and five-person
