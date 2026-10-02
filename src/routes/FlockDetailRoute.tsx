@@ -28,6 +28,7 @@ function FlockDetailRoute() {
   const createEventMutation = useCreateFlockEvent(flockId ?? '')
   const navigate = useNavigate()
   const { session } = useAuthSession()
+  const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const responseMutation = useSetFlockEventResponse(flockId ?? '')
   const updateEventMutation = useUpdateFlockEvent(flockId ?? '')
   const cancelEventMutation = useCancelFlockEvent(flockId ?? '')
@@ -115,7 +116,8 @@ function FlockDetailRoute() {
         onRetryMembers={() => void membersQuery.refetch()}
         events={{
           canCreate: Boolean(
-            session?.user.id && session.user.id === flockQuery.data.owner_id,
+            isSuperadmin ||
+            (session?.user.id && session.user.id === flockQuery.data.owner_id),
           ),
           error:
             eventsQuery.isError || createEventMutation.isError
