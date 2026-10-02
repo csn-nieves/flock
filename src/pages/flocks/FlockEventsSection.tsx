@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
+import Modal from '@src/components/Modal'
 import TextField from '@src/primitives/TextField'
 import type {
   CreateFlockEventInput,
@@ -37,6 +38,7 @@ function FlockEventsSection({
   const [location, setLocation] = useState('')
   const [description, setDescription] = useState('')
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!title.trim() || !startsAt || !location.trim()) return
@@ -50,6 +52,7 @@ function FlockEventsSection({
     setStartsAt('')
     setLocation('')
     setDescription('')
+    setIsCreating(false)
   }
   function startEditing(item: FlockEvent) {
     setEditingEventId(item.id)
@@ -150,56 +153,62 @@ function FlockEventsSection({
               </div>
               {canCreate && editingEventId === item.id ? (
                 <form className="mt-4 space-y-3" onSubmit={submitEdit}>
-                  {editError ? (
-                    <p className="m-0 text-sm text-text" role="alert">
-                      We could not save this event. Check your connection and
-                      try again.
-                    </p>
-                  ) : null}
-                  <TextField
-                    label="Title"
-                    name={`edit-title-${item.id}`}
-                    required
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
-                  />
-                  <TextField
-                    label="Date and time"
-                    name={`edit-starts-${item.id}`}
-                    required
-                    type="datetime-local"
-                    value={startsAt}
-                    onChange={(event) => setStartsAt(event.target.value)}
-                  />
-                  <TextField
-                    label="Location"
-                    name={`edit-location-${item.id}`}
-                    required
-                    value={location}
-                    onChange={(event) => setLocation(event.target.value)}
-                  />
-                  <TextField
-                    label="Description"
-                    name={`edit-description-${item.id}`}
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      isPending={isSaving}
-                      pendingLabel="Saving event"
-                      type="submit"
-                    >
-                      Save event
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => setEditingEventId(null)}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
+                  <Modal
+                    description="Update the details so your flock has the latest plan."
+                    onClose={() => setEditingEventId(null)}
+                    title="Edit event"
+                  >
+                    {editError ? (
+                      <p className="m-0 text-sm text-text" role="alert">
+                        We could not save this event. Check your connection and
+                        try again.
+                      </p>
+                    ) : null}
+                    <TextField
+                      label="Title"
+                      name={`edit-title-${item.id}`}
+                      required
+                      value={title}
+                      onChange={(event) => setTitle(event.target.value)}
+                    />
+                    <TextField
+                      label="Date and time"
+                      name={`edit-starts-${item.id}`}
+                      required
+                      type="datetime-local"
+                      value={startsAt}
+                      onChange={(event) => setStartsAt(event.target.value)}
+                    />
+                    <TextField
+                      label="Location"
+                      name={`edit-location-${item.id}`}
+                      required
+                      value={location}
+                      onChange={(event) => setLocation(event.target.value)}
+                    />
+                    <TextField
+                      label="Description"
+                      name={`edit-description-${item.id}`}
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        isPending={isSaving}
+                        pendingLabel="Saving event"
+                        type="submit"
+                      >
+                        Save event
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setEditingEventId(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </Modal>
                 </form>
               ) : null}
               {canCreate && editingEventId !== item.id ? (
@@ -216,49 +225,56 @@ function FlockEventsSection({
         </ul>
       ) : null}
       {canCreate ? (
-        <form
-          className="mt-6 space-y-3 rounded-lg border border-border bg-surface-subtle p-4"
-          onSubmit={submit}
-        >
-          <h3 className="m-0 font-display text-base font-bold text-text">
+        <>
+          <Button className="mt-6 w-full" onClick={() => setIsCreating(true)}>
             Create an event
-          </h3>
-          <TextField
-            label="Title"
-            name="eventTitle"
-            required
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-          />
-          <TextField
-            label="Date and time"
-            name="startsAt"
-            required
-            type="datetime-local"
-            value={startsAt}
-            onChange={(event) => setStartsAt(event.target.value)}
-          />
-          <TextField
-            label="Location"
-            name="eventLocation"
-            required
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-          />
-          <TextField
-            label="Description"
-            name="eventDescription"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-          <Button
-            isPending={isSaving}
-            pendingLabel="Creating event"
-            type="submit"
-          >
-            Create event
           </Button>
-        </form>
+          {isCreating ? (
+            <Modal
+              description="Add the time and place so your flock knows the plan."
+              onClose={() => setIsCreating(false)}
+              title="Create an event"
+            >
+              <form className="space-y-3" onSubmit={submit}>
+                <TextField
+                  label="Title"
+                  name="eventTitle"
+                  required
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+                <TextField
+                  label="Date and time"
+                  name="startsAt"
+                  required
+                  type="datetime-local"
+                  value={startsAt}
+                  onChange={(event) => setStartsAt(event.target.value)}
+                />
+                <TextField
+                  label="Location"
+                  name="eventLocation"
+                  required
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                />
+                <TextField
+                  label="Description"
+                  name="eventDescription"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+                <Button
+                  isPending={isSaving}
+                  pendingLabel="Creating event"
+                  type="submit"
+                >
+                  Create event
+                </Button>
+              </form>
+            </Modal>
+          ) : null}
+        </>
       ) : null}
     </section>
   )
