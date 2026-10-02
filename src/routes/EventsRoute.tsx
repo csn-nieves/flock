@@ -61,17 +61,6 @@ function EventsRoute() {
           : undefined
       }
       isInviting={invitationMutation.isPending}
-      onInvite={(eventId) =>
-        invitationMutation.mutate(eventId, {
-          onSuccess: ({ token }) =>
-            setInvitationUrl(
-              new URL(
-                `/event-invitations/${encodeURIComponent(token)}`,
-                window.location.origin,
-              ).toString(),
-            ),
-        })
-      }
       onCopyInvitation={async (url) => {
         await navigator.clipboard.writeText(url)
       }}

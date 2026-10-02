@@ -23,7 +23,6 @@ export type EventsPageProps = {
   invitationUrl?: string
   invitationError?: string
   isInviting: boolean
-  onInvite: (eventId: string) => void
   onCopyInvitation: (url: string) => Promise<void>
   onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
   onCloseInvitation: () => void
@@ -51,7 +50,6 @@ function EventsPage({
   invitationUrl,
   isInviting,
   onCopyInvitation,
-  onInvite,
   onShareInvitation,
   onCloseInvitation,
   isResponding,
