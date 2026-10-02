@@ -20,3 +20,8 @@ export const eventQueryKeys = {
   mine: () => [...eventRootKey, 'mine'] as const,
   flock: (flockId: string) => [...eventRootKey, flockId] as const,
 }
+
+export const discoveryQueryKeys = {
+  runners: (term: string) => ['discovery', 'runners', term] as const,
+  flocks: (term: string) => ['discovery', 'flocks', term] as const,
+}

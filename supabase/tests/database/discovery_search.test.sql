@@ -1,0 +1,11 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select plan(6);
+select has_function('public', 'search_runners', array['text'], 'runner discovery search exists');
+select has_function('public', 'search_flocks', array['text'], 'flock discovery search exists');
+select ok(has_function_privilege('authenticated', 'public.search_runners(text)', 'execute'), 'authenticated users can search runners');
+select ok(has_function_privilege('authenticated', 'public.search_flocks(text)', 'execute'), 'authenticated users can search flocks');
+select ok(not has_function_privilege('anon', 'public.search_runners(text)', 'execute'), 'anonymous users cannot search runners');
+select ok(not has_function_privilege('anon', 'public.search_flocks(text)', 'execute'), 'anonymous users cannot search flocks');
+select * from finish();
+rollback;

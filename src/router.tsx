@@ -11,6 +11,7 @@ import SignInRoute from '@src/routes/SignInRoute'
 import SettingsRoute from '@src/routes/SettingsRoute'
 import EventsRoute from '@src/routes/EventsRoute'
 import AcceptEventInvitationRoute from '@src/routes/AcceptEventInvitationRoute'
+import DiscoverRoute from '@src/routes/DiscoverRoute'
 import App from './App'
 
 export const routes = [
@@ -48,6 +49,10 @@ export const routes = [
           {
             path: 'events',
             Component: EventsRoute,
+          },
+          {
+            path: 'discover',
+            Component: DiscoverRoute,
           },
           {
             path: 'event-invitations/:invitationToken',

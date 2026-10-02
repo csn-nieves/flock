@@ -6,6 +6,7 @@ import { useAuthSession } from '@src/hooks/useAuthSession'
 const navigation = [
   { label: 'Flocks', to: '/flocks' },
   { label: 'Events', to: '/events' },
+  { label: 'Discover', to: '/discover' },
 ]
 
 function NavigationLink({ label, to }: { label: string; to: string }) {
