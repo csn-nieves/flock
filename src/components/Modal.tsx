@@ -22,11 +22,15 @@ function Modal({ children, description, onClose, title }: ModalProps) {
     <div
       aria-describedby="modal-description"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-end justify-center bg-text/40 p-4 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-text/45 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-labelledby="modal-title"
     >
-      <div className="w-full max-w-app rounded-lg border border-border bg-background p-5 shadow-lg">
+      <div className="max-h-[min(86svh,42rem)] w-full max-w-app overflow-y-auto rounded-t-2xl border border-border bg-background px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-lg sm:rounded-2xl sm:py-5">
+        <div
+          aria-hidden="true"
+          className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden"
+        />
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2
@@ -43,7 +47,7 @@ function Modal({ children, description, onClose, title }: ModalProps) {
             </p>
           </div>
           <Button
-            aria-label="Close"
+            aria-label="Close dialog"
             className="min-w-touch px-2 text-2xl leading-none text-text-muted"
             onClick={onClose}
             variant="ghost"
