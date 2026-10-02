@@ -8,6 +8,7 @@ import type {
 } from '@src/types/events'
 
 export type FlockEventsSectionProps = {
+  editError?: string
   error?: string
   events?: readonly FlockEvent[]
   isLoading: boolean
@@ -16,11 +17,12 @@ export type FlockEventsSectionProps = {
   onCreate: (input: CreateFlockEventInput) => void
   onRetry: () => void
   onRespond: (eventId: string, response: EventResponse) => void
-  onUpdate: (eventId: string, input: CreateFlockEventInput) => void
+  onUpdate: (eventId: string, input: CreateFlockEventInput) => Promise<void>
 }
 
 function FlockEventsSection({
   canCreate,
+  editError,
   error,
   events,
   isLoading,
@@ -56,17 +58,21 @@ function FlockEventsSection({
     setLocation(item.location)
     setDescription(item.description)
   }
-  function submitEdit(event: FormEvent<HTMLFormElement>) {
+  async function submitEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!editingEventId || !title.trim() || !startsAt || !location.trim())
       return
-    onUpdate(editingEventId, {
-      description: description.trim(),
-      location: location.trim(),
-      startsAt: new Date(startsAt).toISOString(),
-      title: title.trim(),
-    })
-    setEditingEventId(null)
+    try {
+      await onUpdate(editingEventId, {
+        description: description.trim(),
+        location: location.trim(),
+        startsAt: new Date(startsAt).toISOString(),
+        title: title.trim(),
+      })
+      setEditingEventId(null)
+    } catch {
+      // The route owns the mutation error; keeping the form open preserves the draft.
+    }
   }
   return (
     <section aria-labelledby="flock-events-heading" className="mt-8">
@@ -144,6 +150,12 @@ function FlockEventsSection({
               </div>
               {canCreate && editingEventId === item.id ? (
                 <form className="mt-4 space-y-3" onSubmit={submitEdit}>
+                  {editError ? (
+                    <p className="m-0 text-sm text-text" role="alert">
+                      We could not save this event. Check your connection and
+                      try again.
+                    </p>
+                  ) : null}
                   <TextField
                     label="Title"
                     name={`edit-title-${item.id}`}

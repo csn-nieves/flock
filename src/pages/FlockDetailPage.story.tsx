@@ -51,7 +51,7 @@ const events = {
   onCreate: () => undefined,
   onRespond: () => undefined,
   onRetry: () => undefined,
-  onUpdate: () => undefined,
+  onUpdate: async () => undefined,
 }
 
 function Canvas({ children }: { children: ReactNode }) {
