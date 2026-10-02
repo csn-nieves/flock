@@ -7,6 +7,7 @@ import { useFlockEvents } from '@src/hooks/useFlockEvents'
 import { useCreateFlockEvent } from '@src/hooks/useCreateFlockEvent'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useSetFlockEventResponse } from '@src/hooks/useSetFlockEventResponse'
+import { useUpdateFlockEvent } from '@src/hooks/useUpdateFlockEvent'
 import FlockDetailPage, {
   FlockDetailErrorPage,
   FlockDetailLoadingPage,
@@ -23,6 +24,7 @@ function FlockDetailRoute() {
   const navigate = useNavigate()
   const { session } = useAuthSession()
   const responseMutation = useSetFlockEventResponse(flockId ?? '')
+  const updateEventMutation = useUpdateFlockEvent(flockId ?? '')
   const onBack = () => navigate('/flocks', { replace: true })
   let title = 'Flock not found — Flock'
 
@@ -100,7 +102,9 @@ function FlockDetailRoute() {
           session?.user.id && session.user.id === flockQuery.data.owner_id,
         ),
         error:
-          eventsQuery.isError || createEventMutation.isError
+          eventsQuery.isError ||
+          createEventMutation.isError ||
+          updateEventMutation.isError
             ? 'Events are unavailable.'
             : undefined,
         events: eventsQuery.data,
@@ -110,6 +114,8 @@ function FlockDetailRoute() {
         onRetry: () => void eventsQuery.refetch(),
         onRespond: (eventId, response) =>
           responseMutation.mutate({ eventId, response }),
+        onUpdate: (eventId, input) =>
+          updateEventMutation.mutate({ eventId, input }),
       }}
     />
   )

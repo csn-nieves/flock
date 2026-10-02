@@ -29,6 +29,13 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByRole('button', { name: 'Maybe' }),
   ).toHaveAttribute('aria-pressed', 'true')
+  await component.getByRole('button', { name: 'Edit event' }).click()
+  await expect(
+    component.getByRole('button', { name: 'Save event' }),
+  ).toBeVisible()
+  await expect(
+    component.locator('input[name="edit-title-river-loop-id"]'),
+  ).toHaveValue('River loop')
 })
 
 test('keeps the detail screen inside a mobile viewport', async ({

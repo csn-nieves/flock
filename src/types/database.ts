@@ -188,6 +188,25 @@ export type Database = {
           title: string
         }[]
       }
+      update_flock_event: {
+        Args: {
+          event_description?: string
+          event_location: string
+          event_starts_at: string
+          event_title: string
+          target_event_id: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }[]
+      }
       create_flock_invitation: {
         Args: { target_flock_id: string }
         Returns: {

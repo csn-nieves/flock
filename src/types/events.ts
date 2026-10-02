@@ -6,6 +6,7 @@ export type FlockEvent = {
     response: EventResponse | null
   }
   createdAt: string
+  createdBy: string
   description: string
   flockId: string
   id: string

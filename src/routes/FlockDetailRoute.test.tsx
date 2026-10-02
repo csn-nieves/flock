@@ -43,6 +43,9 @@ const authSession = vi.hoisted(() => ({
 const responseMutationMock = vi.hoisted(() =>
   vi.fn(() => ({ mutate: vi.fn() })),
 )
+const updateEventMock = vi.hoisted(() =>
+  vi.fn(() => ({ isError: false, isPending: false, mutate: vi.fn() })),
+)
 
 vi.mock('@src/hooks/useFlock', () => ({
   useFlock: useFlockMock,
@@ -66,6 +69,10 @@ vi.mock('@src/hooks/useAuthSession', () => ({
 
 vi.mock('@src/hooks/useSetFlockEventResponse', () => ({
   useSetFlockEventResponse: responseMutationMock,
+}))
+
+vi.mock('@src/hooks/useUpdateFlockEvent', () => ({
+  useUpdateFlockEvent: updateEventMock,
 }))
 
 const flock: FlockSummary = {
