@@ -572,3 +572,22 @@ means it is the current direction, not that it can never change.
   warrants a managed provider, the product needs notification preferences by
   category, or operational evidence requires retries beyond the current
   idempotent job and webhook path.
+
+## D032 — Protect flock ownership during superadmin membership removal
+
+- **Status:** Accepted
+- **Decision:** Superadmins may remove ordinary `member` records from any
+  flock through a protected, idempotent database function. They cannot remove
+  an `owner` membership independently of its flock.
+- **Why:** Operational support needs a way to revoke an ordinary membership,
+  but the owner membership mirrors the flock's canonical `owner_id`. Removing
+  only one side would violate that invariant and create an ownerless or
+  internally inconsistent flock. Deleting the flock remains the existing
+  explicit path when the whole group must be removed.
+- **Tradeoffs:** A removed member can rejoin through a later valid invitation,
+  and this slice does not add ownership transfer, membership suspension, or an
+  audit log. Removal revokes flock-derived access but does not delete the
+  runner account or independently retained personal-event access.
+- **Revisit when:** Ownership transfer, multiple flock administrators,
+  temporary suspension, or formal moderation audit requirements become active
+  product needs.

@@ -345,6 +345,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      remove_flock_member: {
+        Args: { target_flock_id: string; target_user_id: string }
+        Returns: undefined
+      }
       search_flocks: {
         Args: { search_term: string }
         Returns: {
