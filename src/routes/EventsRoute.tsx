@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router'
 import { useCreateUserEvent } from '@src/hooks/useCreateUserEvent'
 import { useCreateEventInvitation } from '@src/hooks/useCreateEventInvitation'
 import { useSetUserEventResponse } from '@src/hooks/useSetUserEventResponse'
+import { useUpdateUserEvent } from '@src/hooks/useUpdateUserEvent'
+import { useCancelUserEvent } from '@src/hooks/useCancelUserEvent'
 import { useUserEvents } from '@src/hooks/useUserEvents'
 import EventsPage, {
   EventsErrorPage,
@@ -15,6 +17,8 @@ function EventsRoute() {
   const createMutation = useCreateUserEvent()
   const invitationMutation = useCreateEventInvitation()
   const responseMutation = useSetUserEventResponse()
+  const updateMutation = useUpdateUserEvent()
+  const cancelMutation = useCancelUserEvent()
   const [invitationUrl, setInvitationUrl] = useState<string>()
   const navigate = useNavigate()
   const title = useMemo(() => {
@@ -101,6 +105,18 @@ function EventsRoute() {
       onRespond={(eventId, response) =>
         responseMutation.mutate({ eventId, response })
       }
+      isSaving={updateMutation.isPending}
+      managementError={
+        updateMutation.isError || cancelMutation.isError
+          ? 'We could not update this event. Check your connection and try again.'
+          : undefined
+      }
+      onUpdate={async (eventId, input) => {
+        await updateMutation.mutateAsync({ eventId, input })
+      }}
+      onCancelEvent={(eventId) => {
+        cancelMutation.mutate(eventId)
+      }}
       onCreate={async (input) => {
         await createMutation.mutateAsync(input)
         navigate('/events', { replace: true })

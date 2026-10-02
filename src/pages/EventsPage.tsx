@@ -28,6 +28,15 @@ export type EventsPageProps = {
   isResponding: boolean
   responseError?: string
   onRespond: (eventId: string, response: EventResponse) => void
+  isSaving: boolean
+  onUpdate: (
+    eventId: string,
+    input: Parameters<
+      NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
+    >[0],
+  ) => Promise<void>
+  onCancelEvent: (eventId: string) => void
+  managementError?: string
 }
 
 function EventsPage({
@@ -45,8 +54,13 @@ function EventsPage({
   isResponding,
   onRespond,
   responseError,
+  isSaving,
+  onUpdate,
+  onCancelEvent,
+  managementError,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
   let invitationContent = null
 
   if (invitationUrl) {
@@ -166,12 +180,60 @@ function EventsPage({
               >
                 Invite runners
               </Button>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => setEditingEvent(event)}
+                >
+                  Edit event
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => onCancelEvent(event.id)}
+                >
+                  Cancel event
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
       )}
 
       {invitationContent}
+
+      {managementError ? (
+        <p className="mt-4 text-sm text-text" role="alert">
+          {managementError}
+        </p>
+      ) : null}
+
+      {editingEvent ? (
+        <Modal
+          description="Update the plan for everyone invited."
+          onClose={() => setEditingEvent(null)}
+          title="Edit event"
+        >
+          <EventForm
+            initialValues={{
+              description: editingEvent.description,
+              location: editingEvent.location,
+              startsAt: editingEvent.startsAt.slice(0, 16),
+              title: editingEvent.title,
+            }}
+            isPending={isSaving}
+            mode="edit"
+            onCancel={() => setEditingEvent(null)}
+            onSubmit={async (input) => {
+              try {
+                await onUpdate(editingEvent.id, input)
+                setEditingEvent(null)
+              } catch {
+                // Keep the modal open after a failed update.
+              }
+            }}
+          />
+        </Modal>
+      ) : null}
 
       {isCreateOpen ? (
         <Modal
