@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import EventForm from '@src/components/EventForm'
 import Button from '@src/primitives/Button'
 import Modal from '@src/components/Modal'
-import TextField from '@src/primitives/TextField'
 import type {
   CreateFlockEventInput,
   EventResponse,
@@ -33,49 +33,16 @@ function FlockEventsSection({
   onRespond,
   onUpdate,
 }: FlockEventsSectionProps) {
-  const [title, setTitle] = useState('')
-  const [startsAt, setStartsAt] = useState('')
-  const [location, setLocation] = useState('')
-  const [description, setDescription] = useState('')
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
   const [isCreating, setIsCreating] = useState(false)
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!title.trim() || !startsAt || !location.trim()) return
-    onCreate({
-      description: description.trim(),
-      location: location.trim(),
-      startsAt: new Date(startsAt).toISOString(),
-      title: title.trim(),
-    })
-    setTitle('')
-    setStartsAt('')
-    setLocation('')
-    setDescription('')
-    setIsCreating(false)
-  }
   function startEditing(item: FlockEvent) {
     setEditingEventId(item.id)
-    setTitle(item.title)
-    setStartsAt(item.startsAt.slice(0, 16))
-    setLocation(item.location)
-    setDescription(item.description)
+    setEditingEvent(item)
   }
-  async function submitEdit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!editingEventId || !title.trim() || !startsAt || !location.trim())
-      return
-    try {
-      await onUpdate(editingEventId, {
-        description: description.trim(),
-        location: location.trim(),
-        startsAt: new Date(startsAt).toISOString(),
-        title: title.trim(),
-      })
-      setEditingEventId(null)
-    } catch {
-      // The route owns the mutation error; keeping the form open preserves the draft.
-    }
+  function closeEditing() {
+    setEditingEventId(null)
+    setEditingEvent(null)
   }
   return (
     <section aria-labelledby="flock-events-heading" className="mt-8">
@@ -152,64 +119,36 @@ function FlockEventsSection({
                 ))}
               </div>
               {canCreate && editingEventId === item.id ? (
-                <form className="mt-4 space-y-3" onSubmit={submitEdit}>
-                  <Modal
-                    description="Update the details so your flock has the latest plan."
-                    onClose={() => setEditingEventId(null)}
-                    title="Edit event"
-                  >
-                    {editError ? (
-                      <p className="m-0 text-sm text-text" role="alert">
-                        We could not save this event. Check your connection and
-                        try again.
-                      </p>
-                    ) : null}
-                    <TextField
-                      label="Title"
-                      name={`edit-title-${item.id}`}
-                      required
-                      value={title}
-                      onChange={(event) => setTitle(event.target.value)}
-                    />
-                    <TextField
-                      label="Date and time"
-                      name={`edit-starts-${item.id}`}
-                      required
-                      type="datetime-local"
-                      value={startsAt}
-                      onChange={(event) => setStartsAt(event.target.value)}
-                    />
-                    <TextField
-                      label="Location"
-                      name={`edit-location-${item.id}`}
-                      required
-                      value={location}
-                      onChange={(event) => setLocation(event.target.value)}
-                    />
-                    <TextField
-                      label="Description"
-                      name={`edit-description-${item.id}`}
-                      value={description}
-                      onChange={(event) => setDescription(event.target.value)}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        isPending={isSaving}
-                        pendingLabel="Saving event"
-                        type="submit"
-                      >
-                        Save event
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setEditingEventId(null)}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </Modal>
-                </form>
+                <Modal
+                  description="Update the details so your flock has the latest plan."
+                  onClose={closeEditing}
+                  title="Edit event"
+                >
+                  <EventForm
+                    error={
+                      editError
+                        ? 'We could not save this event. Check your connection and try again.'
+                        : undefined
+                    }
+                    initialValues={{
+                      description: editingEvent?.description ?? '',
+                      location: editingEvent?.location ?? '',
+                      startsAt: editingEvent?.startsAt.slice(0, 16) ?? '',
+                      title: editingEvent?.title ?? '',
+                    }}
+                    isPending={isSaving}
+                    mode="edit"
+                    onCancel={closeEditing}
+                    onSubmit={async (input) => {
+                      try {
+                        await onUpdate(item.id, input)
+                        closeEditing()
+                      } catch {
+                        // Preserve the open modal and draft after a failed update.
+                      }
+                    }}
+                  />
+                </Modal>
               ) : null}
               {canCreate && editingEventId !== item.id ? (
                 <Button
@@ -235,43 +174,14 @@ function FlockEventsSection({
               onClose={() => setIsCreating(false)}
               title="Create an event"
             >
-              <form className="space-y-3" onSubmit={submit}>
-                <TextField
-                  label="Title"
-                  name="eventTitle"
-                  required
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                />
-                <TextField
-                  label="Date and time"
-                  name="startsAt"
-                  required
-                  type="datetime-local"
-                  value={startsAt}
-                  onChange={(event) => setStartsAt(event.target.value)}
-                />
-                <TextField
-                  label="Location"
-                  name="eventLocation"
-                  required
-                  value={location}
-                  onChange={(event) => setLocation(event.target.value)}
-                />
-                <TextField
-                  label="Description"
-                  name="eventDescription"
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
-                <Button
-                  isPending={isSaving}
-                  pendingLabel="Creating event"
-                  type="submit"
-                >
-                  Create event
-                </Button>
-              </form>
+              <EventForm
+                isPending={isSaving}
+                mode="create"
+                onSubmit={(input) => {
+                  onCreate(input)
+                  setIsCreating(false)
+                }}
+              />
             </Modal>
           ) : null}
         </>
