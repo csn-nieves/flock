@@ -64,6 +64,8 @@ outside this slice.
 - Authenticated runners can open `/events` from the application navigation,
   view their upcoming personal events, and create a user-owned event through a
   reusable modal form.
+- User-owned events now have single-use, 24-hour invitation tokens, an
+  authenticated acceptance route, and RSVP authorization for invited runners.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths for member-list development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
@@ -106,7 +108,7 @@ privacy gate; flock discovery remains deferred.
 
 ## Next smallest branches
 
-1. Add invitations and attendance responses for user-owned events.
+1. Add event invitation creation and sharing controls to the personal events UI.
 
 ## Known follow-ups
 

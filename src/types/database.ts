@@ -164,6 +164,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_event_invitation: {
+        Args: { invitation_token: string }
+        Returns: {
+          canceled_at: string | null
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string | null
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_events'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       accept_flock_invitation: {
         Args: { invitation_token: string }
         Returns: {
@@ -175,6 +195,13 @@ export type Database = {
       cancel_flock_event: {
         Args: { target_event_id: string }
         Returns: undefined
+      }
+      create_event_invitation: {
+        Args: { target_event_id: string }
+        Returns: {
+          expires_at: string
+          token: string
+        }[]
       }
       create_flock_event: {
         Args: {
@@ -247,7 +274,13 @@ export type Database = {
           response: Database['public']['Enums']['flock_event_response']
           updated_at: string
           user_id: string
-        }[]
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_event_attendance'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       update_flock_event: {
         Args: {
