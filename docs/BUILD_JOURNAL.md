@@ -1112,6 +1112,27 @@ Events invitation inbox. Hosted VAPID secrets, the public build key, deployment,
 and the database webhook remain explicit release configuration rather than
 secrets committed to the repository.
 
+## 2026-10-02 — Giving superadmins global event controls
+
+### Paginated review and cancellation
+
+The protected admin dashboard now lists flock and personal events across the
+application in server-sized pages. Each card identifies its creator, event
+type, schedule, location, and lifecycle status, while URL-owned pagination
+keeps the view linkable and bounds the amount of event data loaded at once.
+
+Superadmins can cancel an upcoming event through a confirmation dialog. The
+flow deliberately reuses the existing protected cancellation transaction and
+keeps the event and attendance records intact; it does not introduce a second
+admin-only destructive path. The mutation waits for server confirmation,
+keeps recovery copy visible if the request fails, and refreshes both the admin
+event view and the runner-facing event cache after success.
+
+Unit, browser-component, route, and pgTAP coverage exercise pagination,
+metadata, responsive layout, confirmation, recovery, and cancellation of a
+personal event owned by another runner. Global membership controls remain the
+next focused admin increment.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
