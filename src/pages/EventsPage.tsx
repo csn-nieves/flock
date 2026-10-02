@@ -8,6 +8,7 @@ import type { EventResponse } from '@src/types/events'
 import InvitationLinkCard, {
   type ShareInvitationResult,
 } from './flocks/InvitationLinkCard'
+import EventRunnerPicker from '@src/components/EventRunnerPicker'
 
 export type EventsPageProps = {
   events: readonly FlockEvent[]
@@ -62,6 +63,7 @@ function EventsPage({
   managementError,
 }: EventsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [invitingEventId, setInvitingEventId] = useState<string>()
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
   let invitationDialog = null
 
@@ -140,7 +142,7 @@ function EventsPage({
                   isPending={isInviting}
                   pendingLabel="Creating invitation"
                   variant="primary"
-                  onClick={() => onInvite(event.id)}
+                  onClick={() => setInvitingEventId(event.id)}
                 >
                   Invite runners
                 </Button>
@@ -211,6 +213,19 @@ function EventsPage({
       )}
 
       {invitationDialog}
+      {invitingEventId ? (
+        <Modal
+          description="Search for a runner to receive a private invitation link."
+          onClose={() => setInvitingEventId(undefined)}
+          title="Invite a runner"
+        >
+          <EventRunnerPicker
+            isPending={false}
+            onCancel={() => setInvitingEventId(undefined)}
+            onSelect={() => setInvitingEventId(undefined)}
+          />
+        </Modal>
+      ) : null}
 
       {cancelingEvent ? (
         <Modal
