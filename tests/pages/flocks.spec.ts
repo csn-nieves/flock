@@ -113,14 +113,12 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   ).toBeVisible()
 
   await page.getByRole('button', { name: 'Create a flock' }).click()
-  await expect(page).toHaveURL('/flocks/new')
-  await expect(page).toHaveTitle('Create a flock — Flock')
-
-  await page.getByRole('link', { name: 'Flock home' }).click()
-  await expect(page).toHaveURL('/flocks')
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.getByRole('button', { name: 'Close dialog' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Create a flock' }).click()
-  await expect(page).toHaveURL('/flocks/new')
+  await expect(page.getByRole('dialog')).toBeVisible()
 
   await page
     .getByRole('textbox', { name: 'Flock name' })
@@ -147,8 +145,7 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(page).toHaveURL('/flocks/sunrise-striders-id')
 
   await page.getByRole('button', { name: 'Invite a runner' }).click()
-  await expect(page).toHaveURL('/flocks/sunrise-striders-id/invitations/new')
-  await expect(page).toHaveTitle('Invite to Sunrise Striders — Flock')
+  await expect(page.getByRole('dialog')).toBeVisible()
   await expect(
     page.getByRole('button', { name: 'Create invitation link' }),
   ).toBeVisible()
