@@ -30,7 +30,11 @@ function EventInvitationsSection({
   }
 
   return (
-    <section aria-labelledby="event-invitations-heading" className="mt-8">
+    <section
+      aria-labelledby="event-invitations-heading"
+      className="mt-8 scroll-mt-6"
+      id="event-invitations"
+    >
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="m-0 text-xs font-bold tracking-[0.12em] text-primary uppercase">

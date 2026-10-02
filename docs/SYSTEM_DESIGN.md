@@ -7,8 +7,8 @@ Last reviewed: 2026-10-02
 Flock is a mobile-first application for organizing run clubs. A run club is a
 “flock.” The first complete product slice will let an organizer create a flock,
 share an invitation, let another runner join, and show the flock's member list.
-Routes, pace groups, chat, cross-device push notifications, and monetization
-remain outside the current implemented boundary.
+Routes, pace groups, chat, and monetization remain outside the current
+implemented boundary.
 
 Flock is being built as a progressive web app so runners can install and use it
 from a phone without requiring an App Store release, native mobile toolchain, or
@@ -110,11 +110,38 @@ instead of embedding raw brand values in feature code.
 
 ### Progressive web app
 
-`vite-plugin-pwa` generates the manifest and service worker. The application
-shell and essential static assets are cached. Data mutations are not presented
-as offline-capable: membership and authentication still require a network
-connection. A new service worker asks before refreshing an open screen so an
-update cannot silently discard in-progress work.
+`vite-plugin-pwa` compiles the custom service worker and injects its Workbox
+precache manifest. The application shell and essential static assets are
+cached, SPA navigation retains its application-shell fallback, and the worker
+handles invitation pushes and notification-click deep links. Data mutations
+are not presented as offline-capable: membership and authentication still
+require a network connection. A new service worker asks before refreshing an
+open screen so an update cannot silently discard in-progress work.
+
+### Event invitation notifications
+
+Notification permission is an explicit per-device setting. The browser creates
+a standards-based `PushSubscription`; an authenticated security-definer
+function stores its endpoint and encryption keys in the private schema. A user
+may therefore register a phone, tablet, and desktop independently without
+exposing any subscription through the browser-facing tables.
+
+Targeted invitation creation queues one recipient. Universal flock invitation
+creation queues every current eligible member, while a membership-insert
+trigger queues later joiners during the seven-day window. The private job has a
+unique invitation-and-user identity so duplicate database events cannot send
+the same invitation twice. Delivery claims recheck live membership and all
+other inbox eligibility before returning any event content.
+
+A database webhook invokes the `send-event-invitation-notification` Edge
+Function for pending jobs. The webhook authenticates with the service role; the
+function also checks that credential before claiming work. It sends the
+encrypted payload to every current device subscription through the browser's
+own push service, records one idempotent outcome, and removes endpoints that
+return `404` or `410`. Tapping the notification focuses or opens Flock at
+`/events#event-invitations`. The Events inbox remains the durable source of
+truth when delivery is delayed, unsupported, blocked, or suppressed by the
+operating system.
 
 ## Frontend boundaries
 

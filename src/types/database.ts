@@ -216,6 +216,30 @@ export type Database = {
         Args: { target_event_id: string }
         Returns: undefined
       }
+      claim_event_invitation_notification: {
+        Args: { target_job_id: string }
+        Returns: {
+          auth_key: string
+          endpoint: string
+          job_id: string
+          notification_body: string
+          notification_path: string
+          notification_tag: string
+          notification_title: string
+          p256dh: string
+          subscription_id: string
+          ttl_seconds: number
+        }[]
+      }
+      complete_event_invitation_notification: {
+        Args: {
+          delivered_count: number
+          failure_message?: string
+          stale_subscription_ids?: string[]
+          target_job_id: string
+        }
+        Returns: undefined
+      }
       create_event_invitation: {
         Args: { target_event_id: string }
         Returns: {
@@ -312,6 +336,15 @@ export type Database = {
           invitation_kind: string
         }[]
       }
+      register_push_subscription: {
+        Args: {
+          subscription_auth_key: string
+          subscription_endpoint: string
+          subscription_expiration_time?: number
+          subscription_p256dh: string
+        }
+        Returns: undefined
+      }
       search_flocks: {
         Args: { search_term: string }
         Returns: {
@@ -344,6 +377,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      unregister_push_subscription: {
+        Args: { subscription_endpoint: string }
+        Returns: undefined
       }
       update_flock_event: {
         Args: {

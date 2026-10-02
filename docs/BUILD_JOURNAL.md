@@ -1086,6 +1086,32 @@ delivery, subscription cleanup, and platform-specific PWA verification. The
 in-app inbox is the durable source of truth that future push notifications can
 deep-link into.
 
+## 2026-10-02 — Delivering event invitation alerts across devices
+
+### Standards-based Web Push with an in-app source of truth
+
+Runners can now turn personal-event invitation alerts on or off for the browser
+or installed PWA they are currently using. Permission is requested only after
+the runner chooses the Settings action. The page distinguishes enabled,
+disabled, blocked, unsupported, unconfigured, recoverable failure, and the
+iPhone/iPad Home Screen prerequisite without making push a condition of using
+the Events inbox.
+
+Subscriptions are private, recipient-bound, and per device. Targeted invitations
+queue their runner; universal flock invitations queue current members and also
+queue runners who join while the invitation remains active. The delivery claim
+rechecks membership, acceptance, cancellation, event time, and expiration
+before exposing notification content. This preserves the live audience rule
+when someone leaves after a job was queued.
+
+The PWA now uses a custom Workbox service worker for both the existing app-shell
+cache/update flow and Web Push. A guarded Supabase Edge Function signs encrypted
+standards-based push messages with VAPID, sends them to every current device,
+removes stale `404`/`410` endpoints, and deep-links notification clicks to the
+Events invitation inbox. Hosted VAPID secrets, the public build key, deployment,
+and the database webhook remain explicit release configuration rather than
+secrets committed to the repository.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
