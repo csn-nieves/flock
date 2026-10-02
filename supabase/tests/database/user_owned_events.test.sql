@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(8);
+select plan(9);
 
 select ok(
   exists (
@@ -41,6 +41,14 @@ select ok(
     'execute'
   ),
   'authenticated users can call the user event function'
+);
+
+select ok(
+  (select prosrc like '%return created_event%'
+   from pg_proc
+   where pronamespace = 'public'::regnamespace
+     and proname = 'create_user_event'),
+  'user event creation returns the inserted event'
 );
 
 select ok(

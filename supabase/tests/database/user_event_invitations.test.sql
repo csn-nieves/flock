@@ -1,11 +1,13 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(6);
+select plan(8);
 select has_table('private', 'event_invitations', 'event invitations are stored privately');
 select has_function('public', 'create_event_invitation', array['uuid'], 'owners can create event invitations');
 select has_function('public', 'accept_event_invitation', array['text'], 'users can accept event invitations');
 select has_index('private', 'event_invitations', 'event_invitations_event_expiry_idx', 'event invitation expiry lookups are indexed');
 select ok(has_function_privilege('authenticated', 'public.create_event_invitation(uuid)', 'execute'), 'authenticated users can create invitations');
 select ok(has_function_privilege('authenticated', 'public.accept_event_invitation(text)', 'execute'), 'authenticated users can accept invitations');
+select has_function('private', 'user_event_invitation_ids', array[]::text[], 'event invitation lookup is encapsulated');
+select ok(has_function_privilege('authenticated', 'private.user_event_invitation_ids()', 'execute'), 'authenticated users can use the invitation lookup helper');
 select * from finish();
 rollback;
