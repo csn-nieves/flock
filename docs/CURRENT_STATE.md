@@ -13,7 +13,8 @@ Flock has completed its first usable membership flow and now supports the
 initial personal-event invitation workflow, including opt-in Web Push delivery
 for event invitations. Superadmins can now review and cancel global event
 records and remove ordinary members from any flock. The current planned admin
-operations are complete. Routes, pace groups, chat, and monetization remain
+operations are complete. A moderated workflow-validation protocol now gates the
+next product milestone. Routes, pace groups, chat, and monetization remain
 outside the current slice.
 
 ## Completed foundation
@@ -152,9 +153,9 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next smallest branches
 
-1. Validate the current flock, event, invitation, notification, and admin
-   workflows with organizers and runners before selecting the next product
-   milestone.
+1. Run the moderated sessions in `docs/WORKFLOW_VALIDATION.md` with at least
+   three organizers and three runners, record anonymized evidence, and resolve
+   any critical findings before selecting the next product milestone.
 
 ## Known follow-ups
 

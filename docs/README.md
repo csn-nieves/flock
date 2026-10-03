@@ -13,6 +13,8 @@ anyone who wants to follow the project from its beginning.
   the conditions that would justify changing them.
 - [Build journal](./BUILD_JOURNAL.md) tells the chronological story, including
   problems encountered and what we learned while solving them.
+- [Workflow validation plan](./WORKFLOW_VALIDATION.md) defines the moderated
+  organizer and runner study that gates the next product milestone.
 - [Product foundation](../PRODUCT.md) defines the problem, users, scope, and
   product principles.
 - [Technical foundation](../TECHNICAL.md) defines the accepted implementation
