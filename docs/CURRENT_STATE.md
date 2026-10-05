@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-02
+Last reviewed: 2026-10-04
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -39,6 +39,9 @@ outside the current slice.
   validation states.
 - Explicit route controllers in `src/routes` keep URL state, navigation,
   document metadata, and workflow hooks out of pure typed pages.
+- Authentication, the application shell, and the default flock collection load
+  eagerly; secondary route controllers load on demand through React Router so
+  they do not inflate the initial application chunk.
 - A mobile-first `FlocksRoute`, pure successful `FlocksPage`, and pure
   route-state views covering loading, error, retrying, empty, populated, and
   background refresh.
@@ -159,8 +162,6 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Known follow-ups
 
-- Revisit route-level code splitting as the application grows; the current
-  production build reports a JavaScript chunk above Vite's 500 kB warning.
 - Add notification categories, delivery retry scheduling, and an operational
   delivery dashboard only after real notification volume justifies them.
 - Expand the current visual foundation into a broader component design system

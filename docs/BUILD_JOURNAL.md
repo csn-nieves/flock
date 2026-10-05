@@ -1182,6 +1182,28 @@ with at least three organizers and three runners, including iPhone and Android
 coverage. Web Push delivery is marked not tested when a session environment is
 not configured for it rather than being misclassified as a product failure.
 
+## 2026-10-04 — Splitting secondary routes from application startup
+
+### Static route matching with lazy implementations
+
+Secondary route controllers now load through React Router's `lazy` route
+contract. Paths remain declared synchronously, so direct links, protected-route
+redirection, and saved authentication destinations keep their existing
+behavior. Sign-in, OAuth callback, the protected shell, and the default flock
+collection remain eager because they define startup and the most common landing
+flow.
+
+The production build changed from one 677.58 kB application bundle to a 368.96
+kB entry chunk plus independent secondary-route and shared chunks. This removes
+Vite's application chunk-size warning without raising its threshold. The
+Workbox `inlineDynamicImports` deprecation warning remains unrelated and is not
+hidden by this branch.
+
+The PWA precache includes the generated route chunks, so installed clients can
+still use them after caching. The improvement is primarily less initial parsing
+and execution; route preloading remains deferred until navigation timing shows
+a real need.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

@@ -1,6 +1,6 @@
 # Flock system design
 
-Last reviewed: 2026-10-02
+Last reviewed: 2026-10-04
 
 ## What Flock is
 
@@ -636,12 +636,20 @@ of repeating checkout, dependency installation, and browser setup per device.
 
 ## Current constraints and revisit points
 
-### Bundle size
+### Route loading and bundle size
 
-The production bundle currently exceeds Vite's 500 kB warning threshold after
-Supabase authentication is loaded. The warning has not been hidden or raised.
-Route-level code splitting should be measured when more routes exist, rather
-than added speculatively or replaced with a larger threshold.
+The application shell, authentication routes, and default flock collection
+remain eager because they own startup, sign-in, and the most common landing
+path. Secondary route controllers use React Router's static `lazy` route
+property, so the router can match every URL immediately while Vite loads the
+selected implementation on demand. Direct links and restored authentication
+destinations therefore keep the same route contract without placing every
+page, hook, and mutation in the entry chunk.
+
+The PWA still precaches generated route chunks for reliable later use, but an
+unvisited route is not parsed or executed during initial rendering. Revisit
+route preloading only when real navigation timing shows that a specific
+secondary destination benefits from it.
 
 ### Authentication lifecycle profiling
 

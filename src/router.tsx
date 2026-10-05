@@ -1,19 +1,21 @@
+import type { ComponentType } from 'react'
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import ProtectedRoute from '@src/auth/ProtectedRoute'
-import AcceptFlockInvitationRoute from '@src/routes/AcceptFlockInvitationRoute'
-import CreateFlockInvitationRoute from '@src/routes/CreateFlockInvitationRoute'
-import CreateFlockRoute from '@src/routes/CreateFlockRoute'
-import FlockDetailRoute from '@src/routes/FlockDetailRoute'
+import RouteLoadingFallback from '@src/components/RouteLoadingFallback'
 import FlocksRoute from '@src/routes/FlocksRoute'
 import OAuthCallbackRoute from '@src/routes/OAuthCallbackRoute'
-import ProfileRoute from '@src/routes/ProfileRoute'
 import SignInRoute from '@src/routes/SignInRoute'
-import SettingsRoute from '@src/routes/SettingsRoute'
-import EventsRoute from '@src/routes/EventsRoute'
-import AcceptEventInvitationRoute from '@src/routes/AcceptEventInvitationRoute'
-import DiscoverRoute from '@src/routes/DiscoverRoute'
 import App from './App'
-import AdminRoute from '@src/routes/AdminRoute'
+
+function lazyRoute(loadRoute: () => Promise<{ default: ComponentType }>) {
+  return {
+    HydrateFallback: RouteLoadingFallback,
+    lazy: async () => {
+      const route = await loadRoute()
+      return { Component: route.default }
+    },
+  }
+}
 
 export const routes = [
   {
@@ -41,43 +43,49 @@ export const routes = [
           },
           {
             path: 'profile',
-            Component: ProfileRoute,
+            ...lazyRoute(() => import('@src/routes/ProfileRoute')),
           },
           {
             path: 'settings',
-            Component: SettingsRoute,
+            ...lazyRoute(() => import('@src/routes/SettingsRoute')),
           },
           {
             path: 'events',
-            Component: EventsRoute,
+            ...lazyRoute(() => import('@src/routes/EventsRoute')),
           },
           {
             path: 'discover',
-            Component: DiscoverRoute,
+            ...lazyRoute(() => import('@src/routes/DiscoverRoute')),
           },
           {
             path: 'admin',
-            Component: AdminRoute,
+            ...lazyRoute(() => import('@src/routes/AdminRoute')),
           },
           {
             path: 'event-invitations/:invitationToken',
-            Component: AcceptEventInvitationRoute,
+            ...lazyRoute(
+              () => import('@src/routes/AcceptEventInvitationRoute'),
+            ),
           },
           {
             path: 'flocks/new',
-            Component: CreateFlockRoute,
+            ...lazyRoute(() => import('@src/routes/CreateFlockRoute')),
           },
           {
             path: 'flocks/:flockId/invitations/new',
-            Component: CreateFlockInvitationRoute,
+            ...lazyRoute(
+              () => import('@src/routes/CreateFlockInvitationRoute'),
+            ),
           },
           {
             path: 'flocks/:flockId',
-            Component: FlockDetailRoute,
+            ...lazyRoute(() => import('@src/routes/FlockDetailRoute')),
           },
           {
             path: 'invitations/:invitationToken',
-            Component: AcceptFlockInvitationRoute,
+            ...lazyRoute(
+              () => import('@src/routes/AcceptFlockInvitationRoute'),
+            ),
           },
         ],
       },
