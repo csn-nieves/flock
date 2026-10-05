@@ -1154,6 +1154,34 @@ layout, and success/failure behavior. The current planned admin operations are
 complete; the next product milestone should follow organizer and runner
 validation rather than speculative admin expansion.
 
+## 2026-10-02 — Preparing real-user workflow validation
+
+### A shared protocol before the next product milestone
+
+The repository now contains one moderated study for the organizer, runner, and
+internal admin workflows that Flock already supports. It defines participant
+coverage, realistic goal-based tasks, platform preparation, privacy boundaries,
+an outcome and severity scale, an anonymized session record, and the evidence
+threshold for choosing follow-up work.
+
+The lowest-friction setup uses three paired organizer-and-runner sessions, one
+Cloudflare Pages preview, and one disposable Supabase project. Email-code sign-
+in through a custom SMTP sender and the in-app invitation inbox are sufficient
+for the first round; social OAuth, Web Push, a custom domain, and hosted
+superadmin access stay outside the session environment until their added setup
+answers a specific research question.
+
+The protocol keeps automated verification separate from product validation. A
+passing test suite can prove that the implementation follows its contract, but
+only real organizers and runners can show whether the contract is useful and
+understandable. Superadmin checks remain an internal operational exercise, so
+participants never receive elevated credentials.
+
+No user findings are claimed by this branch. The sessions must still be run
+with at least three organizers and three runners, including iPhone and Android
+coverage. Web Push delivery is marked not tested when a session environment is
+not configured for it rather than being misclassified as a product failure.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
