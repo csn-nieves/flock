@@ -591,3 +591,22 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Ownership transfer, multiple flock administrators,
   temporary suspension, or formal moderation audit requirements become active
   product needs.
+
+## D033 — Keep primary routes eager and lazy-load secondary workflows
+
+- **Status:** Accepted
+- **Decision:** Keep the application shell, protected-session boundary,
+  sign-in, OAuth callback, and default flock collection in the entry graph.
+  Load secondary route controllers through React Router's `lazy` route
+  property while keeping every path and index definition static.
+- **Why:** Static paths preserve immediate matching, direct links, and saved
+  authentication destinations. Deferring secondary implementations removes
+  unrelated pages, hooks, and mutations from startup without adding a custom
+  route-discovery system or delaying the most common landing workflow.
+- **Tradeoffs:** The first visit to a secondary route requires its generated
+  chunk. The service worker still precaches those chunks, so this primarily
+  reduces initial parsing and execution rather than the eventual installed-PWA
+  cache size.
+- **Revisit when:** Navigation measurements justify preloading a frequent
+  secondary route, chunk fragmentation becomes material, or the default
+  landing workflow changes.
