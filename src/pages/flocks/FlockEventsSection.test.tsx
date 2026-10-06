@@ -1,10 +1,23 @@
-import { render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import FlockEventsSection from './FlockEventsSection'
 
 const event = {
-  attendance: { in: 0, maybe: 0, out: 0, response: null },
+  attendance: {
+    groups: [],
+    in: 0,
+    maybe: 0,
+    out: 0,
+    response: null,
+    runOptionId: null,
+  },
   canceledAt: null,
   createdAt: '2026-10-01T00:00:00Z',
   createdBy: 'owner',
@@ -12,6 +25,7 @@ const event = {
   flockId: 'flock',
   id: 'event',
   location: 'Riverside',
+  runOptions: [],
   startsAt: '2026-10-03T12:00:00Z',
   title: 'Saturday run',
 }
@@ -24,6 +38,7 @@ describe('FlockEventsSection', () => {
         events={[event]}
         isCanceling={false}
         isLoading={false}
+        isResponding={false}
         isSaving={false}
         onCancel={vi.fn().mockResolvedValue(undefined)}
         onCreate={vi.fn()}
@@ -43,5 +58,69 @@ describe('FlockEventsSection', () => {
     expect(
       screen.queryByRole('button', { name: 'Invite runners' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('groups attendance and requires a run choice for in or maybe', async () => {
+    const onRespond = vi.fn().mockResolvedValue(undefined)
+    const eventWithOptions = {
+      ...event,
+      attendance: {
+        groups: [
+          { in: 2, maybe: 1, runOptionId: 'five-mile-option' },
+          { in: 1, maybe: 0, runOptionId: 'ten-mile-option' },
+        ],
+        in: 3,
+        maybe: 1,
+        out: 0,
+        response: null,
+        runOptionId: null,
+      },
+      runOptions: [
+        {
+          distanceLabel: '5 miles',
+          id: 'five-mile-option',
+          paceLabel: 'Social',
+          position: 0,
+        },
+        {
+          distanceLabel: '10 miles',
+          id: 'ten-mile-option',
+          paceLabel: 'Steady',
+          position: 1,
+        },
+      ],
+    }
+    render(
+      <FlockEventsSection
+        canCreate={false}
+        events={[eventWithOptions]}
+        isCanceling={false}
+        isLoading={false}
+        isResponding={false}
+        isSaving={false}
+        onCancel={vi.fn()}
+        onCreate={vi.fn()}
+        onRespond={onRespond}
+        onRetry={vi.fn()}
+        onUpdate={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('5 miles · Social')).toBeVisible()
+    expect(screen.getByText('2 in · 1 maybe')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
+    const dialog = screen.getByRole('dialog', { name: 'Choose your run' })
+    const dialogQueries = within(dialog)
+    fireEvent.click(
+      dialogQueries.getByRole('radio', { name: '10 milesSteady' }),
+    )
+    fireEvent.click(
+      dialogQueries.getByRole('button', { name: 'Save response' }),
+    )
+
+    await waitFor(() =>
+      expect(onRespond).toHaveBeenCalledWith(event.id, 'in', 'ten-mile-option'),
+    )
+    expect(dialog).not.toBeInTheDocument()
   })
 })

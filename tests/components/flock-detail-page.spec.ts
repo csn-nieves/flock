@@ -35,6 +35,11 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByLabel('Attendance: 2 in, 1 maybe, 0 out'),
   ).toBeVisible()
+  await expect(component.getByText('5 miles · Social')).toBeVisible()
+  await expect(
+    component.getByText('2 in · 1 maybe', { exact: true }),
+  ).toBeVisible()
+  await expect(component.getByText('Your choice')).toBeVisible()
   await expect(
     component.getByRole('button', { name: 'Maybe' }),
   ).toHaveAttribute('aria-pressed', 'true')
@@ -45,6 +50,9 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(component.locator('input[name="edit-event-title"]')).toHaveValue(
     'River loop',
   )
+  await expect(
+    component.locator('input[name="edit-event-distance-0"]'),
+  ).toHaveValue('5 miles')
 })
 
 test('keeps the detail screen inside a mobile viewport', async ({

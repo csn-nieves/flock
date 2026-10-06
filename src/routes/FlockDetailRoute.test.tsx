@@ -35,16 +35,31 @@ const eventsQuery = vi.hoisted(() => ({
 }))
 const useFlockEventsMock = vi.hoisted(() => vi.fn(() => eventsQuery))
 const createEventMock = vi.hoisted(() =>
-  vi.fn(() => ({ isError: false, isPending: false, mutate: vi.fn() })),
+  vi.fn(() => ({
+    isError: false,
+    isPending: false,
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  })),
 )
 const authSession = vi.hoisted(() => ({
   session: { user: { id: 'owner-id' } },
 }))
 const responseMutationMock = vi.hoisted(() =>
-  vi.fn(() => ({ mutate: vi.fn() })),
+  vi.fn(() => ({
+    isError: false,
+    isPending: false,
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  })),
 )
 const updateEventMock = vi.hoisted(() =>
-  vi.fn(() => ({ isError: false, isPending: false, mutate: vi.fn() })),
+  vi.fn(() => ({
+    isError: false,
+    isPending: false,
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  })),
 )
 const updateFlockMutation = vi.hoisted(() => ({
   isError: false,

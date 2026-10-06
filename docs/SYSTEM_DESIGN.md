@@ -437,6 +437,38 @@ lifetime. Acceptance coverage verifies membership creation, strict
 single-use replay protection for every caller, expiry, and safe handling of
 malformed tokens.
 
+## Flock event run options and attendance
+
+Every newly created flock event has between one and eight ordered run options.
+Each option stores an organizer-written distance label and pace label rather
+than converting units or imposing a pace taxonomy. Stable option identifiers
+let an organizer edit labels without disconnecting existing responses. An edit
+may also remove an option; the foreign key preserves each attendance row and
+sets its removed selection to null so the organizer can see that an earlier
+response needs a new choice.
+
+The create and flock-specific update functions validate and write the event and
+its complete option set in one transaction. Browser clients receive only select
+access to options. Row Level Security exposes them to the same event creator,
+flock members, accepted personal-event invitees, and superadmins who may read
+the parent event; direct option writes remain unavailable. Personal events do
+not use run options in this increment.
+
+“I’m in” and “Maybe” require an option when the event has any. “I’m out” always
+stores a null option. The response function verifies both event access and that
+the selected option belongs to that event before upserting attendance. Events
+created before this migration have no options and continue to accept the
+original response contract, avoiding fabricated organizer choices during the
+migration.
+
+`listFlockEvents` loads visible events, attendance, and ordered options, then
+maps aggregate counts plus per-option in/maybe groups into application types.
+The route controller owns mutations and query invalidation. The pure flock
+events section shows grouped counts and opens an accessible radio-choice dialog
+before saving an in or maybe response. Create and edit forms preserve their
+drafts after recoverable failures, and option changes count as material event
+updates for the existing flock-alert pipeline.
+
 ## Superadmin event operations
 
 The protected `/admin` route is available only when the authenticated session
@@ -651,8 +683,9 @@ only to generate ordinary signed sessions for two seeded users; the key never
 enters Vite or the browser. The organizer and runner then use the application
 through their normal authenticated Supabase clients. One journey covers flock
 creation, single-use invitation acceptance, roster refresh, flock-event
-visibility, and RSVP persistence. The other covers universal personal-event
-flock invitations, live eligibility, acceptance, and attendance refresh.
+visibility, distance-and-pace selection, and RSVP persistence. The other covers
+universal personal-event flock invitations, live eligibility, acceptance, and
+attendance refresh.
 
 The full-stack suite deliberately stays narrow. The faster page matrix owns
 responsive browser coverage and failure states, pgTAP owns exhaustive database

@@ -13,9 +13,11 @@ Flock has completed its first usable membership flow and now supports the
 initial personal-event invitation workflow, including opt-in Web Push delivery
 for invitations and flock-event changes. Superadmins can now review and cancel
 global event records and remove ordinary members from any flock. The current
-planned admin operations are complete. A moderated workflow-validation protocol
-now gates the next product milestone. Routes, pace groups, chat, and
-monetization remain outside the current slice.
+planned admin operations are complete. Flock events now carry organizer-defined
+distance and pace options, and attendance is tied to a runner's selected plan.
+A moderated workflow-validation protocol still gates the next product
+milestone. Mapped courses, chat, and monetization remain outside the current
+slice.
 
 ## Completed foundation
 
@@ -75,8 +77,12 @@ monetization remain outside the current slice.
   mutation, navigation, and document state.
 - Profiles also support an optional coarse city or region location, with no
   precise coordinates or street-address storage.
-- Flock members can view upcoming events, and flock owners can create events
-  with a title, date/time, location, and description.
+- Flock members can view upcoming events, and flock owners can create and edit
+  events with a title, date/time, location, description, and one to eight
+  distance-and-pace run options. Runners choose an option with “I’m in” or
+  “Maybe,” attendance is grouped by option, and “I’m out” clears the choice.
+  Pre-existing events without options remain readable and respondable until an
+  organizer edits them into the current model.
 - Authenticated runners can open `/events` from the application navigation,
   view their upcoming personal events, and create a user-owned event through a
   reusable modal form.

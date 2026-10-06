@@ -12,7 +12,7 @@ export function useSetUserEventResponse() {
     }: {
       eventId: string
       response: EventResponse
-    }) => setFlockEventResponse(eventId, response),
+    }) => setFlockEventResponse(eventId, response, null),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: eventQueryKeys.mine() }),
   })
