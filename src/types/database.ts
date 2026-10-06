@@ -114,21 +114,27 @@ export type Database = {
       flocks: {
         Row: {
           created_at: string
+          description: string | null
           id: string
+          location: string | null
           name: string
           owner_id: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
+          location?: string | null
           name: string
           owner_id?: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
+          location?: string | null
           name?: string
           owner_id?: string
           updated_at?: string

@@ -18,7 +18,10 @@ export type FlockDetailPageProps = {
   onBack: () => void
   onInvite: () => void
   onRetryMembers: () => void
+  canEdit?: boolean
   events?: FlockEventsSectionProps
+  onEdit?: () => void
+  savedMessage?: string
 }
 
 type FlockDetailErrorPageProps = {
@@ -62,20 +65,46 @@ function FlockDetailPageLayout({
 }
 
 function FlockDetailPage({
+  canEdit,
   flock,
   isRefreshing,
   memberList,
   onBack,
+  onEdit,
   onInvite,
   onRetryMembers,
+  savedMessage,
   events,
 }: FlockDetailPageProps) {
   return (
     <FlockDetailPageLayout
-      description="Your run club."
+      description={
+        flock.description ?? 'This flock has not added a description yet.'
+      }
       heading={flock.name}
       onBack={onBack}
     >
+      <div className="border-l-4 border-accent pl-4">
+        <p className="m-0 text-xs leading-5 font-bold tracking-[0.08em] text-text-muted uppercase">
+          Location
+        </p>
+        <p className="mt-1 mb-0 leading-6 text-text">
+          {flock.location ?? 'Not added yet'}
+        </p>
+      </div>
+      {savedMessage ? (
+        <p
+          className="mt-5 mb-0 rounded-md border border-primary bg-surface-subtle px-4 py-3 text-sm leading-5 text-text"
+          role="status"
+        >
+          {savedMessage}
+        </p>
+      ) : null}
+      {canEdit && onEdit ? (
+        <Button className="mt-5" variant="secondary" onClick={onEdit}>
+          Edit flock details
+        </Button>
+      ) : null}
       <div id="flock-overview">
         <FlockSectionNav />
       </div>

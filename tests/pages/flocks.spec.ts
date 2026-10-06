@@ -8,7 +8,9 @@ const flockEventsRoute = '**/rest/v1/flock_events**'
 const flockAttendanceRoute = '**/rest/v1/flock_event_attendance**'
 
 type TestFlock = {
+  description: string
   id: string
+  location: string
   name: string
   owner_id: string
 }
@@ -50,15 +52,40 @@ async function mockFlockWorkflow(page: Page) {
     const url = new URL(request.url())
 
     if (request.method() === 'POST') {
-      const requestBody = request.postDataJSON() as { name: string }
+      const requestBody = request.postDataJSON() as {
+        description: string
+        location: string
+        name: string
+      }
       const createdFlock = {
+        description: requestBody.description,
         id: 'sunrise-striders-id',
+        location: requestBody.location,
         name: requestBody.name,
         owner_id: 'runner-id',
       }
 
       flocks.push(createdFlock)
       await route.fulfill({ json: createdFlock, status: 201 })
+      return
+    }
+
+    if (request.method() === 'PATCH') {
+      const requestBody = request.postDataJSON() as {
+        description: string
+        location: string
+        name: string
+      }
+      const requestedId = url.searchParams.get('id')?.replace(/^eq\./, '')
+      const flock = flocks.find(({ id }) => id === requestedId)
+
+      if (!flock) {
+        await route.fulfill({ json: null, status: 404 })
+        return
+      }
+
+      Object.assign(flock, requestBody)
+      await route.fulfill({ json: flock, status: 200 })
       return
     }
 
@@ -123,6 +150,12 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await page
     .getByRole('textbox', { name: 'Flock name' })
     .fill('Sunrise Striders')
+  await page
+    .getByRole('textbox', { name: 'Location' })
+    .fill('Eastbank Esplanade, Portland')
+  await page
+    .getByRole('textbox', { name: 'Description' })
+    .fill('Friendly sunrise miles for every pace.')
   await page.getByRole('button', { name: 'Create flock' }).click()
 
   await expect(page).toHaveURL('/flocks/sunrise-striders-id')
@@ -130,6 +163,20 @@ test('routes through the complete flock list, create, and detail workflow', asyn
   await expect(
     page.getByRole('heading', { level: 1, name: 'Sunrise Striders' }),
   ).toBeVisible()
+  await expect(page.getByText('Eastbank Esplanade, Portland')).toBeVisible()
+  await expect(
+    page.getByText('Friendly sunrise miles for every pace.'),
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Edit flock details' }).click()
+  const editDialog = page.getByRole('dialog', { name: 'Edit flock details' })
+  await editDialog.getByLabel('Location').fill('Mount Tabor, Portland')
+  await editDialog
+    .getByLabel('Description')
+    .fill('Welcoming hill loops with a regroup after every climb.')
+  await editDialog.getByRole('button', { name: 'Save changes' }).click()
+  await expect(page.getByRole('status')).toHaveText('Flock details saved.')
+  await expect(page.getByText('Mount Tabor, Portland')).toBeVisible()
   await page.getByRole('button', { name: 'Show' }).click()
   await expect(page.getByRole('list', { name: 'Flock members' })).toContainText(
     'Local Runner',

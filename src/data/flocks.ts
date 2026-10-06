@@ -1,14 +1,20 @@
-import type { CreateFlockInput, FlockSummary } from '@src/types/flocks'
+import type {
+  CreateFlockInput,
+  FlockSummary,
+  UpdateFlockInput,
+} from '@src/types/flocks'
 
 import { supabase } from './supabase'
 
-export async function createFlock({
-  name,
-}: CreateFlockInput): Promise<FlockSummary> {
+const flockSummaryColumns = 'description, id, location, name, owner_id'
+
+export async function createFlock(
+  input: CreateFlockInput,
+): Promise<FlockSummary> {
   const { data, error } = await supabase
     .from('flocks')
-    .insert({ name })
-    .select('id, name, owner_id')
+    .insert(input)
+    .select(flockSummaryColumns)
     .single()
 
   if (error) {
@@ -21,7 +27,7 @@ export async function createFlock({
 export async function listFlocks(): Promise<FlockSummary[]> {
   const { data, error } = await supabase
     .from('flocks')
-    .select('id, name, owner_id')
+    .select(flockSummaryColumns)
     .order('name', { ascending: true })
 
   if (error) {
@@ -34,9 +40,29 @@ export async function listFlocks(): Promise<FlockSummary[]> {
 export async function getFlock(flockId: string): Promise<FlockSummary | null> {
   const { data, error } = await supabase
     .from('flocks')
-    .select('id, name, owner_id')
+    .select(flockSummaryColumns)
     .eq('id', flockId)
     .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+export async function updateFlock({
+  description,
+  flockId,
+  location,
+  name,
+}: UpdateFlockInput): Promise<FlockSummary> {
+  const { data, error } = await supabase
+    .from('flocks')
+    .update({ description, location, name })
+    .eq('id', flockId)
+    .select(flockSummaryColumns)
+    .single()
 
   if (error) {
     throw error

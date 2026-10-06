@@ -21,8 +21,13 @@ function FlockList({ flocks, onSelect }: FlockListProps) {
             onClick={() => onSelect(flock.id)}
             variant="secondary"
           >
-            <span className="min-w-0 font-display text-base font-bold leading-6 tracking-[-0.01em] text-text [overflow-wrap:anywhere]">
-              {flock.name}
+            <span className="min-w-0">
+              <span className="block font-display text-base leading-6 font-bold tracking-[-0.01em] text-text [overflow-wrap:anywhere]">
+                {flock.name}
+              </span>
+              <span className="mt-0.5 block text-sm leading-5 text-text-muted [overflow-wrap:anywhere]">
+                {flock.location ?? 'Location not added yet'}
+              </span>
             </span>
             <span
               aria-hidden="true"

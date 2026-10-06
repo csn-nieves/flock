@@ -10,6 +10,12 @@ test('renders the page and reports normalized creation intent', async ({
     component.getByRole('heading', { level: 1, name: 'Create a flock' }),
   ).toBeVisible()
   await input.fill('  Sunrise Striders  ')
+  await component
+    .getByRole('textbox', { name: 'Location' })
+    .fill('  Portland, Oregon  ')
+  await component
+    .getByRole('textbox', { name: 'Description' })
+    .fill('  Friendly miles for every pace.  ')
   await component.getByRole('button', { name: 'Create flock' }).click()
 
   await expect(component.getByTestId('created-name')).toHaveText(

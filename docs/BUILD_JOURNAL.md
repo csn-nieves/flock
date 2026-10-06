@@ -1257,6 +1257,26 @@ suite remains desktop-only and focused on frontend-to-database integration;
 responsive and failure-state coverage stays in the faster mocked browser
 matrix, and real participants remain necessary for usability evidence.
 
+## 2026-10-06 — Completing flock identity details
+
+### Name, location, description, and owner editing
+
+Flock creation now fulfills the original product contract by collecting a
+recognizable name, coarse location, and short description through one reusable
+create/edit form. Flock lists show location, detail screens present the full
+identity, and only the canonical owner receives the edit action. Updates wait
+for PostgreSQL confirmation, refresh the detail cache and flock lists, preserve
+draft values after recoverable failures, and announce success in the owning
+screen.
+
+The public `flocks` table gained constrained nullable location and description
+columns. Nullable storage preserves honest unknown values for records created
+before the migration, while the new product form requires both for every new or
+edited flock. Existing Row Level Security remains the authorization boundary;
+the browser never supplies an owner identifier. Deterministic seeds now give
+all ten local flocks varied locations and descriptions, and full-stack coverage
+creates and edits those values through the rendered workflow.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

@@ -15,11 +15,15 @@ vi.mock('@src/data/flocks', () => ({
 }))
 
 const input: CreateFlockInput = {
+  description: 'Friendly miles for every pace.',
+  location: 'Portland, Oregon',
   name: 'Sunrise Striders',
 }
 
 const flock: FlockSummary = {
+  description: input.description,
   id: 'sunrise-striders-id',
+  location: input.location,
   name: 'Sunrise Striders',
   owner_id: 'owner-id',
 }
