@@ -235,11 +235,26 @@ Deploy the compiled Vite application to **Cloudflare Pages** from the GitHub rep
 
 This keeps initial hosting costs low and leaves Cloudflare Workers available if a small server-side endpoint is needed later.
 
+## Route loading
+
+Keep the application shell, authentication boundary, sign-in, OAuth callback,
+and default flock collection in the eager entry graph. Declare every route
+path synchronously and load secondary route controllers through React Router's
+`lazy` route contract so direct links and restored authentication destinations
+can still be matched immediately.
+
+The production build measured when this boundary was introduced changed from a
+single 677.58 kB application bundle to a 368.96 kB entry chunk plus independent
+secondary-route and shared chunks. This removed Vite's 500 kB application
+chunk warning without raising its threshold. The service worker still
+precaches the generated route chunks, so the primary benefit is less initial
+parsing and execution rather than a smaller eventual installed-PWA cache.
+Revisit route preloading only when navigation measurements justify it.
+
 ## Deferred decisions
 
 Do not select these until the corresponding feature branch begins:
 
-- Bundle splitting: the production build currently triggers Vite's 500 kB chunk warning after loading Supabase authentication at startup. Revisit route-level code splitting as features are added, measure its effect on mobile startup performance, and do not raise the warning threshold as a substitute for optimization.
 - Map and route provider
 - Email delivery provider
 - Analytics and error monitoring
