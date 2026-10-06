@@ -97,7 +97,7 @@ npm run db:verify
 `db:verify` resets only the local database before testing it. Run the complete
 repository verification suite with `just check`.
 
-Run the full-stack browser journey against real local Supabase sessions, RPCs,
+Run the full-stack browser journeys against real local Supabase sessions, RPCs,
 Row Level Security, and persisted data with:
 
 ```sh
@@ -106,10 +106,11 @@ npm run test:e2e
 
 This command starts Supabase if needed, resets only the local database to the
 committed migrations and seed, starts the application with local public
-configuration, and runs the organizer-to-runner personal-event journey in
-desktop Chromium. It never targets a hosted project. Use the regular page-test
-matrix for responsive browser coverage; the full-stack journey owns the
-frontend-to-database integration boundary.
+configuration, and runs the organizer-to-runner flock membership, flock event,
+and personal-event invitation journeys in desktop Chromium. It never targets a
+hosted project. Use the regular page-test matrix for responsive browser
+coverage; the full-stack suite owns the frontend-to-database integration
+boundary.
 
 After changing the public database schema, regenerate the frontend's TypeScript
 definitions from the running local database:

@@ -1,55 +1,24 @@
+import { expect, test } from '@playwright/test'
 import {
-  devices,
-  expect,
-  test,
-  type BrowserContext,
-  type Page,
-} from '@playwright/test'
-import { createLocalSession } from './localSupabase'
+  collectConsoleProblems,
+  createAuthenticatedContext,
+} from './authenticatedBrowser'
 
 const organizerEmail = 'runner@flock.com'
 const runnerEmail = 'maya.chen@flock.com'
 const flockName = 'Riverside Tempo Club'
-const browserContextOptions = {
-  ...devices['Desktop Chrome'],
-  baseURL: 'http://localhost:5173',
-  serviceWorkers: 'block' as const,
-}
-
-async function seedSession(
-  context: BrowserContext,
-  sessionDetails: Awaited<ReturnType<typeof createLocalSession>>,
-) {
-  await context.addInitScript(({ session, storageKey }) => {
-    window.localStorage.setItem(storageKey, JSON.stringify(session))
-  }, sessionDetails)
-}
-
-function collectConsoleProblems(page: Page) {
-  const problems: string[] = []
-  page.on('console', (message) => {
-    if (message.type() === 'error' || message.type() === 'warning') {
-      problems.push(`${message.type()}: ${message.text()}`)
-    }
-  })
-  page.on('pageerror', (error) => {
-    problems.push(`pageerror: ${error.message}`)
-  })
-  return problems
-}
 
 test('persists a whole-flock invitation and RSVP across two real users', async ({
   browser,
 }) => {
   const eventTitle = `E2E river run ${Date.now()}`
-  const organizerSession = await createLocalSession(organizerEmail)
-  const runnerSession = await createLocalSession(runnerEmail)
-  const organizerContext = await browser.newContext(browserContextOptions)
-  const runnerContext = await browser.newContext(browserContextOptions)
+  const organizerContext = await createAuthenticatedContext(
+    browser,
+    organizerEmail,
+  )
+  const runnerContext = await createAuthenticatedContext(browser, runnerEmail)
 
   try {
-    await seedSession(organizerContext, organizerSession)
-    await seedSession(runnerContext, runnerSession)
     const organizerPage = await organizerContext.newPage()
     const runnerPage = await runnerContext.newPage()
     const organizerConsoleProblems = collectConsoleProblems(organizerPage)

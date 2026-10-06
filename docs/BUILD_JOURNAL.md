@@ -1238,6 +1238,25 @@ This adjustment reduces pull-request overhead and avoids incomplete
 intermediate states while preserving focused reviews and understandable
 history.
 
+## 2026-10-06 — Extending full-stack coverage across the core flock workflow
+
+### Membership and flock events through two real user sessions
+
+The desktop Chromium full-stack suite now complements the personal-event
+invitation journey with the product's original organizer-to-runner workflow.
+An organizer creates a new flock and single-use invitation, a second seeded
+runner joins through that link, and both sessions verify the persisted roster.
+The organizer then creates a flock event, the runner sees it and responds, and
+the organizer observes the persisted attendance after reloading.
+
+Both journeys share one authenticated-browser helper that creates ordinary
+local user sessions server-side and keeps the secret key out of Vite and the
+browser. Each page also collects console warnings, console errors, and uncaught
+page errors so a visually successful flow cannot hide a runtime problem. The
+suite remains desktop-only and focused on frontend-to-database integration;
+responsive and failure-state coverage stays in the faster mocked browser
+matrix, and real participants remain necessary for usability evidence.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
