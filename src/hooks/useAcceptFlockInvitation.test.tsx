@@ -33,7 +33,7 @@ describe('useAcceptFlockInvitation', () => {
     expect(acceptFlockInvitationMock).not.toHaveBeenCalled()
   })
 
-  it('accepts the token and seeds the joined flock detail cache', async () => {
+  it('accepts the token and refreshes the seeded flock detail', async () => {
     acceptFlockInvitationMock.mockResolvedValue(flock)
     const { result } = renderHook(
       () => ({
@@ -41,6 +41,10 @@ describe('useAcceptFlockInvitation', () => {
         queryClient: useQueryClient(),
       }),
       { wrapper: TestQueryClientProvider },
+    )
+    const invalidateQueries = vi.spyOn(
+      result.current.queryClient,
+      'invalidateQueries',
     )
 
     await act(() => result.current.invitation.mutateAsync('invitation-token'))
@@ -53,6 +57,12 @@ describe('useAcceptFlockInvitation', () => {
     expect(
       result.current.queryClient.getQueryData(flockQueryKeys.detail(flock.id)),
     ).toEqual(flock)
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: flockQueryKeys.detail(flock.id),
+    })
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: flockQueryKeys.lists(),
+    })
   })
 
   it('exposes invitation acceptance failures', async () => {

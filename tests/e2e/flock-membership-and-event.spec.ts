@@ -12,6 +12,8 @@ test('persists flock membership, event visibility, and RSVP across two real user
 }) => {
   const uniqueSuffix = Date.now()
   const flockName = `E2E Night Owls ${uniqueSuffix}`
+  const flockLocation = `Moonrise Park ${uniqueSuffix}`
+  const updatedFlockLocation = `Starlight Trailhead ${uniqueSuffix}`
   const eventTitle = `E2E moonlight miles ${uniqueSuffix}`
   const organizerContext = await createAuthenticatedContext(
     browser,
@@ -33,6 +35,10 @@ test('persists flock membership, event visibility, and RSVP across two real user
       name: 'Create a flock',
     })
     await createFlockDialog.getByLabel('Flock name').fill(flockName)
+    await createFlockDialog.getByLabel('Location').fill(flockLocation)
+    await createFlockDialog
+      .getByLabel('Description')
+      .fill('Friendly evening miles with a no-drop finish.')
     await createFlockDialog
       .getByRole('button', { name: 'Create flock' })
       .click()
@@ -41,6 +47,29 @@ test('persists flock membership, event visibility, and RSVP across two real user
       organizerPage.getByRole('heading', { level: 1, name: flockName }),
     ).toBeVisible()
     await expect(organizerPage).toHaveTitle(`${flockName} — Flock`)
+    await expect(organizerPage.getByText(flockLocation)).toBeVisible()
+
+    await organizerPage
+      .getByRole('button', { name: 'Edit flock details' })
+      .click()
+    const editFlockDialog = organizerPage.getByRole('dialog', {
+      name: 'Edit flock details',
+    })
+    await editFlockDialog.getByLabel('Location').fill(updatedFlockLocation)
+    await editFlockDialog
+      .getByLabel('Description')
+      .fill('No-drop moonlight miles with a regroup at every turn.')
+    await editFlockDialog.getByRole('button', { name: 'Save changes' }).click()
+    await expect(organizerPage.getByRole('status')).toHaveText(
+      'Flock details saved.',
+    )
+    await organizerPage.reload()
+    await expect(organizerPage.getByText(updatedFlockLocation)).toBeVisible()
+    await expect(
+      organizerPage.getByText(
+        'No-drop moonlight miles with a regroup at every turn.',
+      ),
+    ).toBeVisible()
 
     await organizerPage.getByRole('button', { name: 'Invite a runner' }).click()
     const invitationDialog = organizerPage.getByRole('dialog', {
@@ -58,6 +87,7 @@ test('persists flock membership, event visibility, and RSVP across two real user
     await expect(
       runnerPage.getByRole('heading', { level: 1, name: flockName }),
     ).toBeVisible()
+    await expect(runnerPage.getByText(updatedFlockLocation)).toBeVisible()
 
     await organizerPage.reload()
     await organizerPage.getByRole('button', { name: 'Show' }).click()

@@ -18,9 +18,23 @@ vi.mock('@src/hooks/useCreateFlock', () => ({
 }))
 
 const createdFlock: FlockSummary = {
+  description: 'Friendly miles for every pace.',
   id: 'sunrise-striders-id',
+  location: 'Portland, Oregon',
   name: 'Sunrise Striders',
   owner_id: 'runner-id',
+}
+
+function fillFlockDetails() {
+  fireEvent.change(screen.getByRole('textbox', { name: 'Flock name' }), {
+    target: { value: '  Sunrise Striders  ' },
+  })
+  fireEvent.change(screen.getByRole('textbox', { name: 'Location' }), {
+    target: { value: '  Portland, Oregon  ' },
+  })
+  fireEvent.change(screen.getByRole('textbox', { name: 'Description' }), {
+    target: { value: '  Friendly miles for every pace.  ' },
+  })
 }
 
 function renderCreateFlockRoute() {
@@ -58,18 +72,20 @@ describe('CreateFlockRoute', () => {
     createFlockMutation.isPending = false
   })
 
-  it('sets route metadata and forwards a normalized name to the mutation', () => {
+  it('sets route metadata and forwards normalized details to the mutation', () => {
     renderCreateFlockRoute()
 
     expect(document.title).toBe('Create a flock — Flock')
 
-    fireEvent.change(screen.getByRole('textbox', { name: 'Flock name' }), {
-      target: { value: '  Sunrise Striders  ' },
-    })
+    fillFlockDetails()
     fireEvent.click(screen.getByRole('button', { name: 'Create flock' }))
 
     expect(createFlockMutation.mutate).toHaveBeenCalledWith(
-      { name: 'Sunrise Striders' },
+      {
+        description: 'Friendly miles for every pace.',
+        location: 'Portland, Oregon',
+        name: 'Sunrise Striders',
+      },
       { onSuccess: expect.any(Function) },
     )
   })
@@ -92,23 +108,22 @@ describe('CreateFlockRoute', () => {
     createFlockMutation.isError = true
     renderCreateFlockRoute()
 
-    const input = screen.getByRole('textbox', { name: 'Flock name' })
-    fireEvent.change(input, { target: { value: 'Sunrise Striders' } })
+    fillFlockDetails()
 
     expect(screen.getByRole('alert')).toHaveTextContent(
       'We could not create your flock. Check your connection and try again.',
     )
     expect(screen.queryByText('raw database failure')).not.toBeInTheDocument()
-    expect(input).toHaveValue('Sunrise Striders')
+    expect(screen.getByRole('textbox', { name: 'Flock name' })).toHaveValue(
+      '  Sunrise Striders  ',
+    )
     expect(screen.getByRole('button', { name: 'Create flock' })).toBeEnabled()
   })
 
   it('navigates to the returned flock after successful creation', async () => {
     const router = renderCreateFlockRoute()
 
-    fireEvent.change(screen.getByRole('textbox', { name: 'Flock name' }), {
-      target: { value: 'Sunrise Striders' },
-    })
+    fillFlockDetails()
     fireEvent.click(screen.getByRole('button', { name: 'Create flock' }))
 
     const mutationOptions = createFlockMutation.mutate.mock.calls[0]?.[1]

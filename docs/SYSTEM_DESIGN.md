@@ -189,10 +189,12 @@ identifier. It owns accessible list and selection semantics but not fetching,
 navigation, or empty-state copy. Long names remain fully readable on narrow
 screens, and the route controller decides what selecting a flock means.
 
-`CreateFlockForm` owns flock-name input, normalization, and the database-aligned
-required and length validation experience. It emits a valid name and receives
-pending, disabled, and safe error presentation through props. It does not call
-React Query or Supabase, keeping mutation orchestration at the route layer.
+`FlockDetailsForm` owns flock-name, coarse-location, and short-description
+input, normalization, and the database-aligned required and length validation
+experience. A named create/edit mode keeps action and progress vocabulary
+consistent while the same component preserves entered values after safe
+mutation errors. It does not call React Query or Supabase, keeping mutation
+orchestration at the route layer.
 
 ### Routes
 
@@ -218,7 +220,7 @@ restore an exact root URL, including its query and hash.
 
 `CreateFlockRoute` calls `useCreateFlock`, maps pending and failure state into
 safe page props, and forwards normalized creation intent from the pure
-`CreateFlockPage`. The page composes the shared `CreateFlockForm`, so validation,
+`CreateFlockPage`. The page composes the shared `FlockDetailsForm`, so validation,
 input preservation, and duplicate-submit protection keep their established
 owners. The live route at `/flocks/new` navigates to the returned flock's detail
 URL only after creation succeeds. It replaces the completed form in browser
@@ -232,7 +234,11 @@ member section has its own loading, empty, failure, retry, populated,
 background-refresh, and stale-refresh-failure states, so a roster problem does
 not replace an otherwise usable flock page. The protected router exposes the
 route at `/flocks/:flockId` as the destination for list selection and
-successful creation.
+successful creation. The page shows the flock's location and description to
+every authorized member. The controller exposes profile editing only to the
+canonical owner, maps `useUpdateFlock` into the shared edit form, updates the
+detail cache after server confirmation, and refreshes flock lists so changed
+identity data stays consistent across routes.
 
 `ProfileRoute` calls `useProfile` and `useUpdateProfile`, owns the protected
 `/profile` destination, and maps loading, retry, save, and success state into
@@ -276,8 +282,9 @@ Facebook OAuth, reads sessions, subscribes to auth changes, and signs out. UI
 code receives application-shaped state and messages rather than raw provider
 errors.
 
-`src/data/flocks.ts` owns the first product-data read. It selects a minimal
-flock summary and does not accept or filter by a user identifier. The active
+`src/data/flocks.ts` owns the first product-data read. It selects the flock's
+identifier, owner, name, location, and description and does not accept or
+filter by a user identifier. The active
 Supabase session supplies database identity, and PostgreSQL Row Level Security
 determines which rows are visible. Query failures reject from the data layer so
 React Query hooks can own cache and recovery behavior without exposing
@@ -289,12 +296,14 @@ authorization boundary without teaching the client whether the row is absent
 or merely inaccessible. `useFlock` caches that result under the established
 detail query key.
 
-The same module owns flock creation. The browser submits only the name;
-PostgreSQL enforces its constraints, generates the identifier, and derives
-`owner_id` from the active authenticated session. The insert returns the same
-minimal flock-summary shape used by list consumers. The frontend does not accept
-an owner identifier, which keeps ownership assignment inside the database
-authorization boundary.
+The same module owns flock creation and update. Creation submits normalized
+name, location, and description values; PostgreSQL enforces their constraints,
+generates the identifier, and derives `owner_id` from the active authenticated
+session. Updates identify the flock but never accept an owner identifier. Row
+Level Security permits the canonical owner or existing superadmin policy to
+perform the write, keeping ownership and authorization inside PostgreSQL. Both
+mutations return the same flock-summary shape used by list and detail
+consumers.
 
 The shared Supabase client is parameterized by the generated `Database` type in
 `src/types/database.ts`. That file describes only the exposed `public` schema
@@ -345,7 +354,10 @@ model contains public `flocks`, `flock_members`, and `profiles` tables plus
 private `flock_invitations`. A flock has one canonical `owner_id`, and the same user
 receives an `owner` membership from an after-insert trigger in the same
 transaction. A partial unique index prevents a second owner membership. Every
-other membership has the `member` role.
+other membership has the `member` role. Flocks also store an optional legacy-
+compatible coarse location and short description. New product flows require
+both values, while nullable storage avoids inventing data for records that
+predate the profile-details migration.
 
 `profiles` is the deliberately narrow public identity surface for a member
 list. It contains a user identifier, display name, and optional coarse

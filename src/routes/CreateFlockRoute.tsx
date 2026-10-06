@@ -24,17 +24,14 @@ function CreateFlockRoute() {
       error={createFlockMutation.isError ? creationError : undefined}
       isCreating={createFlockMutation.isPending}
       onBack={() => navigate('/flocks', { replace: true })}
-      onCreate={(name) =>
-        createFlockMutation.mutate(
-          { name },
-          {
-            onSuccess: (flock) => {
-              navigate(`/flocks/${encodeURIComponent(flock.id)}`, {
-                replace: true,
-              })
-            },
+      onCreate={(input) =>
+        createFlockMutation.mutate(input, {
+          onSuccess: (flock) => {
+            navigate(`/flocks/${encodeURIComponent(flock.id)}`, {
+              replace: true,
+            })
           },
-        )
+        })
       }
     />
   )

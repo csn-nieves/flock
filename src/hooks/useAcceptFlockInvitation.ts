@@ -8,11 +8,16 @@ export function useAcceptFlockInvitation() {
 
   return useMutation({
     mutationFn: acceptFlockInvitation,
-    onSuccess: (flock) => {
+    onSuccess: async (flock) => {
       queryClient.setQueryData(flockQueryKeys.detail(flock.id), flock)
-      void queryClient.invalidateQueries({
-        queryKey: flockQueryKeys.lists(),
-      })
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: flockQueryKeys.detail(flock.id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: flockQueryKeys.lists(),
+        }),
+      ])
     },
   })
 }

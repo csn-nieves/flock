@@ -166,12 +166,16 @@ values
     '2026-01-15 12:00:00+00'
   );
 
-insert into public.flocks (id, owner_id, name, created_at, updated_at)
+insert into public.flocks (
+  id, owner_id, name, location, description, created_at, updated_at
+)
 values
   (
     'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
     '11111111-1111-4111-8111-111111111111',
     'Sunrise Striders',
+    'Eastbank Esplanade, Portland',
+    'Easy sunrise miles with regroup points and room for every pace.',
     '2026-01-16 12:00:00+00',
     '2026-01-16 12:00:00+00'
   ),
@@ -179,6 +183,8 @@ values
     'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
     '11111111-1111-4111-8111-111111111111',
     'Riverside Tempo Club',
+    'Waterfront Park, Portland',
+    'Structured weekday workouts for runners building speed together.',
     '2026-01-17 12:00:00+00',
     '2026-01-17 12:00:00+00'
   ),
@@ -186,6 +192,8 @@ values
     'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3',
     '22222222-2222-4222-8222-222222222222',
     'Harbor Long Run',
+    'Harbor Loop, Vancouver',
+    'Conversational weekend long runs with water stops along the route.',
     '2026-01-18 12:00:00+00',
     '2026-01-18 12:00:00+00'
   );
@@ -276,15 +284,37 @@ do $$
 declare
   seed_flock_id uuid;
   owner_id uuid;
+  seed_locations text[] := array[
+    'Alberta Park, Portland',
+    'Forest Park, Portland',
+    'Sellwood Riverfront, Portland',
+    'Mount Tabor, Portland',
+    'Cully Park, Portland',
+    'Lacamas Lake, Camas',
+    'Downtown Beaverton'
+  ];
+  seed_descriptions text[] := array[
+    'Social neighborhood miles followed by coffee nearby.',
+    'Trail-focused runs with climbing options and regular regrouping.',
+    'Flat river loops for new runners and returning regulars.',
+    'Hill sessions that stay welcoming through every repeat.',
+    'Family-friendly evening runs on quiet neighborhood routes.',
+    'Mixed-surface weekend adventures at a relaxed pace.',
+    'After-work runs connecting transit, parks, and local streets.'
+  ];
 begin
   for flock_number in 4..10 loop
     seed_flock_id := md5('seed-flock-' || flock_number)::uuid;
     owner_id := md5('seed-user-' || (flock_number + 5))::uuid;
-    insert into public.flocks (id, owner_id, name, created_at, updated_at)
+    insert into public.flocks (
+      id, owner_id, name, location, description, created_at, updated_at
+    )
     values (
       seed_flock_id,
       owner_id,
       format('Neighborhood Run Club %02s', flock_number),
+      seed_locations[flock_number - 3],
+      seed_descriptions[flock_number - 3],
       '2026-02-01 12:00:00+00'::timestamptz + make_interval(days => flock_number),
       '2026-02-01 12:00:00+00'::timestamptz + make_interval(days => flock_number)
     );

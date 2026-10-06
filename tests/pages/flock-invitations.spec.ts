@@ -76,6 +76,18 @@ test('accepts an invitation once and opens the joined flock', async ({
 
   await seedAuthenticatedSession(page)
   await mockEventReads(page)
+  await page.route('**/rest/v1/flocks?select=description**', async (route) => {
+    await route.fulfill({
+      json: {
+        description: 'Friendly morning miles for every pace.',
+        id: 'morning-runners-id',
+        location: 'Riverfront Park, Portland',
+        name: 'Morning Runners',
+        owner_id: 'owner-id',
+      },
+      status: 200,
+    })
+  })
   await page.route(acceptInvitationRoute, async (route) => {
     requestBody = route.request().postDataJSON()
     await acceptanceRequested

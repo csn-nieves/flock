@@ -1,9 +1,10 @@
-import CreateFlockForm from '@src/components/CreateFlockForm'
+import FlockDetailsForm from '@src/components/FlockDetailsForm'
+import type { FlockDetailsInput } from '@src/types/flocks'
 
 export type CreateFlockPageProps = {
   isCreating: boolean
   onBack: () => void
-  onCreate: (name: string) => void
+  onCreate: (input: FlockDetailsInput) => void
   error?: string
 }
 
@@ -25,14 +26,15 @@ function CreateFlockPage({
           Create a flock
         </h1>
         <p className="mt-6 mb-0 max-w-sm leading-6 text-text-muted">
-          Start with a name your runners will recognize.
+          Add the details runners need to recognize your group.
         </p>
       </header>
 
       <div className="mt-8">
-        <CreateFlockForm
+        <FlockDetailsForm
           error={error}
           isSubmitting={isCreating}
+          mode="create"
           onSubmit={onCreate}
         />
       </div>

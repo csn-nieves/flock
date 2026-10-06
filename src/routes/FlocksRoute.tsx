@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 
-import CreateFlockForm from '@src/components/CreateFlockForm'
+import FlockDetailsForm from '@src/components/FlockDetailsForm'
 import Modal from '@src/components/Modal'
 import { useCreateFlock } from '@src/hooks/useCreateFlock'
 import { useFlocks } from '@src/hooks/useFlocks'
@@ -26,23 +26,21 @@ function CreateFlockDialog({ onClose }: { onClose: () => void }) {
       onClose={onClose}
       title="Create a flock"
     >
-      <CreateFlockForm
+      <FlockDetailsForm
         error={
           createFlockMutation.isError
             ? 'We could not create your flock. Check your connection and try again.'
             : undefined
         }
         isSubmitting={createFlockMutation.isPending}
-        onSubmit={(name) =>
-          createFlockMutation.mutate(
-            { name },
-            {
-              onSuccess: (flock) => {
-                onClose()
-                navigate(`/flocks/${encodeURIComponent(flock.id)}`)
-              },
+        mode="create"
+        onSubmit={(input) =>
+          createFlockMutation.mutate(input, {
+            onSuccess: (flock) => {
+              onClose()
+              navigate(`/flocks/${encodeURIComponent(flock.id)}`)
             },
-          )
+          })
         }
       />
     </Modal>

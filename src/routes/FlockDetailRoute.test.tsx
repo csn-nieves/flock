@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -46,6 +46,12 @@ const responseMutationMock = vi.hoisted(() =>
 const updateEventMock = vi.hoisted(() =>
   vi.fn(() => ({ isError: false, isPending: false, mutate: vi.fn() })),
 )
+const updateFlockMutation = vi.hoisted(() => ({
+  isError: false,
+  isPending: false,
+  mutate: vi.fn(),
+  reset: vi.fn(),
+}))
 const cancelEventMock = vi.hoisted(() =>
   vi.fn(() => ({ isError: false, isPending: false, mutateAsync: vi.fn() })),
 )
@@ -86,6 +92,10 @@ vi.mock('@src/hooks/useUpdateFlockEvent', () => ({
   useUpdateFlockEvent: updateEventMock,
 }))
 
+vi.mock('@src/hooks/useUpdateFlock', () => ({
+  useUpdateFlock: () => updateFlockMutation,
+}))
+
 vi.mock('@src/hooks/useCancelFlockEvent', () => ({
   useCancelFlockEvent: cancelEventMock,
 }))
@@ -95,7 +105,9 @@ vi.mock('@src/hooks/useCreateFlockInvitation', () => ({
 }))
 
 const flock: FlockSummary = {
+  description: 'Friendly morning miles for every pace.',
   id: 'morning-runners-id',
+  location: 'Eastbank Esplanade, Portland',
   name: 'Morning Runners',
   owner_id: 'owner-id',
 }
@@ -185,6 +197,38 @@ describe('FlockDetailRoute', () => {
       screen.getByRole('button', { name: 'Create invitation link' }),
     ).toBeVisible()
     expect(router.state.location.pathname).toBe('/flocks/morning-runners-id')
+  })
+
+  it('lets the flock owner edit profile details and confirms success', async () => {
+    renderFlockDetailRoute()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit flock details' }))
+
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Edit flock details',
+    })
+    const locationInput = screen.getByRole('textbox', { name: 'Location' })
+    expect(locationInput).toHaveValue('Eastbank Esplanade, Portland')
+    fireEvent.change(locationInput, {
+      target: { value: 'Mount Tabor, Portland' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    expect(updateFlockMutation.mutate).toHaveBeenCalledWith(
+      {
+        description: 'Friendly morning miles for every pace.',
+        flockId: flock.id,
+        location: 'Mount Tabor, Portland',
+        name: flock.name,
+      },
+      { onSuccess: expect.any(Function) },
+    )
+
+    const mutationOptions = updateFlockMutation.mutate.mock.calls[0]?.[1]
+    act(() => mutationOptions.onSuccess())
+
+    expect(dialog).not.toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Flock details saved.')
   })
 
   it('shows an honest initial loading state', () => {

@@ -2,10 +2,12 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(27);
+select plan(31);
 
 select has_table('public', 'flocks', 'flocks table exists');
 select has_table('public', 'flock_members', 'flock_members table exists');
+select has_column('public', 'flocks', 'location', 'flocks expose a location');
+select has_column('public', 'flocks', 'description', 'flocks expose a description');
 
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.flocks'::regclass),
@@ -195,12 +197,36 @@ set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
 select results_eq(
   $$
     update public.flocks
-    set name = 'Sunrise Miles'
+    set name = 'Sunrise Miles',
+        location = 'Eastbank Esplanade, Portland',
+        description = 'Friendly sunrise miles for every pace.'
     where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-    returning name
+    returning name || ' — ' || location || ' — ' || description
   $$,
-  array['Sunrise Miles'],
-  'the owner can update their flock'
+  array['Sunrise Miles — Eastbank Esplanade, Portland — Friendly sunrise miles for every pace.'],
+  'the owner can update their flock profile details'
+);
+
+select throws_ok(
+  $$
+    update public.flocks
+    set location = '   '
+    where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+  $$,
+  '23514',
+  null,
+  'the database rejects a blank flock location'
+);
+
+select throws_ok(
+  $$
+    update public.flocks
+    set description = repeat('a', 241)
+    where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+  $$,
+  '23514',
+  null,
+  'the database rejects an overlong flock description'
 );
 
 select throws_ok(

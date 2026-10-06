@@ -7,7 +7,9 @@ import FlockDetailPage, {
 } from './flocks/FlockDetailPage'
 
 const flock = {
+  description: 'Friendly morning miles for every pace.',
   id: 'morning-runners-id',
+  location: 'Eastbank Esplanade, Portland',
   name: 'Morning Runners',
   owner_id: 'owner-id',
 }

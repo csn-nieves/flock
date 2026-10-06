@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createFlock, getFlock, listFlocks } from './flocks'
+import { createFlock, getFlock, listFlocks, updateFlock } from './flocks'
 
 const flockQueryMocks = vi.hoisted(() => ({
   from: vi.fn(),
@@ -10,6 +10,7 @@ const flockQueryMocks = vi.hoisted(() => ({
   order: vi.fn(),
   select: vi.fn(),
   single: vi.fn(),
+  update: vi.fn(),
 }))
 
 vi.mock('./supabase', () => ({
@@ -24,6 +25,7 @@ describe('flock data', () => {
     flockQueryMocks.from.mockReturnValue({
       insert: flockQueryMocks.insert,
       select: flockQueryMocks.select,
+      update: flockQueryMocks.update,
     })
     flockQueryMocks.insert.mockReturnValue({
       select: flockQueryMocks.select,
@@ -35,26 +37,38 @@ describe('flock data', () => {
     })
     flockQueryMocks.eq.mockReturnValue({
       maybeSingle: flockQueryMocks.maybeSingle,
+      select: flockQueryMocks.select,
     })
+    flockQueryMocks.update.mockReturnValue({ eq: flockQueryMocks.eq })
   })
 
   describe('createFlock', () => {
     it('creates and returns a flock owned by the current session', async () => {
       const flock = {
+        description: 'Friendly miles for every pace.',
         id: 'sunrise-striders-id',
+        location: 'Portland, Oregon',
         name: 'Sunrise Striders',
         owner_id: 'owner-id',
       }
       flockQueryMocks.single.mockResolvedValue({ data: flock, error: null })
 
-      await expect(createFlock({ name: 'Sunrise Striders' })).resolves.toEqual(
-        flock,
-      )
+      await expect(
+        createFlock({
+          description: flock.description,
+          location: flock.location,
+          name: flock.name,
+        }),
+      ).resolves.toEqual(flock)
       expect(flockQueryMocks.from).toHaveBeenCalledWith('flocks')
       expect(flockQueryMocks.insert).toHaveBeenCalledWith({
+        description: 'Friendly miles for every pace.',
+        location: 'Portland, Oregon',
         name: 'Sunrise Striders',
       })
-      expect(flockQueryMocks.select).toHaveBeenCalledWith('id, name, owner_id')
+      expect(flockQueryMocks.select).toHaveBeenCalledWith(
+        'description, id, location, name, owner_id',
+      )
       expect(flockQueryMocks.single).toHaveBeenCalledOnce()
     })
 
@@ -70,9 +84,13 @@ describe('flock data', () => {
         error: mutationError,
       })
 
-      await expect(createFlock({ name: 'Sunrise Striders' })).rejects.toBe(
-        mutationError,
-      )
+      await expect(
+        createFlock({
+          description: 'Friendly miles for every pace.',
+          location: 'Portland, Oregon',
+          name: 'Sunrise Striders',
+        }),
+      ).rejects.toBe(mutationError)
     })
   })
 
@@ -94,7 +112,9 @@ describe('flock data', () => {
 
       await expect(listFlocks()).resolves.toEqual(flocks)
       expect(flockQueryMocks.from).toHaveBeenCalledWith('flocks')
-      expect(flockQueryMocks.select).toHaveBeenCalledWith('id, name, owner_id')
+      expect(flockQueryMocks.select).toHaveBeenCalledWith(
+        'description, id, location, name, owner_id',
+      )
       expect(flockQueryMocks.order).toHaveBeenCalledWith('name', {
         ascending: true,
       })
@@ -136,7 +156,9 @@ describe('flock data', () => {
 
       await expect(getFlock('morning-runners-id')).resolves.toEqual(flock)
       expect(flockQueryMocks.from).toHaveBeenCalledWith('flocks')
-      expect(flockQueryMocks.select).toHaveBeenCalledWith('id, name, owner_id')
+      expect(flockQueryMocks.select).toHaveBeenCalledWith(
+        'description, id, location, name, owner_id',
+      )
       expect(flockQueryMocks.eq).toHaveBeenCalledWith(
         'id',
         'morning-runners-id',
@@ -163,6 +185,37 @@ describe('flock data', () => {
       })
 
       await expect(getFlock('morning-runners-id')).rejects.toBe(queryError)
+    })
+  })
+
+  describe('updateFlock', () => {
+    it('updates and returns one RLS-authorized flock', async () => {
+      const input = {
+        description: 'All-pace social miles.',
+        flockId: 'morning-runners-id',
+        location: 'Eastbank Esplanade',
+        name: 'Morning Miles',
+      }
+      const flock = {
+        description: input.description,
+        id: input.flockId,
+        location: input.location,
+        name: input.name,
+        owner_id: 'owner-id',
+      }
+      flockQueryMocks.single.mockResolvedValue({ data: flock, error: null })
+
+      await expect(updateFlock(input)).resolves.toEqual(flock)
+      expect(flockQueryMocks.update).toHaveBeenCalledWith({
+        description: input.description,
+        location: input.location,
+        name: input.name,
+      })
+      expect(flockQueryMocks.eq).toHaveBeenCalledWith('id', input.flockId)
+      expect(flockQueryMocks.select).toHaveBeenCalledWith(
+        'description, id, location, name, owner_id',
+      )
+      expect(flockQueryMocks.single).toHaveBeenCalledOnce()
     })
   })
 })

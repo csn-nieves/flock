@@ -40,9 +40,13 @@ outside the current slice.
   deterministic seed data, a `just dev` full-stack startup, Row Level Security,
   ownership and membership constraints, and transactional pgTAP coverage.
 - React Query provider, query-key conventions, typed flock read and create data
-  functions, `useFlocks`, and `useCreateFlock`.
-- Presentational `FlockList` and `CreateFlockForm`, including complete async and
-  validation states.
+  functions, `useFlocks`, `useCreateFlock`, and owner-authorized flock profile
+  updates through `useUpdateFlock`.
+- Flock creation collects a name, coarse location, and short description.
+  Owners can edit those details from flock detail, members can read them, and
+  flock lists expose location so similar groups remain distinguishable.
+- Presentational `FlockList` and reusable `FlockDetailsForm`, including complete
+  async, validation, create, and edit states.
 - Explicit route controllers in `src/routes` keep URL state, navigation,
   document metadata, and workflow hooks out of pure typed pages.
 - Authentication, the application shell, and the default flock collection load
@@ -106,7 +110,8 @@ outside the current slice.
   key, Edge Function deployment, and authenticated database webhook; none are
   applied to a hosted environment by this branch.
 - Deterministic local data includes owner-only, two-person, and five-person
-  rosters with varied display-name lengths for member-list development.
+  rosters with varied display-name lengths, flock locations, and flock
+  descriptions for realistic list and detail development.
 - Any flock member can create an opaque invitation that expires after 24 hours.
   Private storage keeps only its token hash, and the generated link supports
   native device sharing when available, copy fallback, and manual-copy

@@ -18,7 +18,7 @@ function InteractivePage() {
       <CreateFlockPage
         isCreating={false}
         onBack={onBack}
-        onCreate={setCreatedName}
+        onCreate={(input) => setCreatedName(input.name)}
       />
       <output className="sr-only" data-testid="created-name">
         {createdName}

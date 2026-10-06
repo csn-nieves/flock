@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
 import Modal from '@src/components/Modal'
+import FlockDetailsForm from '@src/components/FlockDetailsForm'
 import { useFlock } from '@src/hooks/useFlock'
 import { useFlockMembers } from '@src/hooks/useFlockMembers'
 import { useFlockEvents } from '@src/hooks/useFlockEvents'
@@ -9,6 +10,7 @@ import { useCreateFlockEvent } from '@src/hooks/useCreateFlockEvent'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useSetFlockEventResponse } from '@src/hooks/useSetFlockEventResponse'
 import { useUpdateFlockEvent } from '@src/hooks/useUpdateFlockEvent'
+import { useUpdateFlock } from '@src/hooks/useUpdateFlock'
 import { useCancelFlockEvent } from '@src/hooks/useCancelFlockEvent'
 import { useCreateFlockInvitation } from '@src/hooks/useCreateFlockInvitation'
 import FlockDetailPage, {
@@ -20,7 +22,9 @@ import type { FlockMemberListState } from '@src/pages/flocks/FlockMembersSection
 import CreateFlockInvitationPage from '@src/pages/flocks/CreateFlockInvitationPage'
 
 function FlockDetailRoute() {
+  const [isEditOpen, setIsEditOpen] = useState(false)
   const [isInviteOpen, setIsInviteOpen] = useState(false)
+  const [savedMessage, setSavedMessage] = useState<string>()
   const { flockId } = useParams<{ flockId: string }>()
   const flockQuery = useFlock(flockId)
   const membersQuery = useFlockMembers(flockId)
@@ -33,6 +37,7 @@ function FlockDetailRoute() {
   const updateEventMutation = useUpdateFlockEvent(flockId ?? '')
   const cancelEventMutation = useCancelFlockEvent(flockId ?? '')
   const invitationMutation = useCreateFlockInvitation()
+  const updateFlockMutation = useUpdateFlock(flockId ?? '')
   const onBack = () => navigate('/flocks', { replace: true })
   let title = 'Flock not found — Flock'
 
@@ -108,12 +113,19 @@ function FlockDetailRoute() {
   return (
     <>
       <FlockDetailPage
+        canEdit={session?.user.id === flockQuery.data.owner_id}
         flock={flockQuery.data}
         isRefreshing={flockQuery.isFetching}
         memberList={memberList}
         onBack={onBack}
+        onEdit={() => {
+          setSavedMessage(undefined)
+          updateFlockMutation.reset()
+          setIsEditOpen(true)
+        }}
         onInvite={() => setIsInviteOpen(true)}
         onRetryMembers={() => void membersQuery.refetch()}
+        savedMessage={savedMessage}
         events={{
           canCreate: Boolean(
             isSuperadmin ||
@@ -143,6 +155,40 @@ function FlockDetailRoute() {
           },
         }}
       />
+      {isEditOpen ? (
+        <Modal
+          description="Keep the group details current for every member."
+          onClose={() => setIsEditOpen(false)}
+          title="Edit flock details"
+        >
+          <FlockDetailsForm
+            error={
+              updateFlockMutation.isError
+                ? 'Check your connection and try again. Your changes are still here.'
+                : undefined
+            }
+            initialValues={{
+              description: flockQuery.data.description ?? '',
+              location: flockQuery.data.location ?? '',
+              name: flockQuery.data.name,
+            }}
+            isSubmitting={updateFlockMutation.isPending}
+            mode="edit"
+            onCancel={() => setIsEditOpen(false)}
+            onSubmit={(input) =>
+              updateFlockMutation.mutate(
+                { flockId, ...input },
+                {
+                  onSuccess: () => {
+                    setIsEditOpen(false)
+                    setSavedMessage('Flock details saved.')
+                  },
+                },
+              )
+            }
+          />
+        </Modal>
+      ) : null}
       {isInviteOpen ? (
         <Modal
           description={`Create a single-use link for ${flockQuery.data?.name ?? 'this flock'}.`}
