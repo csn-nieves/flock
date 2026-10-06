@@ -1222,6 +1222,22 @@ responsive browser coverage to the faster mocked page matrix. Human workflow
 validation remains necessary because this test proves implementation behavior,
 not whether runners and organizers understand it.
 
+## 2026-10-06 — Adopting cohesive vertical-slice branches
+
+### Complete one reviewable outcome without artificial layer boundaries
+
+The repository workflow now favors reasonably sized, cohesive branches over a
+series of very small layer-by-layer changes. One branch may carry the database,
+data-access, application, UI, test, and documentation work needed to complete a
+single outcome when those pieces belong together.
+
+The review boundary remains strict: each branch must have one independently
+reviewable purpose and must exclude opportunistic cleanup, unrelated refactors,
+and separate product outcomes. The no-commit/no-push boundary is unchanged.
+This adjustment reduces pull-request overhead and avoids incomplete
+intermediate states while preserving focused reviews and understandable
+history.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

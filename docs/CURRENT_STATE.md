@@ -158,7 +158,7 @@ and already-consumed invitations share one non-disclosing unavailable state.
 Invitations remain a convenient path into a flock, not an invitation-only
 privacy gate; discovery currently exposes only limited names and opaque IDs.
 
-## Next smallest branches
+## Next planned increments
 
 1. Run the moderated sessions in `docs/WORKFLOW_VALIDATION.md` with at least
    three organizers and three runners, record anonymized evidence, and resolve
@@ -180,5 +180,6 @@ For a new Codex task:
 1. Read `AGENTS.md` and this file.
 2. Read the source documents relevant to the next branch.
 3. Inspect `git status`, the active branch, recent commits, and existing tests.
-4. Confirm the next change is still the smallest honest product increment.
+4. Confirm the next branch completes one cohesive, independently reviewable
+   outcome without unrelated work.
 5. Create a focused branch and preserve the no-commit/no-push rule.
