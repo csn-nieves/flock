@@ -113,12 +113,12 @@ instead of embedding raw brand values in feature code.
 `vite-plugin-pwa` compiles the custom service worker and injects its Workbox
 precache manifest. The application shell and essential static assets are
 cached, SPA navigation retains its application-shell fallback, and the worker
-handles invitation pushes and notification-click deep links. Data mutations
+handles event-alert pushes and notification-click deep links. Data mutations
 are not presented as offline-capable: membership and authentication still
 require a network connection. A new service worker asks before refreshing an
 open screen so an update cannot silently discard in-progress work.
 
-### Event invitation notifications
+### Event notifications
 
 Notification permission is an explicit per-device setting. The browser creates
 a standards-based `PushSubscription`; an authenticated security-definer
@@ -133,15 +133,22 @@ unique invitation-and-user identity so duplicate database events cannot send
 the same invitation twice. Delivery claims recheck live membership and all
 other inbox eligibility before returning any event content.
 
-A database webhook invokes the `send-event-invitation-notification` Edge
-Function for pending jobs. The webhook authenticates with the service role; the
-function also checks that credential before claiming work. It sends the
-encrypted payload to every current device subscription through the browser's
-own push service, records one idempotent outcome, and removes endpoints that
-return `404` or `410`. Tapping the notification focuses or opens Flock at
-`/events#event-invitations`. The Events inbox remains the durable source of
-truth when delivery is delayed, unsupported, blocked, or suppressed by the
-operating system.
+Creating, materially updating, or canceling a future flock event records an
+immutable activity and queues every current member except the actor. Later
+joiners do not receive historical activity, and a delivery claim skips anyone
+who has since left. A superadmin cancellation queues all current members,
+including the flock owner. Older create or update activity is suppressed when
+a newer change already exists for the event.
+
+A database webhook invokes the `send-push-notification` Edge Function for
+pending jobs. The webhook authenticates with the service role; the function
+also checks that credential before claiming work. It sends the encrypted
+payload to every current device subscription through the browser's own push
+service, records one idempotent outcome, and removes endpoints that return
+`404` or `410`. Invitation alerts open `/events#event-invitations`; flock-event
+alerts open `/flocks/:flockId#flock-events`. The existing Events and flock
+detail screens remain the durable sources of truth when delivery is delayed,
+unsupported, blocked, or suppressed by the operating system.
 
 ## Frontend boundaries
 

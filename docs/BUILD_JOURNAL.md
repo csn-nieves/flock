@@ -1277,6 +1277,30 @@ the browser never supplies an owner identifier. Deterministic seeds now give
 all ten local flocks varied locations and descriptions, and full-stack coverage
 creates and edits those values through the rendered workflow.
 
+## 2026-10-06 — Extending event alerts to flock activity
+
+### Flock event creation, updates, and cancellation
+
+The existing per-device Web Push setting now covers meaningful flock-event
+changes as well as personal-event invitations. Creating, changing, or canceling
+a future flock event records immutable activity and creates one recipient job
+for each current flock member other than the actor. Delivery rechecks live
+membership, skips departed members, sends to every device currently registered
+for an eligible runner, and deep-links into the flock event section.
+
+Flock activity intentionally uses a point-in-time audience: runners who join
+later receive future changes but not historical alerts. A superadmin
+cancellation includes every current member, including the owner, because the
+administrator is outside the audience. No-op edits do not create noise, and a
+newer update or cancellation suppresses an older undelivered create/update
+alert for the same event.
+
+The invitation-only queue and Edge Function were generalized to
+`private.notification_jobs` and `send-push-notification`. The in-app Events and
+flock-detail views remain authoritative; this change does not add an alert
+history, badges, WebSockets, chat notifications, delivery retry scheduling, or
+hosted deployment configuration.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

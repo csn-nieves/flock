@@ -40,7 +40,7 @@ describe('SettingsPage', () => {
     expect(screen.getByRole('radio', { name: 'Dark mode' })).toBeChecked()
   })
 
-  it('lets a runner turn event invitation alerts on for this device', () => {
+  it('lets a runner turn event alerts on for this device', () => {
     const onEnableNotifications = vi.fn()
     render(
       <SettingsPage
@@ -50,10 +50,23 @@ describe('SettingsPage', () => {
     )
 
     expect(screen.getByText('Off for this device')).toBeVisible()
+    expect(
+      screen.getByText(/personal invitations and flock event changes/),
+    ).toBeVisible()
     fireEvent.click(
       screen.getByRole('button', { name: 'Turn on notifications' }),
     )
     expect(onEnableNotifications).toHaveBeenCalledOnce()
+  })
+
+  it('describes enabled alerts without limiting them to invitations', () => {
+    render(<SettingsPage {...defaultProps} notificationStatus="on" />)
+
+    expect(
+      screen.getByText(
+        'This browser can show event alerts even when Flock is closed.',
+      ),
+    ).toBeVisible()
   })
 
   it('explains the iPhone and iPad Home Screen requirement', () => {
