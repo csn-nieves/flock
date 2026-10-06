@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-04
+Last reviewed: 2026-10-06
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -23,10 +23,14 @@ outside the current slice.
 - Shared design tokens, primitives, component stories, Vitest coverage, and
   Playwright projects for desktop Chrome, Android-sized Chrome, and iPhone
   WebKit.
-- CI checks separated by formatting, linting, types, unit tests, build,
-  component browser tests, page browser tests, and database tests. Component
-  and page jobs each run the complete desktop, Android-sized, and iPhone
-  Playwright matrix without repeating runner setup per device.
+- Repository checks are separated by formatting, linting, types, unit tests,
+  build, component browser tests, page browser tests, full-stack browser tests,
+  and database tests. Component and page CI jobs each run the complete desktop,
+  Android-sized, and iPhone Playwright matrix without repeating runner setup
+  per device.
+- A dedicated desktop Chromium full-stack journey resets local Supabase and
+  verifies the personal-event flock invitation flow across two real seeded
+  sessions, including RPCs, Row Level Security, persistence, and query refresh.
 - Supabase authentication through six-digit email codes, Google OAuth, and
   Facebook OAuth using PKCE, protected routes, safe destination restoration,
   and a dedicated callback route.
