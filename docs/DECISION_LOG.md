@@ -1,6 +1,6 @@
 # Flock decision log
 
-Last reviewed: 2026-10-02
+Last reviewed: 2026-10-06
 
 This log records decisions that shape future work. Each entry includes the
 reasoning and the conditions that would justify another decision. “Accepted”
@@ -227,7 +227,7 @@ means it is the current direction, not that it can never change.
 
 ## D015 — Develop in small branches without automated commits
 
-- **Status:** Accepted project workflow
+- **Status:** Superseded by D034
 - **Decision:** Each reviewable step gets its own branch. The project owner
   normally creates commits and pushes; automated assistance must not commit or
   push without explicit permission.
@@ -610,3 +610,25 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Navigation measurements justify preloading a frequent
   secondary route, chunk fragmentation becomes material, or the default
   landing workflow changes.
+
+## D034 — Complete cohesive outcomes in independently reviewable branches
+
+- **Status:** Accepted project workflow
+- **Decision:** Organize each branch around one clear, independently reviewable
+  outcome. Prefer a reasonably sized vertical slice that includes every
+  relevant database, data-access, application, UI, test, and documentation
+  change needed to complete that outcome. Exclude opportunistic cleanup,
+  unrelated refactors, and separate product outcomes. The project owner
+  normally creates commits and pushes; automated assistance must not commit or
+  push without explicit permission.
+- **Why:** Artificially splitting one outcome by implementation layer creates
+  extra pull-request overhead, leaves intermediate branches incomplete, and
+  slows progress without improving the review boundary. A complete vertical
+  slice makes the behavior, authorization, interface, and verification visible
+  together while retaining a clear purpose and reversible history.
+- **Tradeoffs:** Individual diffs may be larger and require more deliberate
+  organization, proportional verification, and a concise explanation of the
+  branch's single outcome. Cohesion, not raw line count, determines scope.
+- **Revisit when:** Branches routinely mix unrelated outcomes, reviews become
+  difficult to complete safely, or team and release needs call for a different
+  workflow with equivalent review boundaries.

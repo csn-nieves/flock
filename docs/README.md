@@ -7,7 +7,7 @@ anyone who wants to follow the project from its beginning.
 ## Where to look
 
 - [Current state](./CURRENT_STATE.md) is the concise handoff for starting a new
-  development task and identifies the next smallest branches.
+  development task and identifies the next planned increments.
 - [System design](./SYSTEM_DESIGN.md) describes how the application works now.
 - [Decision log](./DECISION_LOG.md) records durable choices, alternatives, and
   the conditions that would justify changing them.
@@ -39,12 +39,12 @@ may describe temporary failures, rejected approaches, and unresolved concerns.
 They are historical evidence, not necessarily current instructions.
 
 The current-state handoff answers, “Where did we stop, and what is the next
-smallest honest change?” It stays concise and points to the other records rather
-than duplicating their full rationale.
+cohesive outcome?” It stays concise and points to the other records rather than
+duplicating their full rationale.
 
 ## Keeping this documentation current
 
-Update these records in the same small branch as a change when that change:
+Update these records in the same cohesive branch as a change when that change:
 
 - selects or replaces a framework, service, or architectural pattern;
 - introduces a rule that future features must follow;

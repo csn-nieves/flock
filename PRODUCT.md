@@ -64,7 +64,8 @@ The first development slice will not include:
 
 - Design for phone use first.
 - Keep each workflow focused and easy to complete outdoors.
-- Build and review the product in small, independently scoped branches.
+- Build and review the product in cohesive, independently reviewable branches
+  that complete one clear outcome without unrelated work.
 - Validate behavior with real organizers and runners before expanding scope.
 - Add complexity only when observed usage justifies it.
 - Treat monetization as an experiment after the core coordination workflow is useful.
