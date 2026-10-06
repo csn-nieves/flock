@@ -28,9 +28,11 @@ outside the current slice.
   and database tests. Component and page CI jobs each run the complete desktop,
   Android-sized, and iPhone Playwright matrix without repeating runner setup
   per device.
-- A dedicated desktop Chromium full-stack journey resets local Supabase and
-  verifies the personal-event flock invitation flow across two real seeded
-  sessions, including RPCs, Row Level Security, persistence, and query refresh.
+- Dedicated desktop Chromium full-stack journeys reset local Supabase and
+  verify flock creation, single-use joining, roster refresh, flock-event
+  visibility and RSVP, and personal-event flock invitations across two real
+  seeded sessions, including RPCs, Row Level Security, persistence, and query
+  refresh.
 - Supabase authentication through six-digit email codes, Google OAuth, and
   Facebook OAuth using PKCE, protected routes, safe destination restoration,
   and a dedicated callback route.
