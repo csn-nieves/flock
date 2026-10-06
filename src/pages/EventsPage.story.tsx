@@ -65,7 +65,7 @@ export function InvitationAudience() {
         onCreate={() => undefined}
         onInviteFlock={async () => undefined}
         onInviteRunner={async () => undefined}
-        onRespond={() => undefined}
+        onRespond={async () => undefined}
         onRetryInvitations={() => undefined}
         onUpdate={async () => undefined}
         pendingInvitations={[]}
@@ -116,7 +116,7 @@ export function PendingInvitation() {
         onCreate={() => undefined}
         onInviteFlock={async () => undefined}
         onInviteRunner={async () => undefined}
-        onRespond={() => undefined}
+        onRespond={async () => undefined}
         onRetryInvitations={() => undefined}
         onUpdate={async () => undefined}
       />

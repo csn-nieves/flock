@@ -1325,6 +1325,35 @@ one, and verifies the grouped persisted result after the organizer reloads.
 Transactional database coverage includes validation, authorization, RLS,
 selection clearing, option removal, and backward compatibility.
 
+## 2026-10-06 — Replacing free-text run options with structured pickers
+
+### Unit-aware distance and pace choices
+
+Flock event forms now use an authored, touch-first wheel instead of asking an
+organizer to type distance and pace labels. The dark multi-column control keeps
+the selected row centered, fades neighboring values, supports inertial touch
+scrolling, and exposes keyboard-operable spin controls. Distance supports
+tenth-unit steps. One shared miles-or-kilometers choice governs both distance
+and pace, preventing mismatched units. Pace supports five-second steps from
+4:00–15:00 per mile or 2:30–9:30 per kilometer, and changing measurement keeps
+the closest equivalent effort.
+
+The database now validates one shared unit with both numeric values, stores it
+on the existing distance and pace columns under an equality constraint, and
+derives concise labels for display and compatibility. Earlier
+free-text rows remain readable instead of receiving guessed values. Editing an
+older option shows its previous label and moves it into the structured model
+only when the organizer saves reviewed values. Creation, editing, notification
+change detection, generated database types, database tests, component tests,
+and the full-stack flock journey use the same structured contract.
+
+Personal events now use that same contract rather than retaining a separate,
+less expressive RSVP path. Their create and edit forms use the wheel, invited
+runners choose a specific plan for “I’m in” or “Maybe,” and the personal events
+screen groups attendance by distance and pace. Database creation, updates,
+authorization, and option validation remain transactional for both event
+audiences.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

@@ -4,8 +4,12 @@ import Modal from '@src/components/Modal'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { FlockSearchResult, RunnerSearchResult } from '@src/data/discovery'
-import type { FlockEvent } from '@src/types/events'
-import type { EventResponse } from '@src/types/events'
+import type {
+  EventFormInput,
+  EventResponse,
+  EventWithRunOptionsInput,
+  FlockEvent,
+} from '@src/types/events'
 import type {
   EventAudienceInvitationLink,
   PendingEventInvitation,
@@ -42,11 +46,7 @@ export type EventsPageProps = {
   onCancelEvent: (eventId: string) => Promise<void>
   onCloseInvitation: () => void
   onCopyInvitation: (url: string) => Promise<void>
-  onCreate: (
-    input: Parameters<
-      NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
-    >[0],
-  ) => void
+  onCreate: (input: EventWithRunOptionsInput) => void
   onInviteFlock: (
     eventId: string,
     flockId: string,
@@ -57,14 +57,13 @@ export type EventsPageProps = {
     recipientUserId: string,
     recipientDisplayName: string,
   ) => Promise<void>
-  onRespond: (eventId: string, response: EventResponse) => void
-  onRetryInvitations: () => void
-  onUpdate: (
+  onRespond: (
     eventId: string,
-    input: Parameters<
-      NonNullable<React.ComponentProps<typeof EventForm>['onSubmit']>
-    >[0],
-  ) => Promise<void>
+    response: EventResponse,
+    runOptionId: string | null,
+  ) => Promise<unknown>
+  onRetryInvitations: () => void
+  onUpdate: (eventId: string, input: EventWithRunOptionsInput) => Promise<void>
   createError?: string
   acceptingInvitationId?: string
   invitationInboxError?: string
@@ -72,6 +71,18 @@ export type EventsPageProps = {
   managementError?: string
   onShareInvitation?: (url: string) => Promise<ShareInvitationResult>
   responseError?: string
+}
+
+type PendingResponse = {
+  event: FlockEvent
+  response: Extract<EventResponse, 'in' | 'maybe'>
+}
+
+function requireRunOptions(input: EventFormInput): EventWithRunOptionsInput {
+  if (!input.runOptions) {
+    throw new Error('Run events require run options.')
+  }
+  return { ...input, runOptions: input.runOptions }
 }
 
 function EventsPage({
@@ -115,6 +126,9 @@ function EventsPage({
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [invitingEventId, setInvitingEventId] = useState<string>()
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
+  const [pendingResponse, setPendingResponse] =
+    useState<PendingResponse | null>(null)
+  const [selectedRunOptionId, setSelectedRunOptionId] = useState('')
   const canManageEvent = (event: FlockEvent) =>
     canManageAllEvents || event.createdBy === currentUserId
   let invitationDialog = null
@@ -220,6 +234,38 @@ function EventsPage({
                   {event.description}
                 </p>
               ) : null}
+              {event.runOptions.length ? (
+                <div className="mt-3 space-y-2" aria-label="Run options">
+                  {event.runOptions.map((option) => {
+                    const group = event.attendance.groups.find(
+                      (attendance) => attendance.runOptionId === option.id,
+                    )
+                    const isOwnChoice =
+                      event.attendance.response !== 'out' &&
+                      event.attendance.runOptionId === option.id
+                    return (
+                      <div
+                        className="rounded-lg bg-surface-subtle px-3 py-2"
+                        key={option.id}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="m-0 text-sm font-bold text-text">
+                            {option.distanceLabel} · {option.paceLabel}
+                          </p>
+                          {isOwnChoice ? (
+                            <span className="shrink-0 text-xs font-bold text-accent">
+                              Your choice
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 mb-0 text-xs text-text-muted">
+                          {group?.in ?? 0} in · {group?.maybe ?? 0} maybe
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : null}
               <p
                 aria-label={`Attendance: ${event.attendance.in} in, ${event.attendance.maybe} maybe, ${event.attendance.out} out`}
                 className="mt-3 mb-2 text-sm text-text-muted"
@@ -245,7 +291,16 @@ function EventsPage({
                         ? 'primary'
                         : 'secondary'
                     }
-                    onClick={() => onRespond(event.id, response)}
+                    onClick={() => {
+                      if (response === 'out' || event.runOptions.length === 0) {
+                        void onRespond(event.id, response, null)
+                        return
+                      }
+                      setSelectedRunOptionId(
+                        event.attendance.runOptionId ?? event.runOptions[0].id,
+                      )
+                      setPendingResponse({ event, response })
+                    }}
                   >
                     {label}
                   </Button>
@@ -377,15 +432,26 @@ function EventsPage({
             initialValues={{
               description: editingEvent.description,
               location: editingEvent.location,
+              runOptions: editingEvent.runOptions.map((option) => ({
+                distanceTenths: option.distanceTenths ?? 50,
+                id: option.id,
+                legacyLabel:
+                  option.distanceTenths === null
+                    ? `${option.distanceLabel} · ${option.paceLabel}`
+                    : undefined,
+                paceSeconds: option.paceSeconds ?? 8 * 60,
+                unit: option.unit ?? 'mi',
+              })),
               startsAt: editingEvent.startsAt.slice(0, 16),
               title: editingEvent.title,
             }}
+            includeRunOptions
             isPending={isSaving}
             mode="edit"
             onCancel={() => setEditingEvent(null)}
             onSubmit={async (input) => {
               try {
-                await onUpdate(editingEvent.id, input)
+                await onUpdate(editingEvent.id, requireRunOptions(input))
                 setEditingEvent(null)
               } catch {
                 // Keep the modal open after a failed update.
@@ -403,18 +469,92 @@ function EventsPage({
         >
           <EventForm
             error={createError}
+            includeRunOptions
             isPending={isCreating}
             mode="create"
             onCancel={() => setIsCreateOpen(false)}
             onSubmit={async (input) => {
               try {
-                await onCreate(input)
+                await onCreate(requireRunOptions(input))
                 setIsCreateOpen(false)
               } catch {
                 // Keep the modal and form values available after a failed request.
               }
             }}
           />
+        </Modal>
+      ) : null}
+      {pendingResponse ? (
+        <Modal
+          description={`Choose the plan you want to join for “${pendingResponse.event.title}.”`}
+          onClose={() => setPendingResponse(null)}
+          title="Choose your run"
+        >
+          <form
+            noValidate
+            onSubmit={async (event) => {
+              event.preventDefault()
+              try {
+                await onRespond(
+                  pendingResponse.event.id,
+                  pendingResponse.response,
+                  selectedRunOptionId,
+                )
+                setPendingResponse(null)
+              } catch {
+                // Keep the selection open so the runner can retry.
+              }
+            }}
+          >
+            <fieldset className="space-y-2">
+              <legend className="sr-only">Run option</legend>
+              {pendingResponse.event.runOptions.map((option) => (
+                <label
+                  className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2 text-sm text-text has-checked:border-accent has-checked:bg-surface-subtle"
+                  key={option.id}
+                >
+                  <input
+                    checked={selectedRunOptionId === option.id}
+                    name="event-run-option"
+                    type="radio"
+                    value={option.id}
+                    onChange={(event) =>
+                      setSelectedRunOptionId(event.target.value)
+                    }
+                  />
+                  <span>
+                    <strong>{option.distanceLabel}</strong>
+                    <span className="block text-text-muted">
+                      {option.paceLabel}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+            {responseError ? (
+              <p className="mt-3 mb-0 text-sm text-text" role="alert">
+                {responseError}
+              </p>
+            ) : null}
+            <div className="mt-4 grid gap-2 sm:flex sm:flex-row-reverse">
+              <Button
+                className="w-full sm:w-auto"
+                isPending={isResponding}
+                pendingLabel="Saving response"
+                type="submit"
+              >
+                Save response
+              </Button>
+              <Button
+                className="w-full sm:w-auto"
+                type="button"
+                variant="secondary"
+                onClick={() => setPendingResponse(null)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
         </Modal>
       ) : null}
     </section>

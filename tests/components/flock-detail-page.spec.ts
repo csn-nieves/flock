@@ -35,7 +35,7 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByLabel('Attendance: 2 in, 1 maybe, 0 out'),
   ).toBeVisible()
-  await expect(component.getByText('5 miles · Social')).toBeVisible()
+  await expect(component.getByText('5 mi · 8:00/mi')).toBeVisible()
   await expect(
     component.getByText('2 in · 1 maybe', { exact: true }),
   ).toBeVisible()
@@ -51,8 +51,24 @@ test('renders the visible flock identity', async ({ mount }) => {
     'River loop',
   )
   await expect(
-    component.locator('input[name="edit-event-distance-0"]'),
-  ).toHaveValue('5 miles')
+    component.getByRole('spinbutton', {
+      name: 'Whole distance for option 1',
+    }),
+  ).toHaveAttribute('aria-valuetext', '5')
+  await expect(
+    component.getByRole('spinbutton', {
+      name: 'Distance decimal for option 1',
+    }),
+  ).toHaveAttribute('aria-valuetext', '.0')
+  await expect(component.getByText('8:00/mi', { exact: true })).toBeVisible()
+  await component.getByRole('radio', { name: 'Kilometers' }).first().click()
+  await expect(component.getByText('5.0 km')).toBeVisible()
+  await expect(component.getByText('5:00/km')).toBeVisible()
+  await expect(
+    component.getByRole('spinbutton', {
+      name: 'Pace minutes for option 1',
+    }),
+  ).toHaveAttribute('aria-valuetext', '5')
 })
 
 test('keeps the detail screen inside a mobile viewport', async ({

@@ -48,7 +48,14 @@ describe('event data', () => {
     const attendanceQuery = { select: vi.fn(), in: vi.fn() }
     attendanceQuery.select.mockReturnValue(attendanceQuery)
     attendanceQuery.in.mockResolvedValue({ data: [], error: null })
-    mocks.from.mockReturnValueOnce(query).mockReturnValueOnce(attendanceQuery)
+    const optionsQuery = { select: vi.fn(), in: vi.fn(), order: vi.fn() }
+    optionsQuery.select.mockReturnValue(optionsQuery)
+    optionsQuery.in.mockReturnValue(optionsQuery)
+    optionsQuery.order.mockResolvedValue({ data: [], error: null })
+    mocks.from
+      .mockReturnValueOnce(query)
+      .mockReturnValueOnce(attendanceQuery)
+      .mockReturnValueOnce(optionsQuery)
     mocks.auth.getSession.mockResolvedValue({
       data: { session: null },
       error: null,
@@ -91,12 +98,44 @@ describe('event data', () => {
     attendanceQuery.select.mockReturnValue(attendanceQuery)
     attendanceQuery.in.mockResolvedValue({
       data: [
-        { event_id: 'event', user_id: 'current-user', response: 'in' },
-        { event_id: 'event', user_id: 'other-user', response: 'maybe' },
+        {
+          event_id: 'event',
+          run_option_id: 'option',
+          user_id: 'current-user',
+          response: 'in',
+        },
+        {
+          event_id: 'event',
+          run_option_id: 'option',
+          user_id: 'other-user',
+          response: 'maybe',
+        },
       ],
       error: null,
     })
-    mocks.from.mockReturnValueOnce(query).mockReturnValueOnce(attendanceQuery)
+    const optionsQuery = { select: vi.fn(), in: vi.fn(), order: vi.fn() }
+    optionsQuery.select.mockReturnValue(optionsQuery)
+    optionsQuery.in.mockReturnValue(optionsQuery)
+    optionsQuery.order.mockResolvedValue({
+      data: [
+        {
+          distance_label: '5 mi',
+          distance_tenths: 50,
+          distance_unit: 'mi',
+          event_id: 'event',
+          id: 'option',
+          pace_label: '8:00/mi',
+          pace_seconds: 480,
+          pace_unit: 'mi',
+          position: 0,
+        },
+      ],
+      error: null,
+    })
+    mocks.from
+      .mockReturnValueOnce(query)
+      .mockReturnValueOnce(attendanceQuery)
+      .mockReturnValueOnce(optionsQuery)
     mocks.auth.getSession.mockResolvedValue({
       data: { session: { user: { id: 'current-user' } } },
       error: null,
@@ -109,7 +148,11 @@ describe('event data', () => {
           maybe: 1,
           out: 0,
           response: 'in',
+          runOptionId: 'option',
         }),
+        runOptions: [
+          expect.objectContaining({ id: 'option', distanceTenths: 50 }),
+        ],
       }),
     ])
   })
@@ -133,13 +176,19 @@ describe('event data', () => {
       createUserEvent({
         description: '',
         location: 'Riverside',
+        runOptions: [{ distanceTenths: 50, paceSeconds: 480, unit: 'mi' }],
         startsAt: '2026-10-03',
         title: 'Run',
       }),
     ).resolves.toEqual(expect.objectContaining({ id: 'event', flockId: null }))
     expect(mocks.rpc).toHaveBeenCalledWith(
       'create_user_event',
-      expect.objectContaining({ event_title: 'Run' }),
+      expect.objectContaining({
+        event_run_options: [
+          { distanceTenths: 50, paceSeconds: 480, unit: 'mi' },
+        ],
+        event_title: 'Run',
+      }),
     )
   })
 
@@ -196,10 +245,14 @@ describe('event data', () => {
     optionsQuery.order.mockResolvedValue({
       data: [
         {
-          distance_label: '5 miles',
+          distance_label: '5 mi',
+          distance_tenths: 50,
+          distance_unit: 'mi',
           event_id: 'event',
           id: 'option',
-          pace_label: 'Social',
+          pace_label: '8:00/mi',
+          pace_seconds: 480,
+          pace_unit: 'mi',
           position: 0,
         },
       ],
@@ -226,10 +279,13 @@ describe('event data', () => {
         },
         runOptions: [
           {
-            distanceLabel: '5 miles',
+            distanceLabel: '5 mi',
+            distanceTenths: 50,
             id: 'option',
-            paceLabel: 'Social',
+            paceLabel: '8:00/mi',
+            paceSeconds: 480,
             position: 0,
+            unit: 'mi',
           },
         ],
       }),
@@ -254,7 +310,13 @@ describe('event data', () => {
         error: null,
       })
       .mockResolvedValueOnce({ data: {}, error: null })
-    const runOptions = [{ distanceLabel: '5 miles', paceLabel: 'Social' }]
+    const runOptions = [
+      {
+        distanceTenths: 50,
+        paceSeconds: 480,
+        unit: 'mi' as const,
+      },
+    ]
 
     await createFlockEvent('flock', {
       description: '',

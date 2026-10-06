@@ -663,7 +663,8 @@ means it is the current direction, not that it can never change.
 
 ## D036 — Keep flock run options organizer-defined and response-bound
 
-- **Status:** Accepted
+- **Status:** Superseded by D037 for option values; response binding and stable
+  identifiers remain accepted
 - **Decision:** Require one to eight ordered distance-and-pace options on every
   newly created or edited flock event. Store both values as concise labels with
   stable option identifiers. Require runners choosing “I’m in” or “Maybe” to
@@ -683,3 +684,32 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Moderated use shows a need for structured units, reusable
   pace groups, capacity limits, mapped routes, or the same option model on
   personal events.
+
+## D037 — Structure distance and pace with a shared-unit wheel
+
+- **Status:** Accepted
+- **Decision:** Replace free-text run-option entry with numeric distance and
+  pace values plus one shared miles-or-kilometers unit for flock and personal
+  events. Offer distance from 0.1
+  through 100 in tenth-unit steps, mile pace from 4:00 through 15:00, and
+  kilometer pace from 2:30 through 9:30 in five-second steps. Use an authored
+  dark multi-column wheel with a centered selection band, faded neighboring
+  values, inertial touch scrolling, and keyboard-operable spin controls.
+  Changing miles or kilometers changes both distance and pace; the server also
+  rejects any stored state in which those units differ.
+- **Compatibility:** Keep existing label columns as derived display values and
+  as a read-only fallback for options created before this decision. Do not
+  invent structured values for those rows. Editing an older option surfaces its
+  previous labels and requires review before the structured replacement is
+  saved.
+- **Why:** Free text produces inconsistent distances and pace descriptions,
+  makes common choices slower on a phone, and prevents deterministic validation
+  or later unit-aware behavior. A maintained unstyled wheel primitive supplies
+  the desired mobile interaction while Flock owns the visual treatment and
+  augments each column with explicit spinbutton semantics.
+- **Tradeoffs:** Tenth-unit distance and five-second pace increments intentionally
+  exclude arbitrary values and conversational pace names. Switching units
+  converts to the nearest supported equivalent, so a round trip may differ by a
+  few seconds.
+- **Revisit when:** Moderated use shows a need for finer distance increments,
+  named effort groups, or distance ranges beyond 100 units.

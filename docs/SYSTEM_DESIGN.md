@@ -437,34 +437,49 @@ lifetime. Acceptance coverage verifies membership creation, strict
 single-use replay protection for every caller, expiry, and safe handling of
 malformed tokens.
 
-## Flock event run options and attendance
+## Event run options and attendance
 
-Every newly created flock event has between one and eight ordered run options.
-Each option stores an organizer-written distance label and pace label rather
-than converting units or imposing a pace taxonomy. Stable option identifiers
-let an organizer edit labels without disconnecting existing responses. An edit
-may also remove an option; the foreign key preserves each attendance row and
-sets its removed selection to null so the organizer can see that an earlier
-response needs a new choice.
+Every newly created flock or personal event has between one and eight ordered
+run options.
+Each option stores a distance in tenths, a pace in seconds, and one shared
+miles-or-kilometers unit. The database retains separate distance and pace unit
+columns for compatibility but constrains them to equality. Distance is offered
+from 0.1 through 100 in tenth-unit steps. Pace is offered in five-second steps from
+4:00 through 15:00 per mile or 2:30 through 9:30 per kilometer. Concise display
+labels are derived server-side for existing read paths and notifications rather
+than accepted from the browser. Stable option identifiers let an organizer edit
+values without disconnecting existing responses. An edit may also remove an
+option; the foreign key preserves each attendance row and sets its removed
+selection to null so the organizer can see that an earlier response needs a new
+choice.
 
-The create and flock-specific update functions validate and write the event and
-its complete option set in one transaction. Browser clients receive only select
-access to options. Row Level Security exposes them to the same event creator,
+The form uses an authored dark multi-column wheel with a centered selection
+band and faded neighboring values. A maintained wheel primitive provides touch
+dragging, inertial scrolling, snapping, and keyboard movement; Flock adds
+spinbutton names and current-value announcements. One segmented measurement
+control changes both distance and pace units, converting the selected effort to
+the nearest supported five-second value.
+Earlier free-text options keep their labels and remain readable; editing one
+shows the earlier value and requires the organizer to confirm structured values.
+
+The personal and flock create functions and the shared event update function
+validate and write the event and its complete option set in one transaction.
+Browser clients receive only select access to options. Row Level Security
+exposes them to the same event creator,
 flock members, accepted personal-event invitees, and superadmins who may read
-the parent event; direct option writes remain unavailable. Personal events do
-not use run options in this increment.
+the parent event; direct option writes remain unavailable.
 
 “I’m in” and “Maybe” require an option when the event has any. “I’m out” always
 stores a null option. The response function verifies both event access and that
 the selected option belongs to that event before upserting attendance. Events
-created before this migration have no options and continue to accept the
-original response contract, avoiding fabricated organizer choices during the
-migration.
+created before the option migrations have no options and continue to accept the
+original response contract, avoiding fabricated organizer choices.
 
-`listFlockEvents` loads visible events, attendance, and ordered options, then
-maps aggregate counts plus per-option in/maybe groups into application types.
-The route controller owns mutations and query invalidation. The pure flock
-events section shows grouped counts and opens an accessible radio-choice dialog
+The flock and personal event queries load visible events, attendance, and
+ordered options, then map aggregate counts plus per-option in/maybe groups into
+application types. Route controllers own mutations and query invalidation. The
+pure flock-events section and personal-events page show grouped counts and open
+an accessible radio-choice dialog
 before saving an in or maybe response. Create and edit forms preserve their
 drafts after recoverable failures, and option changes count as material event
 updates for the existing flock-alert pipeline.

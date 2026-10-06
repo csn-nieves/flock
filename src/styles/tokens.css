@@ -16,6 +16,8 @@
   --flock-color-focus: #10243e;
   --flock-color-scrollbar-thumb: #8ba897;
   --flock-color-scrollbar-track: #edf3ef;
+  --flock-color-picker-background: #1d1d20;
+  --flock-color-picker-selection: #3a3a3e;
 
   --flock-font-display:
     'Avenir Next', Avenir, ui-rounded, system-ui, sans-serif;
@@ -51,4 +53,6 @@
   --flock-color-focus: #b9f4cc;
   --flock-color-scrollbar-thumb: #557568;
   --flock-color-scrollbar-track: #18231e;
+  --flock-color-picker-background: #1d1d20;
+  --flock-color-picker-selection: #3a3a3e;
 }

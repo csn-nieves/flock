@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 import type { EventFormInput } from '@src/types/events'
+import RunOptionPicker from './RunOptionPicker'
 
 type EventFormProps = {
   isPending: boolean
@@ -14,10 +15,12 @@ type EventFormProps = {
 }
 
 type EditableRunOption = {
-  distanceLabel: string
+  distanceTenths: number
   key: number
-  paceLabel: string
+  paceSeconds: number
+  unit: 'mi' | 'km'
   id?: string
+  legacyLabel?: string
 }
 
 let nextRunOptionKey = 0
@@ -27,10 +30,12 @@ function newRunOption(
 ): EditableRunOption {
   nextRunOptionKey += 1
   return {
-    distanceLabel: option?.distanceLabel ?? '',
+    distanceTenths: option?.distanceTenths ?? 50,
     id: option?.id,
     key: nextRunOptionKey,
-    paceLabel: option?.paceLabel ?? '',
+    legacyLabel: option?.legacyLabel,
+    paceSeconds: option?.paceSeconds ?? 8 * 60,
+    unit: option?.unit ?? 'mi',
   }
 }
 
@@ -58,12 +63,7 @@ function EventForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const hasInvalidRunOption =
-      includeRunOptions &&
-      runOptions.some(
-        (option) => !option.distanceLabel.trim() || !option.paceLabel.trim(),
-      )
-    if (!title.trim() || !startsAt || !location.trim() || hasInvalidRunOption) {
+    if (!title.trim() || !startsAt || !location.trim()) {
       setShowValidation(true)
       return
     }
@@ -71,10 +71,11 @@ function EventForm({
       description: description.trim(),
       location: location.trim(),
       runOptions: includeRunOptions
-        ? runOptions.map(({ distanceLabel, id, paceLabel }) => ({
-            distanceLabel: distanceLabel.trim(),
+        ? runOptions.map(({ distanceTenths, id, paceSeconds, unit }) => ({
+            distanceTenths,
             id,
-            paceLabel: paceLabel.trim(),
+            paceSeconds,
+            unit,
           }))
         : undefined,
       startsAt: new Date(startsAt).toISOString(),
@@ -132,59 +133,26 @@ function EventForm({
             Run options
           </legend>
           <p className="m-0 text-sm leading-5 text-text-muted">
-            Add the distances and pace groups runners can join.
+            Choose the distances and pace groups runners can join. Scroll each
+            wheel or use the arrow keys for precise changes.
           </p>
           {runOptions.map((option, index) => (
             <div className="rounded-lg bg-surface-subtle p-3" key={option.key}>
               <p className="mt-0 mb-2 text-sm font-bold text-text">
                 Option {index + 1}
               </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <TextField
-                  error={
-                    showValidation && !option.distanceLabel.trim()
-                      ? 'Enter a distance.'
-                      : undefined
-                  }
-                  label="Distance"
-                  maxLength={40}
-                  name={`${mode}-event-distance-${index}`}
-                  placeholder="5 miles"
-                  required
-                  value={option.distanceLabel}
-                  onChange={(event) =>
-                    setRunOptions((current) =>
-                      current.map((item) =>
-                        item.key === option.key
-                          ? { ...item, distanceLabel: event.target.value }
-                          : item,
-                      ),
-                    )
-                  }
-                />
-                <TextField
-                  error={
-                    showValidation && !option.paceLabel.trim()
-                      ? 'Enter a pace.'
-                      : undefined
-                  }
-                  label="Pace"
-                  maxLength={60}
-                  name={`${mode}-event-pace-${index}`}
-                  placeholder="Conversational"
-                  required
-                  value={option.paceLabel}
-                  onChange={(event) =>
-                    setRunOptions((current) =>
-                      current.map((item) =>
-                        item.key === option.key
-                          ? { ...item, paceLabel: event.target.value }
-                          : item,
-                      ),
-                    )
-                  }
-                />
-              </div>
+              <RunOptionPicker
+                index={index}
+                legacyLabel={option.legacyLabel}
+                value={option}
+                onChange={(value) =>
+                  setRunOptions((current) =>
+                    current.map((item) =>
+                      item.key === option.key ? { ...item, ...value } : item,
+                    ),
+                  )
+                }
+              />
               {runOptions.length > 1 ? (
                 <Button
                   className="mt-2"

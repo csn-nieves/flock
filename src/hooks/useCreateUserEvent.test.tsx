@@ -18,6 +18,7 @@ describe('useCreateUserEvent', () => {
       result.current.mutateAsync({
         description: '',
         location: 'Riverside',
+        runOptions: [{ distanceTenths: 50, paceSeconds: 480, unit: 'mi' }],
         startsAt: '2026-10-03T12:00:00Z',
         title: 'Run',
       }),
@@ -27,6 +28,7 @@ describe('useCreateUserEvent', () => {
       {
         description: '',
         location: 'Riverside',
+        runOptions: [{ distanceTenths: 50, paceSeconds: 480, unit: 'mi' }],
         startsAt: '2026-10-03T12:00:00Z',
         title: 'Run',
       },

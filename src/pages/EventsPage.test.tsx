@@ -85,6 +85,8 @@ describe('EventsPage', () => {
     expect(
       screen.getByRole('dialog', { name: 'Create an event' }),
     ).toBeVisible()
+    expect(screen.getByText('Distance')).toBeVisible()
+    expect(screen.getByText('Pace')).toBeVisible()
   })
 
   it('renders personal events', () => {
@@ -151,6 +153,16 @@ describe('EventsPage', () => {
     expect(screen.getByRole('button', { name: 'Cancel event' })).toBeVisible()
   })
 
+  it('includes run options when editing a personal event', () => {
+    render(<EventsPage {...defaultProps} events={[event]} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit event' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Edit event' })
+    expect(within(dialog).getByText('Distance')).toBeVisible()
+    expect(within(dialog).getByText('Pace')).toBeVisible()
+  })
+
   it('sends an RSVP response for a personal event', () => {
     const onRespond = vi.fn()
     render(
@@ -171,7 +183,43 @@ describe('EventsPage', () => {
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
-    expect(onRespond).toHaveBeenCalledWith('event', 'in')
+    expect(onRespond).toHaveBeenCalledWith('event', 'in', null)
+  })
+
+  it('requires a run choice for a personal event response', async () => {
+    const onRespond = vi.fn().mockResolvedValue(undefined)
+    const eventWithOptions = {
+      ...event,
+      runOptions: [
+        {
+          distanceLabel: '5 mi',
+          distanceTenths: 50,
+          id: 'option-5',
+          paceLabel: '8:00/mi',
+          paceSeconds: 480,
+          position: 0,
+          unit: 'mi' as const,
+        },
+      ],
+    }
+    render(
+      <EventsPage
+        {...defaultProps}
+        events={[eventWithOptions]}
+        onRespond={onRespond}
+      />,
+    )
+
+    expect(screen.getByText('5 mi · 8:00/mi')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
+    const dialog = screen.getByRole('dialog', { name: 'Choose your run' })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Save response' }),
+    )
+
+    await waitFor(() => {
+      expect(onRespond).toHaveBeenCalledWith('event', 'in', 'option-5')
+    })
   })
 
   it('shows and accepts an in-app flock invitation', async () => {

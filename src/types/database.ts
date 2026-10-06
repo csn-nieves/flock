@@ -52,25 +52,37 @@ export type Database = {
         Row: {
           created_at: string
           distance_label: string
+          distance_tenths: number | null
+          distance_unit: string | null
           event_id: string
           id: string
           pace_label: string
+          pace_seconds: number | null
+          pace_unit: string | null
           position: number
         }
         Insert: {
           created_at?: string
           distance_label: string
+          distance_tenths?: number | null
+          distance_unit?: string | null
           event_id: string
           id?: string
           pace_label: string
+          pace_seconds?: number | null
+          pace_unit?: string | null
           position: number
         }
         Update: {
           created_at?: string
           distance_label?: string
+          distance_tenths?: number | null
+          distance_unit?: string | null
           event_id?: string
           id?: string
           pace_label?: string
+          pace_seconds?: number | null
+          pace_unit?: string | null
           position?: number
         }
         Relationships: [
@@ -341,8 +353,9 @@ export type Database = {
       }
       create_user_event: {
         Args: {
-          event_description?: string
+          event_description: string
           event_location: string
+          event_run_options: Json
           event_starts_at: string
           event_title: string
         }
@@ -440,60 +453,33 @@ export type Database = {
         Args: { subscription_endpoint: string }
         Returns: undefined
       }
-      update_flock_event:
-        | {
-            Args: {
-              event_description?: string
-              event_location: string
-              event_starts_at: string
-              event_title: string
-              target_event_id: string
-            }
-            Returns: {
-              canceled_at: string | null
-              created_at: string
-              created_by: string
-              description: string
-              flock_id: string | null
-              id: string
-              location: string
-              starts_at: string
-              title: string
-            }
-            SetofOptions: {
-              from: '*'
-              to: 'flock_events'
-              isOneToOne: true
-              isSetofReturn: false
-            }
-          }
-        | {
-            Args: {
-              event_description: string
-              event_location: string
-              event_run_options: Json
-              event_starts_at: string
-              event_title: string
-              target_event_id: string
-            }
-            Returns: {
-              canceled_at: string | null
-              created_at: string
-              created_by: string
-              description: string
-              flock_id: string | null
-              id: string
-              location: string
-              starts_at: string
-              title: string
-            }
-            SetofOptions: {
-              from: '*'
-              to: 'flock_events'
-              isOneToOne: true
-              isSetofReturn: false
-            }
-          }
+      update_flock_event: {
+        Args: {
+          event_description: string
+          event_location: string
+          event_run_options: Json
+          event_starts_at: string
+          event_title: string
+          target_event_id: string
+        }
+        Returns: {
+          canceled_at: string | null
+          created_at: string
+          created_by: string
+          description: string
+          flock_id: string | null
+          id: string
+          location: string
+          starts_at: string
+          title: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'flock_events'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_my_profile: {
         Args: { next_display_name: string; next_location?: string }
         Returns: {

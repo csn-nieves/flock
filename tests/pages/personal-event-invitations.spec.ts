@@ -12,6 +12,7 @@ const runnerId = 'runner-id'
 const flockId = 'sunrise-striders-id'
 const eventId = 'weekend-long-run-id'
 const invitationId = 'weekend-long-run-invitation-id'
+const runOptionId = 'weekend-long-run-option-id'
 const eventTitle = 'Weekend long run'
 
 type EventResponse = 'in' | 'maybe' | 'out'
@@ -34,6 +35,11 @@ type JourneyState = {
   event?: EventRow
   invitationRequest?: unknown
   invitationCreated: boolean
+  runOptions: Array<{
+    distanceTenths: number
+    paceSeconds: number
+    unit: 'mi' | 'km'
+  }>
   responseRequest?: unknown
   responses: Record<string, EventResponse>
 }
@@ -97,6 +103,7 @@ async function installJourneyRoutes(
           ([responseUserId, response]) => ({
             event_id: eventId,
             response,
+            run_option_id: runOptionId,
             user_id: responseUserId,
           }),
         ),
@@ -105,13 +112,34 @@ async function installJourneyRoutes(
     },
   )
 
+  await page.route('**/rest/v1/flock_event_run_options**', async (route) => {
+    await route.fulfill({
+      json: state.event
+        ? state.runOptions.map((option, position) => ({
+            distance_label: `${option.distanceTenths / 10} ${option.unit}`,
+            distance_tenths: option.distanceTenths,
+            distance_unit: option.unit,
+            event_id: eventId,
+            id: runOptionId,
+            pace_label: `${Math.floor(option.paceSeconds / 60)}:${String(option.paceSeconds % 60).padStart(2, '0')}/${option.unit}`,
+            pace_seconds: option.paceSeconds,
+            pace_unit: option.unit,
+            position,
+          }))
+        : [],
+      status: 200,
+    })
+  })
+
   await page.route('**/rest/v1/rpc/create_user_event', async (route: Route) => {
     const input = route.request().postDataJSON() as {
       event_description: string
       event_location: string
       event_starts_at: string
       event_title: string
+      event_run_options: JourneyState['runOptions']
     }
+    state.runOptions = input.event_run_options
     state.event = {
       canceled_at: null,
       created_at: new Date().toISOString(),
@@ -234,6 +262,7 @@ test('carries a whole-flock invitation from organizer to runner RSVP', async ({
   const state: JourneyState = {
     accepted: false,
     invitationCreated: false,
+    runOptions: [],
     responses: {},
   }
   const organizerConsoleProblems = collectConsoleProblems(organizerPage)
@@ -319,6 +348,10 @@ test('carries a whole-flock invitation from organizer to runner RSVP', async ({
       .filter({ hasText: eventTitle })
     await expect(runnerEvent).toBeVisible()
     await runnerEvent.getByRole('button', { name: 'Maybe' }).click()
+    const runDialog = runnerPage.getByRole('dialog', {
+      name: 'Choose your run',
+    })
+    await runDialog.getByRole('button', { name: 'Save response' }).click()
     await expect(
       runnerEvent.getByRole('button', { name: 'Maybe' }),
     ).toHaveAttribute('aria-pressed', 'true')
@@ -337,7 +370,7 @@ test('carries a whole-flock invitation from organizer to runner RSVP', async ({
     expect(state.responseRequest).toEqual({
       next_response: 'maybe',
       target_event_id: eventId,
-      target_run_option_id: null,
+      target_run_option_id: runOptionId,
     })
     expect(organizerConsoleProblems).toEqual([])
     expect(runnerConsoleProblems).toEqual([])

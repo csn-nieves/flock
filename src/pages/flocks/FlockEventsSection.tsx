@@ -227,9 +227,14 @@ function FlockEventsSection({
                       location: editingEvent?.location ?? '',
                       runOptions:
                         editingEvent?.runOptions.map((option) => ({
-                          distanceLabel: option.distanceLabel,
+                          distanceTenths: option.distanceTenths ?? 50,
                           id: option.id,
-                          paceLabel: option.paceLabel,
+                          legacyLabel:
+                            option.distanceTenths === null
+                              ? `${option.distanceLabel} · ${option.paceLabel}`
+                              : undefined,
+                          paceSeconds: option.paceSeconds ?? 8 * 60,
+                          unit: option.unit ?? 'mi',
                         })) ?? [],
                       startsAt: editingEvent?.startsAt.slice(0, 16) ?? '',
                       title: editingEvent?.title ?? '',

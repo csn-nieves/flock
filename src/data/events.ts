@@ -1,9 +1,9 @@
 import type {
   CreateFlockEventInput,
   EventAttendanceGroup,
-  EventInput,
   EventResponse,
   EventRunOption,
+  EventWithRunOptionsInput,
   FlockEvent,
 } from '@src/types/events'
 import { supabase } from './supabase'
@@ -63,7 +63,9 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
       .in('event_id', eventIds),
     supabase
       .from('flock_event_run_options')
-      .select('id, event_id, distance_label, pace_label, position')
+      .select(
+        'id, event_id, distance_label, distance_tenths, distance_unit, pace_label, pace_seconds, pace_unit, position',
+      )
       .in('event_id', eventIds)
       .order('position', { ascending: true }),
   ])
@@ -78,9 +80,12 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
       .filter((option) => option.event_id === event.id)
       .map((option) => ({
         distanceLabel: option.distance_label,
+        distanceTenths: option.distance_tenths,
         id: option.id,
         paceLabel: option.pace_label,
+        paceSeconds: option.pace_seconds,
         position: option.position,
+        unit: option.distance_unit as EventRunOption['unit'],
       }))
     const groupedResponses = new Map<string | null, EventAttendanceGroup>()
     for (const response of responses) {
@@ -122,39 +127,76 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
   if (error) throw error
   const events = data.map(toEvent)
   if (events.length === 0) return events
-  const { data: attendance, error: attendanceError } = await supabase
-    .from('flock_event_attendance')
-    .select('event_id, user_id, response')
-    .in(
-      'event_id',
-      events.map((event) => event.id),
-    )
+  const eventIds = events.map((event) => event.id)
+  const [attendanceResult, optionsResult] = await Promise.all([
+    supabase
+      .from('flock_event_attendance')
+      .select('event_id, user_id, response, run_option_id')
+      .in('event_id', eventIds),
+    supabase
+      .from('flock_event_run_options')
+      .select(
+        'id, event_id, distance_label, distance_tenths, distance_unit, pace_label, pace_seconds, pace_unit, position',
+      )
+      .in('event_id', eventIds)
+      .order('position', { ascending: true }),
+  ])
+  const { data: attendance, error: attendanceError } = attendanceResult
   if (attendanceError) throw attendanceError
+  const { data: options, error: optionsError } = optionsResult
+  if (optionsError) throw optionsError
   const { data: userData } = await supabase.auth.getSession()
   return events.map((event) => {
     const responses = attendance.filter((item) => item.event_id === event.id)
+    const runOptions: EventRunOption[] = options
+      .filter((option) => option.event_id === event.id)
+      .map((option) => ({
+        distanceLabel: option.distance_label,
+        distanceTenths: option.distance_tenths,
+        id: option.id,
+        paceLabel: option.pace_label,
+        paceSeconds: option.pace_seconds,
+        position: option.position,
+        unit: option.distance_unit as EventRunOption['unit'],
+      }))
+    const groupedResponses = new Map<string | null, EventAttendanceGroup>()
+    for (const response of responses) {
+      if (response.response === 'out') continue
+      const current = groupedResponses.get(response.run_option_id) ?? {
+        in: 0,
+        maybe: 0,
+        runOptionId: response.run_option_id,
+      }
+      current[response.response] += 1
+      groupedResponses.set(response.run_option_id, current)
+    }
+    const ownResponse = responses.find(
+      (item) => item.user_id === userData.session?.user.id,
+    )
     return {
       ...event,
       attendance: {
-        groups: [],
+        groups: [...groupedResponses.values()],
         in: responses.filter((item) => item.response === 'in').length,
         maybe: responses.filter((item) => item.response === 'maybe').length,
         out: responses.filter((item) => item.response === 'out').length,
-        response:
-          (responses.find((item) => item.user_id === userData.session?.user.id)
-            ?.response as EventResponse | undefined) ?? null,
-        runOptionId: null,
+        response: (ownResponse?.response as EventResponse | undefined) ?? null,
+        runOptionId: ownResponse?.run_option_id ?? null,
       },
+      runOptions,
     }
   })
 }
 
-export async function createUserEvent(input: EventInput): Promise<FlockEvent> {
+export async function createUserEvent(
+  input: EventWithRunOptionsInput,
+): Promise<FlockEvent> {
   const { data, error } = await supabase.rpc('create_user_event', {
     event_title: input.title,
     event_starts_at: input.startsAt,
     event_location: input.location,
     event_description: input.description,
+    event_run_options: input.runOptions,
   })
   if (error) throw error
   if (!data) throw new Error('The event creation did not return an event.')
@@ -221,7 +263,7 @@ export async function updateFlockEvent(
 
 export async function updateUserEvent(
   eventId: string,
-  input: EventInput,
+  input: EventWithRunOptionsInput,
 ): Promise<FlockEvent> {
   const { data, error } = await supabase.rpc('update_flock_event', {
     target_event_id: eventId,
@@ -229,6 +271,7 @@ export async function updateUserEvent(
     event_starts_at: input.startsAt,
     event_location: input.location,
     event_description: input.description,
+    event_run_options: input.runOptions,
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data

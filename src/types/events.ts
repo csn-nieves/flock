@@ -29,16 +29,23 @@ export type EventAttendanceGroup = {
 
 export type EventRunOption = {
   distanceLabel: string
+  distanceTenths: number | null
   id: string
   paceLabel: string
+  paceSeconds: number | null
   position: number
+  unit: RunUnit | null
 }
 
 export type EventRunOptionInput = {
-  distanceLabel: string
-  paceLabel: string
+  distanceTenths: number
+  paceSeconds: number
+  unit: RunUnit
   id?: string
+  legacyLabel?: string
 }
+
+export type RunUnit = 'mi' | 'km'
 
 export type EventInput = {
   description: string
@@ -51,6 +58,8 @@ export type EventFormInput = EventInput & {
   runOptions?: EventRunOptionInput[]
 }
 
-export type CreateFlockEventInput = EventInput & {
+export type EventWithRunOptionsInput = EventInput & {
   runOptions: EventRunOptionInput[]
 }
+
+export type CreateFlockEventInput = EventWithRunOptionsInput

@@ -43,6 +43,7 @@ test('persists a whole-flock invitation and RSVP across two real users', async (
       .getByRole('listitem')
       .filter({ hasText: eventTitle })
     await expect(organizerEvent).toBeVisible()
+    await expect(organizerEvent).toContainText('5 mi · 8:00/mi')
     await organizerEvent.getByRole('button', { name: 'Invite runners' }).click()
 
     const audienceDialog = organizerPage.getByRole('dialog', {
@@ -70,14 +71,20 @@ test('persists a whole-flock invitation and RSVP across two real users', async (
       .filter({ hasText: eventTitle })
     await expect(runnerEvent).toBeVisible()
     await runnerEvent.getByRole('button', { name: 'Maybe' }).click()
+    const runChoiceDialog = runnerPage.getByRole('dialog', {
+      name: 'Choose your run',
+    })
+    await runChoiceDialog.getByRole('button', { name: 'Save response' }).click()
     await expect(
       runnerEvent.getByRole('button', { name: 'Maybe' }),
     ).toHaveAttribute('aria-pressed', 'true')
+    await expect(runnerEvent.getByText('Your choice')).toBeVisible()
 
     await organizerPage.reload()
     await expect(
       organizerPage.getByLabel('Attendance: 0 in, 1 maybe, 0 out'),
     ).toBeVisible()
+    await expect(organizerEvent).toContainText('0 in · 1 maybe')
     expect(organizerConsoleProblems).toEqual([])
     expect(runnerConsoleProblems).toEqual([])
   } finally {

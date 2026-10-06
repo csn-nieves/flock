@@ -9,10 +9,12 @@ export function useSetUserEventResponse() {
     mutationFn: ({
       eventId,
       response,
+      runOptionId,
     }: {
       eventId: string
       response: EventResponse
-    }) => setFlockEventResponse(eventId, response, null),
+      runOptionId: string | null
+    }) => setFlockEventResponse(eventId, response, runOptionId),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: eventQueryKeys.mine() }),
   })

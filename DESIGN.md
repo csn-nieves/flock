@@ -20,6 +20,8 @@ colors:
   focus: '#10243E'
   scrollbar-thumb: '#8BA897'
   scrollbar-track: '#EDF3EF'
+  picker-background: '#1D1D20'
+  picker-selection: '#3A3A3E'
 typography:
   display:
     fontFamily: 'Avenir Next, Avenir, ui-rounded, system-ui, sans-serif'
@@ -162,6 +164,8 @@ Navigation is introduced only for real destinations. Every nested product page e
 ### Forms and overlays
 
 `src/primitives/TextField.tsx` is the canonical owner for standard text-like inputs. It uses native input semantics, a visible label, a reserved description area, and linked hint or error text. Errors use explicit language and `aria-invalid`; coral reinforces the state but never carries it alone. Forms use app-owned validation and preserve useful native metadata such as input type, autocomplete, and input mode. Dialogs and feedback surfaces must respect safe areas and the virtual keyboard. Browser `alert`, `confirm`, and `prompt` are not product UI.
+
+`src/components/RunOptionPicker.tsx` owns structured run measurements. Its near-black wheel surface is an intentional, task-specific echo of familiar mobile time pickers: a quiet centered selection band, high-contrast selected values, and faded neighboring values. A single Miles/Kilometers control always governs both distance and pace. The wheel remains touch-first without becoming touch-only; every numeric column exposes keyboard-operable spinbutton behavior and a visible focus treatment.
 
 ### Iconography
 

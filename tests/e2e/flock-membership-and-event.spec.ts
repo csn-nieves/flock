@@ -107,13 +107,24 @@ test('persists flock membership, event visibility, and RSVP across two real user
     await createEventDialog
       .getByLabel('Description')
       .fill('Conversational miles under the lights.')
-    await createEventDialog.getByLabel('Distance').fill('5 miles')
-    await createEventDialog.getByLabel('Pace').fill('Social')
     await createEventDialog
       .getByRole('button', { name: 'Add another option' })
       .click()
-    await createEventDialog.getByLabel('Distance').nth(1).fill('10 miles')
-    await createEventDialog.getByLabel('Pace').nth(1).fill('Steady')
+    const secondDistanceWheel = createEventDialog.getByRole('spinbutton', {
+      name: 'Whole distance for option 2',
+    })
+    await secondDistanceWheel.focus()
+    for (let nextDistance = 6; nextDistance <= 10; nextDistance += 1) {
+      await secondDistanceWheel.press('ArrowDown')
+      await expect(secondDistanceWheel).toHaveAttribute(
+        'aria-valuenow',
+        String(nextDistance),
+      )
+    }
+    await createEventDialog
+      .getByRole('radio', { name: 'Kilometers' })
+      .nth(1)
+      .click()
     await createEventDialog
       .getByRole('button', { name: 'Create event' })
       .click()
@@ -134,7 +145,7 @@ test('persists flock membership, event visibility, and RSVP across two real user
     const runChoiceDialog = runnerPage.getByRole('dialog', {
       name: 'Choose your run',
     })
-    await runChoiceDialog.getByRole('radio', { name: /10 miles/ }).check()
+    await runChoiceDialog.getByRole('radio', { name: /10 km/ }).check()
     await runChoiceDialog.getByRole('button', { name: 'Save response' }).click()
     await expect(
       runnerEvent.getByRole('button', { name: "I'm in" }),
@@ -146,7 +157,7 @@ test('persists flock membership, event visibility, and RSVP across two real user
       organizerPage.getByLabel('Attendance: 1 in, 0 maybe, 0 out'),
     ).toBeVisible()
     const organizerTenMileOption = organizerEvent
-      .getByText('10 miles · Steady')
+      .getByText('10 km · 5:00/km')
       .locator('..')
       .locator('..')
     await expect(organizerTenMileOption).toContainText('1 in · 0 maybe')
