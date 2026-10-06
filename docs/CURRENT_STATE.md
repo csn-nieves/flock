@@ -11,11 +11,11 @@ work newer than this file.
 
 Flock has completed its first usable membership flow and now supports the
 initial personal-event invitation workflow, including opt-in Web Push delivery
-for event invitations. Superadmins can now review and cancel global event
-records and remove ordinary members from any flock. The current planned admin
-operations are complete. A moderated workflow-validation protocol now gates the
-next product milestone. Routes, pace groups, chat, and monetization remain
-outside the current slice.
+for invitations and flock-event changes. Superadmins can now review and cancel
+global event records and remove ordinary members from any flock. The current
+planned admin operations are complete. A moderated workflow-validation protocol
+now gates the next product milestone. Routes, pace groups, chat, and
+monetization remain outside the current slice.
 
 ## Completed foundation
 
@@ -100,11 +100,15 @@ outside the current slice.
 - Eligible runners see pending personal-event invitations on the Events screen
   and can accept them in app. Shared links remain an optional fallback rather
   than the required delivery path.
-- Runners can opt each supported browser or installed PWA into personal-event
-  invitation alerts from Settings. Standards-based Web Push queues targeted
-  runners, current flock members, and later flock joiners; server-side claims
+- Runners can opt each supported browser or installed PWA into event alerts
+  from Settings. Standards-based Web Push covers personal invitations and
+  flock-event creation, material updates, and cancellation. Server-side claims
   recheck live eligibility, deliver across registered devices, remove stale
-  endpoints, and deep-link back to the Events invitation inbox.
+  endpoints, and deep-link to the relevant Events inbox or flock detail.
+- Flock-event alerts snapshot current membership when a change occurs, exclude
+  the actor, skip members who leave before delivery, and do not replay old
+  changes to later joiners. Superadmin cancellations notify every current flock
+  member, including the owner.
 - iPhone and iPad notification setup explains the required Home Screen install.
   Hosted delivery still requires the documented VAPID secrets, frontend public
   key, Edge Function deployment, and authenticated database webhook; none are

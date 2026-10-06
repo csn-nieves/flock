@@ -222,7 +222,7 @@ export type Database = {
         Args: { target_event_id: string }
         Returns: undefined
       }
-      claim_event_invitation_notification: {
+      claim_push_notification: {
         Args: { target_job_id: string }
         Returns: {
           auth_key: string
@@ -237,7 +237,7 @@ export type Database = {
           ttl_seconds: number
         }[]
       }
-      complete_event_invitation_notification: {
+      complete_push_notification: {
         Args: {
           delivered_count: number
           failure_message?: string

@@ -60,10 +60,9 @@ Deno.serve(async (request) => {
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
   })
-  const { data, error } = await supabase.rpc(
-    'claim_event_invitation_notification',
-    { target_job_id: jobId },
-  )
+  const { data, error } = await supabase.rpc('claim_push_notification', {
+    target_job_id: jobId,
+  })
 
   if (error) {
     console.error('Could not claim push notification job', error.message)
@@ -126,7 +125,7 @@ Deno.serve(async (request) => {
     : null
 
   const { error: completionError } = await supabase.rpc(
-    'complete_event_invitation_notification',
+    'complete_push_notification',
     {
       delivered_count: deliveredCount,
       failure_message: failureMessage,

@@ -632,3 +632,31 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Branches routinely mix unrelated outcomes, reviews become
   difficult to complete safely, or team and release needs call for a different
   workflow with equivalent review boundaries.
+
+## D035 — Snapshot flock-event alert audiences at each change
+
+- **Status:** Accepted; code complete, hosted Edge Function and webhook update
+  pending deployment
+- **Decision:** Queue one Web Push job for every current flock member other than
+  the actor whenever a future flock event is created, materially updated, or
+  canceled. Recheck membership at delivery, skip runners who left, and do not
+  add historical jobs for runners who join after the change. A superadmin
+  cancellation includes all current members because the administrator is not a
+  flock audience member.
+- **Delivery behavior:** Keep immutable flock-event activity separate from the
+  per-recipient job. Suppress an undelivered create or update when newer
+  activity already exists for the same event, use one replacement notification
+  tag per event, and deep-link to `/flocks/:flockId#flock-events`. The flock
+  detail remains the durable source of truth; no notification center or
+  real-time transport is introduced.
+- **Why:** Event changes are useful only to the audience that existed when the
+  organizer acted. A point-in-time fan-out avoids replaying stale operational
+  messages to new members, while the delivery-time membership check prevents
+  leaking event details to runners who have left.
+- **Tradeoffs:** A runner who joins after an event is created discovers it in
+  flock detail rather than receiving the original alert. Push remains
+  best-effort, and multiple rapid changes may collapse to the most recent
+  meaningful state instead of preserving an alert history.
+- **Revisit when:** Product research calls for historical in-app notifications,
+  scheduled reminders, RSVP alerts, per-category preferences, or chat and
+  direct-message notifications.

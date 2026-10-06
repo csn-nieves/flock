@@ -111,8 +111,8 @@ function NotificationSettings({
         Notifications
       </h2>
       <p className="mt-2 mb-0 leading-6 text-text-muted">
-        Get an alert on this device when someone invites you to a personal
-        event.
+        Get event alerts on this device, including personal invitations and
+        flock event changes.
       </p>
 
       <div className="mt-5 border-l-4 border-primary pl-4">
@@ -179,7 +179,7 @@ function getNotificationStatusLabel(status: PushNotificationStatus) {
 
 function getNotificationStatusDescription(status: PushNotificationStatus) {
   if (status === 'on') {
-    return 'This browser can show new event invitations even when Flock is closed.'
+    return 'This browser can show event alerts even when Flock is closed.'
   }
   if (status === 'off') {
     return 'Flock will ask for browser permission after you choose to turn alerts on.'
@@ -191,7 +191,7 @@ function getNotificationStatusDescription(status: PushNotificationStatus) {
     return 'On iPhone and iPad, use Share → Add to Home Screen. Open that installed Flock app, then turn notifications on here.'
   }
   if (status === 'unsupported') {
-    return 'You can still find every invitation in the Events screen.'
+    return 'You can still find personal invitations and flock events inside Flock.'
   }
   if (status === 'not-configured') {
     return 'Push delivery has not been configured for this Flock environment.'

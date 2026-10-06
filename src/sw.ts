@@ -33,13 +33,13 @@ self.addEventListener('push', (event) => {
   const url = getSafeNotificationUrl(payload.url)
   event.waitUntil(
     self.registration.showNotification(
-      payload.title?.trim() || 'New invitation',
+      payload.title?.trim() || 'New Flock alert',
       {
         badge: '/icons/pwa-192x192.png',
-        body: payload.body?.trim() || 'Open Flock to view your invitation.',
+        body: payload.body?.trim() || 'Open Flock to see what changed.',
         data: { url },
         icon: '/icons/pwa-192x192.png',
-        tag: payload.tag?.trim() || 'flock-event-invitation',
+        tag: payload.tag?.trim() || 'flock-alert',
       },
     ),
   )
@@ -68,11 +68,11 @@ self.addEventListener('notificationclick', (event) => {
 })
 
 function getSafeNotificationUrl(value: unknown) {
-  if (typeof value !== 'string') return '/events#event-invitations'
+  if (typeof value !== 'string') return '/events'
 
   const target = new URL(value, self.location.origin)
   if (target.origin !== self.location.origin) {
-    return '/events#event-invitations'
+    return '/events'
   }
 
   return `${target.pathname}${target.search}${target.hash}`

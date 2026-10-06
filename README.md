@@ -45,10 +45,10 @@ The Web Push public key is also safe browser configuration and belongs in
 `VITE_WEB_PUSH_PUBLIC_KEY`. Its paired private key must remain an Edge Function
 secret.
 
-## Event invitation push deployment
+## Event alert push deployment
 
 The repository contains the subscription schema, notification jobs, custom
-service worker, and `send-event-invitation-notification` Edge Function. A hosted
+service worker, and `send-push-notification` Edge Function. A hosted
 environment needs one-time VAPID and webhook configuration before it can send
 alerts:
 
@@ -59,13 +59,13 @@ alerts:
 3. Set `WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`, and `WEB_PUSH_SUBJECT` as
    Supabase Edge Function secrets. The subject must be an HTTPS URL or a
    `mailto:` contact owned by the project.
-4. Deploy `send-event-invitation-notification` after deploying its database
+4. Deploy `send-push-notification` after deploying its database
    migration.
 5. Create a Supabase Database Webhook for `INSERT` and `UPDATE` events on
-   `private.event_invitation_notification_jobs`. Target the Edge Function with
+   `private.notification_jobs`. Target the Edge Function with
    `POST`, keep `Content-Type: application/json`, and add the service-role
    authorization header. Updates are required because opting in can requeue a
-   still-active invitation that previously had no device subscription.
+   still-active alert that previously had no device subscription.
 
 The function has platform JWT verification disabled because database webhooks
 do not carry an end-user session. It performs its own exact service-role bearer

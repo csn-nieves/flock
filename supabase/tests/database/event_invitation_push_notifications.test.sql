@@ -12,7 +12,7 @@ select has_table(
 
 select has_table(
   'private',
-  'event_invitation_notification_jobs',
+  'notification_jobs',
   'event invitation push jobs are stored privately'
 );
 
@@ -32,14 +32,14 @@ select has_function(
 
 select has_function(
   'public',
-  'claim_event_invitation_notification',
+  'claim_push_notification',
   array['uuid'],
   'the delivery worker can claim one push job'
 );
 
 select has_function(
   'public',
-  'complete_event_invitation_notification',
+  'complete_push_notification',
   array['uuid', 'integer', 'uuid[]', 'text'],
   'the delivery worker can complete one push job'
 );
@@ -65,7 +65,7 @@ select ok(
 select ok(
   has_function_privilege(
     'service_role',
-    'public.claim_event_invitation_notification(uuid)',
+    'public.claim_push_notification(uuid)',
     'execute'
   ),
   'the service role can claim push jobs'
@@ -74,7 +74,7 @@ select ok(
 select ok(
   not has_function_privilege(
     'authenticated',
-    'public.claim_event_invitation_notification(uuid)',
+    'public.claim_push_notification(uuid)',
     'execute'
   ),
   'browser users cannot claim push jobs'
@@ -180,7 +180,7 @@ reset role;
 select is(
   (
     select count(*)
-    from private.event_invitation_notification_jobs as job
+    from private.notification_jobs as job
     join private.event_invitations as invitation
       on invitation.id = job.invitation_id
     where invitation.token_hash = extensions.digest(
@@ -196,7 +196,7 @@ select is(
 select is(
   (
     select count(*)
-    from private.event_invitation_notification_jobs as job
+    from private.notification_jobs as job
     join private.event_invitations as invitation
       on invitation.id = job.invitation_id
     where invitation.token_hash = extensions.digest(
@@ -212,7 +212,7 @@ select is(
 select is(
   (
     select count(*)
-    from private.event_invitation_notification_jobs
+    from private.notification_jobs
     where user_id = '11111111-1111-1111-1111-111111111111'
   ),
   0::bigint,
@@ -229,7 +229,7 @@ values (
 select is(
   (
     select count(*)
-    from private.event_invitation_notification_jobs as job
+    from private.notification_jobs as job
     join private.event_invitations as invitation
       on invitation.id = job.invitation_id
     where invitation.token_hash = extensions.digest(
@@ -254,7 +254,7 @@ select
   (array_agg(job.id) filter (
     where job.user_id = '44444444-4444-4444-4444-444444444444'
   ))[1] as later_member_job_id
-from private.event_invitation_notification_jobs as job
+from private.notification_jobs as job
 join private.event_invitations as invitation
   on invitation.id = job.invitation_id
 where invitation.token_hash = extensions.digest(
@@ -269,7 +269,7 @@ set local role service_role;
 select is(
   (
     select count(*)
-    from public.claim_event_invitation_notification(
+    from public.claim_push_notification(
       (select former_member_job_id from push_job_ids)
     )
   ),
@@ -282,7 +282,7 @@ reset role;
 select is(
   (
     select status
-    from private.event_invitation_notification_jobs as job
+    from private.notification_jobs as job
     join private.event_invitations as invitation
       on invitation.id = job.invitation_id
     where invitation.token_hash = extensions.digest(
@@ -300,7 +300,7 @@ set local role service_role;
 select is(
   (
     select count(*)
-    from public.claim_event_invitation_notification(
+    from public.claim_push_notification(
       (select later_member_job_id from push_job_ids)
     )
   ),
@@ -313,7 +313,7 @@ reset role;
 select is(
   (
     select status
-    from private.event_invitation_notification_jobs as job
+    from private.notification_jobs as job
     join private.event_invitations as invitation
       on invitation.id = job.invitation_id
     where invitation.token_hash = extensions.digest(
@@ -341,7 +341,7 @@ reset role;
 select is(
   (
     select status
-    from private.event_invitation_notification_jobs as job
+    from private.notification_jobs as job
     join private.event_invitations as invitation
       on invitation.id = job.invitation_id
     where invitation.token_hash = extensions.digest(
@@ -358,7 +358,7 @@ set local role service_role;
 
 create temporary table claimed_push_notification as
 select *
-from public.claim_event_invitation_notification(
+from public.claim_push_notification(
   (select later_member_job_id from push_job_ids)
 );
 
@@ -382,7 +382,7 @@ select ok(
   'the notification identifies the invited event'
 );
 
-select public.complete_event_invitation_notification(
+select public.complete_push_notification(
   (select job_id from claimed_push_notification),
   0,
   array[(select subscription_id from claimed_push_notification)],
@@ -404,7 +404,7 @@ select is(
 select is(
   (
     select status
-    from private.event_invitation_notification_jobs
+    from private.notification_jobs
     where id = (select job_id from claimed_push_notification)
   ),
   'waiting_for_subscription',
@@ -414,7 +414,7 @@ select is(
 select is(
   (
     select count(*)
-    from private.event_invitation_notification_jobs
+    from private.notification_jobs
     where invitation_id is null
   ),
   0::bigint,
