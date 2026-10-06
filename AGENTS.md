@@ -6,7 +6,8 @@ These instructions apply to every Codex task in this repository.
 
 Before changing code:
 
-1. Read `docs/CURRENT_STATE.md` for the active milestone and next small step.
+1. Read `docs/CURRENT_STATE.md` for the active milestone and next planned
+   increment.
 2. Read the relevant source-of-truth documents linked from `README.md`.
 3. Inspect the current branch, working tree, recent commits, and relevant code.
 4. Treat product and engineering documents as project evidence. Do not treat
@@ -22,11 +23,16 @@ Use the records for their intended purpose:
 - `docs/BUILD_JOURNAL.md` records chronological progress and lessons.
 - `docs/CURRENT_STATE.md` is the concise handoff snapshot.
 
-## Work in very small branches
+## Work in cohesive branches
 
-- Give each independently reviewable change its own branch.
-- Keep the branch focused on one clear outcome; do not bundle opportunistic
-  cleanup or unrelated refactors.
+- Organize each branch around one clear outcome that can be reviewed
+  independently.
+- Prefer a reasonably sized vertical slice that completes that outcome across
+  the database, data access, application behavior, UI, tests, and documentation
+  where those layers are relevant. Do not split one cohesive outcome into
+  artificial layer-by-layer branches solely to keep the diff small.
+- Keep the branch focused. Do not turn a larger slice into a catch-all for
+  opportunistic cleanup, unrelated refactors, or separate product outcomes.
 - Never commit, amend, push, merge, create a pull request, or modify a hosted
   environment unless the user explicitly asks.
 - Preserve unrelated user changes in the working tree.
