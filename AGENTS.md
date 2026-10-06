@@ -87,6 +87,7 @@ npm test
 npm run build
 npm run test:components
 npm run test:pages
+npm run test:e2e
 ```
 
 Run `npm run db:verify` for database changes and `npm run db:types` after public

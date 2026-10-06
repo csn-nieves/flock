@@ -19,6 +19,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:components": "playwright test --project=components --project=components-android --project=components-iphone",
+    "test:e2e": "npm run db:start && npm run db:reset && playwright test --config=playwright.e2e.config.ts",
     "test:pages": "playwright test --project=pages --project=pages-android --project=pages-iphone",
     "test:playwright": "playwright test --ui",
     "test:watch": "vitest",

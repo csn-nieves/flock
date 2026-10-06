@@ -29,4 +29,5 @@ check:
     npm run build
     npm run test:components
     npm run test:pages
+    npm run test:e2e
     npm run db:verify

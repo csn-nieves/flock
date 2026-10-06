@@ -1204,6 +1204,24 @@ still use them after caching. The improvement is primarily less initial parsing
 and execution; route preloading remains deferred until navigation timing shows
 a real need.
 
+## 2026-10-06 — Exercising the invitation workflow across the real local stack
+
+### One full-stack browser golden path
+
+A dedicated desktop Chromium test now resets local Supabase, creates ordinary
+signed sessions for two seeded users, and drives the personal-event flock
+invitation workflow without REST mocks. The organizer creates the event and
+universal flock invitation, the eligible runner accepts and responds, and the
+organizer sees the persisted attendance after reloading.
+
+The local secret key remains in the Node test process and is used only to mint
+normal user sessions; Vite and the browser receive the public project
+configuration and each user's session token. This exercises RPC wiring, Row
+Level Security, persistence, and React Query refresh together while leaving
+responsive browser coverage to the faster mocked page matrix. Human workflow
+validation remains necessary because this test proves implementation behavior,
+not whether runners and organizers understand it.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

@@ -624,15 +624,30 @@ wiring, mocked network boundaries, loading, recovery, and responsive layout.
 They currently run as separate desktop Chromium, Android-sized Chromium, and
 iPhone WebKit projects.
 
+### Playwright full-stack test
+
+One desktop Chromium golden path runs against a freshly reset local Supabase
+stack without REST mocks. A server-side test helper uses the local secret key
+only to generate ordinary signed sessions for two seeded users; the key never
+enters Vite or the browser. The organizer and runner then use the application
+through their normal authenticated Supabase clients, so invitation creation,
+live flock eligibility, acceptance, RSVP persistence, Row Level Security, and
+query refresh are exercised together.
+
+The full-stack test deliberately stays narrow. The faster page matrix owns
+responsive browser coverage and failure states, pgTAP owns exhaustive database
+authorization contracts, and moderated sessions own usability evidence.
+
 ### Continuous integration
 
 GitHub Actions reports static analysis, unit tests, component tests, page tests,
-and the production build as distinct checks. The separation makes failures
-easier to identify and allows independent jobs to run in parallel. Each browser
-suite runs its desktop Chromium, Android-sized Chromium, and iPhone WebKit
-projects in one job. This preserves project-labeled platform coverage while
-installing the headless Chromium shell and WebKit only once per suite instead
-of repeating checkout, dependency installation, and browser setup per device.
+the local full-stack journey, and the production build as distinct checks. The
+separation makes failures easier to identify and allows independent jobs to run
+in parallel. Each responsive browser suite runs its desktop Chromium,
+Android-sized Chromium, and iPhone WebKit projects in one job. This preserves
+project-labeled platform coverage while installing the headless Chromium shell
+and WebKit only once per suite instead of repeating checkout, dependency
+installation, and browser setup per device.
 
 ## Current constraints and revisit points
 
