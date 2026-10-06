@@ -13,24 +13,69 @@ export type Database = {
         Row: {
           event_id: string
           response: Database['public']['Enums']['flock_event_response']
+          run_option_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           event_id: string
           response: Database['public']['Enums']['flock_event_response']
+          run_option_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           event_id?: string
           response?: Database['public']['Enums']['flock_event_response']
+          run_option_id?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: 'flock_event_attendance_event_id_fkey'
+            columns: ['event_id']
+            isOneToOne: false
+            referencedRelation: 'flock_events'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'flock_event_attendance_run_option_id_fkey'
+            columns: ['run_option_id']
+            isOneToOne: false
+            referencedRelation: 'flock_event_run_options'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      flock_event_run_options: {
+        Row: {
+          created_at: string
+          distance_label: string
+          event_id: string
+          id: string
+          pace_label: string
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          distance_label: string
+          event_id: string
+          id?: string
+          pace_label: string
+          position: number
+        }
+        Update: {
+          created_at?: string
+          distance_label?: string
+          event_id?: string
+          id?: string
+          pace_label?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'flock_event_run_options_event_id_fkey'
             columns: ['event_id']
             isOneToOne: false
             referencedRelation: 'flock_events'
@@ -255,8 +300,9 @@ export type Database = {
       }
       create_flock_event: {
         Args: {
-          event_description?: string
+          event_description: string
           event_location: string
+          event_run_options: Json
           event_starts_at: string
           event_title: string
           target_flock_id: string
@@ -374,10 +420,12 @@ export type Database = {
         Args: {
           next_response: Database['public']['Enums']['flock_event_response']
           target_event_id: string
+          target_run_option_id: string
         }
         Returns: {
           event_id: string
           response: Database['public']['Enums']['flock_event_response']
+          run_option_id: string | null
           updated_at: string
           user_id: string
         }
@@ -392,32 +440,60 @@ export type Database = {
         Args: { subscription_endpoint: string }
         Returns: undefined
       }
-      update_flock_event: {
-        Args: {
-          event_description?: string
-          event_location: string
-          event_starts_at: string
-          event_title: string
-          target_event_id: string
-        }
-        Returns: {
-          canceled_at: string | null
-          created_at: string
-          created_by: string
-          description: string
-          flock_id: string | null
-          id: string
-          location: string
-          starts_at: string
-          title: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'flock_events'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      update_flock_event:
+        | {
+            Args: {
+              event_description?: string
+              event_location: string
+              event_starts_at: string
+              event_title: string
+              target_event_id: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              starts_at: string
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_title: string
+              target_event_id: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              starts_at: string
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       update_my_profile: {
         Args: { next_display_name: string; next_location?: string }
         Returns: {

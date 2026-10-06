@@ -131,10 +131,10 @@ function FlockDetailRoute() {
             isSuperadmin ||
             (session?.user.id && session.user.id === flockQuery.data.owner_id),
           ),
-          error:
-            eventsQuery.isError || createEventMutation.isError
-              ? 'Events are unavailable.'
-              : undefined,
+          createError: createEventMutation.isError
+            ? 'We could not create this event. Check your connection and try again.'
+            : undefined,
+          error: eventsQuery.isError ? 'Events are unavailable.' : undefined,
           editError: updateEventMutation.isError
             ? 'Event update failed.'
             : undefined,
@@ -143,16 +143,28 @@ function FlockDetailRoute() {
           isSaving:
             createEventMutation.isPending || updateEventMutation.isPending,
           isCanceling: cancelEventMutation.isPending,
-          onCreate: (input) => createEventMutation.mutate(input),
+          isResponding: responseMutation.isPending,
+          onCreate: async (input) => {
+            await createEventMutation.mutateAsync(input)
+          },
           onCancel: async (eventId) => {
             await cancelEventMutation.mutateAsync(eventId)
           },
           onRetry: () => void eventsQuery.refetch(),
-          onRespond: (eventId, response) =>
-            responseMutation.mutate({ eventId, response }),
+          onRespond: async (eventId, response, runOptionId) => {
+            await responseMutation.mutateAsync({
+              eventId,
+              response,
+              runOptionId,
+            })
+          },
           onUpdate: async (eventId, input) => {
             await updateEventMutation.mutateAsync({ eventId, input })
           },
+          responseError: responseMutation.isError
+            ? 'We could not save your response. Check your connection and try again.'
+            : undefined,
+          respondingEventId: responseMutation.variables?.eventId,
         }}
       />
       {isEditOpen ? (

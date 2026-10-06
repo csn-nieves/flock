@@ -123,7 +123,14 @@ export async function acceptEventInvitationById(
   if (error?.code === 'P0002') throw new InvitationUnavailableError()
   if (error) throw error
   return {
-    attendance: { in: 0, maybe: 0, out: 0, response: null },
+    attendance: {
+      groups: [],
+      in: 0,
+      maybe: 0,
+      out: 0,
+      response: null,
+      runOptionId: null,
+    },
     canceledAt: data.canceled_at,
     createdAt: data.created_at,
     createdBy: data.created_by,
@@ -131,6 +138,7 @@ export async function acceptEventInvitationById(
     flockId: data.flock_id,
     id: data.id,
     location: data.location,
+    runOptions: [],
     startsAt: data.starts_at,
     title: data.title,
   }
@@ -145,7 +153,14 @@ export async function acceptEventInvitation(
   if (error?.code === 'P0002') throw new InvitationUnavailableError()
   if (error) throw error
   return {
-    attendance: { in: 0, maybe: 0, out: 0, response: null },
+    attendance: {
+      groups: [],
+      in: 0,
+      maybe: 0,
+      out: 0,
+      response: null,
+      runOptionId: null,
+    },
     canceledAt: data.canceled_at,
     createdAt: data.created_at,
     createdBy: data.created_by,
@@ -153,6 +168,7 @@ export async function acceptEventInvitation(
     flockId: data.flock_id,
     id: data.id,
     location: data.location,
+    runOptions: [],
     startsAt: data.starts_at,
     title: data.title,
   }

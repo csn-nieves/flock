@@ -9,10 +9,12 @@ export function useSetFlockEventResponse(flockId: string) {
     mutationFn: ({
       eventId,
       response,
+      runOptionId,
     }: {
       eventId: string
       response: EventResponse
-    }) => setFlockEventResponse(eventId, response),
+      runOptionId: string | null
+    }) => setFlockEventResponse(eventId, response, runOptionId),
     onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: eventQueryKeys.flock(flockId),

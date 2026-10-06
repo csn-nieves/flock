@@ -4,7 +4,14 @@ import type { EventAudienceType } from '@src/components/EventAudiencePicker'
 import EventsPage from './EventsPage'
 
 const event = {
-  attendance: { in: 0, maybe: 0, out: 0, response: null },
+  attendance: {
+    groups: [],
+    in: 0,
+    maybe: 0,
+    out: 0,
+    response: null,
+    runOptionId: null,
+  },
   canceledAt: null,
   createdAt: '2026-10-01T12:00:00Z',
   createdBy: 'owner-id',
@@ -12,6 +19,7 @@ const event = {
   flockId: null,
   id: 'event-id',
   location: 'Riverside Park',
+  runOptions: [],
   startsAt: '2026-10-10T12:00:00Z',
   title: 'Saturday social run',
 } as const

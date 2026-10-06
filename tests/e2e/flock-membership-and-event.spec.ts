@@ -107,6 +107,13 @@ test('persists flock membership, event visibility, and RSVP across two real user
     await createEventDialog
       .getByLabel('Description')
       .fill('Conversational miles under the lights.')
+    await createEventDialog.getByLabel('Distance').fill('5 miles')
+    await createEventDialog.getByLabel('Pace').fill('Social')
+    await createEventDialog
+      .getByRole('button', { name: 'Add another option' })
+      .click()
+    await createEventDialog.getByLabel('Distance').nth(1).fill('10 miles')
+    await createEventDialog.getByLabel('Pace').nth(1).fill('Steady')
     await createEventDialog
       .getByRole('button', { name: 'Create event' })
       .click()
@@ -124,14 +131,25 @@ test('persists flock membership, event visibility, and RSVP across two real user
       'Conversational miles under the lights.',
     )
     await runnerEvent.getByRole('button', { name: "I'm in" }).click()
+    const runChoiceDialog = runnerPage.getByRole('dialog', {
+      name: 'Choose your run',
+    })
+    await runChoiceDialog.getByRole('radio', { name: /10 miles/ }).check()
+    await runChoiceDialog.getByRole('button', { name: 'Save response' }).click()
     await expect(
       runnerEvent.getByRole('button', { name: "I'm in" }),
     ).toHaveAttribute('aria-pressed', 'true')
+    await expect(runnerEvent.getByText('Your choice')).toBeVisible()
 
     await organizerPage.reload()
     await expect(
       organizerPage.getByLabel('Attendance: 1 in, 0 maybe, 0 out'),
     ).toBeVisible()
+    const organizerTenMileOption = organizerEvent
+      .getByText('10 miles · Steady')
+      .locator('..')
+      .locator('..')
+    await expect(organizerTenMileOption).toContainText('1 in · 0 maybe')
     expect(organizerConsoleProblems).toEqual([])
     expect(runnerConsoleProblems).toEqual([])
   } finally {

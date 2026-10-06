@@ -9,7 +9,14 @@ import { describe, expect, it, vi } from 'vitest'
 import EventsPage, { type EventsPageProps } from './EventsPage'
 
 const event = {
-  attendance: { in: 0, maybe: 0, out: 0, response: null },
+  attendance: {
+    groups: [],
+    in: 0,
+    maybe: 0,
+    out: 0,
+    response: null,
+    runOptionId: null,
+  },
   canceledAt: null,
   createdAt: '2026-10-01T00:00:00Z',
   createdBy: 'user',
@@ -17,6 +24,7 @@ const event = {
   flockId: null,
   id: 'event',
   location: 'Riverside',
+  runOptions: [],
   startsAt: '2026-10-03T12:00:00Z',
   title: 'Saturday run',
 }

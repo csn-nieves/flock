@@ -660,3 +660,26 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Product research calls for historical in-app notifications,
   scheduled reminders, RSVP alerts, per-category preferences, or chat and
   direct-message notifications.
+
+## D036 — Keep flock run options organizer-defined and response-bound
+
+- **Status:** Accepted
+- **Decision:** Require one to eight ordered distance-and-pace options on every
+  newly created or edited flock event. Store both values as concise labels with
+  stable option identifiers. Require runners choosing “I’m in” or “Maybe” to
+  select one option; clear the option for “I’m out.” Keep pre-existing events
+  without options valid until an organizer edits them.
+- **Why:** A flock event needs to communicate the actual plans runners can join,
+  and an aggregate RSVP count cannot tell an organizer how each distance or pace
+  group is shaping up. Organizer-written labels support miles, kilometers,
+  time-based runs, and conversational descriptions without prematurely defining
+  conversion, pace, or route models.
+- **Deletion behavior:** Removing an option does not delete attendance. The
+  database clears that option reference and the interface identifies earlier
+  in/maybe responses that need a new choice.
+- **Tradeoffs:** Labels are not normalized for analytics, runners cannot propose
+  options, and personal events retain the simpler aggregate RSVP model. Editing
+  a legacy event requires bringing it into the current option model.
+- **Revisit when:** Moderated use shows a need for structured units, reusable
+  pace groups, capacity limits, mapped routes, or the same option model on
+  personal events.

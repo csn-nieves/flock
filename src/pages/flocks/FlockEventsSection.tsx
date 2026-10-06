@@ -4,43 +4,71 @@ import Button from '@src/primitives/Button'
 import Modal from '@src/components/Modal'
 import type {
   CreateFlockEventInput,
+  EventFormInput,
   EventResponse,
   FlockEvent,
 } from '@src/types/events'
 
 export type FlockEventsSectionProps = {
+  canCreate: boolean
+  isCanceling: boolean
+  isLoading: boolean
+  isResponding: boolean
+  isSaving: boolean
+  onCancel: (eventId: string) => Promise<void>
+  onCreate: (input: CreateFlockEventInput) => Promise<void>
+  onRetry: () => void
+  onRespond: (
+    eventId: string,
+    response: EventResponse,
+    runOptionId: string | null,
+  ) => Promise<void>
+  onUpdate: (eventId: string, input: CreateFlockEventInput) => Promise<void>
+  createError?: string
   editError?: string
   error?: string
   events?: readonly FlockEvent[]
-  isLoading: boolean
-  isSaving: boolean
-  isCanceling: boolean
-  canCreate: boolean
-  onCreate: (input: CreateFlockEventInput) => void
-  onCancel: (eventId: string) => Promise<void>
-  onRetry: () => void
-  onRespond: (eventId: string, response: EventResponse) => void
-  onUpdate: (eventId: string, input: CreateFlockEventInput) => Promise<void>
+  responseError?: string
+  respondingEventId?: string
+}
+
+type PendingResponse = {
+  event: FlockEvent
+  response: Extract<EventResponse, 'in' | 'maybe'>
+}
+
+function requireRunOptions(input: EventFormInput): CreateFlockEventInput {
+  if (!input.runOptions) {
+    throw new Error('Flock events require run options.')
+  }
+  return { ...input, runOptions: input.runOptions }
 }
 
 function FlockEventsSection({
   canCreate,
+  createError,
   editError,
   error,
   events,
   isLoading,
   isSaving,
   isCanceling,
+  isResponding,
   onCreate,
   onCancel,
   onRetry,
   onRespond,
   onUpdate,
+  responseError,
+  respondingEventId,
 }: FlockEventsSectionProps) {
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
+  const [pendingResponse, setPendingResponse] =
+    useState<PendingResponse | null>(null)
+  const [selectedRunOptionId, setSelectedRunOptionId] = useState('')
   function startEditing(item: FlockEvent) {
     setEditingEventId(item.id)
     setEditingEvent(item)
@@ -98,6 +126,45 @@ function FlockEventsSection({
                   {item.description}
                 </p>
               ) : null}
+              {item.runOptions.length ? (
+                <div className="mt-3 space-y-2" aria-label="Run options">
+                  {item.runOptions.map((option) => {
+                    const group = item.attendance.groups.find(
+                      (attendance) => attendance.runOptionId === option.id,
+                    )
+                    const isOwnChoice =
+                      item.attendance.response !== 'out' &&
+                      item.attendance.runOptionId === option.id
+                    return (
+                      <div
+                        className="rounded-lg bg-surface-subtle px-3 py-2"
+                        key={option.id}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="m-0 text-sm font-bold text-text">
+                            {option.distanceLabel} · {option.paceLabel}
+                          </p>
+                          {isOwnChoice ? (
+                            <span className="shrink-0 text-xs font-bold text-accent">
+                              Your choice
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 mb-0 text-xs text-text-muted">
+                          {group?.in ?? 0} in · {group?.maybe ?? 0} maybe
+                        </p>
+                      </div>
+                    )
+                  })}
+                  {item.attendance.groups.some(
+                    (group) => group.runOptionId === null,
+                  ) ? (
+                    <p className="m-0 text-xs text-text-muted">
+                      Some earlier responses still need a run option.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
               <p
                 aria-label={`Attendance: ${item.attendance.in} in, ${item.attendance.maybe} maybe, ${item.attendance.out} out`}
                 className="mt-3 mb-2 text-sm text-text-muted"
@@ -121,12 +188,28 @@ function FlockEventsSection({
                         : 'secondary'
                     }
                     aria-pressed={item.attendance.response === response}
-                    onClick={() => onRespond(item.id, response)}
+                    isPending={isResponding && respondingEventId === item.id}
+                    pendingLabel="Saving response"
+                    onClick={() => {
+                      if (response === 'out' || item.runOptions.length === 0) {
+                        void onRespond(item.id, response, null)
+                        return
+                      }
+                      setSelectedRunOptionId(
+                        item.attendance.runOptionId ?? item.runOptions[0].id,
+                      )
+                      setPendingResponse({ event: item, response })
+                    }}
                   >
                     {label}
                   </Button>
                 ))}
               </div>
+              {responseError && respondingEventId === item.id ? (
+                <p className="mt-2 mb-0 text-sm text-text" role="alert">
+                  {responseError}
+                </p>
+              ) : null}
               {canCreate && editingEventId === item.id ? (
                 <Modal
                   description="Update the details so your flock has the latest plan."
@@ -142,15 +225,22 @@ function FlockEventsSection({
                     initialValues={{
                       description: editingEvent?.description ?? '',
                       location: editingEvent?.location ?? '',
+                      runOptions:
+                        editingEvent?.runOptions.map((option) => ({
+                          distanceLabel: option.distanceLabel,
+                          id: option.id,
+                          paceLabel: option.paceLabel,
+                        })) ?? [],
                       startsAt: editingEvent?.startsAt.slice(0, 16) ?? '',
                       title: editingEvent?.title ?? '',
                     }}
+                    includeRunOptions
                     isPending={isSaving}
                     mode="edit"
                     onCancel={closeEditing}
                     onSubmit={async (input) => {
                       try {
-                        await onUpdate(item.id, input)
+                        await onUpdate(item.id, requireRunOptions(input))
                         closeEditing()
                       } catch {
                         // Preserve the open modal and draft after a failed update.
@@ -193,11 +283,17 @@ function FlockEventsSection({
               title="Create an event"
             >
               <EventForm
+                error={createError}
+                includeRunOptions
                 isPending={isSaving}
                 mode="create"
-                onSubmit={(input) => {
-                  onCreate(input)
-                  setIsCreating(false)
+                onSubmit={async (input) => {
+                  try {
+                    await onCreate(requireRunOptions(input))
+                    setIsCreating(false)
+                  } catch {
+                    // Preserve the open modal and draft after a failed create.
+                  }
                 }}
               />
             </Modal>
@@ -238,6 +334,79 @@ function FlockEventsSection({
             </Modal>
           ) : null}
         </>
+      ) : null}
+      {pendingResponse ? (
+        <Modal
+          description={`Choose the plan you want to join for “${pendingResponse.event.title}.”`}
+          onClose={() => setPendingResponse(null)}
+          title="Choose your run"
+        >
+          <form
+            noValidate
+            onSubmit={async (event) => {
+              event.preventDefault()
+              try {
+                await onRespond(
+                  pendingResponse.event.id,
+                  pendingResponse.response,
+                  selectedRunOptionId,
+                )
+                setPendingResponse(null)
+              } catch {
+                // Keep the selection open so the runner can retry.
+              }
+            }}
+          >
+            <fieldset className="space-y-2">
+              <legend className="sr-only">Run option</legend>
+              {pendingResponse.event.runOptions.map((option) => (
+                <label
+                  className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2 text-sm text-text has-checked:border-accent has-checked:bg-surface-subtle"
+                  key={option.id}
+                >
+                  <input
+                    checked={selectedRunOptionId === option.id}
+                    name="event-run-option"
+                    type="radio"
+                    value={option.id}
+                    onChange={(event) =>
+                      setSelectedRunOptionId(event.target.value)
+                    }
+                  />
+                  <span>
+                    <strong>{option.distanceLabel}</strong>
+                    <span className="block text-text-muted">
+                      {option.paceLabel}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+            {responseError && respondingEventId === pendingResponse.event.id ? (
+              <p className="mt-3 mb-0 text-sm text-text" role="alert">
+                {responseError}
+              </p>
+            ) : null}
+            <div className="mt-4 grid gap-2 sm:flex sm:flex-row-reverse">
+              <Button
+                className="w-full sm:w-auto"
+                isPending={isResponding}
+                pendingLabel="Saving response"
+                type="submit"
+              >
+                Save response
+              </Button>
+              <Button
+                className="w-full sm:w-auto"
+                type="button"
+                variant="secondary"
+                onClick={() => setPendingResponse(null)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Modal>
       ) : null}
     </section>
   )

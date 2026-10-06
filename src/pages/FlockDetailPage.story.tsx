@@ -37,7 +37,17 @@ const events = {
   error: undefined,
   events: [
     {
-      attendance: { in: 2, maybe: 1, out: 0, response: 'maybe' as const },
+      attendance: {
+        groups: [
+          { in: 2, maybe: 1, runOptionId: 'social-five-id' },
+          { in: 0, maybe: 0, runOptionId: 'steady-ten-id' },
+        ],
+        in: 2,
+        maybe: 1,
+        out: 0,
+        response: 'maybe' as const,
+        runOptionId: 'social-five-id',
+      },
       canceledAt: null,
       createdAt: '2026-01-03T12:00:00.000Z',
       createdBy: flock.owner_id,
@@ -45,16 +55,31 @@ const events = {
       flockId: flock.id,
       id: 'river-loop-id',
       location: 'Riverside trailhead',
+      runOptions: [
+        {
+          distanceLabel: '5 miles',
+          id: 'social-five-id',
+          paceLabel: 'Social',
+          position: 0,
+        },
+        {
+          distanceLabel: '10 miles',
+          id: 'steady-ten-id',
+          paceLabel: 'Steady',
+          position: 1,
+        },
+      ],
       startsAt: '2027-01-03T09:00:00.000Z',
       title: 'River loop',
     },
   ],
   isLoading: false,
+  isResponding: false,
   isSaving: false,
   isCanceling: false,
   onCancel: async () => undefined,
-  onCreate: () => undefined,
-  onRespond: () => undefined,
+  onCreate: async () => undefined,
+  onRespond: async () => undefined,
   onRetry: () => undefined,
   onUpdate: async () => undefined,
 }

@@ -337,6 +337,7 @@ test('carries a whole-flock invitation from organizer to runner RSVP', async ({
     expect(state.responseRequest).toEqual({
       next_response: 'maybe',
       target_event_id: eventId,
+      target_run_option_id: null,
     })
     expect(organizerConsoleProblems).toEqual([])
     expect(runnerConsoleProblems).toEqual([])

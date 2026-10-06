@@ -1301,6 +1301,30 @@ flock-detail views remain authoritative; this change does not add an alert
 history, badges, WebSockets, chat notifications, delivery retry scheduling, or
 hosted deployment configuration.
 
+## 2026-10-06 — Binding flock attendance to run options
+
+### Organizer-defined distance and pace choices
+
+Flock owners now define one to eight distance-and-pace options while creating
+or editing an event. Runners choosing “I’m in” or “Maybe” select the plan they
+intend to join, and the event card shows attendance grouped by option while
+retaining the overall in/maybe/out totals. Choosing “I’m out” clears the
+selection. Personal events retain their simpler RSVP model.
+
+The database writes an event and its complete option set atomically, limits
+option reads through event-aligned Row Level Security, and verifies that an RSVP
+option belongs to the target event. Stable identifiers preserve responses when
+labels change. Removing an option keeps the attendance record but clears the
+reference, making an earlier response visibly need a new choice. Existing
+events with no options stay valid instead of receiving invented values, while
+editing one requires the organizer to add current options.
+
+The existing alert path treats option changes as material event updates. The
+full-stack flock journey now creates two choices, has a second real user select
+one, and verifies the grouped persisted result after the organizer reloads.
+Transactional database coverage includes validation, authorization, RLS,
+selection clearing, option removal, and backward compatibility.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

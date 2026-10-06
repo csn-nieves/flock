@@ -102,7 +102,8 @@ from public.create_flock_event(
   'Saturday Long Run',
   clock_timestamp() + interval '7 days',
   'Harbor Trail',
-  'Conversational miles.'
+  'Conversational miles.',
+  '[{"distanceLabel":"10 miles","paceLabel":"Conversational"}]'::jsonb
 );
 
 reset role;
@@ -185,7 +186,18 @@ select public.update_flock_event(
   'Saturday Long Run',
   (select starts_at from created_flock_event) + interval '1 hour',
   'Harbor Trail North Gate',
-  'Meet ten minutes early.'
+  'Meet ten minutes early.',
+  (
+    select jsonb_agg(
+      jsonb_build_object(
+        'id', option.id,
+        'distanceLabel', option.distance_label,
+        'paceLabel', option.pace_label
+      ) order by option.position
+    )
+    from public.flock_event_run_options as option
+    where option.event_id = (select id from created_flock_event)
+  )
 );
 
 reset role;
@@ -236,7 +248,18 @@ select public.update_flock_event(
   event.title,
   event.starts_at,
   event.location,
-  event.description
+  event.description,
+  (
+    select jsonb_agg(
+      jsonb_build_object(
+        'id', option.id,
+        'distanceLabel', option.distance_label,
+        'paceLabel', option.pace_label
+      ) order by option.position
+    )
+    from public.flock_event_run_options as option
+    where option.event_id = event.id
+  )
 )
 from public.flock_events as event
 where event.id = (select id from created_flock_event);
