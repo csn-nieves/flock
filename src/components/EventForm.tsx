@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
-import type { EventFormInput } from '@src/types/events'
+import type { EventFormInput, EventRoute } from '@src/types/events'
+import RouteFileField from './RouteFileField'
 import RunOptionPicker from './RunOptionPicker'
 
 type EventFormProps = {
@@ -21,6 +22,7 @@ type EditableRunOption = {
   unit: 'mi' | 'km'
   id?: string
   legacyLabel?: string
+  route?: EventRoute
 }
 
 let nextRunOptionKey = 0
@@ -35,6 +37,7 @@ function newRunOption(
     key: nextRunOptionKey,
     legacyLabel: option?.legacyLabel,
     paceSeconds: option?.paceSeconds ?? 8 * 60,
+    route: option?.route,
     unit: option?.unit ?? 'mi',
   }
 }
@@ -71,12 +74,15 @@ function EventForm({
       description: description.trim(),
       location: location.trim(),
       runOptions: includeRunOptions
-        ? runOptions.map(({ distanceTenths, id, paceSeconds, unit }) => ({
-            distanceTenths,
-            id,
-            paceSeconds,
-            unit,
-          }))
+        ? runOptions.map(
+            ({ distanceTenths, id, paceSeconds, route, unit }) => ({
+              distanceTenths,
+              id,
+              paceSeconds,
+              ...(route ? { route } : {}),
+              unit,
+            }),
+          )
         : undefined,
       startsAt: new Date(startsAt).toISOString(),
       title: title.trim(),
@@ -149,6 +155,18 @@ function EventForm({
                   setRunOptions((current) =>
                     current.map((item) =>
                       item.key === option.key ? { ...item, ...value } : item,
+                    ),
+                  )
+                }
+              />
+              <RouteFileField
+                distanceTenths={option.distanceTenths}
+                unit={option.unit}
+                value={option.route}
+                onChange={(route) =>
+                  setRunOptions((current) =>
+                    current.map((item) =>
+                      item.key === option.key ? { ...item, route } : item,
                     ),
                   )
                 }

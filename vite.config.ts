@@ -58,6 +58,7 @@ export default defineConfig({
         ],
       },
       injectManifest: {
+        globIgnores: ['**/RouteMapCanvas-*', '**/maplibre-gl-worker-*'],
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
       },
     }),

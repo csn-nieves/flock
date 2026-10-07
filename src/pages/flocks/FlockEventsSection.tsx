@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EventForm from '@src/components/EventForm'
+import EventRunOptions from '@src/components/EventRunOptions'
 import Button from '@src/primitives/Button'
 import Modal from '@src/components/Modal'
 import type {
@@ -126,45 +127,12 @@ function FlockEventsSection({
                   {item.description}
                 </p>
               ) : null}
-              {item.runOptions.length ? (
-                <div className="mt-3 space-y-2" aria-label="Run options">
-                  {item.runOptions.map((option) => {
-                    const group = item.attendance.groups.find(
-                      (attendance) => attendance.runOptionId === option.id,
-                    )
-                    const isOwnChoice =
-                      item.attendance.response !== 'out' &&
-                      item.attendance.runOptionId === option.id
-                    return (
-                      <div
-                        className="rounded-lg bg-surface-subtle px-3 py-2"
-                        key={option.id}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <p className="m-0 text-sm font-bold text-text">
-                            {option.distanceLabel} · {option.paceLabel}
-                          </p>
-                          {isOwnChoice ? (
-                            <span className="shrink-0 text-xs font-bold text-accent">
-                              Your choice
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 mb-0 text-xs text-text-muted">
-                          {group?.in ?? 0} in · {group?.maybe ?? 0} maybe
-                        </p>
-                      </div>
-                    )
-                  })}
-                  {item.attendance.groups.some(
-                    (group) => group.runOptionId === null,
-                  ) ? (
-                    <p className="m-0 text-xs text-text-muted">
-                      Some earlier responses still need a run option.
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
+              <EventRunOptions
+                groups={item.attendance.groups}
+                options={item.runOptions}
+                response={item.attendance.response}
+                selectedRunOptionId={item.attendance.runOptionId}
+              />
               <p
                 aria-label={`Attendance: ${item.attendance.in} in, ${item.attendance.maybe} maybe, ${item.attendance.out} out`}
                 className="mt-3 mb-2 text-sm text-text-muted"
@@ -234,6 +202,7 @@ function FlockEventsSection({
                               ? `${option.distanceLabel} · ${option.paceLabel}`
                               : undefined,
                           paceSeconds: option.paceSeconds ?? 8 * 60,
+                          route: option.route ?? undefined,
                           unit: option.unit ?? 'mi',
                         })) ?? [],
                       startsAt: editingEvent?.startsAt.slice(0, 16) ?? '',

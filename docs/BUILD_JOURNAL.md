@@ -1354,6 +1354,31 @@ screen groups attendance by distance and pace. Database creation, updates,
 authorization, and option validation remain transactional for both event
 audiences.
 
+## 2026-10-07 — Adding mapped event routes
+
+### Privacy-minimized GPX courses for every event audience
+
+Personal and flock event creators can now attach one optional GPX course to
+each distance-and-pace option. Import happens in the browser, where Flock keeps
+the longest usable line, calculates distance, and reduces large tracks to a
+bounded coordinate set. The original file and its filename, timestamps,
+elevation, author, and device metadata never enter application storage.
+
+The route geometry and distance are written atomically with the rest of the run
+option. Database validation rejects incomplete, malformed, oversized, or
+out-of-bounds geometry, while existing event-aligned Row Level Security keeps
+the precise line hidden from unauthorized users. Both event surfaces use one
+shared option presentation and map dialog, and editing supports route
+replacement or removal without disturbing the option's stable identifier or
+attendance.
+
+MapLibre GL JS renders against OpenFreeMap's hosted Liberty style. Its renderer,
+worker, and map CSS are demand-loaded and excluded from PWA precaching so the
+feature does not add a large install download for runners who never open a map.
+The public basemap has no application-specific uptime guarantee; normalized
+route storage deliberately remains provider-neutral so a later provider change
+does not require a data migration.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

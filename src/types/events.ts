@@ -34,6 +34,7 @@ export type EventRunOption = {
   paceLabel: string
   paceSeconds: number | null
   position: number
+  route?: EventRoute | null
   unit: RunUnit | null
 }
 
@@ -43,6 +44,14 @@ export type EventRunOptionInput = {
   unit: RunUnit
   id?: string
   legacyLabel?: string
+  route?: EventRoute
+}
+
+export type RouteCoordinate = [longitude: number, latitude: number]
+
+export type EventRoute = {
+  coordinates: RouteCoordinate[]
+  distanceMeters: number
 }
 
 export type RunUnit = 'mi' | 'km'

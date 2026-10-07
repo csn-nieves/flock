@@ -58,6 +58,11 @@ window.unmount = async () => {
   root = undefined
 }
 
+const requestedStory = new URLSearchParams(window.location.search).get('story')
+if (requestedStory) {
+  void window.mount({ story: requestedStory })
+}
+
 declare global {
   interface Window {
     mount: (parameters: { story: string; props?: StoryProps }) => Promise<void>

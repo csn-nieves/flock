@@ -15,9 +15,10 @@ for invitations and flock-event changes. Superadmins can now review and cancel
 global event records and remove ordinary members from any flock. The current
 planned admin operations are complete. Run events now carry organizer-defined
 distance and pace options, and attendance is tied to a runner's selected plan.
-A moderated workflow-validation protocol still gates the next product
-milestone. Mapped courses, chat, and monetization remain outside the current
-slice.
+Moderated workflow validation remains prepared but is temporarily deferred by
+the product owner so feature development can continue. Run options now support
+optional mapped GPX courses for both personal and flock events. Chat and
+monetization remain outside the current slice.
 
 ## Completed foundation
 
@@ -99,6 +100,12 @@ slice.
   view their upcoming personal events, create a user-owned event through a
   reusable modal form, and use the same structured run-option picker and
   response-bound attendance model as flock events.
+- Event creators can optionally import one GPX route per run option for either a
+  personal or flock event. Flock keeps only a bounded longitude/latitude line
+  and calculated distance, protects it with the parent event's authorization,
+  and presents it through the same lazy-loaded map dialog to every authorized
+  viewer. Original GPX files and their timestamps, elevation, filenames, and
+  device metadata are not retained.
 - User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
@@ -190,10 +197,10 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Use the rehearsed hosted validation environment to run the moderated
-   sessions in `docs/WORKFLOW_VALIDATION.md` with at least three organizers and
-   three runners. Record anonymized evidence and resolve any critical findings
-   before selecting the next product milestone.
+1. Review and merge the mapped-event-route vertical slice, then select the next
+   feature increment. The rehearsed moderated sessions in
+   `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
+   returns; they no longer block feature branches in the meantime.
 
 ## Known follow-ups
 

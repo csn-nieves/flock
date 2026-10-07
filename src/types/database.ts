@@ -60,6 +60,8 @@ export type Database = {
           pace_seconds: number | null
           pace_unit: string | null
           position: number
+          route_coordinates: Json | null
+          route_distance_meters: number | null
         }
         Insert: {
           created_at?: string
@@ -72,6 +74,8 @@ export type Database = {
           pace_seconds?: number | null
           pace_unit?: string | null
           position: number
+          route_coordinates?: Json | null
+          route_distance_meters?: number | null
         }
         Update: {
           created_at?: string
@@ -84,6 +88,8 @@ export type Database = {
           pace_seconds?: number | null
           pace_unit?: string | null
           position?: number
+          route_coordinates?: Json | null
+          route_distance_meters?: number | null
         }
         Relationships: [
           {

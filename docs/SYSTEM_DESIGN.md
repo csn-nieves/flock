@@ -484,6 +484,24 @@ before saving an in or maybe response. Create and edit forms preserve their
 drafts after recoverable failures, and option changes count as material event
 updates for the existing flock-alert pipeline.
 
+Each structured run option may also carry one mapped route. The browser accepts
+a GPX track or route up to 2 MB, selects the longest segment, calculates its
+distance, simplifies the line to at most 1,000 longitude/latitude pairs, and
+discards the source file, filename, timestamps, elevation, author, and device
+metadata. PostgreSQL independently requires two to 1,000 geographically valid
+coordinate pairs and a bounded calculated distance. Route replacement and
+removal are part of the same atomic event-option update as distance and pace.
+
+Route columns live on `flock_event_run_options`, so the existing event-aligned
+Row Level Security also protects precise route geometry. Only a readable
+event's creator, current flock audience, accepted personal-event invitees, or a
+superadmin can select it. The shared event-option component identifies mapped
+routes on both personal and flock event cards and opens the same accessible map
+dialog. MapLibre GL is loaded only when a route preview or map is requested;
+OpenFreeMap supplies the public basemap without a browser API key. The map
+assets are excluded from PWA precaching so users who never open a map do not
+download the large rendering bundle during installation.
+
 ## Superadmin event operations
 
 The protected `/admin` route is available only when the authenticated session

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EventForm from '@src/components/EventForm'
+import EventRunOptions from '@src/components/EventRunOptions'
 import Modal from '@src/components/Modal'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
@@ -234,38 +235,12 @@ function EventsPage({
                   {event.description}
                 </p>
               ) : null}
-              {event.runOptions.length ? (
-                <div className="mt-3 space-y-2" aria-label="Run options">
-                  {event.runOptions.map((option) => {
-                    const group = event.attendance.groups.find(
-                      (attendance) => attendance.runOptionId === option.id,
-                    )
-                    const isOwnChoice =
-                      event.attendance.response !== 'out' &&
-                      event.attendance.runOptionId === option.id
-                    return (
-                      <div
-                        className="rounded-lg bg-surface-subtle px-3 py-2"
-                        key={option.id}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <p className="m-0 text-sm font-bold text-text">
-                            {option.distanceLabel} · {option.paceLabel}
-                          </p>
-                          {isOwnChoice ? (
-                            <span className="shrink-0 text-xs font-bold text-accent">
-                              Your choice
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 mb-0 text-xs text-text-muted">
-                          {group?.in ?? 0} in · {group?.maybe ?? 0} maybe
-                        </p>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : null}
+              <EventRunOptions
+                groups={event.attendance.groups}
+                options={event.runOptions}
+                response={event.attendance.response}
+                selectedRunOptionId={event.attendance.runOptionId}
+              />
               <p
                 aria-label={`Attendance: ${event.attendance.in} in, ${event.attendance.maybe} maybe, ${event.attendance.out} out`}
                 className="mt-3 mb-2 text-sm text-text-muted"
@@ -440,6 +415,7 @@ function EventsPage({
                     ? `${option.distanceLabel} · ${option.paceLabel}`
                     : undefined,
                 paceSeconds: option.paceSeconds ?? 8 * 60,
+                route: option.route ?? undefined,
                 unit: option.unit ?? 'mi',
               })),
               startsAt: editingEvent.startsAt.slice(0, 16),

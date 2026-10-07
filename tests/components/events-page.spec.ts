@@ -58,3 +58,33 @@ test('shows an actionable flock invitation across supported viewports', async ({
     viewport?.width ?? 0,
   )
 })
+
+test('opens a mapped personal-event route across supported viewports', async ({
+  mount,
+  page,
+}) => {
+  await page.route('https://tiles.openfreemap.org/**', (route) => route.abort())
+  const component = await mount('pages/EventsPage/MappedRoute')
+
+  await expect(component.getByText('Mapped route · 5.00 mi')).toBeVisible()
+  const viewMap = component.getByRole('button', { name: 'View map' })
+  await viewMap.click()
+
+  await expect(
+    component.getByRole('dialog', { name: 'Event route' }),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('group', { name: 'Event route map' }),
+  ).toBeVisible()
+
+  const viewport = page.viewportSize()
+  const mapBox = await component
+    .getByRole('group', { name: 'Event route map' })
+    .boundingBox()
+  expect(viewport).not.toBeNull()
+  expect(mapBox).not.toBeNull()
+  expect(mapBox?.x).toBeGreaterThanOrEqual(0)
+  expect((mapBox?.x ?? 0) + (mapBox?.width ?? 0)).toBeLessThanOrEqual(
+    viewport?.width ?? 0,
+  )
+})

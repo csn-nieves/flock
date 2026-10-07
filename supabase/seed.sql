@@ -358,6 +358,28 @@ begin
       format('Park %02s', event_number),
       'A seeded group run for local development.'
     );
+    insert into public.flock_event_run_options (
+      id, event_id, distance_label, distance_tenths, distance_unit,
+      pace_label, pace_seconds, pace_unit, position,
+      route_coordinates, route_distance_meters
+    ) values (
+      md5('seed-flock-event-option-' || event_number)::uuid,
+      event_id,
+      case when event_number % 2 = 0 then '10 km' else '5 mi' end,
+      case when event_number % 2 = 0 then 100 else 50 end,
+      case when event_number % 2 = 0 then 'km' else 'mi' end,
+      case when event_number % 2 = 0 then '5:30/km' else '8:30/mi' end,
+      case when event_number % 2 = 0 then 330 else 510 end,
+      case when event_number % 2 = 0 then 'km' else 'mi' end,
+      0,
+      case when event_number <= 3 then jsonb_build_array(
+        jsonb_build_array(-74.0100, 40.7000),
+        jsonb_build_array(-74.0050, 40.7040),
+        jsonb_build_array(-73.9990, 40.7080),
+        jsonb_build_array(-73.9940, 40.7030)
+      ) else null end,
+      case when event_number <= 3 then 8050 else null end
+    );
   end loop;
 end;
 $$;
@@ -382,6 +404,28 @@ begin
       '2026-10-04 07:30:00+00'::timestamptz + make_interval(days => event_number),
       format('Trailhead %02s', event_number),
       'A seeded personal event for local development.'
+    );
+    insert into public.flock_event_run_options (
+      id, event_id, distance_label, distance_tenths, distance_unit,
+      pace_label, pace_seconds, pace_unit, position,
+      route_coordinates, route_distance_meters
+    ) values (
+      md5('seed-personal-event-option-' || event_number)::uuid,
+      event_id,
+      case when event_number % 2 = 0 then '5 km' else '3.1 mi' end,
+      case when event_number % 2 = 0 then 50 else 31 end,
+      case when event_number % 2 = 0 then 'km' else 'mi' end,
+      case when event_number % 2 = 0 then '5:45/km' else '9:00/mi' end,
+      case when event_number % 2 = 0 then 345 else 540 end,
+      case when event_number % 2 = 0 then 'km' else 'mi' end,
+      0,
+      case when event_number <= 3 then jsonb_build_array(
+        jsonb_build_array(-71.0650, 42.3550),
+        jsonb_build_array(-71.0580, 42.3580),
+        jsonb_build_array(-71.0520, 42.3530),
+        jsonb_build_array(-71.0600, 42.3490)
+      ) else null end,
+      case when event_number <= 3 then 5000 else null end
     );
     insert into private.event_invitations (
       event_id, created_by, token_hash, created_at, expires_at, consumed_at, consumed_by
