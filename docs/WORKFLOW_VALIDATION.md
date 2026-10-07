@@ -169,6 +169,87 @@ phone plus a private browser window:
 Do not start participant sessions until this rehearsal succeeds without using
 Supabase Studio to repair data.
 
+### Hosted rehearsal record — 2026-10-07
+
+The first hosted rehearsal completed successfully against the revision that
+included the email-auth callback fix and structured run options for both flock
+and personal events. This was an internal environment and workflow check, not a
+moderated participant session, so it does not count toward the three-organizer
+and three-runner validation requirement.
+
+#### Environment setup completed
+
+The rehearsal used disposable hosted resources rather than production systems:
+
+1. A Cloudflare Pages project named `flock-validation` was connected to the
+   GitHub repository. It built the application with `npm run build`, published
+   `dist`, and exposed the stable HTTPS origin
+   `https://flock-validation.pages.dev`.
+2. The Pages environment received only the validation Supabase project URL and
+   publishable key through `VITE_SUPABASE_URL` and
+   `VITE_SUPABASE_PUBLISHABLE_KEY`. No service-role credential or other secret
+   was exposed to Vite.
+3. A separate Supabase project named `flock-validation` was created for
+   disposable accounts and rehearsal data. The committed database migrations
+   were applied to that project; local seed identities were not used as hosted
+   participant fixtures.
+4. Supabase Auth allowed email account creation, used the Cloudflare origin as
+   its site URL, and allowed the application's `/auth/callback` destination.
+   Confirm-email gating was disabled so a new address could complete the same
+   passwordless OTP flow as a returning address.
+5. Hosted email OTP length was set to six digits with a 3,600-second expiry so
+   the provider contract matched Flock's six-digit interface and committed
+   local Supabase configuration.
+6. A free Mailtrap Email Sandbox supplied custom SMTP delivery for the
+   validation project. Supabase used Mailtrap's generated sandbox SMTP host,
+   port, username, and password with the sender identity
+   `Flock Validation <no-reply@flock.test>`. Credentials remain outside the
+   repository.
+7. The Supabase passwordless email template used `{{ .Token }}` in both the
+   message body and subject so Mailtrap displayed the generated code instead of
+   the literal template expression. A fresh test address received a six-digit
+   code, and submitting it through Flock opened an authenticated session.
+
+Do not commit SMTP credentials, one-time codes, invitation tokens, test email
+addresses, or browser session data when repeating this setup. Mailtrap is an
+email capture sandbox for testing; it is not the production delivery service.
+
+#### Workflow exercised
+
+Two independent desktop browser sessions represented anonymized organizer
+`O0` and runner `R0`. The rehearsal completed these steps without changing
+records directly in Supabase Studio:
+
+1. Create and save distinct organizer and runner profiles.
+2. Create a recognizable flock with a location and description.
+3. Create a single-use flock invitation and open it in the runner session.
+4. Confirm persisted membership and a two-person roster.
+5. Create a flock event with date, time, location, description, and a
+   structured distance-and-pace option.
+6. Confirm the runner could open the flock and see the event details.
+7. Create a personal event with the same structured run-option model.
+8. Search for the flock and create one universal, seven-day invitation for the
+   live flock audience.
+9. Leave the optional invitation link unused. In the runner session, find the
+   invitation through the Events inbox, accept it, select a run option, and
+   respond “I'm in.”
+10. Confirm the organizer saw the persisted attendance total and the runner's
+    selected plan.
+11. Reload both sessions and confirm flock membership, event access, invitation
+    acceptance, selected option, and attendance remained intact.
+
+The already-open organizer flock page did not update when the other browser
+accepted the flock invitation; a reload displayed the new member. This is
+consistent with the current lack of cross-device real-time synchronization,
+but the moderated sessions should record whether organizers recognize that
+they need to revisit or reload the page and whether this creates meaningful
+friction.
+
+The rehearsal did not test human comprehension, iPhone or Android behavior,
+installed-PWA behavior, Web Push delivery, Google or Facebook OAuth, or the
+internal superadmin checklist. Those remain separate validation evidence and
+must not be inferred from this successful hosted workflow check.
+
 ### Session-day checklist
 
 For each pair:

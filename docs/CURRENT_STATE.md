@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-06
+Last reviewed: 2026-10-07
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -35,6 +35,13 @@ slice.
   visibility and RSVP, and personal-event flock invitations across two real
   seeded sessions, including RPCs, Row Level Security, persistence, and query
   refresh.
+- A disposable Cloudflare Pages preview, separate hosted Supabase project, and
+  Mailtrap SMTP sandbox now support remote workflow validation. An internal
+  two-session hosted rehearsal passed flock creation and joining, flock-event
+  visibility, whole-flock personal-event invitation acceptance through the
+  in-app inbox, response-bound run-option selection, organizer attendance, and
+  persistence after reload. This verifies the environment and golden path; it
+  does not count as moderated participant evidence.
 - Supabase authentication through six-digit email codes, Google OAuth, and
   Facebook OAuth using PKCE, protected routes, safe destination restoration,
   and a dedicated callback route.
@@ -183,9 +190,10 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Run the moderated sessions in `docs/WORKFLOW_VALIDATION.md` with at least
-   three organizers and three runners, record anonymized evidence, and resolve
-   any critical findings before selecting the next product milestone.
+1. Use the rehearsed hosted validation environment to run the moderated
+   sessions in `docs/WORKFLOW_VALIDATION.md` with at least three organizers and
+   three runners. Record anonymized evidence and resolve any critical findings
+   before selecting the next product milestone.
 
 ## Known follow-ups
 
