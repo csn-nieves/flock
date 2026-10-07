@@ -1,6 +1,23 @@
 @import 'tailwindcss';
 @import './tokens.css';
 
+.run-wheel-surface {
+  background: var(--flock-color-picker-background);
+}
+
+.run-wheel-surface [data-rwp-wrapper] {
+  justify-content: center;
+}
+
+.run-wheel-highlight {
+  background: var(--flock-color-picker-selection);
+}
+
+.run-wheel-highlight[data-rwp-focused] {
+  outline: 2px solid var(--flock-color-primary-bright);
+  outline-offset: -2px;
+}
+
 @theme inline {
   --color-primary: var(--flock-color-primary);
   --color-primary-bright: var(--flock-color-primary-bright);

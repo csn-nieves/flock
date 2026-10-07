@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(22);
 
 select has_table(
   'public',
@@ -67,7 +67,92 @@ from public.create_flock_event(
   clock_timestamp() + interval '7 days',
   'River trail',
   'Pick your run.',
-  '[{"distanceLabel":" 5 miles ","paceLabel":" Social "},{"distanceLabel":"10 miles","paceLabel":"Steady"}]'::jsonb
+  '[{"distanceTenths":50,"paceSeconds":480,"unit":"mi"},{"distanceTenths":100,"paceSeconds":300,"unit":"km"}]'::jsonb
+);
+
+create temporary table created_personal_option_event as
+select *
+from public.create_user_event(
+  'Personal choices',
+  clock_timestamp() + interval '6 days',
+  'Neighborhood loop',
+  'Choose a personal run plan.',
+  '[{"distanceTenths":31,"paceSeconds":300,"unit":"km"}]'::jsonb
+);
+
+select is(
+  (
+    select count(*)
+    from public.flock_event_run_options
+    where event_id = (select id from created_personal_option_event)
+  ),
+  1::bigint,
+  'personal event creation stores its run options'
+);
+
+select is(
+  (
+    select distance_label || ' / ' || pace_label
+    from public.flock_event_run_options
+    where event_id = (select id from created_personal_option_event)
+  ),
+  '3.1 km / 5:00/km',
+  'personal event options use the same structured labels'
+);
+
+select is(
+  (
+    select run_option_id::text
+    from public.set_flock_event_response(
+      (select id from created_personal_option_event),
+      'in',
+      (
+        select id
+        from public.flock_event_run_options
+        where event_id = (select id from created_personal_option_event)
+      )
+    )
+  ),
+  (
+    select id::text
+    from public.flock_event_run_options
+    where event_id = (select id from created_personal_option_event)
+  ),
+  'a personal event creator chooses a run option when responding'
+);
+
+select lives_ok(
+  format(
+    'select public.update_flock_event(%L, %L, %L, %L, %L, %L::jsonb)',
+    (select id from created_personal_option_event),
+    'Personal choices updated',
+    (select starts_at from created_personal_option_event),
+    'Neighborhood loop',
+    'Choose an updated plan.',
+    (
+      select jsonb_build_array(
+        jsonb_build_object(
+          'id', option.id,
+          'distanceTenths', 50,
+          'paceSeconds', 330,
+          'unit', 'km'
+        )
+      )::text
+      from public.flock_event_run_options as option
+      where option.event_id = (select id from created_personal_option_event)
+    )
+  ),
+  'a personal event creator can update structured run options'
+);
+
+select is(
+  (
+    select distance_label || ' / ' || pace_label
+    from public.flock_event_run_options
+    where event_id = (select id from created_personal_option_event)
+  ),
+  '5 km / 5:30/km',
+  'personal event updates persist derived option labels'
 );
 
 select is(
@@ -88,8 +173,34 @@ select is(
     order by position
     limit 1
   ),
-  '5 miles / Social',
-  'event creation trims option labels and preserves order'
+  '5 mi / 8:00/mi',
+  'event creation derives concise labels and preserves order'
+);
+
+select is(
+  (
+    select distance_tenths::text || ' ' || distance_unit || ' / ' || pace_seconds::text || ' ' || pace_unit
+    from public.flock_event_run_options
+    where event_id = (select id from created_option_event)
+    order by position desc
+    limit 1
+  ),
+  '100 km / 300 km',
+  'event creation stores structured distance and pace values'
+);
+
+select throws_ok(
+  $$select public.create_flock_event(
+    'eaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'Invalid pace',
+    clock_timestamp() + interval '7 days',
+    'River trail',
+    '',
+    '[{"distanceTenths":50,"paceSeconds":901,"unit":"mi"}]'::jsonb
+  )$$,
+  '23514',
+  'Provide between one and eight valid run options.',
+  'mile pace is limited to the supported range'
 );
 
 reset role;
@@ -177,10 +288,10 @@ select throws_ok(
     'Changed by outsider',
     'Elsewhere',
     '',
-    '[{"distanceLabel":"5 miles","paceLabel":"Fast"}]'
+    '[{"distanceTenths":50,"paceSeconds":420,"unit":"mi"}]'
   ),
   '42501',
-  'Flock event ownership is required.',
+  'Event ownership is required.',
   'outsiders cannot update flock event options'
 );
 
@@ -216,8 +327,9 @@ select lives_ok(
       select jsonb_build_array(
         jsonb_build_object(
           'id', option.id,
-          'distanceLabel', option.distance_label,
-          'paceLabel', 'Tempo'
+          'distanceTenths', option.distance_tenths,
+          'paceSeconds', 330,
+          'unit', 'km'
         )
       )::text
       from public.flock_event_run_options as option

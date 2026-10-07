@@ -25,7 +25,7 @@ select has_index(
 select has_function(
   'public',
   'create_user_event',
-  array['text', 'timestamp with time zone', 'text', 'text'],
+  array['text', 'timestamp with time zone', 'text', 'text', 'jsonb'],
   'users can create events without a flock'
 );
 
@@ -37,7 +37,7 @@ select ok(
 select ok(
   has_function_privilege(
     'authenticated',
-    'public.create_user_event(text, timestamptz, text, text)',
+    'public.create_user_event(text, timestamptz, text, text, jsonb)',
     'execute'
   ),
   'authenticated users can call the user event function'

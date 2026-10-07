@@ -208,8 +208,8 @@ function EventsRoute() {
           ? 'We could not save your response. Check your connection and try again.'
           : undefined
       }
-      onRespond={(eventId, response) =>
-        responseMutation.mutate({ eventId, response })
+      onRespond={(eventId, response, runOptionId) =>
+        responseMutation.mutateAsync({ eventId, response, runOptionId })
       }
       isSaving={updateMutation.isPending}
       managementError={

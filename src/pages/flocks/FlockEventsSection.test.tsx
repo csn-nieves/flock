@@ -77,16 +77,22 @@ describe('FlockEventsSection', () => {
       },
       runOptions: [
         {
-          distanceLabel: '5 miles',
+          distanceLabel: '5 mi',
+          distanceTenths: 50,
           id: 'five-mile-option',
-          paceLabel: 'Social',
+          paceLabel: '8:00/mi',
+          paceSeconds: 480,
           position: 0,
+          unit: 'mi' as const,
         },
         {
-          distanceLabel: '10 miles',
+          distanceLabel: '10 mi',
+          distanceTenths: 100,
           id: 'ten-mile-option',
-          paceLabel: 'Steady',
+          paceLabel: '8:30/mi',
+          paceSeconds: 510,
           position: 1,
+          unit: 'mi' as const,
         },
       ],
     }
@@ -106,14 +112,12 @@ describe('FlockEventsSection', () => {
       />,
     )
 
-    expect(screen.getByText('5 miles · Social')).toBeVisible()
+    expect(screen.getByText('5 mi · 8:00/mi')).toBeVisible()
     expect(screen.getByText('2 in · 1 maybe')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: "I'm in" }))
     const dialog = screen.getByRole('dialog', { name: 'Choose your run' })
     const dialogQueries = within(dialog)
-    fireEvent.click(
-      dialogQueries.getByRole('radio', { name: '10 milesSteady' }),
-    )
+    fireEvent.click(dialogQueries.getByRole('radio', { name: '10 mi8:30/mi' }))
     fireEvent.click(
       dialogQueries.getByRole('button', { name: 'Save response' }),
     )

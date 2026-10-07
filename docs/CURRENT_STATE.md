@@ -13,7 +13,7 @@ Flock has completed its first usable membership flow and now supports the
 initial personal-event invitation workflow, including opt-in Web Push delivery
 for invitations and flock-event changes. Superadmins can now review and cancel
 global event records and remove ordinary members from any flock. The current
-planned admin operations are complete. Flock events now carry organizer-defined
+planned admin operations are complete. Run events now carry organizer-defined
 distance and pace options, and attendance is tied to a runner's selected plan.
 A moderated workflow-validation protocol still gates the next product
 milestone. Mapped courses, chat, and monetization remain outside the current
@@ -77,15 +77,21 @@ slice.
   mutation, navigation, and document state.
 - Profiles also support an optional coarse city or region location, with no
   precise coordinates or street-address storage.
-- Flock members can view upcoming events, and flock owners can create and edit
-  events with a title, date/time, location, description, and one to eight
-  distance-and-pace run options. Runners choose an option with “I’m in” or
+- Flock members can view upcoming events, and flock owners and personal-event
+  creators can create and edit events with a title, date/time, location,
+  description, and one to eight
+  structured distance-and-pace run options. A touch-first multi-column wheel
+  replaces free-text option labels; one miles-or-kilometers setting governs
+  both distance and pace. Distance supports tenth-unit steps, while pace
+  supports five-second steps from 4:00–15:00 per mile or 2:30–9:30 per
+  kilometer. Runners choose an option with “I’m in” or
   “Maybe,” attendance is grouped by option, and “I’m out” clears the choice.
-  Pre-existing events without options remain readable and respondable until an
+  Pre-existing events and earlier free-text options remain readable until an
   organizer edits them into the current model.
 - Authenticated runners can open `/events` from the application navigation,
-  view their upcoming personal events, and create a user-owned event through a
-  reusable modal form.
+  view their upcoming personal events, create a user-owned event through a
+  reusable modal form, and use the same structured run-option picker and
+  response-bound attendance model as flock events.
 - User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share

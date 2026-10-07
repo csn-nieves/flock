@@ -33,7 +33,7 @@ describe('EventForm', () => {
     )
   })
 
-  it('requires and submits organizer-defined run options for flock events', () => {
+  it('submits structured distance and pace options for flock events', () => {
     const onSubmit = vi.fn()
     render(
       <EventForm
@@ -52,31 +52,49 @@ describe('EventForm', () => {
     fireEvent.change(screen.getByLabelText('Location'), {
       target: { value: 'Riverside' },
     })
-    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
-    expect(screen.getByText('Enter a distance.')).toBeVisible()
-    expect(screen.getByText('Enter a pace.')).toBeVisible()
-    expect(onSubmit).not.toHaveBeenCalled()
-
-    fireEvent.change(screen.getByLabelText('Distance'), {
-      target: { value: ' 5 miles ' },
-    })
-    fireEvent.change(screen.getByLabelText('Pace'), {
-      target: { value: ' Social ' },
-    })
     fireEvent.click(screen.getByRole('button', { name: 'Add another option' }))
-    const distances = screen.getAllByLabelText('Distance')
-    const paces = screen.getAllByLabelText('Pace')
-    fireEvent.change(distances[1], { target: { value: '10 miles' } })
-    fireEvent.change(paces[1], { target: { value: 'Steady' } })
+    fireEvent.click(screen.getAllByRole('radio', { name: 'Kilometers' })[1])
     fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         runOptions: [
-          { distanceLabel: '5 miles', id: undefined, paceLabel: 'Social' },
-          { distanceLabel: '10 miles', id: undefined, paceLabel: 'Steady' },
+          {
+            distanceTenths: 50,
+            id: undefined,
+            paceSeconds: 480,
+            unit: 'mi',
+          },
+          {
+            distanceTenths: 50,
+            id: undefined,
+            paceSeconds: 300,
+            unit: 'km',
+          },
         ],
       }),
     )
+  })
+
+  it('couples distance and pace units and converts pace when units change', () => {
+    render(
+      <EventForm
+        includeRunOptions
+        isPending={false}
+        mode="create"
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('5.0 mi')).toBeInTheDocument()
+    expect(screen.getByText('8:00/mi')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Kilometers' }))
+
+    expect(screen.getByText('5.0 km')).toBeInTheDocument()
+    expect(screen.getByText('5:00/km')).toBeInTheDocument()
+    expect(
+      screen.getByRole('spinbutton', { name: 'Pace minutes for option 1' }),
+    ).toHaveAttribute('aria-valuetext', '5')
   })
 })

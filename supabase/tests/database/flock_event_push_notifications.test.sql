@@ -103,7 +103,7 @@ from public.create_flock_event(
   clock_timestamp() + interval '7 days',
   'Harbor Trail',
   'Conversational miles.',
-  '[{"distanceLabel":"10 miles","paceLabel":"Conversational"}]'::jsonb
+  '[{"distanceTenths":100,"paceSeconds":540,"unit":"mi"}]'::jsonb
 );
 
 reset role;
@@ -191,8 +191,9 @@ select public.update_flock_event(
     select jsonb_agg(
       jsonb_build_object(
         'id', option.id,
-        'distanceLabel', option.distance_label,
-        'paceLabel', option.pace_label
+        'distanceTenths', option.distance_tenths,
+        'paceSeconds', option.pace_seconds,
+        'unit', option.distance_unit
       ) order by option.position
     )
     from public.flock_event_run_options as option
@@ -253,8 +254,9 @@ select public.update_flock_event(
     select jsonb_agg(
       jsonb_build_object(
         'id', option.id,
-        'distanceLabel', option.distance_label,
-        'paceLabel', option.pace_label
+        'distanceTenths', option.distance_tenths,
+        'paceSeconds', option.pace_seconds,
+        'unit', option.distance_unit
       ) order by option.position
     )
     from public.flock_event_run_options as option
