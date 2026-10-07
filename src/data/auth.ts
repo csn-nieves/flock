@@ -5,16 +5,15 @@ import { supabase } from './supabase'
 
 export type SocialAuthProvider = 'facebook' | 'google'
 
-export function startOAuthSignIn(provider: SocialAuthProvider) {
-  const redirectTo = new URL(
-    '/auth/callback',
-    window.location.origin,
-  ).toString()
+function getAuthCallbackUrl() {
+  return new URL('/auth/callback', window.location.origin).toString()
+}
 
+export function startOAuthSignIn(provider: SocialAuthProvider) {
   return supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo,
+      redirectTo: getAuthCallbackUrl(),
     },
   })
 }
@@ -33,6 +32,7 @@ export function requestEmailOtp(email: string) {
   return supabase.auth.signInWithOtp({
     email: normalizedEmail,
     options: {
+      emailRedirectTo: getAuthCallbackUrl(),
       shouldCreateUser: true,
     },
   })

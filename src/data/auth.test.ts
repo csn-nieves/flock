@@ -83,6 +83,10 @@ describe('email OTP authentication', () => {
     expect(authMocks.signInWithOtp).toHaveBeenCalledWith({
       email: 'runner@example.com',
       options: {
+        emailRedirectTo: new URL(
+          '/auth/callback',
+          window.location.origin,
+        ).toString(),
         shouldCreateUser: true,
       },
     })

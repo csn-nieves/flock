@@ -104,6 +104,12 @@ Configure a custom SMTP sender before scheduling sessions with arbitrary email
 addresses. See Supabase's
 [custom SMTP guidance](https://supabase.com/docs/guides/auth/auth-smtp).
 
+Before custom SMTP is available, a project-team member may perform a narrow
+deployment smoke test with the default mailer. Its confirmation link must be
+opened in the same browser that requested it so the `/auth/callback` route can
+exchange the PKCE code. This fallback verifies hosted authentication plumbing;
+it does not replace the six-digit-code flow required for participant sessions.
+
 In the validation Supabase project:
 
 1. Enable email sign-in and allow account creation.

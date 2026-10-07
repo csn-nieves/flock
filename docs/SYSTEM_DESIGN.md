@@ -565,6 +565,13 @@ is:
   → AuthSessionProvider receives the session
 ```
 
+Email-code requests also provide the same-origin `/auth/callback` URL to
+Supabase. The configured six-digit template remains the product flow, but this
+callback lets a project-team member complete a hosted smoke test when
+Supabase's restricted default mailer sends its confirmation link instead. The
+callback exchanges the returned PKCE code in the browser that requested the
+email and then resumes the existing saved-destination flow.
+
 The submitted email stays visible during verification. A runner can return to
 edit it. Resend uses a cooldown based on an absolute deadline, so the remaining
 time corrects itself after a mobile tab has been backgrounded. Rate-limit,
