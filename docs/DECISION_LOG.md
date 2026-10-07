@@ -1,6 +1,6 @@
 # Flock decision log
 
-Last reviewed: 2026-10-06
+Last reviewed: 2026-10-07
 
 This log records decisions that shape future work. Each entry includes the
 reasoning and the conditions that would justify another decision. “Accepted”
@@ -743,3 +743,32 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Creators need route drawing or provider integrations,
   offline maps, turn cues, elevation profiles, multiple segments, or usage
   requires a paid or self-hosted tile service.
+
+## D039 — Draw provider-neutral routes with walking-road routing
+
+- **Status:** Accepted
+- **Decision:** Let personal- and flock-event creators place up to 25 ordered
+  points on the existing MapLibre map. Use Geoapify's public browser Routing
+  API in walking and shortest-route modes to connect each new point to the
+  previous point. Event-location geocoding may center the initial view but is
+  best effort. Keep GPX import as an independent fallback.
+- **Data boundary:** Merge successful segments, reduce the result to the
+  existing 1,000-coordinate limit, and persist only the normalized line and
+  estimated distance already supported by each run option. Do not retain
+  draft waypoints, geocoding results, provider identifiers, or directions.
+- **Configuration:** Supply the public routing key as
+  `VITE_GEOAPIFY_API_KEY` and restrict it to Flock's allowed browser origins.
+  If it is absent, explain that drawing is unavailable without disabling GPX
+  import or saved route viewing.
+- **Why:** Organizers can plan a useful course without first creating or
+  exporting a GPX file. A segment-at-a-time draft makes failure recovery,
+  Undo, and Clear predictable while keeping the stored route portable.
+- **Tradeoffs:** Route planning and initial centering require connectivity and
+  consume an external provider quota. Drawing sends the entered event location
+  and selected waypoint coordinates to Geoapify. Saved routes cannot restore
+  editable waypoints; replacing one starts a new draft. Walking mode favors
+  pedestrian access but does not guarantee local event suitability or safety,
+  so the creator remains responsible for reviewing the course.
+- **Revisit when:** Usage requires provider-independent routing, private
+  server-side keys, offline drawing, editable saved waypoints, route loops,
+  turn cues, elevation, surface data, or stronger route-safety review.

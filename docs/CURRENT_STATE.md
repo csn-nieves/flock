@@ -106,6 +106,13 @@ monetization remain outside the current slice.
   and presents it through the same lazy-loaded map dialog to every authorized
   viewer. Original GPX files and their timestamps, elevation, filenames, and
   device metadata are not retained.
+- Personal- and flock-event creators can alternatively draw a route by placing
+  ordered points on a map. Geoapify connects each new point to the previous one
+  along a walkable route, while Undo and Clear stay local and failed segments
+  preserve the accepted draft. The event location provides only a best-effort
+  starting center. Saved data remains the same bounded provider-neutral line
+  and estimated distance used by GPX import; draft waypoints and directions are
+  not stored.
 - User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
@@ -197,8 +204,8 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the mapped-event-route vertical slice, then select the next
-   feature increment. The rehearsed moderated sessions in
+1. Review and merge the road-following route-builder vertical slice, then
+   select the next feature increment. The rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.
 

@@ -6,6 +6,32 @@ vi.mock('./RouteMap', () => ({
   default: () => <div>Route preview</div>,
 }))
 
+vi.mock('./RouteDrawingDialog', () => ({
+  default: ({
+    onUseRoute,
+  }: {
+    onUseRoute: (route: {
+      coordinates: [number, number][]
+      distanceMeters: number
+    }) => void
+  }) => (
+    <button
+      type="button"
+      onClick={() =>
+        onUseRoute({
+          coordinates: [
+            [-74.01, 40.7],
+            [-74, 40.71],
+          ],
+          distanceMeters: 1500,
+        })
+      }
+    >
+      Use drawn route
+    </button>
+  ),
+}))
+
 describe('EventForm', () => {
   it('validates required fields before submitting', () => {
     const onSubmit = vi.fn()
@@ -152,6 +178,47 @@ describe('EventForm', () => {
     )
     expect(JSON.stringify(onSubmit.mock.calls[0][0])).not.toContain(
       'watch-export.gpx',
+    )
+  })
+
+  it('submits a road-following route drawn from the event location', () => {
+    const onSubmit = vi.fn()
+    render(
+      <EventForm
+        includeRunOptions
+        isPending={false}
+        mode="create"
+        onSubmit={onSubmit}
+      />,
+    )
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Mapped run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-08T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside Park' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Draw route' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Use drawn route' }))
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        location: 'Riverside Park',
+        runOptions: [
+          expect.objectContaining({
+            route: {
+              coordinates: [
+                [-74.01, 40.7],
+                [-74, 40.71],
+              ],
+              distanceMeters: 1500,
+            },
+          }),
+        ],
+      }),
     )
   })
 })

@@ -1379,6 +1379,26 @@ The public basemap has no application-specific uptime guarantee; normalized
 route storage deliberately remains provider-neutral so a later provider change
 does not require a data migration.
 
+## 2026-10-07 — Drawing road-following event routes
+
+### Provider-backed drafts, provider-neutral events
+
+Personal- and flock-event creators can now open a map beside any run option and
+place ordered points without preparing a GPX file. Each point after the first
+asks Geoapify for a shortest walking segment from the previous point, shows the
+estimated combined distance, and keeps Undo and Clear local. Pointer placement
+has a keyboard alternative through MapLibre panning plus an explicit
+add-at-center action. A best-effort lookup starts near the entered event
+location without blocking route creation when no match is found.
+
+The routing and geocoding calls live behind a cancellable domain hook and data
+adapter. Provider errors retain the accepted draft and offer retry through
+another point; a missing public key leaves GPX import available. Completed
+drafts reuse the existing bounded `EventRoute` contract, so no migration was
+needed and saved events contain no waypoints, directions, provider identifiers,
+or geocoding results. Map rendering remains demand-loaded and excluded from the
+PWA precache.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

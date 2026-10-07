@@ -98,7 +98,7 @@ function simplify(
   return coordinates.filter((_, index) => keep[index])
 }
 
-function boundCoordinateCount(coordinates: RouteCoordinate[]) {
+export function boundRouteCoordinates(coordinates: RouteCoordinate[]) {
   if (coordinates.length <= MAX_ROUTE_COORDINATES) return coordinates
   let lowerTolerance = 0
   let upperTolerance = 1
@@ -166,7 +166,7 @@ export function parseGpxText(text: string): EventRoute {
     )
   }
   return {
-    coordinates: boundCoordinateCount(coordinates),
+    coordinates: boundRouteCoordinates(coordinates),
     distanceMeters,
   }
 }

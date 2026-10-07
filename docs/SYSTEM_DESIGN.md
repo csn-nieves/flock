@@ -1,6 +1,6 @@
 # Flock system design
 
-Last reviewed: 2026-10-06
+Last reviewed: 2026-10-07
 
 ## What Flock is
 
@@ -501,6 +501,25 @@ dialog. MapLibre GL is loaded only when a route preview or map is requested;
 OpenFreeMap supplies the public basemap without a browser API key. The map
 assets are excluded from PWA precaching so users who never open a map do not
 download the large rendering bundle during installation.
+
+The same run-option field also opens an authored route planner. Its lazy-loaded
+MapLibre surface lets a creator place up to 25 ordered waypoints by pointer or
+by panning the keyboard-operable map and adding its center. The
+`useRoutePlanner` hook owns cancellation and calls the provider adapter in
+`src/data/routePlanning.ts`; visual components never call the provider
+directly. Geoapify walking routing connects only the previous and new points,
+so Undo and Clear require no extra request and a failed segment leaves the
+accepted draft intact. Event-location geocoding is best effort and only centers
+the initial view. Those requests necessarily disclose the entered event
+location and selected waypoint coordinates to Geoapify while the creator is
+drawing; they are not sent merely to view a saved route.
+
+The browser merges successful segments, limits the completed line to the same
+1,000-coordinate contract as GPX, and sends the existing `EventRoute` shape
+through the unchanged atomic event mutation. Waypoints, geocoding results,
+provider identifiers, and directions are not stored. A saved route is therefore
+provider-neutral and viewable without Geoapify, but editing it requires drawing
+a replacement or importing another GPX file.
 
 ## Superadmin event operations
 

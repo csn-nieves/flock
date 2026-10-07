@@ -20,7 +20,8 @@ Each run club is called a **flock**. A flock will eventually support:
 
 - Group membership
 - Scheduled run events
-- Planned routes displayed on a map
+- Planned routes imported from GPX or drawn along walkable roads and displayed
+  on a map
 - One or more distance and pace options per event
 - RSVPs tied to a selected distance and pace
 - Real-time event and club communication

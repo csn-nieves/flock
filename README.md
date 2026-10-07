@@ -45,6 +45,14 @@ The Web Push public key is also safe browser configuration and belongs in
 `VITE_WEB_PUSH_PUBLIC_KEY`. Its paired private key must remain an Edge Function
 secret.
 
+Road-following event-route drawing uses Geoapify's browser Routing API. Create
+a Geoapify project, restrict its public API key to the local, preview, and
+production Flock origins, and provide it to Vite as
+`VITE_GEOAPIFY_API_KEY`. This key is shipped in the browser bundle by design;
+do not put a server secret in that variable. Without it, GPX route import and
+saved route viewing still work, while the drawing dialog explains that route
+planning is unavailable.
+
 ## Event alert push deployment
 
 The repository contains the subscription schema, notification jobs, custom

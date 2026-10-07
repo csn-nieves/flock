@@ -161,6 +161,7 @@ function EventForm({
               />
               <RouteFileField
                 distanceTenths={option.distanceTenths}
+                location={location}
                 unit={option.unit}
                 value={option.route}
                 onChange={(route) =>
