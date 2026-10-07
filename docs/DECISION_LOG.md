@@ -713,3 +713,33 @@ means it is the current direction, not that it can never change.
   few seconds.
 - **Revisit when:** Moderated use shows a need for finer distance increments,
   named effort groups, or distance ranges beyond 100 units.
+
+## D038 — Store privacy-minimized GPX routes on run options
+
+- **Status:** Accepted
+- **Decision:** Allow one optional GPX route on each structured run option for
+  personal and flock events. Parse GPX in the browser, keep the longest track
+  segment or route, calculate its distance, simplify it to at most 1,000
+  longitude/latitude pairs, and store only that normalized line and distance.
+  Do not retain the source file, filename, timestamps, elevation, author, or
+  device metadata. Protect route reads through the option's existing
+  event-aligned Row Level Security.
+- **Map delivery:** Render with demand-loaded MapLibre GL JS and OpenFreeMap's
+  hosted Liberty style. Keep normalized geometry provider-neutral so the
+  basemap can be replaced without migrating event routes. Exclude the large map
+  renderer and worker chunks from PWA precaching.
+- **Why:** Different distance groups may follow different courses, so the route
+  belongs to the option rather than the event. GPX import works with existing
+  watch and route-planning exports without requiring a provider account, while
+  metadata minimization avoids storing unrelated activity history.
+- **Tradeoffs:** Import does not draw, edit, snap, or merge routes. OpenFreeMap
+  is a public third-party basemap with no application-specific service-level
+  agreement, and map backgrounds require connectivity even though route data
+  remains stored in Flock. Basemap tile requests necessarily disclose the map
+  area to OpenFreeMap and its CDN; the provider currently states that ordinary
+  access logs omit IP addresses, while error or temporary security logs may
+  retain them for a limited period. Precise route geometry is visible to every
+  person authorized to read the event.
+- **Revisit when:** Creators need route drawing or provider integrations,
+  offline maps, turn cues, elevation profiles, multiple segments, or usage
+  requires a paid or self-hosted tile service.

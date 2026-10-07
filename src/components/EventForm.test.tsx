@@ -1,6 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EventForm from './EventForm'
+
+vi.mock('./RouteMap', () => ({
+  default: () => <div>Route preview</div>,
+}))
 
 describe('EventForm', () => {
   it('validates required fields before submitting', () => {
@@ -96,5 +100,58 @@ describe('EventForm', () => {
     expect(
       screen.getByRole('spinbutton', { name: 'Pace minutes for option 1' }),
     ).toHaveAttribute('aria-valuetext', '5')
+  })
+
+  it('imports a GPX route without retaining file metadata', async () => {
+    const onSubmit = vi.fn()
+    render(
+      <EventForm
+        includeRunOptions
+        isPending={false}
+        mode="create"
+        onSubmit={onSubmit}
+      />,
+    )
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Mapped run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-08T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    const file = new File(
+      [
+        '<gpx><trk><trkseg><trkpt lat="40.70" lon="-74.01"/><trkpt lat="40.71" lon="-74.00"/></trkseg></trk></gpx>',
+      ],
+      'watch-export.gpx',
+      { type: 'application/gpx+xml' },
+    )
+    fireEvent.change(document.querySelector('input[type="file"]')!, {
+      target: { files: [file] },
+    })
+
+    await waitFor(() => expect(screen.getByText('Route preview')).toBeVisible())
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runOptions: [
+          expect.objectContaining({
+            route: expect.objectContaining({
+              coordinates: [
+                [-74.01, 40.7],
+                [-74, 40.71],
+              ],
+              distanceMeters: expect.any(Number),
+            }),
+          }),
+        ],
+      }),
+    )
+    expect(JSON.stringify(onSubmit.mock.calls[0][0])).not.toContain(
+      'watch-export.gpx',
+    )
   })
 })

@@ -128,6 +128,11 @@ describe('event data', () => {
           pace_seconds: 480,
           pace_unit: 'mi',
           position: 0,
+          route_coordinates: [
+            [-74.01, 40.7],
+            [-74, 40.71],
+          ],
+          route_distance_meters: 1400,
         },
       ],
       error: null,
@@ -151,7 +156,17 @@ describe('event data', () => {
           runOptionId: 'option',
         }),
         runOptions: [
-          expect.objectContaining({ id: 'option', distanceTenths: 50 }),
+          expect.objectContaining({
+            id: 'option',
+            distanceTenths: 50,
+            route: {
+              coordinates: [
+                [-74.01, 40.7],
+                [-74, 40.71],
+              ],
+              distanceMeters: 1400,
+            },
+          }),
         ],
       }),
     ])
@@ -176,7 +191,20 @@ describe('event data', () => {
       createUserEvent({
         description: '',
         location: 'Riverside',
-        runOptions: [{ distanceTenths: 50, paceSeconds: 480, unit: 'mi' }],
+        runOptions: [
+          {
+            distanceTenths: 50,
+            paceSeconds: 480,
+            route: {
+              coordinates: [
+                [-74.01, 40.7],
+                [-74, 40.71],
+              ],
+              distanceMeters: 1400,
+            },
+            unit: 'mi',
+          },
+        ],
         startsAt: '2026-10-03',
         title: 'Run',
       }),
@@ -185,7 +213,16 @@ describe('event data', () => {
       'create_user_event',
       expect.objectContaining({
         event_run_options: [
-          { distanceTenths: 50, paceSeconds: 480, unit: 'mi' },
+          {
+            distanceTenths: 50,
+            paceSeconds: 480,
+            routeCoordinates: [
+              [-74.01, 40.7],
+              [-74, 40.71],
+            ],
+            routeDistanceMeters: 1400,
+            unit: 'mi',
+          },
         ],
         event_title: 'Run',
       }),
@@ -285,6 +322,7 @@ describe('event data', () => {
             paceLabel: '8:00/mi',
             paceSeconds: 480,
             position: 0,
+            route: null,
             unit: 'mi',
           },
         ],

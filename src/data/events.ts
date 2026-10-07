@@ -1,15 +1,32 @@
 import type {
   CreateFlockEventInput,
   EventAttendanceGroup,
+  EventRunOptionInput,
   EventResponse,
   EventRunOption,
   EventWithRunOptionsInput,
   FlockEvent,
+  RouteCoordinate,
 } from '@src/types/events'
 import { supabase } from './supabase'
 
 const eventFields =
   'id, flock_id, created_by, title, starts_at, location, description, created_at, canceled_at'
+
+function serializeRunOptions(runOptions: readonly EventRunOptionInput[]) {
+  return runOptions.map(({ distanceTenths, id, paceSeconds, route, unit }) => ({
+    distanceTenths,
+    ...(id ? { id } : {}),
+    paceSeconds,
+    ...(route
+      ? {
+          routeCoordinates: route.coordinates,
+          routeDistanceMeters: route.distanceMeters,
+        }
+      : {}),
+    unit,
+  }))
+}
 
 function toEvent(row: {
   created_at: string
@@ -64,7 +81,7 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
     supabase
       .from('flock_event_run_options')
       .select(
-        'id, event_id, distance_label, distance_tenths, distance_unit, pace_label, pace_seconds, pace_unit, position',
+        'id, event_id, distance_label, distance_tenths, distance_unit, pace_label, pace_seconds, pace_unit, position, route_coordinates, route_distance_meters',
       )
       .in('event_id', eventIds)
       .order('position', { ascending: true }),
@@ -85,6 +102,13 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
         paceLabel: option.pace_label,
         paceSeconds: option.pace_seconds,
         position: option.position,
+        route:
+          option.route_coordinates && option.route_distance_meters
+            ? {
+                coordinates: option.route_coordinates as RouteCoordinate[],
+                distanceMeters: option.route_distance_meters,
+              }
+            : null,
         unit: option.distance_unit as EventRunOption['unit'],
       }))
     const groupedResponses = new Map<string | null, EventAttendanceGroup>()
@@ -136,7 +160,7 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
     supabase
       .from('flock_event_run_options')
       .select(
-        'id, event_id, distance_label, distance_tenths, distance_unit, pace_label, pace_seconds, pace_unit, position',
+        'id, event_id, distance_label, distance_tenths, distance_unit, pace_label, pace_seconds, pace_unit, position, route_coordinates, route_distance_meters',
       )
       .in('event_id', eventIds)
       .order('position', { ascending: true }),
@@ -157,6 +181,13 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
         paceLabel: option.pace_label,
         paceSeconds: option.pace_seconds,
         position: option.position,
+        route:
+          option.route_coordinates && option.route_distance_meters
+            ? {
+                coordinates: option.route_coordinates as RouteCoordinate[],
+                distanceMeters: option.route_distance_meters,
+              }
+            : null,
         unit: option.distance_unit as EventRunOption['unit'],
       }))
     const groupedResponses = new Map<string | null, EventAttendanceGroup>()
@@ -196,7 +227,7 @@ export async function createUserEvent(
     event_starts_at: input.startsAt,
     event_location: input.location,
     event_description: input.description,
-    event_run_options: input.runOptions,
+    event_run_options: serializeRunOptions(input.runOptions),
   })
   if (error) throw error
   if (!data) throw new Error('The event creation did not return an event.')
@@ -235,7 +266,7 @@ export async function createFlockEvent(
     event_starts_at: input.startsAt,
     event_location: input.location,
     event_description: input.description,
-    event_run_options: input.runOptions,
+    event_run_options: serializeRunOptions(input.runOptions),
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data
@@ -253,7 +284,7 @@ export async function updateFlockEvent(
     event_starts_at: input.startsAt,
     event_location: input.location,
     event_description: input.description,
-    event_run_options: input.runOptions,
+    event_run_options: serializeRunOptions(input.runOptions),
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data
@@ -271,7 +302,7 @@ export async function updateUserEvent(
     event_starts_at: input.startsAt,
     event_location: input.location,
     event_description: input.description,
-    event_run_options: input.runOptions,
+    event_run_options: serializeRunOptions(input.runOptions),
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data

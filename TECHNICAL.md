@@ -247,15 +247,34 @@ The production build measured when this boundary was introduced changed from a
 single 677.58 kB application bundle to a 368.96 kB entry chunk plus independent
 secondary-route and shared chunks. This removed Vite's 500 kB application
 chunk warning without raising its threshold. The service worker still
-precaches the generated route chunks, so the primary benefit is less initial
-parsing and execution rather than a smaller eventual installed-PWA cache.
+precaches ordinary generated route chunks, so the primary benefit is less
+initial parsing and execution rather than a smaller eventual installed-PWA
+cache. MapLibre's substantially larger rendering and worker chunks are
+explicitly excluded from precaching and remain demand-loaded.
 Revisit route preloading only when navigation measurements justify it.
+
+## Event maps
+
+Use MapLibre GL JS as the browser renderer and OpenFreeMap's hosted Liberty
+style as the initial basemap. The provider requires no client secret and allows
+public and commercial use, while MapLibre retains the required attribution.
+Treat this as a replaceable presentation dependency: Flock owns normalized GPX
+route geometry in PostgreSQL, not provider-specific map identifiers.
+Basemap requests disclose the viewed tile area to OpenFreeMap and its CDN;
+provider privacy and retention terms must be reviewed again before a production
+privacy policy is finalized.
+
+Import GPX locally in the browser and persist only a simplified longitude and
+latitude line plus calculated distance. Do not upload or retain the original
+file, filename, timestamps, elevation, device, or author metadata. Store the
+route on its run option so a multi-distance event can carry a distinct course
+for each choice. Event-aligned Row Level Security remains the authorization
+boundary for route reads.
 
 ## Deferred decisions
 
 Do not select these until the corresponding feature branch begins:
 
-- Map and route provider
 - Email delivery provider
 - Analytics and error monitoring
 - Payment provider and subscription model
@@ -268,6 +287,8 @@ Do not select these until the corresponding feature branch begins:
 - [Supabase passwordless email documentation](https://supabase.com/docs/guides/auth/auth-email-passwordless)
 - [Supabase PKCE documentation](https://supabase.com/docs/guides/auth/sessions/pkce-flow)
 - [Supabase redirect URL documentation](https://supabase.com/docs/guides/auth/redirect-urls)
+- [MapLibre GL JS documentation](https://maplibre.org/maplibre-gl-js/docs/)
+- [OpenFreeMap documentation](https://openfreemap.org/quick_start/)
 - [Supabase session documentation](https://supabase.com/docs/guides/auth/sessions)
 - [Supabase Realtime documentation](https://supabase.com/docs/guides/realtime)
 - [Cloudflare Pages React documentation](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/)
