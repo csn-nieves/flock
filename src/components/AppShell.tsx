@@ -7,6 +7,7 @@ import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useConversationDirectorySync } from '@src/hooks/useConversationDirectorySync'
 import { useDirectConversations } from '@src/hooks/useDirectConversations'
 import { useFlockChats } from '@src/hooks/useFlockChats'
+import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import type {
   DirectConversationSummary,
   FlockChatSummary,
@@ -135,11 +136,13 @@ export function ConversationNavigation({
             Direct messages
           </h2>
           <NavLink
-            className="flex min-h-touch items-center rounded-md px-2 text-xs font-bold text-primary-strong hover:bg-background"
+            aria-label="New direct message"
+            className="flex size-12 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors duration-fast hover:bg-background hover:text-text lg:size-11"
+            title="New direct message"
             to="/chats/direct/new"
             onClick={onNavigate}
           >
-            New
+            <ComposeMessageIcon className="size-[22px] shrink-0 lg:size-5" />
           </NavLink>
         </div>
         {isDirectRefreshing && directConversations ? (

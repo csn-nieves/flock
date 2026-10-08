@@ -4,6 +4,7 @@ import ChatThread, { type ChatThreadProps } from '@src/components/ChatThread'
 import { ConversationSummary } from '@src/components/ConversationSummary'
 import { getConversationAccessibleLabel } from '@src/lib/conversationActivity'
 import Button from '@src/primitives/Button'
+import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import DirectMessageStarter, {
   type DirectMessageStarterProps,
@@ -170,11 +171,13 @@ function DirectConversationList({
           Direct messages
         </h2>
         <Button
-          className="shrink-0"
+          aria-label="New direct message"
+          controlSize="icon"
+          title="New direct message"
           variant="ghost"
           onClick={onStartDirectMessage}
         >
-          New message
+          <ComposeMessageIcon className="size-[22px] shrink-0" />
         </Button>
       </div>
 

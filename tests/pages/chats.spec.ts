@@ -139,6 +139,9 @@ test('opens flock conversations from the primary Chats destination', async ({
   await expect(
     chatNavigation.getByRole('link', { name: /^Maya Chen,/ }),
   ).toBeVisible()
+  await expect(
+    chatNavigation.getByRole('link', { name: 'New direct message' }),
+  ).toBeVisible()
   if ((page.viewportSize()?.width ?? 0) >= 1024) {
     const workspaceBox = await page
       .getByRole('region', { name: 'Chat workspace' })

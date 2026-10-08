@@ -91,9 +91,9 @@ describe('AppShell', () => {
     expect(
       screen.getAllByRole('link', { name: /Maya Chen/ }).length,
     ).toBeGreaterThan(0)
-    expect(screen.getAllByRole('link', { name: 'New' }).length).toBeGreaterThan(
-      0,
-    )
+    expect(
+      screen.getAllByRole('link', { name: 'New direct message' }).length,
+    ).toBeGreaterThan(0)
     expect(screen.getAllByText('Local').length).toBeGreaterThan(0)
     expect(screen.getByRole('complementary')).toHaveClass(
       'h-dvh',

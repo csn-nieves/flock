@@ -1,5 +1,28 @@
 import { expect, test } from '@playwright/test'
 
+test('uses an accessible compose icon for a new direct message', async ({
+  mount,
+}, testInfo) => {
+  const component = await mount('components/ConversationNavigation/Populated')
+  const composeLink = component.getByRole('link', {
+    name: 'New direct message',
+  })
+  const composeIcon = composeLink.locator('svg')
+
+  await expect(composeLink).toHaveAttribute('href', '/chats/direct/new')
+  await expect(composeLink).toHaveAttribute('title', 'New direct message')
+  await expect(composeIcon).toBeVisible()
+  await expect(composeLink).not.toContainText('New')
+  const bounds = await composeLink.boundingBox()
+  const iconBounds = await composeIcon.boundingBox()
+  expect(bounds?.width).toBeGreaterThanOrEqual(44)
+  expect(bounds?.height).toBeGreaterThanOrEqual(44)
+  const expectedIconSize =
+    (testInfo.project.use.viewport?.width ?? 1280) < 1024 ? 22 : 20
+  expect(iconBounds?.width).toBe(expectedIconSize)
+  expect(iconBounds?.height).toBe(expectedIconSize)
+})
+
 test('truncates long flock names within the chat sidebar', async ({
   mount,
 }) => {

@@ -170,8 +170,9 @@ Messaging is integrated into the application sidebar rather than represented by
 a generic Chats item competing with top-level product destinations. The sidebar
 uses a restrained conversation directory: flock chats appear first like group
 conversations without channel hash marks, and a visibly separated direct-message
-section lists private one-to-one conversations plus a compact New action. On large
-screens, the selected thread consumes the available application canvas instead
+section lists private one-to-one conversations plus a compact, labeled compose
+icon action. On large screens, the selected thread consumes the available
+application canvas instead
 of inheriting the narrow form-page cap. Long flock and runner names truncate at
 the sidebar boundary while retaining the complete accessible name and hover title.
 Each destination uses two compact lines: the conversation name and recent
