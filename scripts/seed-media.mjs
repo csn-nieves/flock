@@ -58,9 +58,22 @@ const portraits = [
   'runner-portrait-01.png',
   'runner-portrait-02.png',
   'runner-portrait-03.png',
+  'runner-portrait-04.png',
+  'runner-portrait-05.png',
+  'runner-portrait-06.png',
 ]
-const flockCovers = ['flock-runners-01.png']
-const eventCovers = ['event-riverside-01.png', 'event-trail-01.png']
+const flockCovers = [
+  'flock-runners-01.png',
+  'flock-runners-02.png',
+  'flock-runners-03.png',
+]
+const eventCovers = [
+  'event-riverside-01.png',
+  'event-riverside-02.png',
+  'event-trail-01.png',
+  'event-trail-02.png',
+  'event-waterfront-01.png',
+]
 
 for (const [index, profile] of profiles.entries()) {
   await upload(
