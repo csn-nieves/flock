@@ -181,9 +181,10 @@ remains outside the current slice.
   changes to later joiners. Superadmin cancellations notify every current flock
   member, including the owner.
 - iPhone and iPad notification setup explains the required Home Screen install.
-  Hosted delivery still requires the documented VAPID secrets, frontend public
-  key, Edge Function deployment, and authenticated database webhook; none are
-  applied to a hosted environment by this branch.
+  The validation environment now has its VAPID secrets, frontend public key,
+  database migrations, and Edge Function deployment. Its remaining delivery
+  gate is a database webhook authenticated with Supabase's current secret-key
+  header rather than the legacy service-role bearer header.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths, flock locations, and flock
   descriptions for realistic list and detail development.
@@ -246,8 +247,10 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the opt-in chat device-notification vertical slice. The
-   next logical messaging increment is lightweight message reactions, while
+1. Review and merge the push-webhook authentication compatibility fix, redeploy
+   the Edge Function, create the validation environment's `INSERT` and `UPDATE`
+   webhook, and complete one real-device notification check. The next logical
+   messaging increment after that is lightweight message reactions, while
    attachments, editing, deletion, typing indicators, visible read receipts,
    and moderation controls remain separate product decisions. The rehearsed
    moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain ready when

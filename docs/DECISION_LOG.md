@@ -544,8 +544,9 @@ means it is the current direction, not that it can never change.
 
 ## D031 — Deliver invitation alerts with standards-based Web Push
 
-- **Status:** Accepted; code complete, hosted secrets and webhook configuration
-  pending deployment
+- **Status:** Accepted; hosted keys, migrations, and Edge Function configured;
+  authenticated database webhook pending the current secret-key compatibility
+  fix
 - **Decision:** Use browser push services through the Web Push standard rather
   than adding OneSignal, Firebase Messaging, or another proprietary client SDK.
   A Supabase Edge Function signs encrypted requests with VAPID and delivers to
@@ -559,7 +560,10 @@ means it is the current direction, not that it can never change.
   private schema. Invitation creation queues recipient-bound jobs, later flock
   joins queue active universal invitations, and the delivery claim rechecks the
   same membership, acceptance, cancellation, event-time, and expiration rules
-  as the inbox. Push-service `404` and `410` responses remove stale devices.
+  as the inbox. The database webhook presents a current project secret in the
+  `apikey` header; the Edge Function verifies it against Supabase's built-in
+  secret-key dictionary and keeps its service-role credential internal for
+  privileged RPCs. Push-service `404` and `410` responses remove stale devices.
 - **Why:** Standards-based delivery covers supported desktop browsers, Android,
   macOS Safari, and installed iPhone/iPad PWAs without adding a new analytics or
   user-data processor. It also keeps the persisted Events inbox authoritative
@@ -915,8 +919,9 @@ means it is the current direction, not that it can never change.
 
 ## D046 — Deliver privacy-conscious alerts for unread chat activity
 
-- **Status:** Accepted; code complete, hosted migration and existing webhook
-  deployment pending
+- **Status:** Accepted; hosted migration and Edge Function deployed;
+  authenticated database webhook pending the current secret-key compatibility
+  fix
 - **Decision:** Extend the existing standards-based Web Push pipeline to flock
   and direct messages. Queue only recipients with a current device subscription,
   exclude the sender, and use the existing per-device opt-in rather than adding

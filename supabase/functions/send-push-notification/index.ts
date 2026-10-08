@@ -1,6 +1,11 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.2'
 import webpush from 'npm:web-push@3.6.7'
 
+import {
+  isAuthorizedWebhookRequest,
+  parseWebhookSecretKeys,
+} from './authorizeWebhook.ts'
+
 type WebhookPayload = {
   record?: {
     id?: string
@@ -33,17 +38,20 @@ Deno.serve(async (request) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const webhookSecretKeys = parseWebhookSecretKeys(
+    Deno.env.get('SUPABASE_SECRET_KEYS'),
+  )
   const vapidPublicKey = Deno.env.get('WEB_PUSH_PUBLIC_KEY')
   const vapidPrivateKey = Deno.env.get('WEB_PUSH_PRIVATE_KEY')
   const vapidSubject = Deno.env.get('WEB_PUSH_SUBJECT')
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !serviceRoleKey || webhookSecretKeys.length === 0) {
     return new Response('Function authentication is not configured', {
       status: 500,
     })
   }
 
-  if (request.headers.get('authorization') !== `Bearer ${serviceRoleKey}`) {
+  if (!isAuthorizedWebhookRequest(request.headers, webhookSecretKeys)) {
     return new Response('Unauthorized', { status: 401 })
   }
 

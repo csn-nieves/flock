@@ -49,6 +49,11 @@ Flock will begin as a single-page application. Server-side rendering is not requ
 - Keep the VAPID private key only in Supabase Edge Function secrets. The VAPID
   public key is intentionally supplied to both the frontend build and Edge
   Function.
+- Authenticate the database webhook with a current Supabase project secret in
+  the `apikey` header. Validate it against the platform-provided
+  `SUPABASE_SECRET_KEYS` dictionary before claiming private work. Keep the
+  service-role credential inside the Edge Function for privileged RPCs rather
+  than sending it through webhook configuration.
 
 ## Backend and data
 
