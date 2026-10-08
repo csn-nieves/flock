@@ -213,7 +213,9 @@ test('searches runners and opens a canonical private conversation', async ({
   await search.fill('Maya')
 
   await expect(page.getByRole('button', { name: /Maya Chen/ })).toBeVisible()
-  await expect(page.getByText('Local Runner')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Local Runner/ })).toHaveCount(
+    0,
+  )
   await page.getByRole('button', { name: /Maya Chen/ }).click()
 
   await expect(page).toHaveURL('/chats/direct/maya-conversation-id')

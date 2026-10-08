@@ -79,13 +79,15 @@ function ProfilePage({
         path={`profiles/${profile.userId}/avatar`}
         onChange={onAvatarUrlChange}
       />
-      <ProfileForm
-        error={error}
-        initialDisplayName={profile.displayName}
-        initialLocation={profile.location}
-        isSubmitting={isSaving}
-        onSubmit={onSave}
-      />
+      <div className="mt-2">
+        <ProfileForm
+          error={error}
+          initialDisplayName={profile.displayName}
+          initialLocation={profile.location}
+          isSubmitting={isSaving}
+          onSubmit={onSave}
+        />
+      </div>
     </ProfilePageLayout>
   )
 }
