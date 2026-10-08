@@ -793,3 +793,24 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Runners need route sharing, folders or tags, full geometry
   editing, usage history, organization-owned routes, or deliberate propagation
   of route revisions.
+
+## D041 — Repeat events as independent creates
+
+- **Status:** Accepted
+- **Decision:** Let personal-event creators and flock organizers repeat an
+  existing event by preloading its title, location, description, run options,
+  and copied route geometry into the ordinary create form. Require a new date
+  and remove the original event and run-option identifiers before submission.
+- **Boundary:** Never copy invitations, responses, attendance, creation
+  metadata, or cancellation state. Use the existing authorized create
+  mutations so transactions, query refresh, and notification behavior remain
+  unchanged.
+- **Why:** Recurring runs usually reuse a plan but represent a new gathering
+  with a new audience response. Treating repetition as creation makes that
+  boundary visible in the interface and prevents historical participation from
+  leaking into the next run.
+- **Tradeoffs:** The organizer still reviews and submits the complete form, and
+  there is no recurring-series object or automatic schedule. A copied route is
+  independent of both the source event and the saved-route library.
+- **Revisit when:** Organizers need recurring schedules, bulk edits, series
+  cancellation, inherited audiences, or explicit links between occurrences.

@@ -10,6 +10,7 @@ import type {
   FlockEvent,
 } from '@src/types/events'
 import type { SavedRouteLibrary } from '@src/types/savedRoutes'
+import { eventToFormValues } from '@src/lib/eventPlanning'
 
 export type FlockEventsSectionProps = {
   canCreate: boolean
@@ -69,6 +70,7 @@ function FlockEventsSection({
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [repeatingEvent, setRepeatingEvent] = useState<FlockEvent | null>(null)
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
   const [pendingResponse, setPendingResponse] =
     useState<PendingResponse | null>(null)
@@ -194,27 +196,11 @@ function FlockEventsSection({
                         ? 'We could not save this event. Check your connection and try again.'
                         : undefined
                     }
-                    initialValues={{
-                      description: editingEvent?.description ?? '',
-                      location: editingEvent?.location ?? '',
-                      runOptions:
-                        editingEvent?.runOptions.map((option) => ({
-                          distanceTenths: option.distanceTenths ?? 50,
-                          id: option.id,
-                          legacyLabel:
-                            option.distanceTenths === null
-                              ? `${option.distanceLabel} · ${option.paceLabel}`
-                              : undefined,
-                          paceSeconds:
-                            option.distanceTenths === null
-                              ? 8 * 60
-                              : option.paceSeconds,
-                          route: option.route ?? undefined,
-                          unit: option.unit ?? 'mi',
-                        })) ?? [],
-                      startsAt: editingEvent?.startsAt.slice(0, 16) ?? '',
-                      title: editingEvent?.title ?? '',
-                    }}
+                    initialValues={
+                      editingEvent
+                        ? eventToFormValues(editingEvent, 'edit')
+                        : undefined
+                    }
                     includeRunOptions
                     isPending={isSaving}
                     mode="edit"
@@ -236,12 +222,19 @@ function FlockEventsSection({
                   <Button
                     className="w-full"
                     variant="secondary"
+                    onClick={() => setRepeatingEvent(item)}
+                  >
+                    Repeat event
+                  </Button>
+                  <Button
+                    className="w-full"
+                    variant="secondary"
                     onClick={() => startEditing(item)}
                   >
                     Edit event
                   </Button>
                   <Button
-                    className="w-full"
+                    className="col-span-2 w-full"
                     variant="danger"
                     onClick={() => setCancelingEvent(item)}
                   >
@@ -277,6 +270,32 @@ function FlockEventsSection({
                     setIsCreating(false)
                   } catch {
                     // Preserve the open modal and draft after a failed create.
+                  }
+                }}
+              />
+            </Modal>
+          ) : null}
+          {repeatingEvent ? (
+            <Modal
+              description="Start a new flock event with the same plan. Choose a new date; responses will not be copied."
+              onClose={() => setRepeatingEvent(null)}
+              size="wide"
+              title="Repeat event"
+            >
+              <EventForm
+                error={createError}
+                includeRunOptions
+                initialValues={eventToFormValues(repeatingEvent, 'repeat')}
+                isPending={isSaving}
+                mode="create"
+                savedRouteLibrary={savedRouteLibrary}
+                onCancel={() => setRepeatingEvent(null)}
+                onSubmit={async (input) => {
+                  try {
+                    await onCreate(requireRunOptions(input))
+                    setRepeatingEvent(null)
+                  } catch {
+                    // Preserve the repeated plan after a failed create.
                   }
                 }}
               />

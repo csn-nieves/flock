@@ -16,6 +16,7 @@ import type {
   PendingEventInvitation,
 } from '@src/types/invitations'
 import type { SavedRouteLibrary } from '@src/types/savedRoutes'
+import { eventToFormValues } from '@src/lib/eventPlanning'
 import InvitationLinkCard, {
   type ShareInvitationResult,
 } from './flocks/InvitationLinkCard'
@@ -130,6 +131,7 @@ function EventsPage({
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [invitingEventId, setInvitingEventId] = useState<string>()
   const [cancelingEvent, setCancelingEvent] = useState<FlockEvent | null>(null)
+  const [repeatingEvent, setRepeatingEvent] = useState<FlockEvent | null>(null)
   const [pendingResponse, setPendingResponse] =
     useState<PendingResponse | null>(null)
   const [selectedRunOptionId, setSelectedRunOptionId] = useState('')
@@ -294,12 +296,19 @@ function EventsPage({
                   <Button
                     className="w-full"
                     variant="secondary"
+                    onClick={() => setRepeatingEvent(event)}
+                  >
+                    Repeat event
+                  </Button>
+                  <Button
+                    className="w-full"
+                    variant="secondary"
                     onClick={() => setEditingEvent(event)}
                   >
                     Edit event
                   </Button>
                   <Button
-                    className="w-full"
+                    className="col-span-2 w-full"
                     variant="danger"
                     onClick={() => setCancelingEvent(event)}
                   >
@@ -408,24 +417,7 @@ function EventsPage({
           title="Edit event"
         >
           <EventForm
-            initialValues={{
-              description: editingEvent.description,
-              location: editingEvent.location,
-              runOptions: editingEvent.runOptions.map((option) => ({
-                distanceTenths: option.distanceTenths ?? 50,
-                id: option.id,
-                legacyLabel:
-                  option.distanceTenths === null
-                    ? `${option.distanceLabel} · ${option.paceLabel}`
-                    : undefined,
-                paceSeconds:
-                  option.distanceTenths === null ? 8 * 60 : option.paceSeconds,
-                route: option.route ?? undefined,
-                unit: option.unit ?? 'mi',
-              })),
-              startsAt: editingEvent.startsAt.slice(0, 16),
-              title: editingEvent.title,
-            }}
+            initialValues={eventToFormValues(editingEvent, 'edit')}
             includeRunOptions
             isPending={isSaving}
             mode="edit"
@@ -437,6 +429,33 @@ function EventsPage({
                 setEditingEvent(null)
               } catch {
                 // Keep the modal open after a failed update.
+              }
+            }}
+          />
+        </Modal>
+      ) : null}
+
+      {repeatingEvent ? (
+        <Modal
+          description="Start a new event with the same plan. Choose a new date; invitations and responses will not be copied."
+          onClose={() => setRepeatingEvent(null)}
+          size="wide"
+          title="Repeat event"
+        >
+          <EventForm
+            error={createError}
+            includeRunOptions
+            initialValues={eventToFormValues(repeatingEvent, 'repeat')}
+            isPending={isCreating}
+            mode="create"
+            savedRouteLibrary={savedRouteLibrary}
+            onCancel={() => setRepeatingEvent(null)}
+            onSubmit={async (input) => {
+              try {
+                await onCreate(requireRunOptions(input))
+                setRepeatingEvent(null)
+              } catch {
+                // Keep the modal and repeated plan available after a failed request.
               }
             }}
           />

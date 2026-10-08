@@ -230,3 +230,67 @@ export function OwnPaceCreate() {
     </div>
   )
 }
+
+export function RepeatEvent() {
+  const [createdTitle, setCreatedTitle] = useState('')
+
+  return (
+    <div className="mx-auto w-full max-w-app px-4">
+      <EventsPage
+        audienceSearchTerm=""
+        audienceType="runner"
+        canManageAllEvents={false}
+        currentUserId="owner-id"
+        events={[
+          {
+            ...event,
+            runOptions: [
+              {
+                distanceLabel: '5 mi',
+                distanceTenths: 50,
+                id: 'option-id',
+                paceLabel: '8:30/mi',
+                paceSeconds: 510,
+                position: 0,
+                route: {
+                  coordinates: [
+                    [-74.01, 40.7],
+                    [-74.005, 40.704],
+                    [-73.999, 40.708],
+                  ],
+                  distanceMeters: 8047,
+                },
+                unit: 'mi',
+              },
+            ],
+          },
+        ]}
+        flockResults={[]}
+        invitationLink={undefined}
+        isCreating={false}
+        isInviting={false}
+        isLoadingInvitations={false}
+        isRefreshing={false}
+        isRefreshingInvitations={false}
+        isResponding={false}
+        isSaving={false}
+        isSearchingAudience={false}
+        pendingInvitations={[]}
+        runnerResults={[]}
+        onAcceptInvitation={async () => undefined}
+        onAudienceSearchTermChange={() => undefined}
+        onAudienceTypeChange={() => undefined}
+        onCancelEvent={async () => undefined}
+        onCloseInvitation={() => undefined}
+        onCopyInvitation={async () => undefined}
+        onCreate={(input) => setCreatedTitle(input.title)}
+        onInviteFlock={async () => undefined}
+        onInviteRunner={async () => undefined}
+        onRespond={async () => undefined}
+        onRetryInvitations={() => undefined}
+        onUpdate={async () => undefined}
+      />
+      {createdTitle ? <p role="status">Created {createdTitle}</p> : null}
+    </div>
+  )
+}

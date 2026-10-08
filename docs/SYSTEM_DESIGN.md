@@ -549,6 +549,23 @@ receive that state through props. The picker presents loading, failure, empty,
 ready, rename, delete-confirmation, and mutation-error states, with only the
 selected route loading a large map preview.
 
+## Repeating event plans
+
+Personal-event creators and flock organizers can start a new event from an
+existing event card. This remains a create operation rather than a special
+database copy operation: the pure page maps the existing title, location,
+description, structured run options, and copied route geometry into the shared
+create form, while leaving the date empty so the organizer must choose the new
+schedule deliberately.
+
+The mapping drops event and run-option identifiers as well as every lifecycle
+field. Invitations, RSVP responses, attendance groups, creation metadata, and
+cancellation state therefore cannot enter the create mutation. Submission uses
+the existing personal- or flock-event create path, preserving its transaction,
+authorization, query invalidation, and notification behavior. A failed request
+keeps the repeated draft open for retry; notifications begin only after the new
+event is actually created.
+
 ## Superadmin event operations
 
 The protected `/admin` route is available only when the authenticated session

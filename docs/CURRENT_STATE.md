@@ -119,6 +119,10 @@ monetization remain outside the current slice.
   rename them, and delete them with confirmation. Reuse copies the geometry and
   distance into the event draft, so later library changes do not rewrite event
   history.
+- Personal-event creators and flock organizers can repeat an event through the
+  normal create workflow. Planning details and copied routes carry forward, a
+  new date is required, and invitations, responses, attendance, cancellation
+  state, and existing option identifiers do not carry into the new event.
 - User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
@@ -210,7 +214,7 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the saved-route-library vertical slice, then select the
+1. Review and merge the repeat-event-planning vertical slice, then select the
    next feature increment. The rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.

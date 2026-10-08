@@ -170,6 +170,11 @@ Navigation is introduced only for real destinations. Every nested product page e
 
 `src/components/Modal.tsx` owns dialog sizing and scrolling. Compact dialogs remain constrained to the application width. Event planning and other spatial workflows may use the named wide variant, which stays phone-width on small screens and expands to a maximum of 48rem on larger screens. Width must create usable working space—such as a larger route map—not empty decoration.
 
+Repeating an event uses the same wide planning form as creation. The trigger is
+a secondary card action beside Edit, while the destructive Cancel action keeps
+its own full-width row on phones. The dialog states that a new date is required
+and that invitations and responses will not be copied.
+
 Saved-route selection is a spatial workflow. Its wide dialog pairs a compact, scrollable name-and-distance list with one large preview map instead of rendering a map for every route. Selection never mutates the event until the user chooses Use this route. Rename and delete stay secondary to reuse, and deletion must explain that copied event routes remain unchanged.
 
 `src/components/RunOptionPicker.tsx` owns structured run measurements. Its near-black wheel surface is an intentional, task-specific echo of familiar mobile time pickers: a quiet centered selection band, high-contrast selected values, and faded neighboring values. A single Miles/Kilometers control always governs distance and any target pace. An explicit Target pace/Run at your own pace control reveals the pace wheel only when it is meaningful. The wheel remains touch-first without becoming touch-only; every numeric column exposes keyboard-operable spinbutton behavior and a visible focus treatment.

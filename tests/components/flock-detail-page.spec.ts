@@ -43,6 +43,19 @@ test('renders the visible flock identity', async ({ mount }) => {
   await expect(
     component.getByRole('button', { name: 'Maybe' }),
   ).toHaveAttribute('aria-pressed', 'true')
+
+  await component.getByRole('button', { name: 'Repeat event' }).click()
+  const repeatDialog = component.getByRole('dialog', { name: 'Repeat event' })
+  await expect(repeatDialog.getByLabel('Title')).toHaveValue('River loop')
+  await expect(repeatDialog.getByLabel('Location')).toHaveValue(
+    'Riverside trailhead',
+  )
+  await expect(repeatDialog.getByLabel('Date and time')).toHaveValue('')
+  await expect(
+    repeatDialog.getByText(/responses will not be copied/),
+  ).toBeVisible()
+  await repeatDialog.getByRole('button', { name: 'Cancel' }).click()
+
   await component.getByRole('button', { name: 'Edit event' }).click()
   await expect(
     component.getByRole('button', { name: 'Save event' }),

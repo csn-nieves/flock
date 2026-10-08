@@ -1416,6 +1416,23 @@ Library entries and event routes are independent copies, so cleanup cannot
 silently rewrite existing event plans. Deterministic seed routes keep local UI
 development representative without adding provider-specific data.
 
+## 2026-10-07 — Repeating event plans
+
+### Independent occurrences through the existing create workflow
+
+Personal-event creators and flock organizers can now open a prefilled planning
+form from an existing event. The title, location, description, structured run
+options, own-pace choices, and copied route geometry carry forward, while the
+date stays empty so the organizer must choose the new schedule.
+
+The repeat mapper deliberately omits event and run-option identifiers and has
+no access to invitations, responses, attendance, or cancellation state. The
+submitted draft travels through the existing create mutation, so authorization,
+atomic option writes, query refresh, and post-creation notification behavior do
+not gain a parallel path. Personal and flock surfaces share the same mapping,
+wide form, retry behavior, and phone-safe action hierarchy; no database change
+was required.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
