@@ -4,6 +4,7 @@ import { expect, test } from './fixtures'
 
 const flocksRoute = '**/rest/v1/flocks**'
 const flockMembersRoute = '**/rest/v1/rpc/list_flock_members'
+const flockMessagesRoute = '**/rest/v1/rpc/list_flock_messages'
 const flockEventsRoute = '**/rest/v1/flock_events**'
 const flockAttendanceRoute = '**/rest/v1/flock_event_attendance**'
 
@@ -122,6 +123,10 @@ async function mockFlockWorkflow(page: Page) {
     })
   })
 
+  await page.route(flockMessagesRoute, async (route: Route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+
   await page.route(flockEventsRoute, async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
   })
@@ -179,7 +184,9 @@ test('routes through the complete flock list, create, and detail workflow', asyn
     .getByLabel('Description')
     .fill('Welcoming hill loops with a regroup after every climb.')
   await editDialog.getByRole('button', { name: 'Save changes' }).click()
-  await expect(page.getByRole('status')).toHaveText('Flock details saved.')
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Flock details saved.' }),
+  ).toHaveText('Flock details saved.')
   await expect(page.getByText('Mount Tabor, Portland')).toBeVisible()
   await page.getByRole('button', { name: 'Show' }).click()
   await expect(page.getByRole('list', { name: 'Flock members' })).toContainText(

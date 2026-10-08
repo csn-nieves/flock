@@ -85,6 +85,13 @@ async function installJourneyRoutes(
   userId: string,
   state: JourneyState,
 ) {
+  await page.route(
+    '**/rest/v1/rpc/list_my_flock_chats',
+    async (route: Route) => {
+      await route.fulfill({ json: [], status: 200 })
+    },
+  )
+
   await page.route('**/rest/v1/saved_routes**', async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
   })

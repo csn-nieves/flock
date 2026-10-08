@@ -83,6 +83,27 @@ select {
   font: inherit;
 }
 
+.rich-text-composer:empty::before {
+  color: var(--flock-color-text-muted);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.rich-text-composer-frame:focus-within {
+  border-color: var(--flock-color-focus);
+  box-shadow: 0 0 0 0.125rem var(--flock-color-focus);
+}
+
+.rich-text-composer[aria-disabled='true'] {
+  cursor: not-allowed;
+  background: var(--flock-color-surface-subtle);
+  color: var(--flock-color-text-muted);
+}
+
+.rich-text-composer.rich-text-composer:focus-visible {
+  box-shadow: none;
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
@@ -137,6 +158,12 @@ a {
   }
 
   :focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  .rich-text-composer-frame:focus-within {
     outline: 2px solid CanvasText;
     outline-offset: 2px;
     box-shadow: none;

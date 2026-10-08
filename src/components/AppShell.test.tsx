@@ -10,6 +10,15 @@ vi.mock('@src/hooks/useAuthSession', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useFlockChats', () => ({
+  useFlockChats: () => ({
+    data: [{ id: 'morning-runners-id', name: 'Morning Runners' }],
+    isError: false,
+    isFetching: false,
+    isPending: false,
+  }),
+}))
+
 function renderShell(path = '/flocks') {
   const router = createMemoryRouter([{ path: '*', element: <AppShell /> }], {
     initialEntries: [path],
@@ -27,6 +36,18 @@ describe('AppShell', () => {
     ).toBeGreaterThan(0)
     expect(
       screen.getAllByRole('link', { name: 'Events' }).length,
+    ).toBeGreaterThan(0)
+    expect(
+      screen.queryByRole('link', { name: 'Chats' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getAllByRole('heading', { name: 'Flock chats' }).length,
+    ).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole('link', { name: 'Morning Runners' }).length,
+    ).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole('heading', { name: 'Direct messages' }).length,
     ).toBeGreaterThan(0)
     expect(screen.getAllByText('Local').length).toBeGreaterThan(0)
     expect(screen.getByRole('complementary')).toHaveClass(

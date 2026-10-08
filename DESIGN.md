@@ -164,6 +164,39 @@ Social sign-in uses the shared secondary button treatment so Google and Facebook
 
 Navigation is introduced only for real destinations. Every nested product page exposes one visible, labeled back control before the page identity; it uses the shared secondary-button treatment, retains the 44px touch target, and names the destination rather than relying on an icon alone. Route controllers send that action to the known parent destination so direct links and authentication redirects never depend on uncertain browser history. Top-level pages and transient authentication callbacks do not show a misleading back control. Mobile controls must not depend on hover. Lists prioritize names and participation details over decorative metadata.
 
+### Messaging
+
+Messaging is integrated into the application sidebar rather than represented by
+a generic Chats item competing with top-level product destinations. The sidebar
+uses a restrained conversation directory: flock chats appear first like group
+conversations without channel hash marks, and a visibly separated direct-message section reserves the future
+one-to-one hierarchy without presenting an enabled false affordance. On large
+screens, the selected thread consumes the available application canvas instead
+of inheriting the narrow form-page cap. Long flock names truncate at the sidebar
+boundary while retaining the complete accessible name and hover title. On
+phones, the same directory lives in the navigation drawer and the thread has an
+explicit All chats return action.
+
+Messages use a Slack-like full-width row rather than alternating chat bubbles.
+A compact initial tile anchors each row, while the display name and muted
+timestamp form a clear metadata line above larger body copy. The current runner
+keeps the label `You` without moving their messages to a different reading
+column.
+
+The message log owns a bounded internal scroll region. It opens at the newest
+message, loads older history automatically when the runner reaches the top, and
+preserves the visible reading position when that history arrives. A runner who
+is reading older messages is never pulled to the bottom by a live arrival; a
+small New messages action returns them deliberately. The composer is one
+purposeful framed surface: a quiet toolbar forms its top edge, the editable area
+shows bold, italic, and underline as they will appear after sending, and a
+compact emoji popover favors useful running and coordination symbols over a
+dense decorative catalog. It preserves a failed draft, supports Enter to send
+and Shift+Enter for a line break, and keeps send state explicit. The route shell
+is viewport-bound so the thread heading and composer remain visible while only
+message history scrolls. The character count sits quietly at the right without
+teaching familiar keyboard behavior on every message.
+
 ### Forms and overlays
 
 `src/primitives/TextField.tsx` is the canonical owner for standard text-like inputs. It uses native input semantics, a visible label, a reserved description area, and linked hint or error text. Errors use explicit language and `aria-invalid`; coral reinforces the state but never carries it alone. Forms use app-owned validation and preserve useful native metadata such as input type, autocomplete, and input mode. Dialogs and feedback surfaces must respect safe areas and the virtual keyboard. Browser `alert`, `confirm`, and `prompt` are not product UI.

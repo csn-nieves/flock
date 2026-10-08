@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { acceptFlockInvitation } from '@src/data/invitations'
-import { flockQueryKeys } from '@src/data/queryKeys'
+import { flockChatQueryKeys, flockQueryKeys } from '@src/data/queryKeys'
 import { TestQueryClientProvider } from '@src/test/TestQueryClientProvider'
 import type { FlockSummary } from '@src/types/flocks'
 import { useAcceptFlockInvitation } from './useAcceptFlockInvitation'
@@ -62,6 +62,9 @@ describe('useAcceptFlockInvitation', () => {
     })
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: flockQueryKeys.lists(),
+    })
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: flockChatQueryKeys.lists(),
     })
   })
 

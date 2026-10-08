@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { acceptFlockInvitation } from '@src/data/invitations'
-import { flockQueryKeys } from '@src/data/queryKeys'
+import { flockChatQueryKeys, flockQueryKeys } from '@src/data/queryKeys'
 
 export function useAcceptFlockInvitation() {
   const queryClient = useQueryClient()
@@ -16,6 +16,9 @@ export function useAcceptFlockInvitation() {
         }),
         queryClient.invalidateQueries({
           queryKey: flockQueryKeys.lists(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: flockChatQueryKeys.lists(),
         }),
       ])
     },

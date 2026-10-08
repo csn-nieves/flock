@@ -475,4 +475,31 @@ values
     '2026-10-02 12:00:00+00'
   );
 
+insert into public.flock_messages (
+  id,
+  flock_id,
+  sender_id,
+  body,
+  created_at
+)
+select
+  md5('seed-flock-message-' || message_number)::uuid,
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3'::uuid,
+  case message_number % 4
+    when 0 then '22222222-2222-4222-8222-222222222222'::uuid
+    when 1 then '11111111-1111-4111-8111-111111111111'::uuid
+    when 2 then '33333333-3333-4333-8333-333333333333'::uuid
+    else '44444444-4444-4444-8444-444444444444'::uuid
+  end,
+  case message_number % 6
+    when 0 then 'Meet at the west entrance by the water fountain.'
+    when 1 then 'I can bring an extra reflective vest.'
+    when 2 then 'The river path was clear this morning.'
+    when 3 then 'I am planning to run the shorter loop today.'
+    when 4 then 'Coffee after the run sounds good.'
+    else 'See everyone at the trailhead.'
+  end,
+  '2026-10-06 16:00:00+00'::timestamptz + make_interval(mins => message_number * 5)
+from generate_series(1, 36) as message_number;
+
 commit;
