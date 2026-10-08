@@ -58,8 +58,13 @@ self.addEventListener('notificationclick', (event) => {
         })
 
         if (existingClient) {
-          await existingClient.navigate(url)
-          return existingClient.focus()
+          try {
+            await existingClient.navigate(url)
+            return existingClient.focus()
+          } catch {
+            // Some installed-PWA clients expose a window but reject navigate.
+            // Fall through to openWindow so the notification still deep-links.
+          }
         }
 
         return self.clients.openWindow(url)

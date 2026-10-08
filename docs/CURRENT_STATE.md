@@ -100,8 +100,9 @@ remains outside the current slice.
 - The existing per-device Web Push opt-in also covers new flock and direct
   messages. Message sends queue only subscribed recipients, exclude the sender,
   and delivery rechecks conversation access, read state, and newer unread
-  activity. Payloads identify the sender and conversation without exposing the
-  message body, then deep-link to the authorized chat route.
+  activity. Payloads identify the sender and conversation, include a bounded
+  plain-text preview of the message, and deep-link to the authorized chat
+  route.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from

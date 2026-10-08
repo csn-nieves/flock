@@ -1557,9 +1557,9 @@ transaction that stores the message. The shared delivery claim rechecks current
 flock membership or direct-conversation participation, consults the monotonic
 read cursor, and suppresses an older job when newer unread activity exists.
 
-Chat payloads identify the sender and conversation without including message
-content, use a replacement tag per thread, and deep-link to the corresponding
-chat route. The existing Settings opt-in now describes both event and chat
+Chat payloads identify the sender and conversation, include a bounded
+plain-text preview, use a replacement tag per thread, and deep-link to the
+corresponding chat route. The existing Settings opt-in now describes both event and chat
 alerts; category-level preferences remain deferred until observed volume
 justifies them. Database coverage exercises opted-in and opted-out recipients,
 self-exclusion, read-before-delivery suppression, membership loss, rapid
