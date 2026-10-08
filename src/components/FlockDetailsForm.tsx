@@ -158,64 +158,66 @@ function FlockDetailsForm({
         onChange={setImageFile}
       />
 
-      <TextField
-        autoComplete="address-level2"
-        className="mt-4"
-        disabled={isDisabled}
-        error={locationError}
-        hint={`Use a city, neighborhood, or regular meeting area. ${maximumLocationLength} characters maximum.`}
-        label="Location"
-        maxLength={maximumLocationLength}
-        name="flockLocation"
-        placeholder="Portland, Oregon"
-        ref={locationInputRef}
-        required
-        type="text"
-        value={location}
-        onChange={(event) => {
-          const nextLocation = event.target.value
-          setLocation(nextLocation)
+      <div className="mt-2.5">
+        <TextField
+          autoComplete="address-level2"
+          disabled={isDisabled}
+          error={locationError}
+          hint={`Use a city, neighborhood, or regular meeting area. ${maximumLocationLength} characters maximum.`}
+          label="Location"
+          maxLength={maximumLocationLength}
+          name="flockLocation"
+          placeholder="Portland, Oregon"
+          ref={locationInputRef}
+          required
+          type="text"
+          value={location}
+          onChange={(event) => {
+            const nextLocation = event.target.value
+            setLocation(nextLocation)
 
-          if (locationError) {
-            setLocationError(
-              getRequiredError(
-                nextLocation,
-                'a location',
-                maximumLocationLength,
-              ),
-            )
-          }
-        }}
-      />
+            if (locationError) {
+              setLocationError(
+                getRequiredError(
+                  nextLocation,
+                  'a location',
+                  maximumLocationLength,
+                ),
+              )
+            }
+          }}
+        />
+      </div>
 
-      <TextAreaField
-        className="mt-4"
-        disabled={isDisabled}
-        error={descriptionError}
-        hint={`Tell runners what kind of group this is. ${maximumDescriptionLength} characters maximum.`}
-        label="Description"
-        maxLength={maximumDescriptionLength}
-        name="flockDescription"
-        placeholder="Friendly weekday miles for every pace."
-        ref={descriptionInputRef}
-        required
-        rows={4}
-        value={description}
-        onChange={(event) => {
-          const nextDescription = event.target.value
-          setDescription(nextDescription)
+      <div className="mt-2.5">
+        <TextAreaField
+          disabled={isDisabled}
+          error={descriptionError}
+          hint={`Tell runners what kind of group this is. ${maximumDescriptionLength} characters maximum.`}
+          label="Description"
+          maxLength={maximumDescriptionLength}
+          name="flockDescription"
+          placeholder="Friendly weekday miles for every pace."
+          ref={descriptionInputRef}
+          required
+          rows={4}
+          value={description}
+          onChange={(event) => {
+            const nextDescription = event.target.value
+            setDescription(nextDescription)
 
-          if (descriptionError) {
-            setDescriptionError(
-              getRequiredError(
-                nextDescription,
-                'a short description',
-                maximumDescriptionLength,
-              ),
-            )
-          }
-        }}
-      />
+            if (descriptionError) {
+              setDescriptionError(
+                getRequiredError(
+                  nextDescription,
+                  'a short description',
+                  maximumDescriptionLength,
+                ),
+              )
+            }
+          }}
+        />
+      </div>
 
       <div className="mt-4 grid gap-2 sm:flex sm:flex-row-reverse">
         <Button

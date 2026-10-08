@@ -9,7 +9,7 @@ vi.mock('@src/hooks/useAuthSession', () => ({
     session: {
       user: {
         id: 'runner-id',
-        user_metadata: { display_name: 'Local Runner' },
+        user_metadata: { display_name: 'Session Runner' },
       },
     },
   }),
@@ -59,7 +59,15 @@ vi.mock('@src/hooks/useDirectConversations', () => ({
 }))
 
 vi.mock('@src/hooks/useProfile', () => ({
-  useProfile: () => ({ data: undefined }),
+  useProfile: () => ({
+    data: {
+      avatarUrl: null,
+      displayName: 'Local Runner',
+      location: null,
+      updatedAt: '2099-01-01T00:00:00.000Z',
+      userId: 'runner-id',
+    },
+  }),
 }))
 
 function renderShell(path = '/flocks') {
@@ -98,7 +106,7 @@ describe('AppShell', () => {
     expect(
       screen.getAllByRole('link', { name: 'New direct message' }).length,
     ).toBeGreaterThan(0)
-    expect(screen.getAllByText('Local').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Local Runner').length).toBeGreaterThan(0)
     expect(screen.getByRole('complementary')).toHaveClass(
       'h-dvh',
       'max-h-dvh',

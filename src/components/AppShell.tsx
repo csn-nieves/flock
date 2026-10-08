@@ -10,6 +10,7 @@ import { useFlockChats } from '@src/hooks/useFlockChats'
 import { useProfile } from '@src/hooks/useProfile'
 import { usePushSubscriptionRefresh } from '@src/hooks/usePushSubscriptionRefresh'
 import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
+import SettingsIcon from '@src/primitives/icons/SettingsIcon'
 import type {
   DirectConversationSummary,
   FlockChatSummary,
@@ -36,6 +37,29 @@ function NavigationLink({ label, to }: { label: string; to: string }) {
       to={to}
     >
       {label}
+    </NavLink>
+  )
+}
+
+function SettingsNavigationLink({ onClick }: { onClick?: () => void }) {
+  return (
+    <NavLink
+      aria-label="Settings"
+      className={({ isActive }) =>
+        [
+          'flex min-h-touch items-center gap-3 rounded-md px-3 py-2 text-sm font-bold transition-colors duration-fast',
+          isActive
+            ? 'bg-primary text-on-primary'
+            : 'text-text-muted hover:bg-background hover:text-text',
+        ].join(' ')
+      }
+      to="/settings"
+      onClick={onClick}
+    >
+      <span className="flex size-9 shrink-0 items-center justify-center">
+        <SettingsIcon className="size-5" />
+      </span>
+      <span>Settings</span>
     </NavLink>
   )
 }
@@ -221,11 +245,11 @@ function AppShell() {
   const isChatRoute = location.pathname.startsWith('/chats')
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const displayName =
+    profileQuery.data?.displayName ??
     session?.user.user_metadata?.display_name ??
     session?.user.user_metadata?.full_name ??
     'Your profile'
-  const firstName = displayName.trim().split(/\s+/)[0] || 'Profile'
-  const initial = firstName.charAt(0).toLocaleUpperCase() || 'P'
+  const initial = displayName.trim().charAt(0).toLocaleUpperCase() || 'P'
   const profileAvatar = profileQuery.data?.avatarUrl ?? null
 
   useEffect(() => {
@@ -332,11 +356,11 @@ function AppShell() {
                         {initial}
                       </span>
                     )}
-                    <span className="min-w-0 truncate">{firstName}</span>
+                    <span className="min-w-0 truncate">{displayName}</span>
                   </NavLink>
                 </div>
                 <div onClick={closeMenu}>
-                  <NavigationLink label="Settings" to="/settings" />
+                  <SettingsNavigationLink onClick={closeMenu} />
                 </div>
               </div>
             </nav>
@@ -396,9 +420,9 @@ function AppShell() {
                 {initial}
               </span>
             )}
-            <span className="min-w-0 truncate">{firstName}</span>
+            <span className="min-w-0 truncate">{displayName}</span>
           </NavLink>
-          <NavigationLink label="Settings" to="/settings" />
+          <SettingsNavigationLink />
         </div>
       </aside>
 
