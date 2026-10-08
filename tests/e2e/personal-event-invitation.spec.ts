@@ -12,6 +12,7 @@ test('persists a whole-flock invitation and RSVP across two real users', async (
   browser,
 }) => {
   const eventTitle = `E2E river run ${Date.now()}`
+  const repeatedEventTitle = `${eventTitle} next week`
   const organizerContext = await createAuthenticatedContext(
     browser,
     organizerEmail,
@@ -85,6 +86,37 @@ test('persists a whole-flock invitation and RSVP across two real users', async (
       organizerPage.getByLabel('Attendance: 0 in, 1 maybe, 0 out'),
     ).toBeVisible()
     await expect(organizerEvent).toContainText('0 in · 1 maybe')
+
+    await organizerEvent.getByRole('button', { name: 'Repeat event' }).click()
+    const repeatDialog = organizerPage.getByRole('dialog', {
+      name: 'Repeat event',
+    })
+    await expect(repeatDialog.getByLabel('Title')).toHaveValue(eventTitle)
+    await expect(repeatDialog.getByLabel('Location')).toHaveValue(
+      'Riverfront trailhead',
+    )
+    await expect(repeatDialog.getByLabel('Date and time')).toHaveValue('')
+    await repeatDialog.getByLabel('Title').fill(repeatedEventTitle)
+    await repeatDialog.getByLabel('Date and time').fill('2099-06-17T06:30')
+    await repeatDialog.getByRole('button', { name: 'Create event' }).click()
+
+    const repeatedEvent = organizerPage
+      .getByRole('listitem')
+      .filter({ hasText: repeatedEventTitle })
+    await expect(repeatedEvent).toBeVisible()
+    await expect(repeatedEvent).toContainText('5 mi · 8:00/mi')
+    await expect(
+      repeatedEvent.getByLabel('Attendance: 0 in, 0 maybe, 0 out'),
+    ).toBeVisible()
+
+    await runnerPage.reload()
+    await expect(
+      runnerPage.getByRole('heading', { name: repeatedEventTitle }),
+    ).toHaveCount(0)
+    await expect(runnerEvent).toBeVisible()
+    await expect(
+      runnerEvent.getByRole('button', { name: 'Maybe' }),
+    ).toHaveAttribute('aria-pressed', 'true')
     expect(organizerConsoleProblems).toEqual([])
     expect(runnerConsoleProblems).toEqual([])
   } finally {

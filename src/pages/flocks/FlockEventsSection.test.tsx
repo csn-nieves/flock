@@ -127,4 +127,62 @@ describe('FlockEventsSection', () => {
     )
     expect(dialog).not.toBeInTheDocument()
   })
+
+  it('repeats a flock event through the normal create flow', async () => {
+    const onCreate = vi.fn().mockResolvedValue(undefined)
+    render(
+      <FlockEventsSection
+        canCreate
+        events={[
+          {
+            ...event,
+            description: 'Easy miles together.',
+            runOptions: [
+              {
+                distanceLabel: '5 km',
+                distanceTenths: 50,
+                id: 'original-option',
+                paceLabel: '5:00/km',
+                paceSeconds: 300,
+                position: 0,
+                unit: 'km',
+              },
+            ],
+          },
+        ]}
+        isCanceling={false}
+        isLoading={false}
+        isResponding={false}
+        isSaving={false}
+        onCancel={vi.fn()}
+        onCreate={onCreate}
+        onRespond={vi.fn()}
+        onRetry={vi.fn()}
+        onUpdate={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Repeat event' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Repeat event' })
+    expect(within(dialog).getByLabelText('Title')).toHaveValue('Saturday run')
+    expect(within(dialog).getByLabelText('Date and time')).toHaveValue('')
+    expect(within(dialog).getByText('5.0 km')).toBeVisible()
+    expect(within(dialog).getByText('5:00/km')).toBeVisible()
+
+    fireEvent.change(within(dialog).getByLabelText('Date and time'), {
+      target: { value: '2026-10-17T08:30' },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Create event' }),
+    )
+
+    await waitFor(() => expect(onCreate).toHaveBeenCalledOnce())
+    expect(onCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runOptions: [expect.objectContaining({ id: undefined, unit: 'km' })],
+      }),
+    )
+    expect(screen.queryByRole('dialog', { name: 'Repeat event' })).toBeNull()
+  })
 })

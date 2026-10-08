@@ -135,6 +135,9 @@ describe('EventsPage', () => {
     expect(
       screen.queryByRole('button', { name: 'Cancel event' }),
     ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Repeat event' }),
+    ).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: "I'm in" })).toBeVisible()
   })
 
@@ -161,6 +164,71 @@ describe('EventsPage', () => {
     const dialog = screen.getByRole('dialog', { name: 'Edit event' })
     expect(within(dialog).getByText('Distance')).toBeVisible()
     expect(within(dialog).getByText('Pace')).toBeVisible()
+  })
+
+  it('repeats a personal event without the original date or run-option identity', async () => {
+    const onCreate = vi.fn().mockResolvedValue(undefined)
+    const eventWithPlan = {
+      ...event,
+      description: 'Easy miles together.',
+      runOptions: [
+        {
+          distanceLabel: '5 mi',
+          distanceTenths: 50,
+          id: 'original-option',
+          paceLabel: '8:00/mi',
+          paceSeconds: 480,
+          position: 0,
+          route: {
+            coordinates: [
+              [-74.01, 40.7],
+              [-74, 40.71],
+            ] as [number, number][],
+            distanceMeters: 8047,
+          },
+          unit: 'mi' as const,
+        },
+      ],
+    }
+    render(
+      <EventsPage
+        {...defaultProps}
+        events={[eventWithPlan]}
+        onCreate={onCreate}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Repeat event' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Repeat event' })
+    expect(within(dialog).getByLabelText('Title')).toHaveValue('Saturday run')
+    expect(within(dialog).getByLabelText('Location')).toHaveValue('Riverside')
+    expect(within(dialog).getByLabelText('Description')).toHaveValue(
+      'Easy miles together.',
+    )
+    expect(within(dialog).getByLabelText('Date and time')).toHaveValue('')
+    expect(within(dialog).getByText('Mapped route')).toBeVisible()
+    expect(within(dialog).getByText('5.00 mi')).toBeVisible()
+
+    fireEvent.change(within(dialog).getByLabelText('Date and time'), {
+      target: { value: '2026-10-17T08:30' },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Create event' }),
+    )
+
+    await waitFor(() => expect(onCreate).toHaveBeenCalledOnce())
+    expect(onCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runOptions: [
+          expect.objectContaining({
+            id: undefined,
+          }),
+        ],
+        startsAt: new Date('2026-10-17T08:30').toISOString(),
+      }),
+    )
+    expect(screen.queryByRole('dialog', { name: 'Repeat event' })).toBeNull()
   })
 
   it('sends an RSVP response for a personal event', () => {
