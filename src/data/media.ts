@@ -30,6 +30,16 @@ export async function uploadImage(path: string, file: File) {
 
 export async function getImageUrl(path: string) {
   if (!supabase.storage) return null
+
+  const separatorIndex = path.lastIndexOf('/')
+  const folder = separatorIndex === -1 ? '' : path.slice(0, separatorIndex)
+  const filename = separatorIndex === -1 ? path : path.slice(separatorIndex + 1)
+  const { data: files, error: listError } = await supabase.storage
+    .from(mediaBucket)
+    .list(folder, { limit: 1, search: filename })
+
+  if (listError || !files.some((file) => file.name === filename)) return null
+
   const { data, error } = await supabase.storage
     .from(mediaBucket)
     .createSignedUrl(path, 60 * 60)
