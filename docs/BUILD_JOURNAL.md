@@ -1549,6 +1549,22 @@ journey verifies background delivery, preview/count visibility, opening the
 message, and clearing unread state. Per-message receipts, manual mark-unread,
 and chat push notifications remain deferred.
 
+## 2026-10-08 — Extending device alerts to unread chat activity
+
+Flock and direct-message sends now create push jobs only for recipients who
+already have an active device subscription. The sender is excluded in the same
+transaction that stores the message. The shared delivery claim rechecks current
+flock membership or direct-conversation participation, consults the monotonic
+read cursor, and suppresses an older job when newer unread activity exists.
+
+Chat payloads identify the sender and conversation without including message
+content, use a replacement tag per thread, and deep-link to the corresponding
+chat route. The existing Settings opt-in now describes both event and chat
+alerts; category-level preferences remain deferred until observed volume
+justifies them. Database coverage exercises opted-in and opted-out recipients,
+self-exclusion, read-before-delivery suppression, membership loss, rapid
+message collapse, payload privacy, and both chat authorization models.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
