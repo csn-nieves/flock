@@ -24,6 +24,8 @@ Each run club is called a **flock**. A flock will eventually support:
   on a map
 - One or more distance options per event, each with a target pace or an explicit
   run-at-your-own-pace choice
+- A private reusable route library for saving, previewing, naming, and applying
+  frequently used courses to future events
 - RSVPs tied to a selected distance and pace
 - Real-time event and club communication
 

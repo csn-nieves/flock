@@ -114,6 +114,11 @@ monetization remain outside the current slice.
   starting center. Saved data remains the same bounded provider-neutral line
   and estimated distance used by GPX import; draft waypoints and directions are
   not stored.
+- Authenticated runners can save up to 100 named routes in a private library,
+  preview and reuse them while creating or editing personal and flock events,
+  rename them, and delete them with confirmation. Reuse copies the geometry and
+  distance into the event draft, so later library changes do not rewrite event
+  history.
 - User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
@@ -205,8 +210,8 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the road-following route-builder vertical slice, then
-   select the next feature increment. The rehearsed moderated sessions in
+1. Review and merge the saved-route-library vertical slice, then select the
+   next feature increment. The rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.
 

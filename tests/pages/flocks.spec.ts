@@ -47,6 +47,10 @@ async function seedAuthenticatedSession(page: Page) {
 async function mockFlockWorkflow(page: Page) {
   const flocks: TestFlock[] = []
 
+  await page.route('**/rest/v1/saved_routes**', async (route: Route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+
   await page.route(flocksRoute, async (route: Route) => {
     const request = route.request()
     const url = new URL(request.url())

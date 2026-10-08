@@ -1399,6 +1399,23 @@ needed and saved events contain no waypoints, directions, provider identifiers,
 or geocoding results. Map rendering remains demand-loaded and excluded from the
 PWA precache.
 
+## 2026-10-07 — Saving routes for future events
+
+### Private route libraries with copy-safe reuse
+
+Runners can now save a drawn, imported, or reused course under a private name,
+preview it later, and copy it into either a personal or flock event. The same
+library surface also supports rename and confirmed deletion. Only the selected
+route mounts a map, keeping the wide desktop picker useful without multiplying
+the map-rendering cost; phone layouts retain the existing compact map height.
+
+The database owns route geometry validation and derives ownership from the
+authenticated session. Browser clients receive owner-only reads through Row
+Level Security and use protected functions for creation, rename, and deletion.
+Library entries and event routes are independent copies, so cleanup cannot
+silently rewrite existing event plans. Deterministic seed routes keep local UI
+development representative without adding provider-specific data.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

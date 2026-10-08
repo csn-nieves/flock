@@ -85,6 +85,10 @@ async function installJourneyRoutes(
   userId: string,
   state: JourneyState,
 ) {
+  await page.route('**/rest/v1/saved_routes**', async (route: Route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
+
   await page.route('**/rest/v1/flock_events**', async (route: Route) => {
     const eventIsVisible =
       state.event &&

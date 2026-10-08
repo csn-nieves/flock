@@ -1,6 +1,7 @@
 const flockRootKey = ['flocks'] as const
 const profileRootKey = ['profile'] as const
 const eventRootKey = ['events'] as const
+const savedRouteRootKey = ['saved-routes'] as const
 
 export const flockQueryKeys = {
   all: flockRootKey,
@@ -20,6 +21,10 @@ export const eventQueryKeys = {
   invitations: () => [...eventRootKey, 'invitations'] as const,
   mine: () => [...eventRootKey, 'mine'] as const,
   flock: (flockId: string) => [...eventRootKey, flockId] as const,
+}
+
+export const savedRouteQueryKeys = {
+  all: savedRouteRootKey,
 }
 
 export const discoveryQueryKeys = {

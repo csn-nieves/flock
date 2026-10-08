@@ -78,6 +78,20 @@ const invitationMutationMock = vi.hoisted(() =>
     mutate: vi.fn(),
   })),
 )
+const savedRouteLibraryMock = vi.hoisted(() =>
+  vi.fn(() => ({
+    isDeleting: false,
+    isLoading: false,
+    isRenaming: false,
+    isSaving: false,
+    routes: [],
+    status: 'ready' as const,
+    onDelete: vi.fn(),
+    onRename: vi.fn(),
+    onRetry: vi.fn(),
+    onSave: vi.fn(),
+  })),
+)
 
 vi.mock('@src/hooks/useFlock', () => ({
   useFlock: useFlockMock,
@@ -117,6 +131,10 @@ vi.mock('@src/hooks/useCancelFlockEvent', () => ({
 
 vi.mock('@src/hooks/useCreateFlockInvitation', () => ({
   useCreateFlockInvitation: invitationMutationMock,
+}))
+
+vi.mock('@src/hooks/useSavedRouteLibrary', () => ({
+  useSavedRouteLibrary: savedRouteLibraryMock,
 }))
 
 const flock: FlockSummary = {

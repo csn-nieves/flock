@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import EventForm from './EventForm'
+import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 
 vi.mock('./RouteMap', () => ({
   default: () => <div>Route preview</div>,
@@ -33,6 +34,33 @@ vi.mock('./RouteDrawingDialog', () => ({
 }))
 
 describe('EventForm', () => {
+  const savedRouteLibrary: SavedRouteLibrary = {
+    isDeleting: false,
+    isLoading: false,
+    isRenaming: false,
+    isSaving: false,
+    routes: [
+      {
+        createdAt: '2026-10-07T12:00:00Z',
+        id: 'saved-route',
+        name: 'Riverside Loop',
+        route: {
+          coordinates: [
+            [-74.01, 40.7],
+            [-74, 40.71],
+          ],
+          distanceMeters: 1500,
+        },
+        updatedAt: '2026-10-07T12:00:00Z',
+      },
+    ],
+    status: 'ready',
+    onDelete: vi.fn(),
+    onRename: vi.fn(),
+    onRetry: vi.fn(),
+    onSave: vi.fn(),
+  }
+
   it('validates required fields and focuses the first invalid field', () => {
     const onSubmit = vi.fn()
     render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
@@ -296,6 +324,42 @@ describe('EventForm', () => {
               ],
               distanceMeters: 1500,
             },
+          }),
+        ],
+      }),
+    )
+  })
+
+  it('copies a private saved route into a new event option', () => {
+    const onSubmit = vi.fn()
+    render(
+      <EventForm
+        includeRunOptions
+        isPending={false}
+        mode="create"
+        savedRouteLibrary={savedRouteLibrary}
+        onSubmit={onSubmit}
+      />,
+    )
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Reusable route run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-09T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Choose saved route' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Use this route' }))
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runOptions: [
+          expect.objectContaining({
+            route: savedRouteLibrary.routes[0].route,
           }),
         ],
       }),

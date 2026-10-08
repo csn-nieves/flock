@@ -3,14 +3,18 @@ import { useId, useState, type ChangeEvent } from 'react'
 import { GpxParseError, parseGpxFile } from '@src/lib/gpx'
 import Button from '@src/primitives/Button'
 import type { EventRoute, RunUnit } from '@src/types/events'
+import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 import RouteDrawingDialog from './RouteDrawingDialog'
 import RouteMap from './RouteMap'
+import SaveRouteDialog from './SaveRouteDialog'
+import SavedRouteLibraryDialog from './SavedRouteLibraryDialog'
 
 type RouteFileFieldProps = {
   distanceTenths: number
   location: string
   onChange: (route: EventRoute | undefined) => void
   unit: RunUnit
+  savedRouteLibrary?: SavedRouteLibrary
   value?: EventRoute
 }
 
@@ -23,6 +27,7 @@ function RouteFileField({
   distanceTenths,
   location,
   onChange,
+  savedRouteLibrary,
   unit,
   value,
 }: RouteFileFieldProps) {
@@ -30,6 +35,9 @@ function RouteFileField({
   const [error, setError] = useState<string>()
   const [isReading, setIsReading] = useState(false)
   const [isDrawing, setIsDrawing] = useState(false)
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false)
+  const [isSaveOpen, setIsSaveOpen] = useState(false)
+  const [savedMessage, setSavedMessage] = useState<string>()
   let chooseFileLabel = 'Choose GPX file'
   if (value) chooseFileLabel = 'Replace GPX file'
   if (isReading) chooseFileLabel = 'Reading GPX…'
@@ -66,8 +74,8 @@ function RouteFileField({
         <div>
           <p className="m-0 text-sm font-bold text-text">Mapped route</p>
           <p className="mt-1 mb-0 text-xs leading-5 text-text-muted">
-            Draw a road-following route or attach a GPX file. Only the route
-            line and estimated distance are saved.
+            Draw, import, or reuse a route. Event routes keep only the line and
+            estimated distance.
           </p>
         </div>
         {value ? (
@@ -101,6 +109,27 @@ function RouteFileField({
         >
           {chooseFileLabel}
         </Button>
+        {savedRouteLibrary ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setIsLibraryOpen(true)}
+          >
+            Choose saved route
+          </Button>
+        ) : null}
+        {value && savedRouteLibrary ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setSavedMessage(undefined)
+              setIsSaveOpen(true)
+            }}
+          >
+            Save for later
+          </Button>
+        ) : null}
         {value ? (
           <Button
             type="button"
@@ -111,6 +140,11 @@ function RouteFileField({
           </Button>
         ) : null}
       </div>
+      {savedMessage ? (
+        <p className="mt-2 mb-0 text-sm text-text" role="status">
+          {savedMessage}
+        </p>
+      ) : null}
       {error ? (
         <p className="mt-2 mb-0 text-sm text-danger" role="alert">
           {error}
@@ -135,6 +169,29 @@ function RouteFileField({
           onUseRoute={(route) => {
             onChange(route)
             setIsDrawing(false)
+          }}
+        />
+      ) : null}
+      {isLibraryOpen && savedRouteLibrary ? (
+        <SavedRouteLibraryDialog
+          library={savedRouteLibrary}
+          unit={unit}
+          onClose={() => setIsLibraryOpen(false)}
+          onUseRoute={(route) => {
+            onChange(route)
+            setIsLibraryOpen(false)
+          }}
+        />
+      ) : null}
+      {isSaveOpen && savedRouteLibrary && value ? (
+        <SaveRouteDialog
+          library={savedRouteLibrary}
+          route={value}
+          unit={unit}
+          onClose={() => setIsSaveOpen(false)}
+          onSaved={() => {
+            setIsSaveOpen(false)
+            setSavedMessage('Route saved for later.')
           }}
         />
       ) : null}

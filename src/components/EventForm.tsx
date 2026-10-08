@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 import type { EventFormInput, EventRoute } from '@src/types/events'
+import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 import RouteFileField from './RouteFileField'
 import RunOptionPicker from './RunOptionPicker'
 
@@ -9,6 +10,7 @@ type EventFormProps = {
   isPending: boolean
   mode: 'create' | 'edit'
   onSubmit: (input: EventFormInput) => void | Promise<void>
+  savedRouteLibrary?: SavedRouteLibrary
   error?: string
   includeRunOptions?: boolean
   initialValues?: EventFormInput
@@ -50,6 +52,7 @@ function EventForm({
   mode,
   onCancel,
   onSubmit,
+  savedRouteLibrary,
 }: EventFormProps) {
   const formErrorRef = useRef<HTMLParagraphElement>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)
@@ -191,6 +194,7 @@ function EventForm({
               <RouteFileField
                 distanceTenths={option.distanceTenths}
                 location={location}
+                savedRouteLibrary={savedRouteLibrary}
                 unit={option.unit}
                 value={option.route}
                 onChange={(route) =>

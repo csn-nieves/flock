@@ -772,3 +772,24 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Usage requires provider-independent routing, private
   server-side keys, offline drawing, editable saved waypoints, route loops,
   turn cues, elevation, surface data, or stronger route-safety review.
+
+## D040 — Copy reusable routes into a private runner library
+
+- **Status:** Accepted
+- **Decision:** Let an authenticated runner save up to 100 named routes in a
+  private library, preview and reuse them in personal or flock events, rename
+  them, and delete them. Applying a saved route copies its normalized geometry
+  and calculated distance into the event draft rather than linking the event to
+  the library row.
+- **Authorization:** Derive ownership from `auth.uid()` in protected database
+  functions. Expose owner-only reads through Row Level Security and do not
+  grant direct table writes to browser clients.
+- **Why:** Organizers often repeat courses. Copy semantics keep event history
+  stable and make library cleanup safe: renaming or deleting a reusable route
+  never changes an event that already uses it.
+- **Tradeoffs:** Updates to a saved route do not propagate to events, duplicate
+  names are rejected case-insensitively, and the library stores no editable
+  waypoints, pace, directions, elevation, or source GPX metadata.
+- **Revisit when:** Runners need route sharing, folders or tags, full geometry
+  editing, usage history, organization-owned routes, or deliberate propagation
+  of route revisions.
