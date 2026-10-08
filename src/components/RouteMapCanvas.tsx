@@ -9,11 +9,13 @@ setWorkerUrl(workerUrl)
 
 type RouteMapCanvasProps = {
   route: EventRoute
+  size?: 'default' | 'large'
 }
 
-function RouteMapCanvas({ route }: RouteMapCanvasProps) {
+function RouteMapCanvas({ route, size = 'default' }: RouteMapCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [loadError, setLoadError] = useState(false)
+  const heightClass = size === 'large' ? 'sm:h-[26rem]' : null
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -75,7 +77,7 @@ function RouteMapCanvas({ route }: RouteMapCanvasProps) {
     <>
       <div
         aria-label="Event route map"
-        className="h-64 w-full overflow-hidden rounded-lg border border-border bg-surface-subtle"
+        className={`h-64 w-full overflow-hidden rounded-lg border border-border bg-surface-subtle ${heightClass ?? ''}`}
         ref={containerRef}
         role="group"
       />

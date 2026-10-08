@@ -117,6 +117,7 @@ function RouteDrawingDialog({
   return (
     <Modal
       description="Tap roads in order and Flock will connect each point with a walkable route."
+      size="wide"
       title="Draw a route"
       onClose={onClose}
     >

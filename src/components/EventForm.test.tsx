@@ -33,11 +33,43 @@ vi.mock('./RouteDrawingDialog', () => ({
 }))
 
 describe('EventForm', () => {
-  it('validates required fields before submitting', () => {
+  it('validates required fields and focuses the first invalid field', () => {
     const onSubmit = vi.fn()
     render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
     fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
     expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByLabelText('Title')).toHaveFocus()
+    expect(screen.getByLabelText('Title')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    )
+  })
+
+  it('focuses the next missing required field after earlier fields are valid', () => {
+    render(<EventForm isPending={false} mode="create" onSubmit={vi.fn()} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Saturday run' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(screen.getByLabelText('Date and time')).toHaveFocus()
+  })
+
+  it('focuses a save error so it is visible in a long form', () => {
+    const { rerender } = render(
+      <EventForm isPending={false} mode="create" onSubmit={vi.fn()} />,
+    )
+
+    rerender(
+      <EventForm
+        error="Check your connection and try again."
+        isPending={false}
+        mode="create"
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('alert')).toHaveFocus()
   })
 
   it('normalizes values and converts local date input', () => {
@@ -126,6 +158,54 @@ describe('EventForm', () => {
     expect(
       screen.getByRole('spinbutton', { name: 'Pace minutes for option 1' }),
     ).toHaveAttribute('aria-valuetext', '5')
+  })
+
+  it('submits a run-at-your-own-pace option without a target pace', () => {
+    const onSubmit = vi.fn()
+    render(
+      <EventForm
+        includeRunOptions
+        isPending={false}
+        mode="create"
+        onSubmit={onSubmit}
+      />,
+    )
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Open pace run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-03T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Run at your own pace' }))
+
+    expect(
+      screen.queryByRole('spinbutton', {
+        name: 'Pace minutes for option 1',
+      }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Runners choose this distance and complete it at their own pace.',
+      ),
+    ).toBeVisible()
+
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runOptions: [
+          expect.objectContaining({
+            distanceTenths: 50,
+            paceSeconds: null,
+            unit: 'mi',
+          }),
+        ],
+      }),
+    )
   })
 
   it('imports a GPX route without retaining file metadata', async () => {

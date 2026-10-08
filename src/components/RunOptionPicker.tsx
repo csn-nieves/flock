@@ -41,6 +41,11 @@ const paceRanges: Record<RunUnit, { max: number; min: number }> = {
   km: { max: 9 * 60 + 30, min: 2 * 60 + 30 },
 }
 
+const defaultPaces: Record<RunUnit, number> = {
+  mi: 8 * 60,
+  km: 5 * 60,
+}
+
 const wheelClassNames = {
   highlightItem:
     'font-display text-[1.7rem] font-medium tabular-nums text-white',
@@ -123,10 +128,12 @@ function RunOptionPicker({
 }: RunOptionPickerProps) {
   const optionNumber = index + 1
   const unitGroupId = useId()
+  const paceGroupId = useId()
   const distanceWhole = Math.floor(value.distanceTenths / 10)
   const distanceDecimal = value.distanceTenths % 10
-  const paceMinutes = Math.floor(value.paceSeconds / 60)
-  const paceSeconds = value.paceSeconds % 60
+  const activePaceSeconds = value.paceSeconds ?? defaultPaces[value.unit]
+  const paceMinutes = Math.floor(activePaceSeconds / 60)
+  const paceSeconds = activePaceSeconds % 60
   const minuteOptions = useMemo(() => {
     const { max, min } = paceRanges[value.unit]
     const first = Math.floor(min / 60)
@@ -150,9 +157,10 @@ function RunOptionPicker({
   }))
 
   function updateUnit(unit: RunUnit) {
+    const convertedPace = convertPace(activePaceSeconds, value.unit, unit)
     onChange({
       ...value,
-      paceSeconds: convertPace(value.paceSeconds, value.unit, unit),
+      paceSeconds: value.paceSeconds === null ? null : convertedPace,
       unit,
     })
   }
@@ -232,57 +240,97 @@ function RunOptionPicker({
         </WheelSurface>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="m-0 text-sm font-bold text-text">Pace</p>
-          <output className="text-xs text-text-muted">
-            {paceMinutes}:{String(paceSeconds).padStart(2, '0')}/{value.unit}
-          </output>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-bold text-text" id={paceGroupId}>
+          Pace
+        </legend>
+        <div
+          aria-labelledby={paceGroupId}
+          className="grid grid-cols-2 rounded-md bg-background p-1 ring-1 ring-border"
+          role="radiogroup"
+        >
+          <button
+            aria-checked={value.paceSeconds !== null}
+            className="min-h-touch cursor-pointer rounded-sm px-3 text-sm font-bold text-text transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-[checked=true]:bg-primary data-[checked=true]:text-on-primary"
+            data-checked={value.paceSeconds !== null}
+            role="radio"
+            type="button"
+            onClick={() =>
+              onChange({ ...value, paceSeconds: defaultPaces[value.unit] })
+            }
+          >
+            Target pace
+          </button>
+          <button
+            aria-checked={value.paceSeconds === null}
+            className="min-h-touch cursor-pointer rounded-sm px-3 text-sm font-bold text-text transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-[checked=true]:bg-primary data-[checked=true]:text-on-primary"
+            data-checked={value.paceSeconds === null}
+            role="radio"
+            type="button"
+            onClick={() => onChange({ ...value, paceSeconds: null })}
+          >
+            Run at your own pace
+          </button>
         </div>
-        <WheelSurface>
-          <AccessibleWheel
-            label={`Pace minutes for option ${optionNumber}`}
-            options={minuteOptions}
-            value={paceMinutes}
-            onChange={(nextMinutes) =>
-              onChange({
-                ...value,
-                paceSeconds: clampPace(
-                  nextMinutes * 60 + paceSeconds,
-                  value.unit,
-                ),
-              })
-            }
-          />
-          <div
-            aria-hidden="true"
-            className="flex w-3 flex-none items-center justify-center font-display text-[1.7rem] font-medium text-white"
-          >
-            :
+      </fieldset>
+
+      {value.paceSeconds !== null ? (
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="m-0 text-sm font-bold text-text">Target pace</p>
+            <output className="text-xs text-text-muted">
+              {paceMinutes}:{String(paceSeconds).padStart(2, '0')}/{value.unit}
+            </output>
           </div>
-          <AccessibleWheel
-            label={`Pace seconds for option ${optionNumber}`}
-            options={availableSeconds}
-            value={paceSeconds}
-            onChange={(nextSeconds) =>
-              onChange({
-                ...value,
-                paceSeconds: paceMinutes * 60 + nextSeconds,
-              })
-            }
-          />
-          <div
-            aria-hidden="true"
-            className="flex w-16 flex-none items-center justify-center font-display text-[1.7rem] font-medium text-white"
-          >
-            /{value.unit}
-          </div>
-        </WheelSurface>
-      </div>
+          <WheelSurface>
+            <AccessibleWheel
+              label={`Pace minutes for option ${optionNumber}`}
+              options={minuteOptions}
+              value={paceMinutes}
+              onChange={(nextMinutes) =>
+                onChange({
+                  ...value,
+                  paceSeconds: clampPace(
+                    nextMinutes * 60 + paceSeconds,
+                    value.unit,
+                  ),
+                })
+              }
+            />
+            <div
+              aria-hidden="true"
+              className="flex w-3 flex-none items-center justify-center font-display text-[1.7rem] font-medium text-white"
+            >
+              :
+            </div>
+            <AccessibleWheel
+              label={`Pace seconds for option ${optionNumber}`}
+              options={availableSeconds}
+              value={paceSeconds}
+              onChange={(nextSeconds) =>
+                onChange({
+                  ...value,
+                  paceSeconds: paceMinutes * 60 + nextSeconds,
+                })
+              }
+            />
+            <div
+              aria-hidden="true"
+              className="flex w-16 flex-none items-center justify-center font-display text-[1.7rem] font-medium text-white"
+            >
+              /{value.unit}
+            </div>
+          </WheelSurface>
+        </div>
+      ) : (
+        <p className="m-0 rounded-md border border-border bg-background px-3 py-3 text-sm leading-5 text-text-muted">
+          Runners choose this distance and complete it at their own pace.
+        </p>
+      )}
 
       <p className="m-0 text-xs leading-5 text-text-muted">
-        Changing the measurement updates both distance and pace. Pace ranges
-        from 4:00–15:00 per mile or 2:30–9:30 per kilometer.
+        Measurement always applies to distance and any target pace. Target pace
+        ranges from 4:00–15:00 per mile or 2:30–9:30 per kilometer.
       </p>
     </div>
   )

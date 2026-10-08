@@ -192,3 +192,41 @@ export function MappedRoute() {
     </div>
   )
 }
+
+export function OwnPaceCreate() {
+  return (
+    <div className="mx-auto w-full max-w-app px-4">
+      <EventsPage
+        audienceSearchTerm=""
+        audienceType="runner"
+        canManageAllEvents={false}
+        currentUserId="owner-id"
+        events={[]}
+        flockResults={[]}
+        invitationLink={undefined}
+        isCreating={false}
+        isInviting={false}
+        isLoadingInvitations={false}
+        isRefreshing={false}
+        isRefreshingInvitations={false}
+        isResponding={false}
+        isSaving={false}
+        isSearchingAudience={false}
+        pendingInvitations={[]}
+        runnerResults={[]}
+        onAcceptInvitation={async () => undefined}
+        onAudienceSearchTermChange={() => undefined}
+        onAudienceTypeChange={() => undefined}
+        onCancelEvent={async () => undefined}
+        onCloseInvitation={() => undefined}
+        onCopyInvitation={async () => undefined}
+        onCreate={() => undefined}
+        onInviteFlock={async () => undefined}
+        onInviteRunner={async () => undefined}
+        onRespond={async () => undefined}
+        onRetryInvitations={() => undefined}
+        onUpdate={async () => undefined}
+      />
+    </div>
+  )
+}

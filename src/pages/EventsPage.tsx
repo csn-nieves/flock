@@ -401,6 +401,7 @@ function EventsPage({
         <Modal
           description="Update the plan for everyone invited."
           onClose={() => setEditingEvent(null)}
+          size="wide"
           title="Edit event"
         >
           <EventForm
@@ -414,7 +415,8 @@ function EventsPage({
                   option.distanceTenths === null
                     ? `${option.distanceLabel} · ${option.paceLabel}`
                     : undefined,
-                paceSeconds: option.paceSeconds ?? 8 * 60,
+                paceSeconds:
+                  option.distanceTenths === null ? 8 * 60 : option.paceSeconds,
                 route: option.route ?? undefined,
                 unit: option.unit ?? 'mi',
               })),
@@ -441,6 +443,7 @@ function EventsPage({
         <Modal
           description="Set the details before you invite runners."
           onClose={() => setIsCreateOpen(false)}
+          size="wide"
           title="Create an event"
         >
           <EventForm

@@ -182,6 +182,7 @@ function FlockEventsSection({
                 <Modal
                   description="Update the details so your flock has the latest plan."
                   onClose={closeEditing}
+                  size="wide"
                   title="Edit event"
                 >
                   <EventForm
@@ -201,7 +202,10 @@ function FlockEventsSection({
                             option.distanceTenths === null
                               ? `${option.distanceLabel} · ${option.paceLabel}`
                               : undefined,
-                          paceSeconds: option.paceSeconds ?? 8 * 60,
+                          paceSeconds:
+                            option.distanceTenths === null
+                              ? 8 * 60
+                              : option.paceSeconds,
                           route: option.route ?? undefined,
                           unit: option.unit ?? 'mi',
                         })) ?? [],
@@ -254,6 +258,7 @@ function FlockEventsSection({
             <Modal
               description="Add the time and place so your flock knows the plan."
               onClose={() => setIsCreating(false)}
+              size="wide"
               title="Create an event"
             >
               <EventForm

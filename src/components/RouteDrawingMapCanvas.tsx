@@ -158,7 +158,7 @@ function RouteDrawingMapCanvas({
     <>
       <div
         aria-label="Route drawing map. Click the map to add a point, or pan the map and use Add point at map center."
-        className="h-72 w-full cursor-crosshair overflow-hidden rounded-lg border border-border bg-surface-subtle"
+        className="h-72 w-full cursor-crosshair overflow-hidden rounded-lg border border-border bg-surface-subtle sm:h-[26rem]"
         ref={containerRef}
         role="group"
       />

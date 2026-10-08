@@ -17,7 +17,7 @@ function RouteDrawingMap(props: RouteDrawingMapProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex h-72 items-center justify-center rounded-lg border border-border bg-surface-subtle text-sm text-text-muted">
+        <div className="flex h-72 items-center justify-center rounded-lg border border-border bg-surface-subtle text-sm text-text-muted sm:h-[26rem]">
           <PendingIndicator /> Loading route planner
         </div>
       }

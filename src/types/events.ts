@@ -40,7 +40,7 @@ export type EventRunOption = {
 
 export type EventRunOptionInput = {
   distanceTenths: number
-  paceSeconds: number
+  paceSeconds: number | null
   unit: RunUnit
   id?: string
   legacyLabel?: string

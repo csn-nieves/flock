@@ -441,12 +441,14 @@ malformed tokens.
 
 Every newly created flock or personal event has between one and eight ordered
 run options.
-Each option stores a distance in tenths, a pace in seconds, and one shared
-miles-or-kilometers unit. The database retains separate distance and pace unit
-columns for compatibility but constrains them to equality. Distance is offered
-from 0.1 through 100 in tenth-unit steps. Pace is offered in five-second steps from
-4:00 through 15:00 per mile or 2:30 through 9:30 per kilometer. Concise display
-labels are derived server-side for existing read paths and notifications rather
+Each option stores a distance in tenths, an optional target pace in seconds,
+and one shared miles-or-kilometers unit. A null target pace explicitly means
+“Run at your own pace”; it is not an unknown value. The database retains
+separate distance and pace unit columns for compatibility but constrains them
+to equality. Distance is offered from 0.1 through 100 in tenth-unit steps.
+Target pace is offered in five-second steps from 4:00 through 15:00 per mile or
+2:30 through 9:30 per kilometer. Concise display labels, including the own-pace
+label, are derived server-side for existing read paths and notifications rather
 than accepted from the browser. Stable option identifiers let an organizer edit
 values without disconnecting existing responses. An edit may also remove an
 option; the foreign key preserves each attendance row and sets its removed
@@ -457,8 +459,10 @@ The form uses an authored dark multi-column wheel with a centered selection
 band and faded neighboring values. A maintained wheel primitive provides touch
 dragging, inertial scrolling, snapping, and keyboard movement; Flock adds
 spinbutton names and current-value announcements. One segmented measurement
-control changes both distance and pace units, converting the selected effort to
-the nearest supported five-second value.
+control changes both distance and any target-pace unit, converting the selected
+effort to the nearest supported five-second value. A separate segmented control
+switches between a target pace and running at the runner's own pace; the numeric
+wheel is hidden when no target pace applies.
 Earlier free-text options keep their labels and remain readable; editing one
 shows the earlier value and requires the organizer to confirm structured values.
 

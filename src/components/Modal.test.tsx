@@ -11,7 +11,12 @@ describe('Modal', () => {
         <p>Content</p>
       </Modal>,
     )
-    expect(screen.getByRole('dialog', { name: 'Dialog' })).toBeVisible()
+    const dialog = screen.getByRole('dialog', { name: 'Dialog' })
+    expect(dialog).toBeVisible()
+    expect(dialog.firstElementChild).toHaveClass('overflow-hidden')
+    expect(
+      dialog.querySelector<HTMLElement>('[data-modal-scroll-area]'),
+    ).toHaveClass('overflow-y-auto')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(onClose).toHaveBeenCalledOnce()
   })
@@ -49,5 +54,22 @@ describe('Modal', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(onClose).toHaveBeenCalledWith('harbor')
+  })
+
+  it('supports a wider desktop surface without changing its phone width', () => {
+    render(
+      <Modal
+        description="Plot a road-following course."
+        onClose={vi.fn()}
+        size="wide"
+        title="Draw a route"
+      >
+        <p>Map</p>
+      </Modal>,
+    )
+
+    expect(
+      screen.getByRole('dialog', { name: 'Draw a route' }).firstElementChild,
+    ).toHaveClass('max-w-app', 'sm:max-w-3xl')
   })
 })

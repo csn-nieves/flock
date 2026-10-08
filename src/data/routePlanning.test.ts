@@ -14,6 +14,7 @@ afterEach(() => {
 
 describe('route planning', () => {
   it('reports whether a public browser key is configured', () => {
+    vi.stubEnv('VITE_GEOAPIFY_API_KEY', '')
     expect(isRoutePlanningConfigured()).toBe(false)
     vi.stubEnv('VITE_GEOAPIFY_API_KEY', 'public-key')
     expect(isRoutePlanningConfigured()).toBe(true)

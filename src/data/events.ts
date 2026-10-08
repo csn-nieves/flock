@@ -17,7 +17,7 @@ function serializeRunOptions(runOptions: readonly EventRunOptionInput[]) {
   return runOptions.map(({ distanceTenths, id, paceSeconds, route, unit }) => ({
     distanceTenths,
     ...(id ? { id } : {}),
-    paceSeconds,
+    ...(paceSeconds === null ? {} : { paceSeconds }),
     ...(route
       ? {
           routeCoordinates: route.coordinates,

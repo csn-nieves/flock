@@ -92,7 +92,8 @@ monetization remain outside the current slice.
   replaces free-text option labels; one miles-or-kilometers setting governs
   both distance and pace. Distance supports tenth-unit steps, while pace
   supports five-second steps from 4:00–15:00 per mile or 2:30–9:30 per
-  kilometer. Runners choose an option with “I’m in” or
+  kilometer, or an organizer can mark an option “Run at your own pace” without
+  storing a target pace. Runners choose an option with “I’m in” or
   “Maybe,” attendance is grouped by option, and “I’m out” clears the choice.
   Pre-existing events and earlier free-text options remain readable until an
   organizer edits them into the current model.

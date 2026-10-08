@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest'
 import EventRunOptions from './EventRunOptions'
 
 vi.mock('./RouteMap', () => ({
-  default: () => <div>Interactive route map</div>,
+  default: ({ size }: { size?: string }) => (
+    <div data-size={size}>Interactive route map</div>
+  ),
 }))
 
 describe('EventRunOptions', () => {
@@ -40,6 +42,12 @@ describe('EventRunOptions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'View map' }))
 
     expect(screen.getByRole('dialog', { name: 'Event route' })).toBeVisible()
-    expect(screen.getByText('Interactive route map')).toBeVisible()
+    expect(screen.getByText('Interactive route map')).toHaveAttribute(
+      'data-size',
+      'large',
+    )
+    expect(
+      screen.getByRole('dialog', { name: 'Event route' }).firstElementChild,
+    ).toHaveClass('sm:max-w-3xl')
   })
 })
