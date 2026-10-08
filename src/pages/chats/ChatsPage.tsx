@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import ChatThread, { type ChatThreadProps } from '@src/components/ChatThread'
 import { ConversationSummary } from '@src/components/ConversationSummary'
+import ProfileAvatar from '@src/components/ProfileAvatar'
 import { getConversationAccessibleLabel } from '@src/lib/conversationActivity'
 import Button from '@src/primitives/Button'
 import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
@@ -247,19 +248,16 @@ function DirectConversationList({
                   type="button"
                   onClick={() => onSelectDirectConversation(conversation.id)}
                 >
-                  <span
-                    aria-hidden="true"
-                    className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs ${
+                  <ProfileAvatar
+                    className="flex size-8 items-center justify-center rounded-full text-xs"
+                    displayName={conversation.otherDisplayName}
+                    fallbackClassName={
                       isSelected
                         ? 'bg-background/20 text-on-primary'
                         : 'bg-background text-primary-strong'
-                    }`}
-                  >
-                    {conversation.otherDisplayName
-                      .trim()
-                      .charAt(0)
-                      .toLocaleUpperCase() || '?'}
-                  </span>
+                    }
+                    userId={conversation.otherUserId}
+                  />
                   <ConversationSummary
                     activity={conversation}
                     currentUserId={currentUserId}
