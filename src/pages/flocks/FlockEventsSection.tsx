@@ -9,6 +9,7 @@ import type {
   EventResponse,
   FlockEvent,
 } from '@src/types/events'
+import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 
 export type FlockEventsSectionProps = {
   canCreate: boolean
@@ -31,6 +32,7 @@ export type FlockEventsSectionProps = {
   events?: readonly FlockEvent[]
   responseError?: string
   respondingEventId?: string
+  savedRouteLibrary?: SavedRouteLibrary
 }
 
 type PendingResponse = {
@@ -62,6 +64,7 @@ function FlockEventsSection({
   onUpdate,
   responseError,
   respondingEventId,
+  savedRouteLibrary,
 }: FlockEventsSectionProps) {
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editingEvent, setEditingEvent] = useState<FlockEvent | null>(null)
@@ -215,6 +218,7 @@ function FlockEventsSection({
                     includeRunOptions
                     isPending={isSaving}
                     mode="edit"
+                    savedRouteLibrary={savedRouteLibrary}
                     onCancel={closeEditing}
                     onSubmit={async (input) => {
                       try {
@@ -266,6 +270,7 @@ function FlockEventsSection({
                 includeRunOptions
                 isPending={isSaving}
                 mode="create"
+                savedRouteLibrary={savedRouteLibrary}
                 onSubmit={async (input) => {
                   try {
                     await onCreate(requireRunOptions(input))

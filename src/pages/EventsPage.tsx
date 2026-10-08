@@ -15,6 +15,7 @@ import type {
   EventAudienceInvitationLink,
   PendingEventInvitation,
 } from '@src/types/invitations'
+import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 import InvitationLinkCard, {
   type ShareInvitationResult,
 } from './flocks/InvitationLinkCard'
@@ -41,6 +42,7 @@ export type EventsPageProps = {
   isSaving: boolean
   isSearchingAudience: boolean
   runnerResults: readonly RunnerSearchResult[]
+  savedRouteLibrary?: SavedRouteLibrary
   onAudienceSearchTermChange: (searchTerm: string) => void
   onAudienceTypeChange: (audienceType: EventAudienceType) => void
   onAcceptInvitation: (invitationId: string) => Promise<void>
@@ -99,6 +101,7 @@ function EventsPage({
   isRefreshing,
   isSearchingAudience,
   runnerResults,
+  savedRouteLibrary,
   onAudienceSearchTermChange,
   onAudienceTypeChange,
   onCreate,
@@ -426,6 +429,7 @@ function EventsPage({
             includeRunOptions
             isPending={isSaving}
             mode="edit"
+            savedRouteLibrary={savedRouteLibrary}
             onCancel={() => setEditingEvent(null)}
             onSubmit={async (input) => {
               try {
@@ -451,6 +455,7 @@ function EventsPage({
             includeRunOptions
             isPending={isCreating}
             mode="create"
+            savedRouteLibrary={savedRouteLibrary}
             onCancel={() => setIsCreateOpen(false)}
             onSubmit={async (input) => {
               try {

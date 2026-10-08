@@ -525,6 +525,30 @@ provider identifiers, and directions are not stored. A saved route is therefore
 provider-neutral and viewable without Geoapify, but editing it requires drawing
 a replacement or importing another GPX file.
 
+## Reusable saved routes
+
+Authenticated runners can copy any drawn, imported, or previously reused event
+route into a private saved-route library. Each entry stores an owner-scoped
+name, the same bounded provider-neutral coordinate line used by event options,
+and its calculated distance. The library deliberately does not retain pace,
+event metadata, draft waypoints, directions, provider identifiers, or the GPX
+source. A case-insensitive unique name keeps the picker scannable, and each
+runner may retain up to 100 routes.
+
+`saved_routes` exposes owner-only reads through Row Level Security. Creation,
+rename, and deletion use authenticated security-definer functions that derive
+the owner from `auth.uid()`; the browser never supplies an owner identifier and
+has no direct write grant. Applying a saved route copies its current geometry
+and distance into the event draft. Event creation remains atomic and
+independent, so later library renames or deletions cannot change an existing
+event or an unsaved draft.
+
+The personal-events and flock-detail route controllers own one shared React
+Query-backed library state and mutation set. Pure pages and event components
+receive that state through props. The picker presents loading, failure, empty,
+ready, rename, delete-confirmation, and mutation-error states, with only the
+selected route loading a large map preview.
+
 ## Superadmin event operations
 
 The protected `/admin` route is available only when the authenticated session

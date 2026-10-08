@@ -13,6 +13,7 @@ import { useSetUserEventResponse } from '@src/hooks/useSetUserEventResponse'
 import { useUpdateUserEvent } from '@src/hooks/useUpdateUserEvent'
 import { useCancelUserEvent } from '@src/hooks/useCancelUserEvent'
 import { useUserEvents } from '@src/hooks/useUserEvents'
+import { useSavedRouteLibrary } from '@src/hooks/useSavedRouteLibrary'
 import EventsPage, {
   EventsErrorPage,
   EventsLoadingPage,
@@ -32,6 +33,7 @@ function EventsRoute() {
   const responseMutation = useSetUserEventResponse()
   const updateMutation = useUpdateUserEvent()
   const cancelMutation = useCancelUserEvent()
+  const savedRouteLibrary = useSavedRouteLibrary()
   const [audienceType, setAudienceType] = useState<EventAudienceType>('runner')
   const [audienceSearchTerm, setAudienceSearchTerm] = useState('')
   const [invitationLink, setInvitationLink] = useState<
@@ -107,6 +109,7 @@ function EventsRoute() {
           : flockSearch.isFetching
       }
       runnerResults={runnerSearch.data ?? []}
+      savedRouteLibrary={savedRouteLibrary}
       isCreating={createMutation.isPending}
       createError={
         createMutation.isError

@@ -13,6 +13,7 @@ import { useUpdateFlockEvent } from '@src/hooks/useUpdateFlockEvent'
 import { useUpdateFlock } from '@src/hooks/useUpdateFlock'
 import { useCancelFlockEvent } from '@src/hooks/useCancelFlockEvent'
 import { useCreateFlockInvitation } from '@src/hooks/useCreateFlockInvitation'
+import { useSavedRouteLibrary } from '@src/hooks/useSavedRouteLibrary'
 import FlockDetailPage, {
   FlockDetailErrorPage,
   FlockDetailLoadingPage,
@@ -33,11 +34,16 @@ function FlockDetailRoute() {
   const navigate = useNavigate()
   const { session } = useAuthSession()
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
+  const canCreateEvents = Boolean(
+    isSuperadmin ||
+    (session?.user.id && session.user.id === flockQuery.data?.owner_id),
+  )
   const responseMutation = useSetFlockEventResponse(flockId ?? '')
   const updateEventMutation = useUpdateFlockEvent(flockId ?? '')
   const cancelEventMutation = useCancelFlockEvent(flockId ?? '')
   const invitationMutation = useCreateFlockInvitation()
   const updateFlockMutation = useUpdateFlock(flockId ?? '')
+  const savedRouteLibrary = useSavedRouteLibrary(canCreateEvents)
   const onBack = () => navigate('/flocks', { replace: true })
   let title = 'Flock not found — Flock'
 
@@ -127,10 +133,7 @@ function FlockDetailRoute() {
         onRetryMembers={() => void membersQuery.refetch()}
         savedMessage={savedMessage}
         events={{
-          canCreate: Boolean(
-            isSuperadmin ||
-            (session?.user.id && session.user.id === flockQuery.data.owner_id),
-          ),
+          canCreate: canCreateEvents,
           createError: createEventMutation.isError
             ? 'We could not create this event. Check your connection and try again.'
             : undefined,
@@ -165,6 +168,7 @@ function FlockDetailRoute() {
             ? 'We could not save your response. Check your connection and try again.'
             : undefined,
           respondingEventId: responseMutation.variables?.eventId,
+          savedRouteLibrary,
         }}
       />
       {isEditOpen ? (

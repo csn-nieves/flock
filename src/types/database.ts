@@ -228,6 +228,36 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_routes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          route_coordinates: NonNullable<Json>
+          route_distance_meters: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          route_coordinates: NonNullable<Json>
+          route_distance_meters: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          route_coordinates?: NonNullable<Json>
+          route_distance_meters?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -350,6 +380,28 @@ export type Database = {
           token: string
         }[]
       }
+      create_saved_route: {
+        Args: {
+          route_coordinates: Json
+          route_distance_meters: number
+          route_name: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          route_coordinates: NonNullable<Json>
+          route_distance_meters: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'saved_routes'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_targeted_event_invitation: {
         Args: { target_event_id: string; target_recipient_user_id: string }
         Returns: {
@@ -383,6 +435,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      delete_saved_route: { Args: { target_route_id: string }; Returns: string }
       list_flock_members: {
         Args: { target_flock_id: string }
         Returns: {
@@ -419,6 +472,24 @@ export type Database = {
       remove_flock_member: {
         Args: { target_flock_id: string; target_user_id: string }
         Returns: undefined
+      }
+      rename_saved_route: {
+        Args: { route_name: string; target_route_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          route_coordinates: NonNullable<Json>
+          route_distance_meters: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'saved_routes'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       search_flocks: {
         Args: { search_term: string }

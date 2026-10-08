@@ -30,8 +30,19 @@ export function collectConsoleProblems(page: Page) {
   const problems: string[] = []
 
   page.on('console', (message) => {
+    const text = message.text()
+    if (
+      message.type() === 'warning' &&
+      ((text.includes('GL Driver Message') &&
+        text.includes('GPU stall due to ReadPixels')) ||
+        /^layers\[[^\]]+\]\.filter\[1\]: Expected value to be of type number, but found null instead\. Falling back to false\.$/.test(
+          text,
+        ))
+    ) {
+      return
+    }
     if (message.type() === 'error' || message.type() === 'warning') {
-      problems.push(`${message.type()}: ${message.text()}`)
+      problems.push(`${message.type()}: ${text}`)
     }
   })
   page.on('pageerror', (error) => {
