@@ -502,4 +502,42 @@ select
   '2026-10-06 16:00:00+00'::timestamptz + make_interval(mins => message_number * 5)
 from generate_series(1, 36) as message_number;
 
+insert into public.direct_conversations (
+  id,
+  participant_one_id,
+  participant_two_id,
+  created_at
+)
+values (
+  'dddddddd-dddd-4ddd-8ddd-dddddddddd01',
+  '11111111-1111-4111-8111-111111111111',
+  '33333333-3333-4333-8333-333333333333',
+  '2026-10-06 15:00:00+00'
+);
+
+insert into public.direct_messages (
+  id,
+  conversation_id,
+  sender_id,
+  body,
+  created_at
+)
+select
+  md5('seed-direct-message-' || message_number)::uuid,
+  'dddddddd-dddd-4ddd-8ddd-dddddddddd01'::uuid,
+  case message_number % 2
+    when 0 then '11111111-1111-4111-8111-111111111111'::uuid
+    else '33333333-3333-4333-8333-333333333333'::uuid
+  end,
+  case message_number % 6
+    when 0 then 'The trail loop sounds perfect.'
+    when 1 then 'Are you still running before work tomorrow?'
+    when 2 then 'Yes, I can meet at the usual corner.'
+    when 3 then 'I will bring a light in case it is still dark.'
+    when 4 then 'Let us keep the first mile easy.'
+    else 'See you in the morning.'
+  end,
+  '2026-10-06 15:00:00+00'::timestamptz + make_interval(mins => message_number * 6)
+from generate_series(1, 12) as message_number;
+
 commit;

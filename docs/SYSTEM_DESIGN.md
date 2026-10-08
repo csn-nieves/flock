@@ -1,15 +1,15 @@
 # Flock system design
 
-Last reviewed: 2026-10-07
+Last reviewed: 2026-10-08
 
 ## What Flock is
 
 Flock is a mobile-first application for organizing run clubs. A run club is a
 “flock.” The first complete product slice will let an organizer create a flock,
 share an invitation, let another runner join, and show the flock's member list.
-One current-member chat now exists for each flock and is reached directly from
-the application shell's Flock chats group. Direct messages,
-monetization, live run tracking, and fitness integrations remain outside the
+One current-member chat now exists for each flock and participant-only direct
+messages are reached from the application shell's conversation groups.
+Monetization, live run tracking, and fitness integrations remain outside the
 current implemented boundary.
 
 Flock is being built as a progressive web app so runners can install and use it
@@ -250,13 +250,15 @@ canonical owner, maps `useUpdateFlock` into the shared edit form, updates the
 detail cache after server confirmation, and refreshes flock lists so changed
 identity data stays consistent across routes.
 
-`ChatsRoute` owns `/chats` and `/chats/:flockId`. `AppShell` loads the
+`ChatsRoute` owns `/chats`, `/chats/:flockId`, `/chats/direct/new`, and
+`/chats/direct/:conversationId`. `AppShell` loads the
 authenticated runner's current flock-chat destinations through `useFlockChats`
-and presents them as a dedicated Flock chats group in the persistent desktop
-sidebar or mobile navigation drawer, with a separate future Direct messages
-group. There is no generic Chats navigation item. The route resolves its
-selection against the same authorized cached list and enables `useFlockChat`
-only for a selected current membership. The pure `ChatsPage` owns the selected
+and participant-only conversations through `useDirectConversations`, then
+presents them as separate Flock chats and Direct messages groups in the
+persistent desktop sidebar or mobile navigation drawer. There is no generic
+Chats navigation item. The route resolves its selection against the relevant
+authorized cached list and enables a message query only for a selected current
+membership or conversation participant. The pure `ChatsPage` owns the selected
 thread and the phone return directory; the desktop thread uses the available
 application canvas rather than repeating a second conversation list.
 Superadmin visibility into flock administration does not imply private-chat
@@ -336,7 +338,7 @@ and is regenerated from the migration-built local database with
 by hand. Generated types provide compile-time table contracts, while Row Level
 Security, constraints, and input validation remain the runtime authority.
 
-## Flock chat
+## Messaging
 
 `flock_messages` stores text messages with flock, sender, and deterministic
 creation ordering. Formatted bodies use an app-owned, versioned list of text
@@ -374,9 +376,25 @@ message. Live arrivals append while a runner is near the bottom; otherwise the
 interface offers a New messages action. Realtime is not the source of truth: a
 successful subscription refreshes persisted history once to
 close the gap between the initial query and the live channel. Refresh or
-reconnect can therefore recover missed messages. This increment
-does not include direct messages, attachments, edits, deletion, reactions,
-typing indicators, read receipts, or chat push notifications.
+reconnect can therefore recover missed messages.
+
+`direct_conversations` stores one unique, canonical participant pair by ordering
+its two profile identifiers. `get_or_create_direct_conversation` derives the
+caller from `auth.uid()`, rejects self-conversations, and uses the unique pair
+constraint to return the same thread under concurrent creation. Conversation
+and message Row Level Security permits exactly those two participants; a
+superadmin receives no implicit access. The direct conversation list returns
+only the other participant's identifier and display name, and direct
+participation extends profile visibility only across that pair.
+
+`direct_messages` follows the same append-only text contract, cursor index,
+protected send path, safe rich-text renderer, generic React Query message hook,
+and filtered Realtime recovery model as flock messages. Runner search is
+route-local transient state: a 300ms debounce limits queries, composition pauses
+search, self-results are removed, and stale requests cannot select or replace a
+different query-key result. This increment does not include attachments, edits,
+deletion, reactions, blocking, reporting, typing indicators, read receipts,
+unread counts, activity ordering, or chat push notifications.
 
 React Query owns asynchronous server-state caching outside authentication. One
 application-level `QueryClientProvider` wraps the router and session provider.

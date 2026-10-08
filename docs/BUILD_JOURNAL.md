@@ -1495,6 +1495,35 @@ text remains ordinary content, pasted HTML is reduced to plain text, and
 history continues to render through safe React elements rather than raw HTML.
 A compatibility renderer keeps earlier marker-formatted branch data readable.
 
+## 2026-10-08 — Adding participant-only direct messages
+
+Runners can now search by display name and start or reopen one private
+conversation with another runner. A canonical ordered participant pair and
+unique database constraint prevent duplicate threads, including concurrent
+starts. Row Level Security and protected list, create, history, and send
+functions derive the current runner from the session; only the two participants
+can discover the conversation, read its history, send into it, or resolve the
+other participant's profile. Superadmin access remains separate from private
+communication.
+
+Direct messages share the established infinite cursor history, safe visual rich
+composer, failed-draft behavior, filtered Realtime delivery, cache
+deduplication, reconnect refresh, fixed-height thread, and phone navigation with
+flock chat through a generic message hook and thread component. The sidebar and
+mobile directory now list real direct conversations with a New action instead
+of a future placeholder. Runner search is debounced, composition-safe,
+self-filtering, clearable without losing focus, and explicit about loading,
+empty, error, and pending states.
+
+Database coverage verifies the canonical pair, participant-only policies,
+profile boundary, cursor window, send derivation, body validation, and Realtime
+publication. Unit and multi-device browser tests cover data mapping, route
+guards, search, navigation, truncation, fixed thread geometry, and direct
+history. The existing two-session full-stack journey now verifies live private
+messages in both directions. Blocking, reporting, message lifecycle actions,
+unread counts, activity summaries, read receipts, typing indicators,
+attachments, and chat push notifications remain deferred.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

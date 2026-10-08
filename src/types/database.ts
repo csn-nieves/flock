@@ -9,6 +9,81 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      direct_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          participant_one_id: string
+          participant_two_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_one_id: string
+          participant_two_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_one_id?: string
+          participant_two_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'direct_conversations_participant_one_id_fkey'
+            columns: ['participant_one_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['user_id']
+          },
+          {
+            foreignKeyName: 'direct_conversations_participant_two_id_fkey'
+            columns: ['participant_two_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['user_id']
+          },
+        ]
+      }
+      direct_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'direct_messages_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'direct_conversations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'direct_messages_sender_id_fkey'
+            columns: ['sender_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['user_id']
+          },
+        ]
+      }
       flock_event_attendance: {
         Row: {
           event_id: string
@@ -475,6 +550,26 @@ export type Database = {
         }
       }
       delete_saved_route: { Args: { target_route_id: string }; Returns: string }
+      get_or_create_direct_conversation: {
+        Args: { target_user_id: string }
+        Returns: string
+      }
+      list_direct_messages: {
+        Args: {
+          before_created_at?: string
+          before_id?: string
+          page_size?: number
+          target_conversation_id: string
+        }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_display_name: string
+          sender_id: string
+        }[]
+      }
       list_flock_members: {
         Args: { target_flock_id: string }
         Returns: {
@@ -499,6 +594,14 @@ export type Database = {
           id: string
           sender_display_name: string
           sender_id: string
+        }[]
+      }
+      list_my_direct_conversations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          conversation_id: string
+          other_display_name: string
+          other_user_id: string
         }[]
       }
       list_my_flock_chats: {
@@ -566,6 +669,17 @@ export type Database = {
         Returns: {
           display_name: string
           user_id: string
+        }[]
+      }
+      send_direct_message: {
+        Args: { message_body: string; target_conversation_id: string }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_display_name: string
+          sender_id: string
         }[]
       }
       send_flock_message: {

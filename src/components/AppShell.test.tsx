@@ -19,6 +19,21 @@ vi.mock('@src/hooks/useFlockChats', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useDirectConversations', () => ({
+  useDirectConversations: () => ({
+    data: [
+      {
+        id: 'maya-conversation-id',
+        otherDisplayName: 'Maya Chen',
+        otherUserId: 'maya-id',
+      },
+    ],
+    isError: false,
+    isFetching: false,
+    isPending: false,
+  }),
+}))
+
 function renderShell(path = '/flocks') {
   const router = createMemoryRouter([{ path: '*', element: <AppShell /> }], {
     initialEntries: [path],
@@ -49,6 +64,12 @@ describe('AppShell', () => {
     expect(
       screen.getAllByRole('heading', { name: 'Direct messages' }).length,
     ).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole('link', { name: 'Maya Chen' }).length,
+    ).toBeGreaterThan(0)
+    expect(screen.getAllByRole('link', { name: 'New' }).length).toBeGreaterThan(
+      0,
+    )
     expect(screen.getAllByText('Local').length).toBeGreaterThan(0)
     expect(screen.getByRole('complementary')).toHaveClass(
       'h-dvh',

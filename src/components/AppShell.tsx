@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 
 import { useAuthSession } from '@src/hooks/useAuthSession'
+import { useDirectConversations } from '@src/hooks/useDirectConversations'
 import { useFlockChats } from '@src/hooks/useFlockChats'
-import type { FlockChatSummary } from '@src/types/chat'
+import type {
+  DirectConversationSummary,
+  FlockChatSummary,
+} from '@src/types/chat'
 
 const navigation = [
   { label: 'Flocks', to: '/flocks' },
@@ -31,13 +35,21 @@ function NavigationLink({ label, to }: { label: string; to: string }) {
 }
 
 export function ConversationNavigation({
+  directConversations,
   flocks,
+  isDirectError,
+  isDirectPending,
+  isDirectRefreshing,
   isError,
   isPending,
   isRefreshing,
   onNavigate,
 }: {
+  directConversations?: readonly DirectConversationSummary[]
   flocks?: readonly FlockChatSummary[]
+  isDirectError: boolean
+  isDirectPending: boolean
+  isDirectRefreshing: boolean
   isError: boolean
   isPending: boolean
   isRefreshing: boolean
@@ -105,13 +117,61 @@ export function ConversationNavigation({
           <h2 className="m-0 font-display text-sm font-bold text-text">
             Direct messages
           </h2>
-          <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[0.6875rem] font-bold text-text-muted">
-            Soon
-          </span>
+          <NavLink
+            className="flex min-h-touch items-center rounded-md px-2 text-xs font-bold text-primary-strong hover:bg-background"
+            to="/chats/direct/new"
+            onClick={onNavigate}
+          >
+            New
+          </NavLink>
         </div>
-        <p className="mt-2 mb-0 text-xs leading-4 text-text-muted">
-          One-to-one conversations will appear here.
-        </p>
+        {isDirectRefreshing && directConversations ? (
+          <span className="sr-only" role="status">
+            Refreshing direct messages…
+          </span>
+        ) : null}
+        {isDirectPending ? (
+          <p className="mt-3 mb-0 text-xs text-text-muted" role="status">
+            Loading direct messages…
+          </p>
+        ) : null}
+        {isDirectError ? (
+          <p className="mt-3 mb-0 text-xs leading-4 text-text-muted">
+            Direct messages unavailable
+          </p>
+        ) : null}
+        {directConversations?.length === 0 ? (
+          <p className="mt-3 mb-0 text-xs leading-4 text-text-muted">
+            Start a private conversation.
+          </p>
+        ) : null}
+        {directConversations && directConversations.length > 0 ? (
+          <ul
+            aria-label="Direct message conversations"
+            className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)] list-none gap-1 p-0"
+          >
+            {directConversations.map((conversation) => (
+              <li className="min-w-0" key={conversation.id}>
+                <NavLink
+                  className={({ isActive }) =>
+                    `flex min-h-touch w-full min-w-0 items-center gap-2 overflow-hidden rounded-md px-3 text-sm font-bold transition-colors duration-fast ${
+                      isActive
+                        ? 'bg-primary text-on-primary'
+                        : 'text-text-muted hover:bg-background hover:text-text'
+                    }`
+                  }
+                  title={conversation.otherDisplayName}
+                  to={`/chats/direct/${encodeURIComponent(conversation.id)}`}
+                  onClick={onNavigate}
+                >
+                  <span className="min-w-0 flex-1 truncate">
+                    {conversation.otherDisplayName}
+                  </span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </nav>
   )
@@ -122,6 +182,7 @@ function AppShell() {
   const location = useLocation()
   const { session } = useAuthSession()
   const flocksQuery = useFlockChats()
+  const directConversationsQuery = useDirectConversations()
   const isChatRoute = location.pathname.startsWith('/chats')
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const displayName =
@@ -202,7 +263,11 @@ function AppShell() {
               </div>
               <div className="mt-5">
                 <ConversationNavigation
+                  directConversations={directConversationsQuery.data}
                   flocks={flocksQuery.data}
+                  isDirectError={directConversationsQuery.isError}
+                  isDirectPending={directConversationsQuery.isPending}
+                  isDirectRefreshing={directConversationsQuery.isFetching}
                   isError={flocksQuery.isError}
                   isPending={flocksQuery.isPending}
                   isRefreshing={flocksQuery.isFetching}
@@ -255,7 +320,11 @@ function AppShell() {
         </nav>
         <div className="mt-6">
           <ConversationNavigation
+            directConversations={directConversationsQuery.data}
             flocks={flocksQuery.data}
+            isDirectError={directConversationsQuery.isError}
+            isDirectPending={directConversationsQuery.isPending}
+            isDirectRefreshing={directConversationsQuery.isFetching}
             isError={flocksQuery.isError}
             isPending={flocksQuery.isPending}
             isRefreshing={flocksQuery.isFetching}

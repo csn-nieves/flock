@@ -32,6 +32,15 @@ vi.mock('@src/hooks/useFlockChats', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useDirectConversations', () => ({
+  useDirectConversations: () => ({
+    data: [],
+    isError: false,
+    isFetching: false,
+    isPending: false,
+  }),
+}))
+
 vi.mock('@src/hooks/useDiscoverySearch', () => ({
   useFlockSearch: () => ({
     data: [],

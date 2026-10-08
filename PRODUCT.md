@@ -31,7 +31,8 @@ Each run club is called a **flock**. A flock will eventually support:
 - RSVPs tied to a selected distance and pace
 - A private real-time flock chat for current members, with older history loaded
   continuously as a runner scrolls upward
-- Future one-to-one runner communication
+- Private one-to-one runner conversations with realtime delivery and continuous
+  older history
 
 ## Delivery model
 

@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-07
+Last reviewed: 2026-10-08
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -18,8 +18,8 @@ distance and pace options, and attendance is tied to a runner's selected plan.
 Moderated workflow validation remains prepared but is temporarily deferred by
 the product owner so feature development can continue. Run options now support
 optional mapped GPX courses for both personal and flock events. Current members
-can now coordinate in a durable realtime flock chat. Direct messages and
-monetization remain outside the current slice.
+can now coordinate in durable realtime flock chats and private one-to-one
+conversations. Monetization remains outside the current slice.
 
 ## Completed foundation
 
@@ -78,8 +78,9 @@ monetization remain outside the current slice.
   the flock page usable.
 - Current flock members can read and send plain-text messages in one private
   chat per flock from a Flock chats group integrated into the application
-  sidebar and mobile drawer. A separate Direct messages group reserves the
-  future one-to-one hierarchy without enabling it. History loads automatically
+  sidebar and mobile drawer. A separate Direct messages group lists each
+  participant-only conversation and lets a runner search for another runner to
+  open or create their one canonical private thread. History loads automatically
   as a runner scrolls upward,
   preserves their reading position, and receives filtered Realtime inserts.
   The composer previews its bounded bold, italic, and underline formatting
@@ -87,8 +88,10 @@ monetization remain outside the current slice.
   run encoding preserves overlapping styles in history without storing or
   rendering arbitrary HTML.
   Persisted history remains authoritative after a missed connection. Row Level
-  Security and the send function both enforce current membership; superadmin
-  access alone does not expose chat.
+  Security and protected send functions enforce current flock membership or
+  direct-conversation participation; superadmin access alone does not expose
+  either kind of chat. Direct profile visibility extends only to the other
+  participant.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from
@@ -208,8 +211,10 @@ monetization remain outside the current slice.
 The live router exposes sign-in, the OAuth callback, and protected product
 workflows through explicit route-controller modules. The protected index and
 `/flocks` both render the flock collection; primary navigation reaches
-`/events`, `/discover`, `/profile`, and `/settings`; the shell's Flock chats
-group reaches `/chats/:flockId`, which owns the selected conversation. Flock list actions reach
+`/events`, `/discover`, `/profile`, and `/settings`; the shell's conversation
+groups reach `/chats/:flockId`, `/chats/direct/new`, and
+`/chats/direct/:conversationId`, which own the selected conversation or runner
+search. Flock list actions reach
 `/flocks/new` and `/flocks/:flockId`. Successful creation replaces the completed form route
 with the returned flock detail destination. Visible app-owned back controls
 return create/detail pages to the collection, invitation creation to its flock,
@@ -230,11 +235,10 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the flock-chat vertical slice, including its sidebar
-   conversation directory. The next logical feature is one-to-one runner messaging built on
-   the same cursor, Realtime, composer, and conversation-panel foundation
-   without weakening participant-specific authorization. The
-   rehearsed moderated sessions in
+1. Review and merge the direct-message vertical slice. The next logical
+   messaging increment is server-backed unread state and activity ordering,
+   including last-message previews and a clear last-read boundary, before chat
+   device notifications are introduced. The rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.
 

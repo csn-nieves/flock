@@ -13,21 +13,24 @@ import {
 } from '@src/lib/richTextMessage'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
-import type { FlockChatConnectionStatus, FlockMessage } from '@src/types/chat'
+import type { ChatConnectionStatus, ChatMessage } from '@src/types/chat'
 
-export type FlockChatSectionProps = {
-  connectionStatus: FlockChatConnectionStatus
+export type ChatThreadProps = {
+  connectionStatus: ChatConnectionStatus
   currentUserId: string
   hasOlderMessages: boolean
   isLoading: boolean
   isLoadingOlderMessages: boolean
   isSending: boolean
-  messages: FlockMessage[]
+  messages: ChatMessage[]
   onLoadOlderMessages: () => Promise<void>
   onRetry: () => void
   onSend: (body: string) => Promise<void>
   description?: string
+  emptyDescription?: string
   error?: string
+  messageLogLabel?: string
+  placeholder?: string
   sendError?: string
   title?: string
 }
@@ -128,22 +131,25 @@ function formatMessageTime(value: string) {
   }).format(new Date(value))
 }
 
-function FlockChatSection({
+function ChatThread({
   connectionStatus,
   currentUserId,
-  description = 'Plan the next run with current flock members.',
+  description = 'Keep the conversation moving.',
+  emptyDescription = 'Send the first message to start the conversation.',
   error,
   hasOlderMessages,
   isLoading,
   isLoadingOlderMessages,
   isSending,
   messages,
+  messageLogLabel = 'Messages',
   onLoadOlderMessages,
   onRetry,
   onSend,
+  placeholder = 'Write a message',
   sendError,
-  title = 'Flock chat',
-}: FlockChatSectionProps) {
+  title = 'Conversation',
+}: ChatThreadProps) {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -257,15 +263,15 @@ function FlockChatSection({
 
   return (
     <section
-      aria-labelledby="flock-chat-heading"
+      aria-labelledby="chat-thread-heading"
       className="flex h-full min-h-0 min-w-0 flex-col"
-      id="flock-chat"
+      id="chat-thread"
     >
       <div className="flex shrink-0 items-end justify-between gap-4 border-b border-border px-4 py-3 sm:px-5">
         <div>
           <h2
             className="m-0 font-display text-xl leading-7 font-bold text-text"
-            id="flock-chat-heading"
+            id="chat-thread-heading"
           >
             {title}
           </h2>
@@ -308,7 +314,7 @@ function FlockChatSection({
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="relative min-h-0 flex-1">
               <div
-                aria-label="Flock messages"
+                aria-label={messageLogLabel}
                 className="h-full min-h-0 overflow-y-auto px-2 py-3 sm:px-4"
                 ref={scrollAreaRef}
                 role="log"
@@ -339,8 +345,7 @@ function FlockChatSection({
                         Start the conversation
                       </p>
                       <p className="mt-2 mb-0 max-w-xs text-sm leading-5 text-text-muted">
-                        Coordinate a route, time, or meetup spot with your
-                        flock.
+                        {emptyDescription}
                       </p>
                     </div>
                   </div>
@@ -419,6 +424,7 @@ function FlockChatSection({
               isSending={isSending}
               maxLength={maxMessageLength}
               onSend={onSend}
+              placeholder={placeholder}
             />
           </div>
         ) : null}
@@ -427,4 +433,4 @@ function FlockChatSection({
   )
 }
 
-export default FlockChatSection
+export default ChatThread

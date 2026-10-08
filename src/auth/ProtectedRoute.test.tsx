@@ -25,6 +25,15 @@ vi.mock('@src/hooks/useFlockChats', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useDirectConversations', () => ({
+  useDirectConversations: () => ({
+    data: [],
+    isError: false,
+    isFetching: false,
+    isPending: false,
+  }),
+}))
+
 const destination = vi.hoisted(() => ({
   preserveAuthDestination: vi.fn(),
 }))
