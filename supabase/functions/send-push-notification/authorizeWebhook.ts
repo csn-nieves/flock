@@ -29,10 +29,22 @@ export function parseWebhookSecretKeys(rawSecretKeys: string | undefined) {
 export function isAuthorizedWebhookRequest(
   headers: Headers,
   configuredSecretKeys: readonly string[],
+  legacyServiceRoleKey?: string,
 ) {
   const presentedSecretKey = headers.get('apikey')
-  return (
+  if (
     presentedSecretKey !== null &&
     configuredSecretKeys.includes(presentedSecretKey)
+  ) {
+    return true
+  }
+
+  const authorization = headers.get('authorization')
+  const bearerKey = authorization?.match(/^Bearer\s+(.+)$/i)?.[1]
+
+  return (
+    bearerKey !== undefined &&
+    (configuredSecretKeys.includes(bearerKey) ||
+      bearerKey === legacyServiceRoleKey)
   )
 }

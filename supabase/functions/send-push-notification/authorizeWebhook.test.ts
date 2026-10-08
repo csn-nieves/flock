@@ -48,7 +48,31 @@ describe('push webhook authorization', () => {
     ).toBe(false)
   })
 
-  it('does not accept the legacy service-role bearer header', () => {
+  it('accepts the legacy service-role bearer header when configured', () => {
+    const headers = new Headers({
+      authorization: 'Bearer legacy-service-role-key',
+    })
+
+    expect(
+      isAuthorizedWebhookRequest(
+        headers,
+        ['sb_secret_current'],
+        'legacy-service-role-key',
+      ),
+    ).toBe(true)
+  })
+
+  it('accepts a configured secret in a bearer header for webhook compatibility', () => {
+    const headers = new Headers({
+      authorization: 'Bearer sb_secret_current',
+    })
+
+    expect(isAuthorizedWebhookRequest(headers, ['sb_secret_current'])).toBe(
+      true,
+    )
+  })
+
+  it('rejects an unknown bearer header', () => {
     const headers = new Headers({
       authorization: 'Bearer legacy-service-role-key',
     })

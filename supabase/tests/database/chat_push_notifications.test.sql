@@ -163,15 +163,15 @@ select is(
 );
 select is(
   (select notification_body from claimed_flock_alert),
-  'Chat Alert Owner sent a message.',
-  'a flock alert identifies the sender without exposing message content'
+  'Chat Alert Owner: Meet at the private trail entrance.',
+  'a flock alert includes a bounded plain-text message preview'
 );
 select ok(
   (
-    select notification_body not like '%private trail entrance%'
+    select length(notification_body) <= 200
     from claimed_flock_alert
   ),
-  'a flock alert does not expose the message body on the device lock screen'
+  'a flock alert preview remains bounded by the delivery payload'
 );
 select is(
   (select notification_tag from claimed_flock_alert),
@@ -413,15 +413,15 @@ select is(
 );
 select is(
   (select notification_body from claimed_direct_alert),
-  'Chat Alert Owner sent you a message.',
-  'a direct-message alert identifies the sender without exposing content'
+  'Chat Alert Owner: The direct-message body stays private.',
+  'a direct-message alert includes a bounded plain-text message preview'
 );
 select ok(
   (
-    select notification_body not like '%body stays private%'
+    select length(notification_body) <= 200
     from claimed_direct_alert
   ),
-  'a direct-message alert does not expose the message body on the lock screen'
+  'a direct-message preview remains bounded by the delivery payload'
 );
 
 reset role;

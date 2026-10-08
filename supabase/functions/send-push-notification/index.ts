@@ -51,7 +51,13 @@ Deno.serve(async (request) => {
     })
   }
 
-  if (!isAuthorizedWebhookRequest(request.headers, webhookSecretKeys)) {
+  if (
+    !isAuthorizedWebhookRequest(
+      request.headers,
+      webhookSecretKeys,
+      serviceRoleKey,
+    )
+  ) {
     return new Response('Unauthorized', { status: 401 })
   }
 
