@@ -125,6 +125,3 @@ with check (
       and event.created_by = (select auth.uid())
   )
 );
-
-comment on table storage.buckets is
-  'Flock media uses a private bucket; resource-specific policies govern access.';
