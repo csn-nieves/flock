@@ -58,6 +58,10 @@ vi.mock('@src/hooks/useDirectConversations', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useProfile', () => ({
+  useProfile: () => ({ data: undefined }),
+}))
+
 function renderShell(path = '/flocks') {
   const router = createMemoryRouter([{ path: '*', element: <AppShell /> }], {
     initialEntries: [path],

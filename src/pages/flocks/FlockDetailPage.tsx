@@ -84,6 +84,13 @@ function FlockDetailPage({
       heading={flock.name}
       onBack={onBack}
     >
+      {flock.imageUrl ? (
+        <img
+          alt=""
+          className="mb-6 aspect-[16/7] w-full rounded-xl object-cover"
+          src={flock.imageUrl}
+        />
+      ) : null}
       <div className="border-l-4 border-accent pl-4">
         <p className="m-0 text-xs leading-5 font-bold tracking-[0.08em] text-text-muted uppercase">
           Location

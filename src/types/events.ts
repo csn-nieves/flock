@@ -13,6 +13,7 @@ export type FlockEvent = {
   description: string
   flockId: string | null
   id: string
+  imageUrl?: string | null
   location: string
   runOptions: readonly EventRunOption[]
   startsAt: string
@@ -58,6 +59,7 @@ export type RunUnit = 'mi' | 'km'
 
 export type EventInput = {
   description: string
+  imageFile?: File
   location: string
   startsAt: string
   title: string

@@ -5,6 +5,23 @@ hard points, fixes, and intentionally deferred work. The current architecture is
 summarized in [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md); durable reasoning belongs
 in [DECISION_LOG.md](./DECISION_LOG.md).
 
+## 2026-10-08 — Adding private runner, flock, and event media
+
+The media slice adds one private Supabase Storage bucket with resource-scoped
+paths for profile photos, flock covers, and personal or flock-event covers.
+Authenticated uploads validate JPG, PNG, and WebP files up to 5 MB; reads use
+short-lived signed URLs and preserve initial or text fallbacks when no image is
+available. Flock and event data functions attach signed URLs only after their
+existing RLS-authorized records load, so transport details stay out of the
+presentational pages.
+
+The main surprise was that signed-URL hydration must remain safe in isolated
+unit tests whose Supabase mocks do not expose Storage. Missing Storage now
+behaves like missing media, while production policies remain authoritative.
+Removal of flock and event images, richer avatar propagation through every
+member/chat surface, and portfolio-specific seed-data curation remain follow-up
+work.
+
 ## 2026-09-29 — Establishing the product and technical foundation
 
 ### Product scope — PR #1

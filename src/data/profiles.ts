@@ -10,7 +10,6 @@ function toProfile(row: {
   user_id: string
 }): Profile {
   return {
-    avatarUrl: null,
     displayName: row.display_name,
     location: row.location,
     updatedAt: row.updated_at,
@@ -43,7 +42,8 @@ export async function getMyProfile(): Promise<Profile> {
   }
 
   const profile = toProfile(data)
-  profile.avatarUrl = await getImageUrl(profileImagePath(user.id))
+  const avatarUrl = await getImageUrl(profileImagePath(user.id))
+  if (avatarUrl) profile.avatarUrl = avatarUrl
   return profile
 }
 
@@ -66,8 +66,6 @@ export async function updateMyProfile(input: {
     throw new Error('The profile update did not return a profile.')
   }
 
-  return {
-    ...toProfile(profile),
-    avatarUrl: await getImageUrl(profileImagePath(profile.user_id)),
-  }
+  const avatarUrl = await getImageUrl(profileImagePath(profile.user_id))
+  return { ...toProfile(profile), ...(avatarUrl ? { avatarUrl } : {}) }
 }

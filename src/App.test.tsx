@@ -45,6 +45,10 @@ vi.mock('@src/hooks/useDirectConversations', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useProfile', () => ({
+  useProfile: () => ({ data: undefined }),
+}))
+
 vi.mock('@src/hooks/useDiscoverySearch', () => ({
   useFlockSearch: () => ({
     data: [],

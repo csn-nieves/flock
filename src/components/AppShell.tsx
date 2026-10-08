@@ -7,6 +7,7 @@ import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useConversationDirectorySync } from '@src/hooks/useConversationDirectorySync'
 import { useDirectConversations } from '@src/hooks/useDirectConversations'
 import { useFlockChats } from '@src/hooks/useFlockChats'
+import { useProfile } from '@src/hooks/useProfile'
 import { usePushSubscriptionRefresh } from '@src/hooks/usePushSubscriptionRefresh'
 import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import type {
@@ -214,6 +215,7 @@ function AppShell() {
   const { session } = useAuthSession()
   const flocksQuery = useFlockChats()
   const directConversationsQuery = useDirectConversations()
+  const profileQuery = useProfile()
   useConversationDirectorySync(session?.user.id)
   usePushSubscriptionRefresh()
   const isChatRoute = location.pathname.startsWith('/chats')
@@ -224,6 +226,7 @@ function AppShell() {
     'Your profile'
   const firstName = displayName.trim().split(/\s+/)[0] || 'Profile'
   const initial = firstName.charAt(0).toLocaleUpperCase() || 'P'
+  const profileAvatar = profileQuery.data?.avatarUrl ?? null
 
   useEffect(() => {
     if (!isMenuOpen) return
@@ -315,12 +318,20 @@ function AppShell() {
                     className="flex min-h-touch items-center gap-3 rounded-md px-3 py-2 text-sm font-bold text-text hover:bg-surface-subtle"
                     to="/profile"
                   >
-                    <span
-                      aria-hidden="true"
-                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm text-on-primary"
-                    >
-                      {initial}
-                    </span>
+                    {profileAvatar ? (
+                      <img
+                        alt=""
+                        className="size-9 shrink-0 rounded-full object-cover"
+                        src={profileAvatar}
+                      />
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm text-on-primary"
+                      >
+                        {initial}
+                      </span>
+                    )}
                     <span className="min-w-0 truncate">{firstName}</span>
                   </NavLink>
                 </div>
@@ -371,12 +382,20 @@ function AppShell() {
             className="flex min-h-touch items-center gap-3 rounded-md px-3 py-2 text-sm font-bold text-text hover:bg-background"
             to="/profile"
           >
-            <span
-              aria-hidden="true"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm text-on-primary"
-            >
-              {initial}
-            </span>
+            {profileAvatar ? (
+              <img
+                alt=""
+                className="size-9 shrink-0 rounded-full object-cover"
+                src={profileAvatar}
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm text-on-primary"
+              >
+                {initial}
+              </span>
+            )}
             <span className="min-w-0 truncate">{firstName}</span>
           </NavLink>
           <NavigationLink label="Settings" to="/settings" />

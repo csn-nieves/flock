@@ -5,15 +5,17 @@ import type {
 } from '@src/types/flocks'
 
 import { supabase } from './supabase'
+import { flockImagePath, getImageUrl, uploadImage } from './media'
 
 const flockSummaryColumns = 'description, id, location, name, owner_id'
 
 export async function createFlock(
   input: CreateFlockInput,
 ): Promise<FlockSummary> {
+  const { imageFile, ...details } = input
   const { data, error } = await supabase
     .from('flocks')
-    .insert(input)
+    .insert(details)
     .select(flockSummaryColumns)
     .single()
 
@@ -21,7 +23,10 @@ export async function createFlock(
     throw error
   }
 
-  return data
+  const imageUrl = imageFile
+    ? await uploadImage(flockImagePath(data.id), imageFile)
+    : null
+  return { ...data, ...(imageUrl ? { imageUrl } : {}) }
 }
 
 export async function listFlocks(): Promise<FlockSummary[]> {
@@ -34,7 +39,12 @@ export async function listFlocks(): Promise<FlockSummary[]> {
     throw error
   }
 
-  return data
+  return Promise.all(
+    data.map(async (flock) => {
+      const imageUrl = await getImageUrl(flockImagePath(flock.id))
+      return { ...flock, ...(imageUrl ? { imageUrl } : {}) }
+    }),
+  )
 }
 
 export async function getFlock(flockId: string): Promise<FlockSummary | null> {
@@ -48,12 +58,15 @@ export async function getFlock(flockId: string): Promise<FlockSummary | null> {
     throw error
   }
 
-  return data
+  if (!data) return null
+  const imageUrl = await getImageUrl(flockImagePath(data.id))
+  return { ...data, ...(imageUrl ? { imageUrl } : {}) }
 }
 
 export async function updateFlock({
   description,
   flockId,
+  imageFile,
   location,
   name,
 }: UpdateFlockInput): Promise<FlockSummary> {
@@ -68,5 +81,8 @@ export async function updateFlock({
     throw error
   }
 
-  return data
+  const imageUrl = imageFile
+    ? await uploadImage(flockImagePath(data.id), imageFile)
+    : await getImageUrl(flockImagePath(data.id))
+  return { ...data, ...(imageUrl ? { imageUrl } : {}) }
 }

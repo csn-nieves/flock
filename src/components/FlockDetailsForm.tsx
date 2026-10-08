@@ -3,6 +3,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextAreaField from '@src/primitives/TextAreaField'
 import TextField from '@src/primitives/TextField'
+import ImageFileField from '@src/components/ImageFileField'
 import type { FlockDetailsInput } from '@src/types/flocks'
 
 export type FlockDetailsFormProps = {
@@ -11,6 +12,7 @@ export type FlockDetailsFormProps = {
   disabled?: boolean
   error?: string
   initialValues?: FlockDetailsInput
+  currentImageUrl?: string | null
   isSubmitting?: boolean
   onCancel?: () => void
 }
@@ -36,6 +38,7 @@ function getRequiredError(value: string, label: string, maximumLength: number) {
 function FlockDetailsForm({
   disabled = false,
   error,
+  currentImageUrl,
   initialValues,
   isSubmitting = false,
   mode,
@@ -50,6 +53,7 @@ function FlockDetailsForm({
   const [description, setDescription] = useState(
     initialValues?.description ?? '',
   )
+  const [imageFile, setImageFile] = useState<File>()
   const [nameError, setNameError] = useState<string>()
   const [locationError, setLocationError] = useState<string>()
   const [descriptionError, setDescriptionError] = useState<string>()
@@ -98,6 +102,7 @@ function FlockDetailsForm({
 
     onSubmit({
       description: description.trim(),
+      imageFile,
       location: location.trim(),
       name: name.trim(),
     })
@@ -145,6 +150,12 @@ function FlockDetailsForm({
             )
           }
         }}
+      />
+
+      <ImageFileField
+        currentUrl={currentImageUrl}
+        label="Flock image"
+        onChange={setImageFile}
       />
 
       <TextField

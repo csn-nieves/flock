@@ -29,6 +29,7 @@ export async function uploadImage(path: string, file: File) {
 }
 
 export async function getImageUrl(path: string) {
+  if (!supabase.storage) return null
   const { data, error } = await supabase.storage
     .from(mediaBucket)
     .createSignedUrl(path, 60 * 60)

@@ -38,6 +38,10 @@ vi.mock('@src/hooks/useDirectConversations', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useProfile', () => ({
+  useProfile: () => ({ data: undefined }),
+}))
+
 const destination = vi.hoisted(() => ({
   preserveAuthDestination: vi.fn(),
 }))

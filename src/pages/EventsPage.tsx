@@ -216,6 +216,13 @@ function EventsPage({
               className="rounded-lg border border-border bg-background p-4"
               key={event.id}
             >
+              {event.imageUrl ? (
+                <img
+                  alt=""
+                  className="mb-4 aspect-[16/7] w-full rounded-lg object-cover"
+                  src={event.imageUrl}
+                />
+              ) : null}
               <div className="flex items-start justify-between gap-3">
                 <h2 className="m-0 font-display text-base font-bold text-text">
                   {event.title}
