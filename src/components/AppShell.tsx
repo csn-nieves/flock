@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 
+import { ConversationSummary } from '@src/components/ConversationSummary'
+import { getConversationAccessibleLabel } from '@src/lib/conversationActivity'
 import { useAuthSession } from '@src/hooks/useAuthSession'
+import { useConversationDirectorySync } from '@src/hooks/useConversationDirectorySync'
 import { useDirectConversations } from '@src/hooks/useDirectConversations'
 import { useFlockChats } from '@src/hooks/useFlockChats'
+import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import type {
   DirectConversationSummary,
   FlockChatSummary,
@@ -35,6 +39,7 @@ function NavigationLink({ label, to }: { label: string; to: string }) {
 }
 
 export function ConversationNavigation({
+  currentUserId,
   directConversations,
   flocks,
   isDirectError,
@@ -45,6 +50,7 @@ export function ConversationNavigation({
   isRefreshing,
   onNavigate,
 }: {
+  currentUserId: string
   directConversations?: readonly DirectConversationSummary[]
   flocks?: readonly FlockChatSummary[]
   isDirectError: boolean
@@ -95,17 +101,29 @@ export function ConversationNavigation({
             <li className="min-w-0" key={flock.id}>
               <NavLink
                 className={({ isActive }) =>
-                  `flex min-h-touch w-full min-w-0 items-center gap-2 overflow-hidden rounded-md px-3 text-sm font-bold transition-colors duration-fast ${
+                  `flex min-h-touch w-full min-w-0 items-center overflow-hidden rounded-md px-3 transition-colors duration-fast ${
                     isActive
                       ? 'bg-primary text-on-primary'
                       : 'text-text-muted hover:bg-background hover:text-text'
                   }`
                 }
+                aria-label={getConversationAccessibleLabel(
+                  flock.name,
+                  flock,
+                  currentUserId,
+                )}
                 title={flock.name}
                 to={`/chats/${encodeURIComponent(flock.id)}`}
                 onClick={onNavigate}
               >
-                <span className="min-w-0 flex-1 truncate">{flock.name}</span>
+                {({ isActive }) => (
+                  <ConversationSummary
+                    activity={flock}
+                    currentUserId={currentUserId}
+                    isSelected={isActive}
+                    title={flock.name}
+                  />
+                )}
               </NavLink>
             </li>
           ))}
@@ -118,11 +136,13 @@ export function ConversationNavigation({
             Direct messages
           </h2>
           <NavLink
-            className="flex min-h-touch items-center rounded-md px-2 text-xs font-bold text-primary-strong hover:bg-background"
+            aria-label="New direct message"
+            className="flex size-12 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors duration-fast hover:bg-background hover:text-text lg:size-11"
+            title="New direct message"
             to="/chats/direct/new"
             onClick={onNavigate}
           >
-            New
+            <ComposeMessageIcon className="size-[22px] shrink-0 lg:size-5" />
           </NavLink>
         </div>
         {isDirectRefreshing && directConversations ? (
@@ -154,19 +174,29 @@ export function ConversationNavigation({
               <li className="min-w-0" key={conversation.id}>
                 <NavLink
                   className={({ isActive }) =>
-                    `flex min-h-touch w-full min-w-0 items-center gap-2 overflow-hidden rounded-md px-3 text-sm font-bold transition-colors duration-fast ${
+                    `flex min-h-touch w-full min-w-0 items-center overflow-hidden rounded-md px-3 transition-colors duration-fast ${
                       isActive
                         ? 'bg-primary text-on-primary'
                         : 'text-text-muted hover:bg-background hover:text-text'
                     }`
                   }
+                  aria-label={getConversationAccessibleLabel(
+                    conversation.otherDisplayName,
+                    conversation,
+                    currentUserId,
+                  )}
                   title={conversation.otherDisplayName}
                   to={`/chats/direct/${encodeURIComponent(conversation.id)}`}
                   onClick={onNavigate}
                 >
-                  <span className="min-w-0 flex-1 truncate">
-                    {conversation.otherDisplayName}
-                  </span>
+                  {({ isActive }) => (
+                    <ConversationSummary
+                      activity={conversation}
+                      currentUserId={currentUserId}
+                      isSelected={isActive}
+                      title={conversation.otherDisplayName}
+                    />
+                  )}
                 </NavLink>
               </li>
             ))}
@@ -183,6 +213,7 @@ function AppShell() {
   const { session } = useAuthSession()
   const flocksQuery = useFlockChats()
   const directConversationsQuery = useDirectConversations()
+  useConversationDirectorySync(session?.user.id)
   const isChatRoute = location.pathname.startsWith('/chats')
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const displayName =
@@ -263,6 +294,7 @@ function AppShell() {
               </div>
               <div className="mt-5">
                 <ConversationNavigation
+                  currentUserId={session?.user.id ?? ''}
                   directConversations={directConversationsQuery.data}
                   flocks={flocksQuery.data}
                   isDirectError={directConversationsQuery.isError}
@@ -320,6 +352,7 @@ function AppShell() {
         </nav>
         <div className="mt-6">
           <ConversationNavigation
+            currentUserId={session?.user.id ?? ''}
             directConversations={directConversationsQuery.data}
             flocks={flocksQuery.data}
             isDirectError={directConversationsQuery.isError}

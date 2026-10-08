@@ -112,8 +112,24 @@ describe('ChatsRoute', () => {
     vi.useRealTimers()
     vi.clearAllMocks()
     flocksQuery.data = [
-      { id: 'morning-runners-id', name: 'Morning Runners' },
-      { id: 'trail-birds-id', name: 'Trail Birds' },
+      {
+        id: 'morning-runners-id',
+        latestMessageAt: '2026-10-08T12:00:00Z',
+        latestMessagePreview: 'Meet at six.',
+        latestSenderDisplayName: 'Maya Chen',
+        latestSenderId: 'maya-id',
+        name: 'Morning Runners',
+        unreadCount: 2,
+      },
+      {
+        id: 'trail-birds-id',
+        latestMessageAt: null,
+        latestMessagePreview: null,
+        latestSenderDisplayName: null,
+        latestSenderId: null,
+        name: 'Trail Birds',
+        unreadCount: 0,
+      },
     ]
     flocksQuery.isError = false
     flocksQuery.isFetching = false
@@ -121,8 +137,13 @@ describe('ChatsRoute', () => {
     directConversationsQuery.data = [
       {
         id: 'maya-conversation-id',
+        latestMessageAt: '2026-10-08T12:00:00Z',
+        latestMessagePreview: 'On my way.',
+        latestSenderDisplayName: 'Maya Chen',
+        latestSenderId: 'maya-id',
         otherDisplayName: 'Maya Chen',
         otherUserId: 'maya-id',
+        unreadCount: 1,
       },
     ]
     directConversationsQuery.isError = false

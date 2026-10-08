@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(24);
+select plan(40);
 
 select has_table('public', 'flock_messages', 'flock messages are stored in a public RLS table');
 select has_column('public', 'flock_messages', 'flock_id', 'messages belong to one flock');
@@ -31,6 +31,19 @@ select has_index(
   'flock_messages',
   'flock_messages_flock_created_id_idx',
   'the flock and cursor columns share one index'
+);
+select has_table('public', 'flock_chat_reads', 'flock read cursors are stored server-side');
+select has_function(
+  'public',
+  'mark_flock_chat_read',
+  array['uuid', 'uuid'],
+  'viewed flock messages advance through a protected function'
+);
+select has_index(
+  'public',
+  'flock_chat_reads',
+  'flock_chat_reads_user_idx',
+  'read-cursor Realtime filters have a user index'
 );
 
 insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data)
@@ -102,6 +115,29 @@ select results_eq(
   $$values ('Chat Flock'::text)$$,
   'a member sees their flock in the chat panel'
 );
+select is(
+  (select unread_count from public.list_my_flock_chats()),
+  1,
+  'a member unread count excludes their own latest message'
+);
+select is(
+  (select latest_message_body from public.list_my_flock_chats()),
+  'I will bring water.',
+  'the conversation list includes the latest message preview'
+);
+select lives_ok(
+  format(
+    'select public.mark_flock_chat_read(%L, %L)',
+    'baaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    (select id from public.flock_messages order by created_at desc, id desc limit 1)
+  ),
+  'a member can mark a verified flock message read'
+);
+select is(
+  (select unread_count from public.list_my_flock_chats()),
+  0,
+  'marking the latest flock message clears the unread count'
+);
 
 set local request.jwt.claim.sub = 'b3333333-3333-4333-8333-333333333333';
 
@@ -147,6 +183,15 @@ select throws_ok(
   'Flock membership is required.',
   'a superadmin without membership cannot send to private flock chat'
 );
+select throws_ok(
+  $$select public.mark_flock_chat_read(
+    'baaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'b0000000-0000-4000-8000-000000000001'
+  )$$,
+  '42501',
+  'Flock membership is required.',
+  'a superadmin without membership cannot alter private flock read state'
+);
 
 reset role;
 insert into public.flock_messages (id, flock_id, sender_id, body, created_at)
@@ -175,6 +220,30 @@ select results_eq(
   $$values ('First fixed message'::text)$$,
   'the composite cursor loads only strictly older messages'
 );
+select lives_ok(
+  $$select public.mark_flock_chat_read(
+    'baaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'b0000000-0000-4000-8000-000000000003'
+  )$$,
+  'a member can advance their cursor to the newest fixed message'
+);
+select lives_ok(
+  $$select public.mark_flock_chat_read(
+    'baaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'b0000000-0000-4000-8000-000000000001'
+  )$$,
+  'marking an older flock message is an idempotent no-op'
+);
+select is(
+  (
+    select last_read_message_id
+    from public.flock_chat_reads
+    where flock_id = 'baaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+      and user_id = 'b1111111-1111-4111-8111-111111111111'
+  ),
+  'b0000000-0000-4000-8000-000000000003'::uuid,
+  'a flock read cursor never moves backward'
+);
 
 select throws_ok(
   $$select public.send_flock_message(
@@ -195,6 +264,54 @@ select ok(
       and tablename = 'flock_messages'
   ),
   'flock messages are available to RLS-filtered Realtime subscriptions'
+);
+select ok(
+  exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'flock_chat_reads'
+  ),
+  'flock read cursors can sync across signed-in devices'
+);
+select ok(
+  not has_table_privilege('authenticated', 'public.flock_chat_reads', 'insert'),
+  'authenticated clients cannot bypass the protected flock read function'
+);
+select is(
+  (
+    select count(*)
+    from public.flock_chat_reads
+    where user_id = 'b2222222-2222-4222-8222-222222222222'
+  ),
+  0::bigint,
+  'one flock member cannot read another member read cursor'
+);
+
+reset role;
+select is(
+  (
+    select count(*)
+    from public.flock_chat_reads
+    where user_id = 'b2222222-2222-4222-8222-222222222222'
+  ),
+  1::bigint,
+  'the current member has one server read cursor before leaving'
+);
+
+delete from public.flock_members
+where flock_id = 'baaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+  and user_id = 'b2222222-2222-4222-8222-222222222222';
+
+select is(
+  (
+    select count(*)
+    from public.flock_chat_reads
+    where user_id = 'b2222222-2222-4222-8222-222222222222'
+  ),
+  0::bigint,
+  'leaving a flock removes its obsolete read cursor'
 );
 
 select * from finish();

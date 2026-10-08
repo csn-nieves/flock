@@ -5,6 +5,7 @@ import {
   getOrCreateDirectConversation,
   listDirectMessages,
   listMyDirectConversations,
+  markDirectConversationRead,
   sendDirectMessage,
 } from './directChat'
 
@@ -30,8 +31,13 @@ describe('direct chat data', () => {
       data: [
         {
           conversation_id: 'conversation-id',
+          latest_message_body: 'flock-rich:v1:[["On my way",2]]',
+          latest_message_created_at: '2026-10-08T12:00:00Z',
+          latest_sender_display_name: 'Maya Chen',
+          latest_sender_id: 'maya-id',
           other_display_name: 'Maya Chen',
           other_user_id: 'maya-id',
+          unread_count: 1,
         },
       ],
       error: null,
@@ -40,11 +46,28 @@ describe('direct chat data', () => {
     await expect(listMyDirectConversations()).resolves.toEqual([
       {
         id: 'conversation-id',
+        latestMessageAt: '2026-10-08T12:00:00Z',
+        latestMessagePreview: 'On my way',
+        latestSenderDisplayName: 'Maya Chen',
+        latestSenderId: 'maya-id',
         otherDisplayName: 'Maya Chen',
         otherUserId: 'maya-id',
+        unreadCount: 1,
       },
     ])
     expect(mocks.rpc).toHaveBeenCalledWith('list_my_direct_conversations')
+  })
+
+  it('advances the current participant read cursor through the protected function', async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null })
+
+    await expect(
+      markDirectConversationRead('conversation-id', 'message-id'),
+    ).resolves.toBeUndefined()
+    expect(mocks.rpc).toHaveBeenCalledWith('mark_direct_conversation_read', {
+      target_conversation_id: 'conversation-id',
+      target_message_id: 'message-id',
+    })
   })
 
   it('gets or creates the canonical conversation without a client owner id', async () => {

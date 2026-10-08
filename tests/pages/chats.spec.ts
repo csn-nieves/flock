@@ -30,8 +30,24 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/rest/v1/rpc/list_my_flock_chats', async (route) => {
     await route.fulfill({
       json: [
-        { flock_id: 'morning-runners-id', flock_name: 'Morning Runners' },
-        { flock_id: 'trail-birds-id', flock_name: 'Trail Birds' },
+        {
+          flock_id: 'morning-runners-id',
+          flock_name: 'Morning Runners',
+          latest_message_body: 'Meet at the east trailhead.',
+          latest_message_created_at: '2026-10-07T12:00:00.000Z',
+          latest_sender_display_name: 'Maya Chen',
+          latest_sender_id: 'maya-id',
+          unread_count: 2,
+        },
+        {
+          flock_id: 'trail-birds-id',
+          flock_name: 'Trail Birds',
+          latest_message_body: null,
+          latest_message_created_at: null,
+          latest_sender_display_name: null,
+          latest_sender_id: null,
+          unread_count: 0,
+        },
       ],
       status: 200,
     })
@@ -44,8 +60,13 @@ test.beforeEach(async ({ page }) => {
         json: [
           {
             conversation_id: 'maya-conversation-id',
+            latest_message_body: 'Want to run the bridge tomorrow?',
+            latest_message_created_at: '2026-10-08T12:00:00.000Z',
+            latest_sender_display_name: 'Maya Chen',
+            latest_sender_id: 'maya-id',
             other_display_name: 'Maya Chen',
             other_user_id: 'maya-id',
+            unread_count: 1,
           },
         ],
         status: 200,
@@ -84,6 +105,16 @@ test.beforeEach(async ({ page }) => {
       status: 200,
     })
   })
+
+  await page.route('**/rest/v1/rpc/mark_flock_chat_read', async (route) => {
+    await route.fulfill({ json: null, status: 200 })
+  })
+  await page.route(
+    '**/rest/v1/rpc/mark_direct_conversation_read',
+    async (route) => {
+      await route.fulfill({ json: null, status: 200 })
+    },
+  )
 })
 
 test('opens flock conversations from the primary Chats destination', async ({
@@ -106,7 +137,10 @@ test('opens flock conversations from the primary Chats destination', async ({
     chatNavigation.getByRole('heading', { level: 2, name: 'Direct messages' }),
   ).toBeVisible()
   await expect(
-    chatNavigation.getByRole('link', { name: 'Maya Chen' }),
+    chatNavigation.getByRole('link', { name: /^Maya Chen,/ }),
+  ).toBeVisible()
+  await expect(
+    chatNavigation.getByRole('link', { name: 'New direct message' }),
   ).toBeVisible()
   if ((page.viewportSize()?.width ?? 0) >= 1024) {
     const workspaceBox = await page
@@ -115,7 +149,7 @@ test('opens flock conversations from the primary Chats destination', async ({
     expect(workspaceBox?.width).toBeGreaterThan(900)
   }
 
-  await chatNavigation.getByRole('link', { name: 'Morning Runners' }).click()
+  await chatNavigation.getByRole('link', { name: /Morning Runners/ }).click()
 
   await expect(page).toHaveURL('/chats/morning-runners-id')
   await expect(page).toHaveTitle('Morning Runners chat — Flock')

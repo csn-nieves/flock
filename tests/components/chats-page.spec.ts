@@ -42,6 +42,19 @@ test('separates flock chats from private direct messages', async ({
   await expect(
     component.getByRole('heading', { level: 2, name: 'Direct messages' }),
   ).toBeVisible()
+  const composeButton = component.getByRole('button', {
+    name: 'New direct message',
+  })
+  await expect(composeButton).toHaveAttribute('title', 'New direct message')
+  const composeIcon = composeButton.locator('svg')
+  await expect(composeIcon).toBeVisible()
+  await expect(composeButton).not.toContainText('New')
+  const buttonBounds = await composeButton.boundingBox()
+  const iconBounds = await composeIcon.boundingBox()
+  expect(buttonBounds?.width).toBeGreaterThanOrEqual(48)
+  expect(buttonBounds?.height).toBeGreaterThanOrEqual(48)
+  expect(iconBounds?.width).toBe(22)
+  expect(iconBounds?.height).toBe(22)
   await expect(
     component.getByRole('button', { name: /Maya Chen/ }),
   ).toBeVisible()

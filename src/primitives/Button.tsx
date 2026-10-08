@@ -3,6 +3,7 @@ import { forwardRef, type ComponentProps } from 'react'
 import PendingIndicator from './PendingIndicator'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost'
+export type ButtonControlSize = 'default' | 'icon'
 
 type ButtonPendingProps =
   | {
@@ -16,11 +17,17 @@ type ButtonPendingProps =
 
 export type ButtonProps = ComponentProps<'button'> &
   ButtonPendingProps & {
+    controlSize?: ButtonControlSize
     variant?: ButtonVariant
   }
 
 const baseClasses =
-  'inline-flex min-h-touch cursor-pointer select-none items-center justify-center gap-2 rounded-md px-4 py-2 font-display text-[0.9375rem] font-bold leading-5 tracking-[-0.01em] transition-[color,background-color,border-color,transform] duration-fast ease-out active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:active:translate-y-0'
+  'inline-flex min-h-touch cursor-pointer select-none items-center justify-center gap-2 rounded-md font-display text-[0.9375rem] font-bold leading-5 tracking-[-0.01em] transition-[color,background-color,border-color,transform] duration-fast ease-out active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:active:translate-y-0'
+
+const controlSizeClasses: Record<ButtonControlSize, string> = {
+  default: 'px-4 py-2',
+  icon: 'size-12 shrink-0 p-0',
+}
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
@@ -38,6 +45,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     'aria-label': ariaLabel,
     children,
     className,
+    controlSize = 'default',
     disabled = false,
     isPending = false,
     onClick,
@@ -49,7 +57,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   ref,
 ) {
   const isDisabled = disabled || isPending
-  const classes = [baseClasses, variantClasses[variant], className]
+  const classes = [
+    baseClasses,
+    controlSizeClasses[controlSize],
+    variantClasses[variant],
+    className,
+  ]
     .filter(Boolean)
     .join(' ')
 

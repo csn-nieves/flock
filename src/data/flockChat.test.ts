@@ -4,6 +4,7 @@ import {
   getFlockMessage,
   listMyFlockChats,
   listFlockMessages,
+  markFlockChatRead,
   sendFlockMessage,
 } from './flockChat'
 
@@ -27,17 +28,61 @@ describe('flock chat data', () => {
   it('lists only the current runner flock chat summaries returned by the server', async () => {
     mocks.rpc.mockResolvedValue({
       data: [
-        { flock_id: 'flock-a', flock_name: 'Morning Runners' },
-        { flock_id: 'flock-b', flock_name: 'Trail Birds' },
+        {
+          flock_id: 'flock-a',
+          flock_name: 'Morning Runners',
+          latest_message_body: 'flock-rich:v1:[["Meet at six",1]]',
+          latest_message_created_at: '2026-10-08T12:00:00Z',
+          latest_sender_display_name: 'Maya Chen',
+          latest_sender_id: 'maya-id',
+          unread_count: 3,
+        },
+        {
+          flock_id: 'flock-b',
+          flock_name: 'Trail Birds',
+          latest_message_body: null,
+          latest_message_created_at: null,
+          latest_sender_display_name: null,
+          latest_sender_id: null,
+          unread_count: 0,
+        },
       ],
       error: null,
     })
 
     await expect(listMyFlockChats()).resolves.toEqual([
-      { id: 'flock-a', name: 'Morning Runners' },
-      { id: 'flock-b', name: 'Trail Birds' },
+      {
+        id: 'flock-a',
+        latestMessageAt: '2026-10-08T12:00:00Z',
+        latestMessagePreview: 'Meet at six',
+        latestSenderDisplayName: 'Maya Chen',
+        latestSenderId: 'maya-id',
+        name: 'Morning Runners',
+        unreadCount: 3,
+      },
+      {
+        id: 'flock-b',
+        latestMessageAt: null,
+        latestMessagePreview: null,
+        latestSenderDisplayName: null,
+        latestSenderId: null,
+        name: 'Trail Birds',
+        unreadCount: 0,
+      },
     ])
     expect(mocks.rpc).toHaveBeenCalledWith('list_my_flock_chats')
+  })
+
+  it('advances the current runner flock read cursor through the protected function', async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null })
+
+    await expect(
+      markFlockChatRead('flock-id', 'message-id'),
+    ).resolves.toBeUndefined()
+    expect(mocks.rpc).toHaveBeenCalledWith('mark_flock_chat_read', {
+      target_flock_id: 'flock-id',
+      target_message_id: 'message-id',
+    })
   })
 
   it('loads a bounded cursor page and returns messages chronologically', async () => {

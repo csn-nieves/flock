@@ -261,6 +261,11 @@ authorized cached list and enables a message query only for a selected current
 membership or conversation participant. The pure `ChatsPage` owns the selected
 thread and the phone return directory; the desktop thread uses the available
 application canvas rather than repeating a second conversation list.
+Both list queries return latest-message context, server-derived unread counts,
+and activity ordering. `useConversationDirectorySync` mounts once in the shell
+and invalidates those list caches for authorized message inserts or changes to
+the signed-in runner's read cursors, avoiding duplicate subscriptions when the
+route also consumes the same cached lists.
 Superadmin visibility into flock administration does not imply private-chat
 access. The message hook owns cursor history, send mutation state, cache
 deduplication, and the filtered Realtime subscription; the page receives only
@@ -359,7 +364,16 @@ flocks where that runner has a current membership. The Chats panel does not use
 the broader flock collection query because superadmin administration may expose
 flocks that must remain absent from private messaging. Creating a flock or
 accepting a flock invitation invalidates this dedicated list so the persistent
-sidebar reflects the new membership without a page reload.
+sidebar reflects the new membership without a page reload. The function also
+returns the latest message and an unread count of messages from other members
+after the runner's exact read cursor. Before a cursor exists, membership time is
+the boundary so joining a flock does not make earlier history unread.
+
+`flock_chat_reads` stores one cursor per membership and cascades when that
+membership ends. `mark_flock_chat_read` verifies both current membership and
+message ownership by the target flock, then advances `(created_at, id)` only
+when the supplied message is newer. Clients can select only their own row and
+cannot write the table directly.
 
 `list_flock_messages` returns reverse-chronological keyset pages using the
 composite `(flock_id, created_at desc, id desc)` index. The data layer reverses
@@ -387,14 +401,24 @@ superadmin receives no implicit access. The direct conversation list returns
 only the other participant's identifier and display name, and direct
 participation extends profile visibility only across that pair.
 
+`direct_conversation_reads` stores the same monotonic cursor independently for
+each participant. With no cursor, the conversation creation time is the unread
+boundary. `list_my_direct_conversations` excludes the caller's own messages
+from unread counts, returns the latest sender and body, and orders active
+conversations before empty ones. The protected mark-read function verifies the
+participant and target message before advancing the cursor.
+
 `direct_messages` follows the same append-only text contract, cursor index,
 protected send path, safe rich-text renderer, generic React Query message hook,
-and filtered Realtime recovery model as flock messages. Runner search is
+and filtered Realtime recovery model as flock messages. The shared message hook
+marks the newest loaded message read while a thread is open; cursor-table
+Realtime changes then synchronize the cleared state to another signed-in
+device. Runner search is
 route-local transient state: a 300ms debounce limits queries, composition pauses
 search, self-results are removed, and stale requests cannot select or replace a
 different query-key result. This increment does not include attachments, edits,
-deletion, reactions, blocking, reporting, typing indicators, read receipts,
-unread counts, activity ordering, or chat push notifications.
+deletion, reactions, blocking, reporting, typing indicators, per-message read
+receipts, or chat push notifications.
 
 React Query owns asynchronous server-state caching outside authentication. One
 application-level `QueryClientProvider` wraps the router and session provider.

@@ -12,6 +12,10 @@ vi.mock('@src/hooks/useAuthSession', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useConversationDirectorySync', () => ({
+  useConversationDirectorySync: vi.fn(),
+}))
+
 vi.mock('@src/hooks/useFlocks', () => ({
   useFlocks: () => ({
     data: [],

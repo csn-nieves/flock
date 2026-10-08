@@ -130,6 +130,7 @@ function ChatsRoute() {
 
   return (
     <ChatsPage
+      currentUserId={session?.user.id ?? ''}
       chat={
         (selectedFlock || selectedDirectConversation) && session?.user.id
           ? {

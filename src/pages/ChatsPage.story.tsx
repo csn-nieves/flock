@@ -4,20 +4,50 @@ import ChatsPage from './chats/ChatsPage'
 import type { DirectConversationSummary, FlockMessage } from '@src/types/chat'
 
 const flocks = [
-  { id: 'morning-runners-id', name: 'Morning Runners' },
-  { id: 'trail-birds-id', name: 'Trail Birds' },
-  { id: 'sunday-long-run-id', name: 'Sunday Long Run' },
+  {
+    id: 'morning-runners-id',
+    latestMessageAt: '2026-10-08T13:42:00Z',
+    latestMessagePreview: 'Meet at the west entrance.',
+    latestSenderDisplayName: 'Local Runner',
+    latestSenderId: 'runner-id',
+    name: 'Morning Runners',
+    unreadCount: 3,
+  },
+  {
+    id: 'trail-birds-id',
+    latestMessageAt: '2026-10-07T18:15:00Z',
+    latestMessagePreview: 'The trail is clear.',
+    latestSenderDisplayName: 'Local Organizer',
+    latestSenderId: 'owner-id',
+    name: 'Trail Birds',
+    unreadCount: 0,
+  },
+  {
+    id: 'sunday-long-run-id',
+    latestMessageAt: null,
+    latestMessagePreview: null,
+    latestSenderDisplayName: null,
+    latestSenderId: null,
+    name: 'Sunday Long Run',
+    unreadCount: 0,
+  },
 ]
 
 const directConversations: DirectConversationSummary[] = [
   {
     id: 'maya-chen-conversation-id',
+    latestMessageAt: '2026-10-08T14:12:00Z',
+    latestMessagePreview: 'See you in the morning.',
+    latestSenderDisplayName: 'Maya Chen',
+    latestSenderId: 'maya-chen-id',
     otherDisplayName: 'Maya Chen',
     otherUserId: 'maya-chen-id',
+    unreadCount: 1,
   },
 ]
 
 const commonProps = {
+  currentUserId: 'owner-id',
   directConversations: {
     conversations: directConversations,
     isRefreshing: false,

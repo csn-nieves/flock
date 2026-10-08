@@ -882,3 +882,33 @@ means it is the current direction, not that it can never change.
   alerts. Conversation records remain even when they have no messages.
 - **Revisit when:** Safety evidence requires an invitation or blocking model,
   or message volume justifies server-backed unread and activity summaries.
+
+## D045 — Keep unread truth in monotonic server read cursors
+
+- **Status:** Accepted
+- **Decision:** Store one `(created_at, id)` read cursor per runner and
+  conversation, separately for flock and direct authorization boundaries.
+  Advance a cursor only through a security-definer function that verifies the
+  runner can access the conversation, verifies the message belongs to it, and
+  refuses to move the cursor backward. Derive latest-message summaries, unread
+  counts, and activity ordering in the protected conversation-list functions.
+- **Unread boundary:** Count only messages from other runners after the cursor.
+  Before a cursor exists, use flock membership time or direct-conversation
+  creation time so earlier history remains available without appearing new.
+  Opening a thread marks its newest loaded message read; this is conversation-
+  level unread state, not per-message receipts exposed to other people.
+- **Synchronization:** Publish messages and the runner-owned read rows through
+  Supabase Realtime. One shell-level subscription invalidates directory queries
+  after relevant changes, while PostgreSQL remains authoritative after missed
+  events, refreshes, and across devices.
+- **Why:** Client-only counters drift across sessions and cannot distinguish
+  offline delivery from viewed history. Exact monotonic cursors preserve a
+  durable boundary without writing every message-recipient pair or exposing
+  one participant's reading behavior to another.
+- **Tradeoffs:** Exact counts add bounded aggregate work to each conversation
+  list, and an open thread treats new arrivals as read even if the runner has
+  scrolled into older history. There are no manual unread controls, per-message
+  receipts, or push alerts in this increment.
+- **Revisit when:** Scale requires precomputed counters, runners need mark-
+  unread or notification preferences, or product evidence supports visible
+  read receipts.

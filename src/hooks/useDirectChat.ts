@@ -1,6 +1,7 @@
 import {
   getDirectMessage,
   listDirectMessages,
+  markDirectConversationRead,
   sendDirectMessage,
 } from '@src/data/directChat'
 import { directChatQueryKeys } from '@src/data/queryKeys'
@@ -18,6 +19,8 @@ export function useDirectChat(
     getQueryKey: directChatQueryKeys.messages,
     id: conversationId,
     listMessages: listDirectMessages,
+    listQueryKey: directChatQueryKeys.lists(),
+    markRead: markDirectConversationRead,
     sendMessage: sendDirectMessage,
     table: 'direct_messages',
   })
