@@ -1,5 +1,8 @@
 begin;
 
+-- Local binary fixtures are uploaded after this SQL seed by
+-- scripts/seed-media.mjs.
+
 insert into auth.users (
   instance_id,
   id,
