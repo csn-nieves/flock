@@ -20,7 +20,8 @@ the product owner so feature development can continue. Run options now support
 optional mapped GPX courses for both personal and flock events. Current members
 can now coordinate in durable realtime flock chats and private one-to-one
 conversations, with opt-in device alerts for unread activity. Monetization
-remains outside the current slice.
+remains outside the current slice. Private media uploads now cover runner
+profiles, flock covers, and personal or flock-event covers.
 
 ## Completed foundation
 
@@ -113,6 +114,11 @@ remains outside the current slice.
   mutation, navigation, and document state.
 - Profiles also support an optional coarse city or region location, with no
   precise coordinates or street-address storage.
+- Runners can upload a private profile photo, and flock owners or event creators
+  can upload private cover images for their flock or event. Authorized reads use
+  short-lived signed URLs; profile, flock, and event surfaces fall back to
+  initials or text when no image is present. JPG, PNG, and WebP files are
+  limited to 5 MB and stored under resource-scoped paths with Storage RLS.
 - Flock members can view upcoming events, and flock owners and personal-event
   creators can create and edit events with a title, date/time, location,
   description, and one to eight

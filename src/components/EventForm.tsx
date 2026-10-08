@@ -5,6 +5,7 @@ import type { EventFormInput, EventRoute } from '@src/types/events'
 import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 import RouteFileField from './RouteFileField'
 import RunOptionPicker from './RunOptionPicker'
+import ImageFileField from './ImageFileField'
 
 type EventFormProps = {
   isPending: boolean
@@ -64,6 +65,7 @@ function EventForm({
   const [description, setDescription] = useState(
     initialValues?.description ?? '',
   )
+  const [imageFile, setImageFile] = useState<File>()
   const [runOptions, setRunOptions] = useState<EditableRunOption[]>(() =>
     initialValues?.runOptions?.length
       ? initialValues.runOptions.map((option) => newRunOption(option))
@@ -96,6 +98,7 @@ function EventForm({
     }
     await onSubmit({
       description: description.trim(),
+      imageFile,
       location: location.trim(),
       runOptions: includeRunOptions
         ? runOptions.map(
@@ -136,6 +139,7 @@ function EventForm({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
       />
+
       <TextField
         error={
           showValidation && !startsAt ? 'Choose a date and time.' : undefined
@@ -234,6 +238,7 @@ function EventForm({
           ) : null}
         </fieldset>
       ) : null}
+      <ImageFileField label="Event image" onChange={setImageFile} />
       <div className="grid gap-2 sm:flex sm:flex-row-reverse">
         <Button
           className="w-full sm:w-auto"

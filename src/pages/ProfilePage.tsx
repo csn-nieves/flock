@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import ProfileForm from '@src/components/ProfileForm'
+import ImageUploadField from '@src/components/ImageUploadField'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import type { Profile } from '@src/types/profile'
@@ -9,6 +10,7 @@ export type ProfilePageProps = {
   error?: string
   isSaving: boolean
   onBack: () => void
+  onAvatarUrlChange: (url: string | null) => void
   onSave: (input: { displayName: string; location: string | null }) => void
   profile: Profile
   savedMessage?: string
@@ -54,6 +56,7 @@ function ProfilePage({
   onBack,
   onSave,
   profile,
+  onAvatarUrlChange,
   savedMessage,
 }: ProfilePageProps) {
   return (
@@ -70,6 +73,12 @@ function ProfilePage({
           {savedMessage}
         </p>
       ) : null}
+      <ImageUploadField
+        currentUrl={profile.avatarUrl}
+        label={profile.displayName}
+        path={`profiles/${profile.userId}/avatar`}
+        onChange={onAvatarUrlChange}
+      />
       <ProfileForm
         error={error}
         initialDisplayName={profile.displayName}

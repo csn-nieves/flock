@@ -1,5 +1,6 @@
 import type { Profile } from '@src/types/profile'
 
+import { getImageUrl, profileImagePath } from './media'
 import { supabase } from './supabase'
 
 function toProfile(row: {
@@ -40,7 +41,10 @@ export async function getMyProfile(): Promise<Profile> {
     throw error
   }
 
-  return toProfile(data)
+  const profile = toProfile(data)
+  const avatarUrl = await getImageUrl(profileImagePath(user.id))
+  if (avatarUrl) profile.avatarUrl = avatarUrl
+  return profile
 }
 
 export async function updateMyProfile(input: {
@@ -62,5 +66,6 @@ export async function updateMyProfile(input: {
     throw new Error('The profile update did not return a profile.')
   }
 
-  return toProfile(profile)
+  const avatarUrl = await getImageUrl(profileImagePath(profile.user_id))
+  return { ...toProfile(profile), ...(avatarUrl ? { avatarUrl } : {}) }
 }

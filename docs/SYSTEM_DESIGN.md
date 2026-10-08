@@ -489,6 +489,16 @@ from authentication metadata for new users and later metadata changes, with a
 neutral `Runner` fallback. Its Row Level Security policy exposes a profile only
 to that runner and authenticated runners who share at least one flock.
 
+Profile, flock, and event images live in the private `flock-media` Storage
+bucket rather than public URLs. Deterministic resource paths place profile
+photos under the owning user, flock covers under the flock owner, and event
+covers under the event creator. Storage policies mirror the table authorization
+boundary: profile photos are visible to the owner and shared flockmates, while
+flock and event covers are visible only to authorized members or the creator.
+The client validates JPG, PNG, and WebP files up to 5 MB, uploads through the
+authenticated Supabase client, and resolves short-lived signed URLs for
+rendering. Missing media keeps the existing initial or text fallback.
+
 The explicit owner column makes ownership checks and account-deletion behavior
 simple: the owner alone can update or delete a flock, and deleting the owner's
 authentication record removes the flock and its memberships. Ownership transfer

@@ -85,6 +85,54 @@ async function installJourneyRoutes(
   userId: string,
   state: JourneyState,
 ) {
+  await page.route('**/auth/v1/user', async (route: Route) => {
+    await route.fulfill({
+      json: { user: createTestSession(userId, 'Test Runner').user },
+      status: 200,
+    })
+  })
+
+  await page.route('**/rest/v1/profiles**', async (route: Route) => {
+    await route.fulfill({
+      json: [
+        {
+          display_name: 'Test Runner',
+          location: null,
+          updated_at: '2099-01-01T00:00:00.000Z',
+          user_id: userId,
+        },
+      ],
+      status: 200,
+    })
+  })
+
+  await page.route(
+    '**/storage/v1/object/sign/flock-media/**',
+    async (route: Route) => {
+      await route.fulfill({
+        json: {
+          signedURL: 'http://127.0.0.1:4199/mock-profile-image.svg',
+        },
+        status: 200,
+      })
+    },
+  )
+
+  await page.route(
+    '**/storage/v1/object/list/flock-media**',
+    async (route: Route) => {
+      await route.fulfill({ json: [], status: 200 })
+    },
+  )
+
+  await page.route('**/mock-profile-image.svg', async (route: Route) => {
+    await route.fulfill({
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" />',
+      contentType: 'image/svg+xml',
+      status: 200,
+    })
+  })
+
   await page.route(
     '**/rest/v1/rpc/list_my_flock_chats',
     async (route: Route) => {
@@ -263,6 +311,11 @@ function collectConsoleProblems(page: Page) {
   })
   page.on('pageerror', (error) => {
     problems.push(`pageerror: ${error.message}`)
+  })
+  page.on('requestfailed', (request) => {
+    problems.push(
+      `requestfailed: ${request.url()} — ${request.failure()?.errorText ?? 'unknown'}`,
+    )
   })
   return problems
 }

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
 import { useProfile } from '@src/hooks/useProfile'
 import { useUpdateProfile } from '@src/hooks/useUpdateProfile'
+import { profileQueryKeys } from '@src/data/queryKeys'
 import ProfilePage, {
   ProfileErrorPage,
   ProfileLoadingPage,
@@ -16,6 +18,7 @@ function ProfileRoute() {
   const updateProfileMutation = useUpdateProfile()
   const navigate = useNavigate()
   const [savedMessage, setSavedMessage] = useState<string>()
+  const queryClient = useQueryClient()
   let title = 'Your profile — Flock'
 
   if (profileQuery.isPending) {
@@ -55,6 +58,13 @@ function ProfileRoute() {
       error={updateProfileMutation.isError ? profileError : undefined}
       isSaving={updateProfileMutation.isPending}
       onBack={() => navigate('/flocks', { replace: true })}
+      onAvatarUrlChange={(avatarUrl) => {
+        if (!profileQuery.data) return
+        queryClient.setQueryData(profileQueryKeys.current, {
+          ...profileQuery.data,
+          avatarUrl,
+        })
+      }}
       onSave={(input) => {
         setSavedMessage(undefined)
         updateProfileMutation.mutate(input, {

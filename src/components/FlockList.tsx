@@ -21,6 +21,20 @@ function FlockList({ flocks, onSelect }: FlockListProps) {
             onClick={() => onSelect(flock.id)}
             variant="secondary"
           >
+            {flock.imageUrl ? (
+              <img
+                alt=""
+                className="size-12 shrink-0 rounded-lg object-cover"
+                src={flock.imageUrl}
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-lg font-bold text-on-primary"
+              >
+                {flock.name.charAt(0).toLocaleUpperCase()}
+              </span>
+            )}
             <span className="min-w-0">
               <span className="block font-display text-base leading-6 font-bold tracking-[-0.01em] text-text [overflow-wrap:anywhere]">
                 {flock.name}

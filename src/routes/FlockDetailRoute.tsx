@@ -178,6 +178,7 @@ function FlockDetailRoute() {
           title="Edit flock details"
         >
           <FlockDetailsForm
+            currentImageUrl={flockQuery.data.imageUrl}
             error={
               updateFlockMutation.isError
                 ? 'Check your connection and try again. Your changes are still here.'

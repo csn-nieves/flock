@@ -121,6 +121,13 @@ function FlockEventsSection({
               className="rounded-lg border border-border bg-background p-4"
               key={item.id}
             >
+              {item.imageUrl ? (
+                <img
+                  alt=""
+                  className="mb-4 aspect-[16/7] w-full rounded-lg object-cover"
+                  src={item.imageUrl}
+                />
+              ) : null}
               <h3 className="m-0 font-display text-base font-bold text-text">
                 {item.title}
               </h3>
