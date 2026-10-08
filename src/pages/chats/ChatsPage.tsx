@@ -356,7 +356,6 @@ function ChatsPage(props: ChatsPageProps) {
             {selectedFlock && chat ? (
               <ChatThread
                 {...chat}
-                description="Coordinate the next run with current flock members."
                 emptyDescription="Coordinate a route, time, or meetup spot with your flock."
                 messageLogLabel="Flock messages"
                 placeholder="Message your flock"
