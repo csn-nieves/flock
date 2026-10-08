@@ -83,6 +83,22 @@ idempotent job. The legacy service-role credential remains internal to the
 function for privileged database calls and never crosses the webhook boundary.
 Do not configure the webhook with a public or publishable credential.
 
+To apply committed migrations to the hosted validation project, run the
+following from a clean checkout of the revision being tested:
+
+```sh
+npx supabase login
+npx supabase link --project-ref <validation-project-ref>
+npx supabase db push --dry-run
+npx supabase db push
+```
+
+Review the dry-run output before applying it. Do not use `--include-seed` for
+the hosted validation project; the committed seed contains local-development
+identities rather than participant accounts. This workflow targets the linked
+Supabase project, so confirm that the project reference is correct before
+running the final `db push`.
+
 ## Local database development
 
 Flock's database schema is tracked in `supabase/migrations`, and development
