@@ -118,6 +118,13 @@ async function installJourneyRoutes(
     },
   )
 
+  await page.route(
+    '**/storage/v1/object/list/flock-media**',
+    async (route: Route) => {
+      await route.fulfill({ json: [], status: 200 })
+    },
+  )
+
   await page.route('**/mock-profile-image.svg', async (route: Route) => {
     await route.fulfill({
       body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" />',
