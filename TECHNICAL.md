@@ -50,7 +50,8 @@ Use **Supabase** for:
 
 - PostgreSQL data storage
 - Authentication
-- Postgres Changes delivery for member-only flock chat
+- Postgres Changes delivery for member-only flock chat and participant-only
+  direct messages
 - File storage when flock images are introduced
 - Edge Functions only when an operation requires secrets or privileged server-side behavior
 
@@ -72,6 +73,22 @@ The browser may use the Supabase client directly for permitted operations. Every
 - Subscribe only current members to filtered `INSERT` changes for their flock.
   Realtime delivery improves immediacy; persisted history remains authoritative
   after reconnecting, refreshing, or missing an update.
+
+### Direct messages
+
+- Represent each pair of runners with one canonical conversation row whose two
+  participant identifiers are stored in deterministic order and constrained to
+  be unique. Reopening a runner reuses that conversation instead of creating a
+  duplicate thread.
+- Let an authenticated runner find another runner through the existing bounded
+  profile search, but reject self-conversations and derive the initiating
+  participant from `auth.uid()`.
+- Authorize conversation lists, history, profile visibility, and message reads
+  to exactly the two participants through Row Level Security and protected
+  functions. Administrative access does not imply access to private messages.
+- Reuse the bounded `(created_at, id)` cursor history, visual composer, and
+  filtered Realtime delivery used by flock chat. The browser receives no direct
+  insert grant; sends derive and validate the participant at write time.
 
 ## Authentication
 

@@ -37,6 +37,22 @@ test.beforeEach(async ({ page }) => {
     })
   })
 
+  await page.route(
+    '**/rest/v1/rpc/list_my_direct_conversations',
+    async (route) => {
+      await route.fulfill({
+        json: [
+          {
+            conversation_id: 'maya-conversation-id',
+            other_display_name: 'Maya Chen',
+            other_user_id: 'maya-id',
+          },
+        ],
+        status: 200,
+      })
+    },
+  )
+
   await page.route('**/rest/v1/rpc/list_flock_messages', async (route) => {
     await route.fulfill({
       json: [
@@ -45,6 +61,22 @@ test.beforeEach(async ({ page }) => {
           created_at: '2026-10-07T12:00:00.000Z',
           flock_id: 'morning-runners-id',
           id: 'message-id',
+          sender_display_name: 'Maya Chen',
+          sender_id: 'maya-id',
+        },
+      ],
+      status: 200,
+    })
+  })
+
+  await page.route('**/rest/v1/rpc/list_direct_messages', async (route) => {
+    await route.fulfill({
+      json: [
+        {
+          body: 'Want to run the bridge tomorrow?',
+          conversation_id: 'maya-conversation-id',
+          created_at: '2026-10-08T12:00:00.000Z',
+          id: 'direct-message-id',
           sender_display_name: 'Maya Chen',
           sender_id: 'maya-id',
         },
@@ -73,6 +105,9 @@ test('opens flock conversations from the primary Chats destination', async ({
   await expect(
     chatNavigation.getByRole('heading', { level: 2, name: 'Direct messages' }),
   ).toBeVisible()
+  await expect(
+    chatNavigation.getByRole('link', { name: 'Maya Chen' }),
+  ).toBeVisible()
   if ((page.viewportSize()?.width ?? 0) >= 1024) {
     const workspaceBox = await page
       .getByRole('region', { name: 'Chat workspace' })
@@ -100,4 +135,53 @@ test('opens flock conversations from the primary Chats destination', async ({
     await expect(page).toHaveURL('/chats')
     await expect(page.getByRole('list', { name: 'Flock chats' })).toBeVisible()
   }
+})
+
+test('opens a private conversation from the shared chat navigation', async ({
+  page,
+}) => {
+  await page.goto('/chats/direct/maya-conversation-id')
+
+  await expect(page).toHaveTitle('Maya Chen — Flock')
+  await expect(page.getByRole('heading', { name: 'Maya Chen' })).toBeVisible()
+  await expect(
+    page.getByRole('log', { name: 'Direct messages with Maya Chen' }),
+  ).toContainText('Want to run the bridge tomorrow?')
+  await expect(page.getByRole('button', { name: 'Send message' })).toBeVisible()
+  expect(
+    await page.evaluate<number>('document.documentElement.scrollHeight'),
+  ).toBe(page.viewportSize()?.height)
+})
+
+test('searches runners and opens a canonical private conversation', async ({
+  page,
+}) => {
+  await page.route('**/rest/v1/rpc/search_runners', async (route) => {
+    await route.fulfill({
+      json: [
+        { display_name: 'Maya Chen', user_id: 'maya-id' },
+        { display_name: 'Local Runner', user_id: 'runner-id' },
+      ],
+      status: 200,
+    })
+  })
+  await page.route(
+    '**/rest/v1/rpc/get_or_create_direct_conversation',
+    async (route) => {
+      await route.fulfill({ json: 'maya-conversation-id', status: 200 })
+    },
+  )
+
+  await page.goto('/chats/direct/new')
+  const search = page.getByRole('searchbox', {
+    name: 'Search runners for a direct message',
+  })
+  await search.fill('Maya')
+
+  await expect(page.getByRole('button', { name: /Maya Chen/ })).toBeVisible()
+  await expect(page.getByText('Local Runner')).toHaveCount(0)
+  await page.getByRole('button', { name: /Maya Chen/ }).click()
+
+  await expect(page).toHaveURL('/chats/direct/maya-conversation-id')
+  await expect(page).toHaveTitle('Maya Chen — Flock')
 })

@@ -58,6 +58,14 @@ export const routes = [
             ...lazyRoute(() => import('@src/routes/ChatsRoute')),
           },
           {
+            path: 'chats/direct/new',
+            ...lazyRoute(() => import('@src/routes/ChatsRoute')),
+          },
+          {
+            path: 'chats/direct/:conversationId',
+            ...lazyRoute(() => import('@src/routes/ChatsRoute')),
+          },
+          {
             path: 'chats/:flockId',
             ...lazyRoute(() => import('@src/routes/ChatsRoute')),
           },

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { flockChatQueryKeys, flockQueryKeys } from '@src/data/queryKeys'
+import {
+  directChatQueryKeys,
+  flockChatQueryKeys,
+  flockQueryKeys,
+} from '@src/data/queryKeys'
 
 describe('flockQueryKeys', () => {
   it('keeps list, detail, and member keys under the same flock root', () => {
@@ -26,6 +30,16 @@ describe('flockChatQueryKeys', () => {
     expect(flockChatQueryKeys.messages('morning-runners')).toEqual([
       'flock-chat',
       'morning-runners',
+    ])
+  })
+})
+
+describe('directChatQueryKeys', () => {
+  it('separates the conversation list from private message history', () => {
+    expect(directChatQueryKeys.lists()).toEqual(['direct-chat', 'list'])
+    expect(directChatQueryKeys.messages('conversation-id')).toEqual([
+      'direct-chat',
+      'conversation-id',
     ])
   })
 })

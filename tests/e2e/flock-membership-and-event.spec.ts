@@ -134,6 +134,42 @@ test('persists flock membership, event visibility, and RSVP across two real user
       organizerPage.getByRole('log', { name: 'Flock messages' }),
     ).toContainText(runnerChatMessage)
 
+    await organizerPage
+      .getByRole('navigation', { name: 'Chat conversations' })
+      .getByRole('link', { name: 'Maya Chen' })
+      .click()
+    await runnerPage
+      .getByRole('navigation', { name: 'Chat conversations' })
+      .getByRole('link', { name: 'Local Runner' })
+      .click()
+
+    const organizerDirectMessage = `Private bridge plan ${uniqueSuffix}`
+    await Promise.all([
+      expect(organizerPage.getByText('Live', { exact: true })).toBeVisible(),
+      expect(runnerPage.getByText('Live', { exact: true })).toBeVisible(),
+    ])
+    await organizerPage.waitForTimeout(1_000)
+    await organizerPage
+      .getByRole('textbox', { exact: true, name: 'Message' })
+      .fill(organizerDirectMessage)
+    await organizerPage.getByRole('button', { name: 'Send message' }).click()
+    await expect(
+      runnerPage.getByRole('log', {
+        name: 'Direct messages with Local Runner',
+      }),
+    ).toContainText(organizerDirectMessage)
+
+    const runnerDirectMessage = `Private reply ${uniqueSuffix}`
+    await runnerPage
+      .getByRole('textbox', { exact: true, name: 'Message' })
+      .fill(runnerDirectMessage)
+    await runnerPage.getByRole('button', { name: 'Send message' }).click()
+    await expect(
+      organizerPage.getByRole('log', {
+        name: 'Direct messages with Maya Chen',
+      }),
+    ).toContainText(runnerDirectMessage)
+
     await organizerPage.goto(flockPath)
     await runnerPage.goto(flockPath)
 

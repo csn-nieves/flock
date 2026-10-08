@@ -26,7 +26,7 @@ test('keeps the chat title and composer visible while messages own scrolling', a
   ).toBeLessThanOrEqual(viewport?.height ?? 0)
 })
 
-test('separates flock chats from the future direct-message area', async ({
+test('separates flock chats from private direct messages', async ({
   mount,
 }, testInfo) => {
   test.skip((testInfo.project.use.viewport?.width ?? 1280) >= 1024)
@@ -42,7 +42,9 @@ test('separates flock chats from the future direct-message area', async ({
   await expect(
     component.getByRole('heading', { level: 2, name: 'Direct messages' }),
   ).toBeVisible()
-  await expect(component.getByText('Soon', { exact: true })).toBeVisible()
+  await expect(
+    component.getByRole('button', { name: /Maya Chen/ }),
+  ).toBeVisible()
   const morningRunners = component.getByRole('button', {
     name: /Morning Runners/,
   })
@@ -62,6 +64,44 @@ test('separates flock chats from the future direct-message area', async ({
     component.getByRole('log', { name: 'Flock messages' }),
   ).toContainText('I will bring a headlamp.')
   await expect(composer).toHaveText('')
+})
+
+test('renders direct messages with the same fixed chat workspace', async ({
+  mount,
+  page,
+}) => {
+  const component = await mount('pages/ChatsPage/SelectedDirectMessage')
+
+  await expect(
+    component.getByRole('heading', { name: 'Maya Chen' }),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('log', { name: 'Direct messages with Maya Chen' }),
+  ).toContainText('Does 7:00 at the east trailhead work?')
+  await expect(
+    component.getByRole('button', { name: 'Send message' }),
+  ).toBeVisible()
+  expect(
+    await page.evaluate<number>('document.documentElement.scrollHeight'),
+  ).toBe(page.viewportSize()?.height)
+})
+
+test('shows runner search results when starting a direct message', async ({
+  mount,
+}) => {
+  const component = await mount('pages/ChatsPage/NewDirectMessage')
+
+  await expect(
+    component.getByRole('heading', { name: 'Start a conversation' }),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('searchbox', {
+      name: 'Search runners for a direct message',
+    }),
+  ).toHaveValue('Maya')
+  await expect(
+    component.getByRole('button', { name: /Maya Chen/ }),
+  ).toBeVisible()
 })
 
 test('formats selected message text visually without rendering raw HTML', async ({
@@ -315,7 +355,7 @@ test('covers loading, empty, and recoverable error states', async ({
   await empty.unmount()
   const failed = await mount('pages/ChatsPage/Error')
   await expect(failed.getByRole('alert')).toContainText(
-    'We could not load your conversations.',
+    'We could not load your flock chats.',
   )
   await failed.getByRole('button', { name: 'Try again' }).click()
   await expect(failed.getByTestId('page-intent')).toHaveText('retry')

@@ -169,13 +169,20 @@ Navigation is introduced only for real destinations. Every nested product page e
 Messaging is integrated into the application sidebar rather than represented by
 a generic Chats item competing with top-level product destinations. The sidebar
 uses a restrained conversation directory: flock chats appear first like group
-conversations without channel hash marks, and a visibly separated direct-message section reserves the future
-one-to-one hierarchy without presenting an enabled false affordance. On large
+conversations without channel hash marks, and a visibly separated direct-message
+section lists private one-to-one conversations plus a compact New action. On large
 screens, the selected thread consumes the available application canvas instead
-of inheriting the narrow form-page cap. Long flock names truncate at the sidebar
-boundary while retaining the complete accessible name and hover title. On
+of inheriting the narrow form-page cap. Long flock and runner names truncate at
+the sidebar boundary while retaining the complete accessible name and hover title. On
 phones, the same directory lives in the navigation drawer and the thread has an
 explicit All chats return action.
+
+Starting a direct message is a focused search state inside the chat workspace.
+Search waits briefly for typing to settle, respects in-progress input-method
+composition, provides an immediate clear action that restores focus, and keeps
+loading, empty, error, and pending-selection feedback in place. Search results
+show runner display names only; selecting a runner opens the one canonical
+private thread for that pair.
 
 Messages use a Slack-like full-width row rather than alternating chat bubbles.
 A compact initial tile anchors each row, while the display name and muted

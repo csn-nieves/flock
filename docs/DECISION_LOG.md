@@ -843,8 +843,8 @@ means it is the current direction, not that it can never change.
   `/chats/:flockId` routes, but do not add a generic Chats item to primary
   navigation. Instead, present current flock conversations as a Flock chats
   group directly in the persistent desktop sidebar and mobile navigation
-  drawer, like group channels. Reserve a clearly separated Direct messages
-  section without enabling an unfinished action. Let the selected conversation
+  drawer, like group channels. Keep a clearly separated Direct messages
+  section for one-to-one conversations. Let the selected conversation
   consume the available desktop canvas rather than the narrow content width
   used by forms and detail pages.
 - **Authorization:** Populate the flock-chat list through a protected database
@@ -856,9 +856,29 @@ means it is the current direction, not that it can never change.
   conversation destinations directly gives future one-to-one messages a
   natural home without forcing another redesign or mixing private messaging
   permissions with administration.
-- **Tradeoffs:** The first panel lists names only; it has no unread counts, last
-  message previews, ordering by activity, or direct-message records. On phones,
+- **Tradeoffs:** The panel lists names only; it has no unread counts, last
+  message previews, or ordering by activity. On phones,
   the list and selected thread are separate views instead of simultaneous
   columns.
-- **Revisit when:** Direct messages define their participant lifecycle, or real
-  usage justifies unread state, previews, search, pinning, or activity ordering.
+- **Revisit when:** Real usage justifies unread state, previews, pinning, or
+  activity ordering.
+
+## D044 — Model one canonical private conversation per runner pair
+
+- **Status:** Accepted
+- **Decision:** Store each direct conversation as one deterministic ordered pair
+  of distinct profile identifiers with a unique constraint. Let any
+  authenticated runner search for another runner and ask a protected function
+  to get or create that pair. Restrict conversation lists, message history,
+  sends, Realtime hydration, and participant profile visibility to exactly the
+  two participants.
+- **Why:** A canonical pair prevents duplicate threads and gives runner-to-runner
+  coordination a stable destination without exposing client-selected ownership.
+  Reusing the proven cursor, composer, and Realtime machinery keeps flock and
+  direct chat behavior consistent while authorization remains domain-specific.
+- **Tradeoffs:** Starting a conversation does not require acceptance, and the
+  first version has no blocking, reporting, deletion, unread state, previews,
+  activity ordering, read receipts, typing indicators, attachments, or push
+  alerts. Conversation records remain even when they have no messages.
+- **Revisit when:** Safety evidence requires an invitation or blocking model,
+  or message volume justifies server-backed unread and activity summaries.

@@ -92,6 +92,13 @@ async function installJourneyRoutes(
     },
   )
 
+  await page.route(
+    '**/rest/v1/rpc/list_my_direct_conversations',
+    async (route: Route) => {
+      await route.fulfill({ json: [], status: 200 })
+    },
+  )
+
   await page.route('**/rest/v1/saved_routes**', async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
   })
