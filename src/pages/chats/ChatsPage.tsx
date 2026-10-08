@@ -367,7 +367,6 @@ function ChatsPage(props: ChatsPageProps) {
             {selectedDirectConversation && chat ? (
               <ChatThread
                 {...chat}
-                description="A private conversation between two runners."
                 emptyDescription={`Send ${selectedDirectConversation.otherDisplayName} the first message.`}
                 messageLogLabel={`Direct messages with ${selectedDirectConversation.otherDisplayName}`}
                 placeholder={`Message ${selectedDirectConversation.otherDisplayName}`}
