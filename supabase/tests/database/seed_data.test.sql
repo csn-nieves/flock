@@ -1,6 +1,6 @@
 begin;
 
-select plan(10);
+select plan(15);
 
 select is((select count(*)::integer from auth.users), 50, 'seed includes 50 users');
 select is((select count(*)::integer from public.flocks), 10, 'seed includes 10 flocks');
@@ -12,6 +12,11 @@ select is((select count(*)::integer from public.saved_routes), 2, 'seed includes
 select is((select count(*)::integer from public.flock_messages), 36, 'seed includes enough flock messages to exercise infinite history');
 select is((select count(*)::integer from public.flock_chat_reads), 1, 'seed includes a flock read cursor for unread-state previews');
 select is((select count(*)::integer from public.direct_conversation_reads), 2, 'seed includes independent direct-message read cursors');
+select is((select count(distinct display_name)::integer from public.profiles), 50, 'every seeded runner has a distinct display name');
+select is((select count(distinct name)::integer from public.flocks), 10, 'every seeded flock has a distinct name');
+select is((select count(distinct title)::integer from public.flock_events), 35, 'every seeded event has a distinct title');
+select is((select count(distinct body)::integer from public.flock_messages), 36, 'every seeded flock message is distinct');
+select is((select count(distinct body)::integer from public.direct_messages), 12, 'every seeded direct message is distinct');
 
 select * from finish();
 
