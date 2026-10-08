@@ -31,7 +31,7 @@ values
     '',
     '',
     '{"provider":"email","providers":["email"]}',
-    '{"display_name":"Local Runner"}',
+    '{"display_name":"Casey Morgan"}',
     '2026-01-15 12:00:00+00',
     '2026-01-15 12:00:00+00'
   ),
@@ -48,7 +48,7 @@ values
     '',
     '',
     '{"provider":"email","providers":["email"],"role":"superadmin"}',
-    '{"display_name":"Local Organizer"}',
+    '{"display_name":"Avery Bennett"}',
     '2026-01-15 12:00:00+00',
     '2026-01-15 12:00:00+00'
   ),
@@ -236,9 +236,27 @@ values
 do $$
 declare
   seed_user_id uuid;
+  seed_user_name text;
+  seed_user_email text;
+  seed_user_names text[] := array[
+    'Priya Nair', 'Mateo Santos', 'Nina Okafor', 'Elliot Brooks',
+    'Camila Rivera', 'Theo Laurent', 'Sofia Petrov', 'Marcus Lee',
+    'Janelle Carter', 'Owen Fitzgerald', 'Leila Haddad', 'Rafael Costa',
+    'Mei Tanaka', 'Jonah Williams', 'Amina Yusuf', 'Claire Donovan',
+    'Andre Bell', 'Isabel Moreno', 'Samir Patel', 'Grace Kim',
+    'Noah Whitaker', 'Valentina Rossi', 'Darius Coleman', 'Hannah Price',
+    'Luca Bianchi', 'Tessa Nguyen', 'Malcolm Reed', 'Elena Vasquez',
+    'Devon Sinclair', 'Rina Shah', 'Caleb Turner', 'Maya Brooks',
+    'Iris Mensah', 'Julian Park', 'Sienna Grant', 'Arjun Mehta',
+    'Naomi Flores', 'Benji Wallace', 'Lucia Marin', 'Kieran Osei',
+    'Amara Johnson', 'Finn Gallagher', 'Yara Haddad', 'Miles Chen',
+    'Celeste Monroe'
+  ];
 begin
   for user_number in 6..50 loop
     seed_user_id := md5('seed-user-' || user_number)::uuid;
+    seed_user_name := seed_user_names[user_number - 5];
+    seed_user_email := regexp_replace(lower(seed_user_name), '[^a-z0-9]+', '.', 'g') || '@flock.com';
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password,
       email_confirmed_at, confirmation_token, recovery_token,
@@ -249,12 +267,12 @@ begin
       seed_user_id,
       'authenticated',
       'authenticated',
-      format('runner%02s@flock.com', user_number),
+      seed_user_email,
       '',
       '2026-01-15 12:00:00+00',
       '', '', '', '',
       '{"provider":"email","providers":["email"]}',
-      jsonb_build_object('display_name', format('Runner %02s', user_number)),
+      jsonb_build_object('display_name', seed_user_name),
       '2026-01-15 12:00:00+00',
       '2026-01-15 12:00:00+00'
     );
@@ -267,7 +285,7 @@ begin
       seed_user_id,
       jsonb_build_object(
         'sub', seed_user_id::text,
-        'email', format('runner%02s@flock.com', user_number),
+        'email', seed_user_email,
         'email_verified', true,
         'phone_verified', false
       ),
@@ -284,6 +302,15 @@ do $$
 declare
   seed_flock_id uuid;
   owner_id uuid;
+  seed_names text[] := array[
+    'Laurelhurst Dawn Crew',
+    'St. Johns Bridge Pacers',
+    'Mt. Tabor Hill Club',
+    'Sellwood Sunday Miles',
+    'Forest Park Trail Table',
+    'Vancouver Waterfront Striders',
+    'Beaverton Sunset Runners'
+  ];
   seed_locations text[] := array[
     'Alberta Park, Portland',
     'Forest Park, Portland',
@@ -312,7 +339,7 @@ begin
     values (
       seed_flock_id,
       owner_id,
-      format('Neighborhood Run Club %02s', flock_number),
+      seed_names[flock_number - 3],
       seed_locations[flock_number - 3],
       seed_descriptions[flock_number - 3],
       '2026-02-01 12:00:00+00'::timestamptz + make_interval(days => flock_number),
@@ -337,6 +364,51 @@ declare
   event_id uuid;
   flock_id uuid;
   owner_id uuid;
+  event_titles text[] := array[
+    'Bridge-to-Bank Recovery Run', 'Rainy Day Tempo', 'Eastbank 5K Social',
+    'Alberta Park Sunrise Miles', 'Forest Park Climb Practice',
+    'Sellwood River Loop', 'Tabor Ridge Repeats', 'Cully Neighborhood Jog',
+    'Lacamas Lake Long Run', 'Beaverton Twilight Shakeout',
+    'St. Johns Bridge Out-and-Back', 'Rose City Fall Preview',
+    'Waterfront Fartlek Hour', 'Pine Street Progression',
+    'Cathedral Park Easy Miles', 'Mt. Tabor Scenic Seven',
+    'Riverside Threshold Session', 'Quiet Streets Recovery',
+    'Forest-to-River Adventure', 'Sunday Coffee Finish'
+  ];
+  event_locations text[] := array[
+    'Waterfront Park north lawn', 'Eastbank Esplanade under the Morrison Bridge',
+    'Kelley Point Park boat launch', 'Alberta Park tennis courts',
+    'Lower Macleay Trailhead', 'Sellwood Riverfront picnic shelter',
+    'Mt. Tabor reservoir loop', 'Cully Park community garden',
+    'Lacamas Lake Heritage Trail', 'Beaverton Central Park fountain',
+    'Cathedral Park riverside', 'Laurelhurst Park east gate',
+    'Waterfront Park Salmon Street Springs', 'Pine Street Market entrance',
+    'Pier Park playground', 'Mt. Tabor summit road',
+    'Eastbank Esplanade ramp', 'Irving Park rose garden',
+    'Forest Park Leif Erikson gate', 'Sellwood coffee kiosk'
+  ];
+  event_descriptions text[] := array[
+    'A gentle reset after the weekend with conversation-friendly miles.',
+    'Short repeats and a relaxed cooldown for runners building rhythm.',
+    'A welcoming five-kilometer loop with a social finish by the river.',
+    'Start the day with an easy loop and plenty of regroup points.',
+    'A steady forest climb for runners who enjoy a little elevation.',
+    'Flat river miles at a pace that leaves room for good conversation.',
+    'Rolling repeats with options to shorten the workout when needed.',
+    'A neighborhood route designed for a relaxed after-work meetup.',
+    'A scenic long run with water stops and a lakeside regroup.',
+    'A low-key evening shakeout before the week gets busy.',
+    'A bridge route with wide paths and a steady, friendly rhythm.',
+    'A seasonal preview run for runners preparing for fall races.',
+    'Playful pace changes on a flat route with a gentle cooldown.',
+    'A controlled progression that finishes with a few quicker minutes.',
+    'Easy miles through the park with a no-pressure start time.',
+    'A scenic seven-mile loop with optional shorter turnarounds.',
+    'A focused threshold session with recovery jogs between efforts.',
+    'Quiet neighborhood roads and a relaxed pace for active recovery.',
+    'A mixed-surface adventure from the trees to the riverfront.',
+    'Finish the week with comfortable miles and coffee together.'
+  ];
 begin
   for event_number in 1..20 loop
     if event_number <= 3 then
@@ -353,10 +425,10 @@ begin
       event_id,
       flock_id,
       owner_id,
-      format('Group run %02s', event_number),
+      event_titles[event_number],
       '2026-10-03 08:00:00+00'::timestamptz + make_interval(days => event_number),
-      format('Park %02s', event_number),
-      'A seeded group run for local development.'
+      event_locations[event_number],
+      event_descriptions[event_number]
     );
     insert into public.flock_event_run_options (
       id, event_id, distance_label, distance_tenths, distance_unit,
@@ -389,6 +461,42 @@ declare
   event_id uuid;
   owner_id uuid;
   invitee_id uuid;
+  event_titles text[] := array[
+    'Early Bird Waterfront Miles', 'Muddy Boots Trail Date',
+    'Rose Garden Recovery', 'Sunrise Bridge Loop', 'Neighborhood Tempo Pair',
+    'Cedar Mill Easy Run', 'Ladd’s Addition Evening Miles',
+    'Forest Park Out-and-Back', 'Sunday Market Shakeout',
+    'Lakeside Long Run', 'Alberta Coffee Run', 'Quiet River Progression',
+    'Mt. Tabor Sunset Miles', 'Springwater Corridor Cruise',
+    'Rain-or-Shine Five-Miler'
+  ];
+  event_locations text[] := array[
+    'Tom McCall Waterfront Park south steps', 'Lower Macleay picnic table',
+    'Washington Park rose garden gate', 'Tilikum Crossing east plaza',
+    'Laurelhurst Park duck pond', 'Cedar Mill Library trail entrance',
+    'Ladd’s Addition central fountain', 'Leif Erikson Drive gate',
+    'Portland Farmers Market north entrance', 'Lacamas Lake picnic shelter',
+    'Alberta Street coffee patio', 'Eastbank Esplanade floating dock',
+    'Mt. Tabor west reservoir', 'Springwater Corridor Oaks Bottom gate',
+    'Sellwood Park river stairs'
+  ];
+  event_descriptions text[] := array[
+    'An easy start before the city wakes up, with time to chat afterward.',
+    'A short forest route for two runners who do not mind a little mud.',
+    'Gentle recovery miles through the roses and tree-lined paths.',
+    'A sunrise loop across the river with a steady, comfortable pace.',
+    'A friendly tempo session with clear options to ease back when needed.',
+    'A low-key neighborhood run ending near a quiet trail and cafe.',
+    'An after-work loop through the historic neighborhood and back.',
+    'A shaded out-and-back with a few optional climbs for variety.',
+    'A relaxed shakeout timed to finish near the weekend market.',
+    'A longer lakeside route with water stops and a flexible turnaround.',
+    'A conversational run that ends with a favorite local coffee.',
+    'A smooth progression along the river with a relaxed first mile.',
+    'A scenic sunset route with lights and a short hill finish.',
+    'A flat cruise on the corridor for runners building steady volume.',
+    'A flexible five-mile plan that works whether the weather cooperates.'
+  ];
 begin
   for event_number in 1..15 loop
     event_id := md5('seed-personal-event-' || event_number)::uuid;
@@ -400,10 +508,10 @@ begin
       event_id,
       null,
       owner_id,
-      format('Personal run %02s', event_number),
+      event_titles[event_number],
       '2026-10-04 07:30:00+00'::timestamptz + make_interval(days => event_number),
-      format('Trailhead %02s', event_number),
-      'A seeded personal event for local development.'
+      event_locations[event_number],
+      event_descriptions[event_number]
     );
     insert into public.flock_event_run_options (
       id, event_id, distance_label, distance_tenths, distance_unit,
@@ -482,6 +590,48 @@ insert into public.flock_messages (
   body,
   created_at
 )
+with seeded_messages(body) as (
+  values
+    ('Meet at the west entrance by the water fountain; I will bring the route notes.'),
+    ('I can bring an extra reflective vest for anyone who needs one.'),
+    ('The river path was clear this morning, even after the rain.'),
+    ('I am planning to run the shorter loop today and regroup by the bridge.'),
+    ('Coffee after the run sounds good. Any favorite spots nearby?'),
+    ('See everyone at the trailhead a few minutes before the start.'),
+    ('The north gate is open again, so we can use the usual entrance.'),
+    ('I will carry a small first-aid kit and a couple of extra gels.'),
+    ('The forecast looks cool and dry—perfect conditions for the long loop.'),
+    ('Would anyone like to add one relaxed mile after the planned route?'),
+    ('I ran the first section yesterday and the construction is finished.'),
+    ('Let’s keep the first mile easy while everyone settles in.'),
+    ('I can meet the group at the water stop if I am a few minutes late.'),
+    ('The trail surface is a little soft, but it is still comfortable in trainers.'),
+    ('I have mapped a shorter option for anyone who needs to leave early.'),
+    ('Thanks for calling out the pace—this is exactly the effort I needed.'),
+    ('The bridge overlook is a great regroup point at the halfway mark.'),
+    ('I will bring bananas and orange slices for the finish.'),
+    ('Is anyone interested in a gentle hill repeat after the main loop?'),
+    ('The sunrise over the water was worth getting out early today.'),
+    ('I am bringing a friend who is new to group running.'),
+    ('The park restroom by the east gate is open now.'),
+    ('I can sweep the back of the group so nobody has to run alone.'),
+    ('The optional detour adds about a mile but has much better views.'),
+    ('My watch is charged and ready to keep us on the planned route.'),
+    ('Let’s check in about the pace before we head into the hills.'),
+    ('I will post the coffee location once we know the group size.'),
+    ('The path is busy near the market, so we may need to stay single file.'),
+    ('I can arrive early to put out the regroup marker.'),
+    ('A short walking break at the top sounds good to me.'),
+    ('The weather turned out better than expected—glad we kept the plan.'),
+    ('I am happy to take the flat route today and save hills for next week.'),
+    ('The last mile is shaded, which should make the finish comfortable.'),
+    ('Thanks for organizing this; the route felt welcoming for every pace.'),
+    ('I will share a photo from the finish in the chat later.'),
+    ('Great work, everyone. See you at the next sunrise start.')
+), numbered_messages as (
+  select row_number() over ()::int as message_number, body
+  from seeded_messages
+)
 select
   md5('seed-flock-message-' || message_number)::uuid,
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3'::uuid,
@@ -491,16 +641,9 @@ select
     when 2 then '33333333-3333-4333-8333-333333333333'::uuid
     else '44444444-4444-4444-8444-444444444444'::uuid
   end,
-  case message_number % 6
-    when 0 then 'Meet at the west entrance by the water fountain.'
-    when 1 then 'I can bring an extra reflective vest.'
-    when 2 then 'The river path was clear this morning.'
-    when 3 then 'I am planning to run the shorter loop today.'
-    when 4 then 'Coffee after the run sounds good.'
-    else 'See everyone at the trailhead.'
-  end,
+  numbered_messages.body,
   '2026-10-06 16:00:00+00'::timestamptz + make_interval(mins => message_number * 5)
-from generate_series(1, 36) as message_number;
+from numbered_messages;
 
 insert into public.direct_conversations (
   id,
@@ -522,6 +665,24 @@ insert into public.direct_messages (
   body,
   created_at
 )
+with seeded_messages(body) as (
+  values
+    ('The trail loop sounds perfect for tomorrow morning.'),
+    ('Are you still running before work tomorrow?'),
+    ('Yes, I can meet at the usual corner by the bakery.'),
+    ('I will bring a light in case it is still dark.'),
+    ('Let’s keep the first mile easy and decide from there.'),
+    ('See you in the morning—I will watch for your message.'),
+    ('The river path should be quieter before eight.'),
+    ('I saved the route so we can use it again next week.'),
+    ('I can bring an extra pair of gloves if the temperature drops.'),
+    ('That pace felt comfortable; I am happy to repeat it.'),
+    ('The coffee shop on the corner opens right after we finish.'),
+    ('Thanks for the invite. I am looking forward to it.')
+), numbered_messages as (
+  select row_number() over ()::int as message_number, body
+  from seeded_messages
+)
 select
   md5('seed-direct-message-' || message_number)::uuid,
   'dddddddd-dddd-4ddd-8ddd-dddddddddd01'::uuid,
@@ -529,16 +690,9 @@ select
     when 0 then '11111111-1111-4111-8111-111111111111'::uuid
     else '33333333-3333-4333-8333-333333333333'::uuid
   end,
-  case message_number % 6
-    when 0 then 'The trail loop sounds perfect.'
-    when 1 then 'Are you still running before work tomorrow?'
-    when 2 then 'Yes, I can meet at the usual corner.'
-    when 3 then 'I will bring a light in case it is still dark.'
-    when 4 then 'Let us keep the first mile easy.'
-    else 'See you in the morning.'
-  end,
+  numbered_messages.body,
   '2026-10-06 15:00:00+00'::timestamptz + make_interval(mins => message_number * 6)
-from generate_series(1, 12) as message_number;
+from numbered_messages;
 
 insert into public.flock_chat_reads (
   flock_id,

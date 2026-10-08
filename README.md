@@ -110,7 +110,10 @@ just reset
 ```
 
 This command deletes local database changes before replaying migrations and
-seed data. It never targets the hosted project. Use `just status` to display
+seed data, then uploads the curated local media fixtures to the private
+`flock-media` bucket. The media step reads the local Supabase service-role key
+from `supabase status` at runtime; no credential or binary is committed to the
+repository. It never targets the hosted project. Use `just status` to display
 the local Studio and Mailpit URLs.
 
 The underlying npm commands remain available for CI and environments without

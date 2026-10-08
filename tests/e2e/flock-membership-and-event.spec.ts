@@ -155,20 +155,20 @@ test('persists flock membership, event visibility, and RSVP across two real user
       .getByRole('navigation', { name: 'Chat conversations' })
       .getByRole('link', {
         name: new RegExp(
-          `^Local Runner, [1-9]\\d* unread messages?, Local Runner: ${organizerDirectMessage}`,
+          `^Casey Morgan, [1-9]\\d* unread messages?, Casey Morgan: ${organizerDirectMessage}`,
         ),
       })
     await expect(runnerDirectConversation).toBeVisible({ timeout: 10_000 })
     await runnerDirectConversation.click()
     await expect(
       runnerPage.getByRole('log', {
-        name: 'Direct messages with Local Runner',
+        name: 'Direct messages with Casey Morgan',
       }),
     ).toContainText(organizerDirectMessage)
     await expect(
       runnerPage
         .getByRole('navigation', { name: 'Chat conversations' })
-        .getByRole('link', { name: /^Local Runner,/ }),
+        .getByRole('link', { name: /^Casey Morgan,/ }),
     ).not.toHaveAccessibleName(/unread/)
 
     const runnerDirectMessage = `Private reply ${uniqueSuffix}`

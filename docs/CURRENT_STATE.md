@@ -119,6 +119,11 @@ profiles, flock covers, and personal or flock-event covers.
   short-lived signed URLs; profile, flock, and event surfaces fall back to
   initials or text when no image is present. JPG, PNG, and WebP files are
   limited to 5 MB and stored under resource-scoped paths with Storage RLS.
+- Local seed fixtures now use curated runner names, flock and event planning
+  details, and distinct chat messages instead of numbered placeholders. A
+  local-only reset step uploads generated, context-appropriate profile, flock,
+  and event cover images to the private media bucket for portfolio-ready
+  development data.
 - Flock members can view upcoming events, and flock owners and personal-event
   creators can create and edit events with a title, date/time, location,
   description, and one to eight
