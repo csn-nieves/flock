@@ -35,7 +35,7 @@ function FlockList({ flocks, onSelect }: FlockListProps) {
                 {flock.name.charAt(0).toLocaleUpperCase()}
               </span>
             )}
-            <span className="min-w-0">
+            <span className="min-w-0 flex-1 text-left">
               <span className="block font-display text-base leading-6 font-bold tracking-[-0.01em] text-text [overflow-wrap:anywhere]">
                 {flock.name}
               </span>
