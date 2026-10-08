@@ -19,7 +19,8 @@ Moderated workflow validation remains prepared but is temporarily deferred by
 the product owner so feature development can continue. Run options now support
 optional mapped GPX courses for both personal and flock events. Current members
 can now coordinate in durable realtime flock chats and private one-to-one
-conversations. Monetization remains outside the current slice.
+conversations, with opt-in device alerts for unread activity. Monetization
+remains outside the current slice.
 
 ## Completed foundation
 
@@ -96,6 +97,11 @@ conversations. Monetization remains outside the current slice.
   private monotonic read cursor for each runner and conversation; opening a
   thread advances it, and one shell-level Realtime subscription keeps new
   activity and cleared unread state synchronized across signed-in devices.
+- The existing per-device Web Push opt-in also covers new flock and direct
+  messages. Message sends queue only subscribed recipients, exclude the sender,
+  and delivery rechecks conversation access, read state, and newer unread
+  activity. Payloads identify the sender and conversation without exposing the
+  message body, then deep-link to the authorized chat route.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from
@@ -164,11 +170,12 @@ conversations. Monetization remains outside the current slice.
 - Eligible runners see pending personal-event invitations on the Events screen
   and can accept them in app. Shared links remain an optional fallback rather
   than the required delivery path.
-- Runners can opt each supported browser or installed PWA into event alerts
-  from Settings. Standards-based Web Push covers personal invitations and
-  flock-event creation, material updates, and cancellation. Server-side claims
-  recheck live eligibility, deliver across registered devices, remove stale
-  endpoints, and deep-link to the relevant Events inbox or flock detail.
+- Runners can opt each supported browser or installed PWA into event and chat
+  alerts from Settings. Standards-based Web Push covers personal invitations,
+  flock-event creation, material updates and cancellation, plus unread flock
+  and direct messages. Server-side claims recheck live eligibility, deliver
+  across registered devices, remove stale endpoints, and deep-link to the
+  relevant Events inbox, flock detail, or conversation.
 - Flock-event alerts snapshot current membership when a change occurs, exclude
   the actor, skip members who leave before delivery, and do not replay old
   changes to later joiners. Superadmin cancellations notify every current flock
@@ -239,12 +246,13 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the conversation activity and unread-state vertical slice.
-   The next logical messaging increment is opt-in chat device notifications,
-   using the durable conversation and read boundaries to avoid treating old or
-   self-authored messages as new alerts. The rehearsed moderated sessions in
-   `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
-   returns; they no longer block feature branches in the meantime.
+1. Review and merge the opt-in chat device-notification vertical slice. The
+   next logical messaging increment is lightweight message reactions, while
+   attachments, editing, deletion, typing indicators, visible read receipts,
+   and moderation controls remain separate product decisions. The rehearsed
+   moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain ready when
+   participant availability returns; they no longer block feature branches in
+   the meantime.
 
 ## Known follow-ups
 

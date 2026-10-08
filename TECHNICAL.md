@@ -33,6 +33,12 @@ Flock will begin as a single-page application. Server-side rendering is not requ
   disable only the current device.
 - Keep the Events invitation inbox authoritative. A notification only announces
   a server-authorized pending invitation and deep-links to that inbox.
+- Queue chat alerts only for recipients who already have an active device
+  subscription. Exclude the sender, recheck flock membership or direct-message
+  participation and the server read cursor before delivery, and suppress an
+  older undelivered alert when newer unread activity exists in the conversation.
+  Notification payloads may identify the conversation and sender but must not
+  contain message bodies.
 - Queue targeted recipients and current flock members when an invitation is
   created. Queue a later joiner while a universal flock invitation is active,
   and recheck membership, acceptance, cancellation, event time, and expiration

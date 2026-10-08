@@ -40,7 +40,7 @@ describe('SettingsPage', () => {
     expect(screen.getByRole('radio', { name: 'Dark mode' })).toBeChecked()
   })
 
-  it('lets a runner turn event alerts on for this device', () => {
+  it('lets a runner turn event and chat alerts on for this device', () => {
     const onEnableNotifications = vi.fn()
     render(
       <SettingsPage
@@ -51,7 +51,7 @@ describe('SettingsPage', () => {
 
     expect(screen.getByText('Off for this device')).toBeVisible()
     expect(
-      screen.getByText(/personal invitations and flock event changes/),
+      screen.getByText(/flock event changes, and new messages/),
     ).toBeVisible()
     fireEvent.click(
       screen.getByRole('button', { name: 'Turn on notifications' }),
@@ -59,12 +59,12 @@ describe('SettingsPage', () => {
     expect(onEnableNotifications).toHaveBeenCalledOnce()
   })
 
-  it('describes enabled alerts without limiting them to invitations', () => {
+  it('describes enabled event and chat alerts', () => {
     render(<SettingsPage {...defaultProps} notificationStatus="on" />)
 
     expect(
       screen.getByText(
-        'This browser can show event alerts even when Flock is closed.',
+        'This device can show event and chat alerts even when Flock is closed.',
       ),
     ).toBeVisible()
   })

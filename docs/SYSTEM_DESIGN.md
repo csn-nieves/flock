@@ -116,12 +116,12 @@ instead of embedding raw brand values in feature code.
 `vite-plugin-pwa` compiles the custom service worker and injects its Workbox
 precache manifest. The application shell and essential static assets are
 cached, SPA navigation retains its application-shell fallback, and the worker
-handles event-alert pushes and notification-click deep links. Data mutations
+handles event and chat pushes plus notification-click deep links. Data mutations
 are not presented as offline-capable: membership and authentication still
 require a network connection. A new service worker asks before refreshing an
 open screen so an update cannot silently discard in-progress work.
 
-### Event notifications
+### Push notifications
 
 Notification permission is an explicit per-device setting. The browser creates
 a standards-based `PushSubscription`; an authenticated security-definer
@@ -152,6 +152,17 @@ service, records one idempotent outcome, and removes endpoints that return
 alerts open `/flocks/:flockId#flock-events`. The existing Events and flock
 detail screens remain the durable sources of truth when delivery is delayed,
 unsupported, blocked, or suppressed by the operating system.
+
+Flock and direct-message sends queue one private job only for each eligible
+recipient who already has an active device subscription. Flock jobs snapshot
+current membership while direct jobs target the other participant; neither
+queues the sender. Delivery rechecks current conversation access and the
+recipient's monotonic read cursor, skips messages already read, and suppresses
+an older undelivered job when a newer unread message exists. Chat notification
+text identifies the conversation and sender without including the private
+message body. One replacement tag per conversation keeps the operating-system
+surface focused on the latest activity, and notification clicks deep-link to
+the authorized `/chats/:flockId` or `/chats/direct/:conversationId` route.
 
 ## Frontend boundaries
 
@@ -418,7 +429,7 @@ route-local transient state: a 300ms debounce limits queries, composition pauses
 search, self-results are removed, and stale requests cannot select or replace a
 different query-key result. This increment does not include attachments, edits,
 deletion, reactions, blocking, reporting, typing indicators, per-message read
-receipts, or chat push notifications.
+receipts, notification categories, or per-conversation muting.
 
 React Query owns asynchronous server-state caching outside authentication. One
 application-level `QueryClientProvider` wraps the router and session provider.

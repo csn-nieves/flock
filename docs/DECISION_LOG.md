@@ -912,3 +912,32 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Scale requires precomputed counters, runners need mark-
   unread or notification preferences, or product evidence supports visible
   read receipts.
+
+## D046 — Deliver privacy-conscious alerts for unread chat activity
+
+- **Status:** Accepted; code complete, hosted migration and existing webhook
+  deployment pending
+- **Decision:** Extend the existing standards-based Web Push pipeline to flock
+  and direct messages. Queue only recipients with a current device subscription,
+  exclude the sender, and use the existing per-device opt-in rather than adding
+  category preferences before usage justifies them.
+- **Authorization and unread boundary:** Recheck current flock membership or
+  direct-message participation at delivery. Skip a message when the recipient's
+  monotonic cursor has already reached it, and suppress an older undelivered job
+  when newer unread activity exists in the same conversation. Membership loss
+  prevents a queued flock alert from revealing conversation details.
+- **Privacy and navigation:** Identify the conversation and sender but never put
+  the message body in a push payload. Use one replacement tag per conversation
+  and deep-link to the authorized flock or direct-message route; persisted chat
+  remains authoritative when delivery is delayed or suppressed.
+- **Why:** Chat alerts are useful only for activity a runner has not already
+  seen. Reusing the proven delivery path avoids another provider while the
+  server-side cursor and authorization boundaries prevent stale, self-authored,
+  or newly inaccessible messages from becoming alerts.
+- **Tradeoffs:** Web Push remains best effort, sender and conversation names may
+  appear on a device lock screen, and rapid messages can collapse into the most
+  recent conversation alert. There are no category preferences, quiet hours,
+  batching schedule, delivery dashboard, or notification history.
+- **Revisit when:** Real usage calls for per-conversation muting, notification
+  previews, category controls, quiet hours, delivery retries, or an operational
+  dashboard.

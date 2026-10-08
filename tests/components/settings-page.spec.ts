@@ -7,12 +7,12 @@ test('changes the notification control for the current device', async ({
 
   await expect(component.getByText('Off for this device')).toBeVisible()
   await expect(
-    component.getByText(/personal invitations and flock event changes/),
+    component.getByText(/flock event changes, and new messages/),
   ).toBeVisible()
   await component.getByRole('button', { name: 'Turn on notifications' }).click()
 
   await expect(component.getByText('On for this device')).toBeVisible()
-  await expect(component.getByText(/show event alerts/)).toBeVisible()
+  await expect(component.getByText(/show event and chat alerts/)).toBeVisible()
   await expect(
     component.getByRole('button', { name: 'Turn off on this device' }),
   ).toBeVisible()

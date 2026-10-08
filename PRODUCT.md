@@ -34,6 +34,8 @@ Each run club is called a **flock**. A flock will eventually support:
   server-synced unread state
 - Private one-to-one runner conversations with realtime delivery and continuous
   older history, ordered by current activity with the same unread behavior
+- Opt-in device alerts for unread flock and direct messages without exposing
+  message content on the lock screen
 
 ## Delivery model
 

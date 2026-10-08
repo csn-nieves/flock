@@ -53,10 +53,10 @@ do not put a server secret in that variable. Without it, GPX route import and
 saved route viewing still work, while the drawing dialog explains that route
 planning is unavailable.
 
-## Event alert push deployment
+## Push notification deployment
 
-The repository contains the subscription schema, notification jobs, custom
-service worker, and `send-push-notification` Edge Function. A hosted
+The repository contains the subscription schema, event and chat notification
+jobs, custom service worker, and `send-push-notification` Edge Function. A hosted
 environment needs one-time VAPID and webhook configuration before it can send
 alerts:
 
