@@ -7,6 +7,7 @@ import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useConversationDirectorySync } from '@src/hooks/useConversationDirectorySync'
 import { useDirectConversations } from '@src/hooks/useDirectConversations'
 import { useFlockChats } from '@src/hooks/useFlockChats'
+import { usePushSubscriptionRefresh } from '@src/hooks/usePushSubscriptionRefresh'
 import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import type {
   DirectConversationSummary,
@@ -214,6 +215,7 @@ function AppShell() {
   const flocksQuery = useFlockChats()
   const directConversationsQuery = useDirectConversations()
   useConversationDirectorySync(session?.user.id)
+  usePushSubscriptionRefresh()
   const isChatRoute = location.pathname.startsWith('/chats')
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const displayName =

@@ -176,7 +176,10 @@ remains outside the current slice.
   flock-event creation, material updates and cancellation, plus unread flock
   and direct messages. Server-side claims recheck live eligibility, deliver
   across registered devices, remove stale endpoints, and deep-link to the
-  relevant Events inbox, flock detail, or conversation.
+  relevant Events inbox, flock detail, or conversation. Authenticated app
+  shells silently re-register an existing granted subscription on startup and
+  foreground return so browser or PWA subscription rotation does not require a
+  Settings visit to recover.
 - Flock-event alerts snapshot current membership when a change occurs, exclude
   the actor, skip members who leave before delivery, and do not replay old
   changes to later joiners. Superadmin cancellations notify every current flock
