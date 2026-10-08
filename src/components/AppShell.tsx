@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 
 import { ConversationSummary } from '@src/components/ConversationSummary'
+import ProfileAvatar from '@src/components/ProfileAvatar'
 import { getConversationAccessibleLabel } from '@src/lib/conversationActivity'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useConversationDirectorySync } from '@src/hooks/useConversationDirectorySync'
@@ -216,12 +217,24 @@ export function ConversationNavigation({
                   onClick={onNavigate}
                 >
                   {({ isActive }) => (
-                    <ConversationSummary
-                      activity={conversation}
-                      currentUserId={currentUserId}
-                      isSelected={isActive}
-                      title={conversation.otherDisplayName}
-                    />
+                    <>
+                      <ProfileAvatar
+                        className="mr-2 flex size-8 shrink-0 items-center justify-center rounded-full text-xs"
+                        displayName={conversation.otherDisplayName}
+                        fallbackClassName={
+                          isActive
+                            ? 'bg-background/20 text-on-primary'
+                            : 'bg-background text-primary-strong'
+                        }
+                        userId={conversation.otherUserId}
+                      />
+                      <ConversationSummary
+                        activity={conversation}
+                        currentUserId={currentUserId}
+                        isSelected={isActive}
+                        title={conversation.otherDisplayName}
+                      />
+                    </>
                   )}
                 </NavLink>
               </li>

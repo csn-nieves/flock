@@ -464,6 +464,33 @@ declare
   event_id uuid;
   owner_id uuid;
   invitee_id uuid;
+  owner_number int;
+  invitee_number int;
+  style_number int;
+  format_number int;
+  place_number int;
+  event_styles text[] := array[
+    'Sunrise', 'Riverside', 'Forest', 'Bridge', 'Neighborhood',
+    'Waterfront', 'Market', 'Garden', 'Twilight', 'Coffee'
+  ];
+  event_formats text[] := array[
+    'recovery miles', 'tempo session', 'social loop', 'trail adventure',
+    'steady progression', 'easy shakeout', 'long-run meetup',
+    'hill practice', 'scenic cruise', 'conversation run'
+  ];
+  event_places text[] := array[
+    'at Eastbank Esplanade', 'at Laurelhurst Park', 'at Forest Park',
+    'at Tilikum Crossing', 'at Sellwood Riverfront', 'at Mt. Tabor',
+    'at Alberta Park', 'at Washington Park', 'at St. Johns Bridge',
+    'at Lacamas Lake'
+  ];
+  owner_ids uuid[] := array[
+    '11111111-1111-4111-8111-111111111111'::uuid,
+    '22222222-2222-4222-8222-222222222222'::uuid,
+    '33333333-3333-4333-8333-333333333333'::uuid,
+    '44444444-4444-4444-8444-444444444444'::uuid,
+    '55555555-5555-4555-8555-555555555555'::uuid
+  ];
   event_titles text[] := array[
     'Early Bird Waterfront Miles', 'Muddy Boots Trail Date',
     'Rose Garden Recovery', 'Sunrise Bridge Loop', 'Neighborhood Tempo Pair',
@@ -501,20 +528,33 @@ declare
     'A flexible five-mile plan that works whether the weather cooperates.'
   ];
 begin
-  for event_number in 1..15 loop
+  -- Give every seeded runner two personal events so the event gallery is
+  -- populated regardless of which account is used for local development.
+  for event_number in 1..100 loop
     event_id := md5('seed-personal-event-' || event_number)::uuid;
-    owner_id := md5('seed-user-' || (((event_number - 1) % 45) + 6))::uuid;
-    invitee_id := md5('seed-user-' || (((event_number + 10) % 45) + 6))::uuid;
+    owner_number := ((event_number - 1) % 50) + 1;
+    invitee_number := (owner_number % 50) + 1;
+    style_number := ((event_number - 1) % 10) + 1;
+    format_number := (((event_number - 1) / 10) % 10) + 1;
+    place_number := style_number;
+    owner_id := case
+      when owner_number <= 5 then owner_ids[owner_number]
+      else md5('seed-user-' || owner_number)::uuid
+    end;
+    invitee_id := case
+      when invitee_number <= 5 then owner_ids[invitee_number]
+      else md5('seed-user-' || invitee_number)::uuid
+    end;
     insert into public.flock_events (
       id, flock_id, created_by, title, starts_at, location, description
     ) values (
       event_id,
       null,
       owner_id,
-      event_titles[event_number],
+      format('%s %s %s', event_styles[style_number], event_formats[format_number], event_places[place_number]),
       '2026-10-04 07:30:00+00'::timestamptz + make_interval(days => event_number),
-      event_locations[event_number],
-      event_descriptions[event_number]
+      event_places[place_number],
+      format('%s Meet at the marked start and regroup as needed.', event_descriptions[((event_number - 1) % 15) + 1])
     );
     insert into public.flock_event_run_options (
       id, event_id, distance_label, distance_tenths, distance_unit,

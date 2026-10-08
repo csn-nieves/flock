@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import RichTextComposer from '@src/components/RichTextComposer'
+import ProfileAvatar from '@src/components/ProfileAvatar'
 import {
   decodeRichTextMessage,
   type RichTextRun,
@@ -353,21 +354,21 @@ function ChatThread({
                   <ol className="m-0 flex list-none flex-col gap-1 p-0">
                     {messages.map((message) => {
                       const isOwnMessage = message.senderId === currentUserId
-                      const senderInitial = message.senderDisplayName
-                        .trim()
-                        .charAt(0)
-                        .toLocaleUpperCase()
                       return (
                         <li
                           className="group flex items-start gap-3 rounded-md px-2 py-2 hover:bg-surface-subtle"
                           key={message.id}
                         >
-                          <span
-                            aria-hidden="true"
-                            className={`flex size-9 shrink-0 items-center justify-center rounded-md font-display text-sm font-bold ${isOwnMessage ? 'bg-primary text-on-primary' : 'bg-surface-subtle text-primary-strong group-hover:bg-background'}`}
-                          >
-                            {senderInitial || '?'}
-                          </span>
+                          <ProfileAvatar
+                            className="flex size-9 items-center justify-center rounded-md font-display text-sm font-bold"
+                            displayName={message.senderDisplayName}
+                            fallbackClassName={
+                              isOwnMessage
+                                ? 'bg-primary text-on-primary'
+                                : 'bg-surface-subtle text-primary-strong group-hover:bg-background'
+                            }
+                            userId={message.senderId}
+                          />
                           <article className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-baseline gap-x-2">
                               <p className="m-0 font-display text-sm leading-5 font-bold text-text">
