@@ -92,7 +92,8 @@ monetization remain outside the current slice.
   replaces free-text option labels; one miles-or-kilometers setting governs
   both distance and pace. Distance supports tenth-unit steps, while pace
   supports five-second steps from 4:00–15:00 per mile or 2:30–9:30 per
-  kilometer. Runners choose an option with “I’m in” or
+  kilometer, or an organizer can mark an option “Run at your own pace” without
+  storing a target pace. Runners choose an option with “I’m in” or
   “Maybe,” attendance is grouped by option, and “I’m out” clears the choice.
   Pre-existing events and earlier free-text options remain readable until an
   organizer edits them into the current model.
@@ -106,6 +107,13 @@ monetization remain outside the current slice.
   and presents it through the same lazy-loaded map dialog to every authorized
   viewer. Original GPX files and their timestamps, elevation, filenames, and
   device metadata are not retained.
+- Personal- and flock-event creators can alternatively draw a route by placing
+  ordered points on a map. Geoapify connects each new point to the previous one
+  along a walkable route, while Undo and Clear stay local and failed segments
+  preserve the accepted draft. The event location provides only a best-effort
+  starting center. Saved data remains the same bounded provider-neutral line
+  and estimated distance used by GPX import; draft waypoints and directions are
+  not stored.
 - User-owned events now have seven-day invitation tokens, an
   authenticated acceptance route, and RSVP authorization for invited runners.
 - Personal event owners can generate invitation links from `/events`, share
@@ -197,8 +205,8 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the mapped-event-route vertical slice, then select the next
-   feature increment. The rehearsed moderated sessions in
+1. Review and merge the road-following route-builder vertical slice, then
+   select the next feature increment. The rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.
 

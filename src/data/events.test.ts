@@ -229,6 +229,44 @@ describe('event data', () => {
     )
   })
 
+  it('serializes an own-pace option without a target pace value', async () => {
+    mocks.rpc.mockResolvedValue({
+      data: {
+        canceled_at: null,
+        created_at: '2026-10-01',
+        created_by: 'user',
+        description: '',
+        flock_id: null,
+        id: 'event',
+        location: 'Riverside',
+        starts_at: '2026-10-03',
+        title: 'Run',
+      },
+      error: null,
+    })
+
+    await createUserEvent({
+      description: '',
+      location: 'Riverside',
+      runOptions: [
+        {
+          distanceTenths: 50,
+          paceSeconds: null,
+          unit: 'mi',
+        },
+      ],
+      startsAt: '2026-10-03',
+      title: 'Run',
+    })
+
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      'create_user_event',
+      expect.objectContaining({
+        event_run_options: [{ distanceTenths: 50, unit: 'mi' }],
+      }),
+    )
+  })
+
   it('maps flock run options and grouped attendance', async () => {
     const eventQuery = {
       select: vi.fn(),

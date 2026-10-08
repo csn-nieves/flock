@@ -7,18 +7,23 @@ const RouteMapCanvas = lazy(() => import('./RouteMapCanvas'))
 
 type RouteMapProps = {
   route: EventRoute
+  size?: 'default' | 'large'
 }
 
-function RouteMap({ route }: RouteMapProps) {
+function RouteMap({ route, size = 'default' }: RouteMapProps) {
+  const heightClass = size === 'large' ? 'sm:h-[26rem]' : null
+
   return (
     <Suspense
       fallback={
-        <div className="flex h-64 items-center justify-center rounded-lg border border-border bg-surface-subtle text-sm text-text-muted">
+        <div
+          className={`flex h-64 items-center justify-center rounded-lg border border-border bg-surface-subtle text-sm text-text-muted ${heightClass ?? ''}`}
+        >
           <PendingIndicator /> Loading map
         </div>
       }
     >
-      <RouteMapCanvas route={route} />
+      <RouteMapCanvas route={route} size={size} />
     </Suspense>
   )
 }

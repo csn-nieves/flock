@@ -96,6 +96,9 @@ components:
     backgroundColor: '{colors.text}'
     textColor: '{colors.background}'
     rounded: '{rounded.lg}'
+  modal-wide:
+    width: '48rem'
+    rounded: '{rounded.lg}'
 ---
 
 # Flock Design System
@@ -165,7 +168,9 @@ Navigation is introduced only for real destinations. Every nested product page e
 
 `src/primitives/TextField.tsx` is the canonical owner for standard text-like inputs. It uses native input semantics, a visible label, a reserved description area, and linked hint or error text. Errors use explicit language and `aria-invalid`; coral reinforces the state but never carries it alone. Forms use app-owned validation and preserve useful native metadata such as input type, autocomplete, and input mode. Dialogs and feedback surfaces must respect safe areas and the virtual keyboard. Browser `alert`, `confirm`, and `prompt` are not product UI.
 
-`src/components/RunOptionPicker.tsx` owns structured run measurements. Its near-black wheel surface is an intentional, task-specific echo of familiar mobile time pickers: a quiet centered selection band, high-contrast selected values, and faded neighboring values. A single Miles/Kilometers control always governs both distance and pace. The wheel remains touch-first without becoming touch-only; every numeric column exposes keyboard-operable spinbutton behavior and a visible focus treatment.
+`src/components/Modal.tsx` owns dialog sizing and scrolling. Compact dialogs remain constrained to the application width. Event planning and other spatial workflows may use the named wide variant, which stays phone-width on small screens and expands to a maximum of 48rem on larger screens. Width must create usable working space—such as a larger route map—not empty decoration.
+
+`src/components/RunOptionPicker.tsx` owns structured run measurements. Its near-black wheel surface is an intentional, task-specific echo of familiar mobile time pickers: a quiet centered selection band, high-contrast selected values, and faded neighboring values. A single Miles/Kilometers control always governs distance and any target pace. An explicit Target pace/Run at your own pace control reveals the pace wheel only when it is meaningful. The wheel remains touch-first without becoming touch-only; every numeric column exposes keyboard-operable spinbutton behavior and a visible focus treatment.
 
 ### Iconography
 

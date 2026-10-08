@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(24);
 
 select has_table(
   'public',
@@ -78,6 +78,36 @@ from public.create_user_event(
   'Neighborhood loop',
   'Choose a personal run plan.',
   '[{"distanceTenths":31,"paceSeconds":300,"unit":"km"}]'::jsonb
+);
+
+create temporary table created_any_pace_event as
+select *
+from public.create_user_event(
+  'Own pace loop',
+  clock_timestamp() + interval '5 days',
+  'Park loop',
+  'Run this distance at your own pace.',
+  '[{"distanceTenths":50,"unit":"mi"}]'::jsonb
+);
+
+select is(
+  (
+    select pace_label
+    from public.flock_event_run_options
+    where event_id = (select id from created_any_pace_event)
+  ),
+  'Run at your own pace',
+  'an event can derive an explicit own-pace label'
+);
+
+select is(
+  (
+    select pace_seconds
+    from public.flock_event_run_options
+    where event_id = (select id from created_any_pace_event)
+  ),
+  null,
+  'an own-pace option stores no target pace'
 );
 
 select is(

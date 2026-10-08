@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 import type { EventFormInput, EventRoute } from '@src/types/events'
@@ -18,7 +18,7 @@ type EventFormProps = {
 type EditableRunOption = {
   distanceTenths: number
   key: number
-  paceSeconds: number
+  paceSeconds: number | null
   unit: 'mi' | 'km'
   id?: string
   legacyLabel?: string
@@ -36,7 +36,7 @@ function newRunOption(
     id: option?.id,
     key: nextRunOptionKey,
     legacyLabel: option?.legacyLabel,
-    paceSeconds: option?.paceSeconds ?? 8 * 60,
+    paceSeconds: option ? option.paceSeconds : 8 * 60,
     route: option?.route,
     unit: option?.unit ?? 'mi',
   }
@@ -51,6 +51,10 @@ function EventForm({
   onCancel,
   onSubmit,
 }: EventFormProps) {
+  const formErrorRef = useRef<HTMLParagraphElement>(null)
+  const titleInputRef = useRef<HTMLInputElement>(null)
+  const startsAtInputRef = useRef<HTMLInputElement>(null)
+  const locationInputRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(initialValues?.title ?? '')
   const [startsAt, setStartsAt] = useState(initialValues?.startsAt ?? '')
   const [location, setLocation] = useState(initialValues?.location ?? '')
@@ -64,10 +68,27 @@ function EventForm({
   )
   const [showValidation, setShowValidation] = useState(false)
 
+  useEffect(() => {
+    if (error) formErrorRef.current?.focus()
+  }, [error])
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!title.trim() || !startsAt || !location.trim()) {
-      setShowValidation(true)
+    const titleIsMissing = !title.trim()
+    const startsAtIsMissing = !startsAt
+    const locationIsMissing = !location.trim()
+    setShowValidation(true)
+
+    if (titleIsMissing) {
+      titleInputRef.current?.focus()
+      return
+    }
+    if (startsAtIsMissing) {
+      startsAtInputRef.current?.focus()
+      return
+    }
+    if (locationIsMissing) {
+      locationInputRef.current?.focus()
       return
     }
     await onSubmit({
@@ -92,8 +113,13 @@ function EventForm({
   return (
     <form noValidate className="space-y-3" onSubmit={submit}>
       {error ? (
-        <p className="m-0 text-sm text-text" role="alert">
-          {error}
+        <p
+          className="m-0 rounded-md border border-accent bg-surface-subtle px-4 py-3 text-sm leading-5 text-text"
+          ref={formErrorRef}
+          role="alert"
+          tabIndex={-1}
+        >
+          <span className="font-bold">Could not save:</span> {error}
         </p>
       ) : null}
       <TextField
@@ -102,6 +128,7 @@ function EventForm({
         }
         label="Title"
         name={`${mode}-event-title`}
+        ref={titleInputRef}
         required
         value={title}
         onChange={(event) => setTitle(event.target.value)}
@@ -112,6 +139,7 @@ function EventForm({
         }
         label="Date and time"
         name={`${mode}-event-startsAt`}
+        ref={startsAtInputRef}
         required
         type="datetime-local"
         value={startsAt}
@@ -123,6 +151,7 @@ function EventForm({
         }
         label="Location"
         name={`${mode}-event-location`}
+        ref={locationInputRef}
         required
         value={location}
         onChange={(event) => setLocation(event.target.value)}
@@ -139,7 +168,7 @@ function EventForm({
             Run options
           </legend>
           <p className="m-0 text-sm leading-5 text-text-muted">
-            Choose the distances and pace groups runners can join. Scroll each
+            Choose each distance and whether it has a target pace. Scroll each
             wheel or use the arrow keys for precise changes.
           </p>
           {runOptions.map((option, index) => (
@@ -161,6 +190,7 @@ function EventForm({
               />
               <RouteFileField
                 distanceTenths={option.distanceTenths}
+                location={location}
                 unit={option.unit}
                 value={option.route}
                 onChange={(route) =>

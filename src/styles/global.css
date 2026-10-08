@@ -116,6 +116,10 @@ a {
   background: var(--flock-color-text);
 }
 
+.modal-scroll-area::-webkit-scrollbar-track {
+  margin-block: 0.75rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

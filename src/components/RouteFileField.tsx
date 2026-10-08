@@ -3,10 +3,12 @@ import { useId, useState, type ChangeEvent } from 'react'
 import { GpxParseError, parseGpxFile } from '@src/lib/gpx'
 import Button from '@src/primitives/Button'
 import type { EventRoute, RunUnit } from '@src/types/events'
+import RouteDrawingDialog from './RouteDrawingDialog'
 import RouteMap from './RouteMap'
 
 type RouteFileFieldProps = {
   distanceTenths: number
+  location: string
   onChange: (route: EventRoute | undefined) => void
   unit: RunUnit
   value?: EventRoute
@@ -19,6 +21,7 @@ function formatDistance(distanceMeters: number, unit: RunUnit) {
 
 function RouteFileField({
   distanceTenths,
+  location,
   onChange,
   unit,
   value,
@@ -26,6 +29,7 @@ function RouteFileField({
   const inputId = useId()
   const [error, setError] = useState<string>()
   const [isReading, setIsReading] = useState(false)
+  const [isDrawing, setIsDrawing] = useState(false)
   let chooseFileLabel = 'Choose GPX file'
   if (value) chooseFileLabel = 'Replace GPX file'
   if (isReading) chooseFileLabel = 'Reading GPX…'
@@ -62,7 +66,8 @@ function RouteFileField({
         <div>
           <p className="m-0 text-sm font-bold text-text">Mapped route</p>
           <p className="mt-1 mb-0 text-xs leading-5 text-text-muted">
-            Optional GPX file, up to 2 MB. Only the route line is saved.
+            Draw a road-following route or attach a GPX file. Only the route
+            line and estimated distance are saved.
           </p>
         </div>
         {value ? (
@@ -80,6 +85,13 @@ function RouteFileField({
         onChange={selectFile}
       />
       <div className="mt-2 flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setIsDrawing(true)}
+        >
+          {value ? 'Draw a new route' : 'Draw route'}
+        </Button>
         <Button
           aria-busy={isReading || undefined}
           disabled={isReading}
@@ -114,6 +126,17 @@ function RouteFileField({
         <div className="mt-3">
           <RouteMap route={value} />
         </div>
+      ) : null}
+      {isDrawing ? (
+        <RouteDrawingDialog
+          location={location}
+          unit={unit}
+          onClose={() => setIsDrawing(false)}
+          onUseRoute={(route) => {
+            onChange(route)
+            setIsDrawing(false)
+          }}
+        />
       ) : null}
     </div>
   )

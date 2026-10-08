@@ -87,4 +87,32 @@ test('opens a mapped personal-event route across supported viewports', async ({
   expect((mapBox?.x ?? 0) + (mapBox?.width ?? 0)).toBeLessThanOrEqual(
     viewport?.width ?? 0,
   )
+  if ((viewport?.width ?? 0) >= 640) {
+    expect(mapBox?.height).toBe(416)
+  } else {
+    expect(mapBox?.height).toBe(256)
+  }
+})
+
+test('offers a run-at-your-own-pace event option across supported viewports', async ({
+  mount,
+}) => {
+  const component = await mount('pages/EventsPage/OwnPaceCreate')
+
+  await component.getByRole('button', { name: 'Create event' }).click()
+  await component.getByRole('radio', { name: 'Run at your own pace' }).click()
+
+  await expect(
+    component.getByRole('radio', { name: 'Run at your own pace' }),
+  ).toBeChecked()
+  await expect(
+    component.getByText(
+      'Runners choose this distance and complete it at their own pace.',
+    ),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('spinbutton', {
+      name: 'Pace minutes for option 1',
+    }),
+  ).toHaveCount(0)
 })

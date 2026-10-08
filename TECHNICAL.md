@@ -271,6 +271,26 @@ route on its run option so a multi-distance event can carry a distinct course
 for each choice. Event-aligned Row Level Security remains the authorization
 boundary for route reads.
 
+Creators may instead draw a route by placing ordered points on the same map.
+Use Geoapify's public browser Routing API in walking mode to connect each new
+point to the previous point along walkable roads. Keep its API key in
+`VITE_GEOAPIFY_API_KEY`, restrict that key to the deployed Flock origins, and
+never treat it as a server secret. Route drawing remains an optional authored
+input beside local GPX import; if the provider or key is unavailable, the form
+must keep GPX usable and explain the unavailable drawing path.
+
+Planning requests necessarily disclose selected waypoint coordinates to
+Geoapify, and best-effort initial centering discloses the entered event
+location. Simply viewing an already saved route does neither.
+
+Request one segment per newly added point so Undo and Clear remain local and a
+failed request preserves the existing draft. Use the event's location only as
+a best-effort initial map center. Persist no waypoint, provider identifier,
+turn instruction, or geocoding result: merge and bound the returned line to the
+existing 1,000-coordinate contract and store only normalized geometry and
+estimated distance. Reopening a saved route starts a new drawing rather than
+reconstructing provider-specific editing state.
+
 ## Deferred decisions
 
 Do not select these until the corresponding feature branch begins:
@@ -289,6 +309,7 @@ Do not select these until the corresponding feature branch begins:
 - [Supabase redirect URL documentation](https://supabase.com/docs/guides/auth/redirect-urls)
 - [MapLibre GL JS documentation](https://maplibre.org/maplibre-gl-js/docs/)
 - [OpenFreeMap documentation](https://openfreemap.org/quick_start/)
+- [Geoapify Routing API documentation](https://apidocs.geoapify.com/docs/routing/)
 - [Supabase session documentation](https://supabase.com/docs/guides/auth/sessions)
 - [Supabase Realtime documentation](https://supabase.com/docs/guides/realtime)
 - [Cloudflare Pages React documentation](https://developers.cloudflare.com/pages/framework-guides/deploy-a-react-site/)

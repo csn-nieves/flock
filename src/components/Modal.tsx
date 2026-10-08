@@ -7,6 +7,7 @@ type ModalProps = {
   description: string
   onClose: () => void
   title: string
+  size?: 'default' | 'wide'
   tone?: 'default' | 'danger'
 }
 
@@ -14,6 +15,7 @@ function Modal({
   children,
   description,
   onClose,
+  size = 'default',
   title,
   tone = 'default',
 }: ModalProps) {
@@ -42,11 +44,14 @@ function Modal({
   }, [])
 
   const surfaceClasses = [
-    'max-h-[min(86svh,42rem)] w-full max-w-app overflow-y-auto rounded-t-2xl border border-border bg-background px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-lg sm:rounded-2xl sm:py-5',
+    'w-full max-w-app overflow-hidden rounded-t-2xl border border-border bg-background shadow-lg sm:rounded-2xl',
+    size === 'wide' ? 'sm:max-w-3xl' : null,
     tone === 'danger' ? 'border-t-4 border-t-danger' : null,
   ]
     .filter(Boolean)
     .join(' ')
+  const scrollAreaClasses =
+    'modal-scroll-area max-h-[min(86svh,42rem)] overflow-y-auto px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:py-5'
 
   return (
     <div
@@ -57,33 +62,38 @@ function Modal({
       aria-labelledby={titleId}
     >
       <div className={surfaceClasses}>
-        <div
-          aria-hidden="true"
-          className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden"
-        />
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2
-              className="m-0 font-display text-xl font-bold text-text"
-              id={titleId}
+        <div className={scrollAreaClasses} data-modal-scroll-area>
+          <div
+            aria-hidden="true"
+            className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden"
+          />
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2
+                className="m-0 font-display text-xl font-bold text-text"
+                id={titleId}
+              >
+                {title}
+              </h2>
+              <p
+                className="mt-1 mb-0 text-sm text-text-muted"
+                id={descriptionId}
+              >
+                {description}
+              </p>
+            </div>
+            <Button
+              aria-label="Close dialog"
+              className="min-w-touch px-2 text-2xl leading-none text-text-muted"
+              onClick={onClose}
+              ref={closeButtonRef}
+              variant="ghost"
             >
-              {title}
-            </h2>
-            <p className="mt-1 mb-0 text-sm text-text-muted" id={descriptionId}>
-              {description}
-            </p>
+              ×
+            </Button>
           </div>
-          <Button
-            aria-label="Close dialog"
-            className="min-w-touch px-2 text-2xl leading-none text-text-muted"
-            onClick={onClose}
-            ref={closeButtonRef}
-            variant="ghost"
-          >
-            ×
-          </Button>
+          <div className="mt-5">{children}</div>
         </div>
-        <div className="mt-5">{children}</div>
       </div>
     </div>
   )

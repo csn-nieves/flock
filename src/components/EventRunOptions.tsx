@@ -95,9 +95,10 @@ function EventRunOptions({
         <Modal
           description={`${mappedOption.distanceLabel} at ${mappedOption.paceLabel}. Route distance ${formatRouteDistance(mappedOption.route.distanceMeters, mappedOption.unit)}.`}
           onClose={() => setMappedOption(undefined)}
+          size="wide"
           title="Event route"
         >
-          <RouteMap route={mappedOption.route} />
+          <RouteMap route={mappedOption.route} size="large" />
         </Modal>
       ) : null}
     </>

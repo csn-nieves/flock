@@ -1,6 +1,6 @@
 # Flock system design
 
-Last reviewed: 2026-10-06
+Last reviewed: 2026-10-07
 
 ## What Flock is
 
@@ -441,12 +441,14 @@ malformed tokens.
 
 Every newly created flock or personal event has between one and eight ordered
 run options.
-Each option stores a distance in tenths, a pace in seconds, and one shared
-miles-or-kilometers unit. The database retains separate distance and pace unit
-columns for compatibility but constrains them to equality. Distance is offered
-from 0.1 through 100 in tenth-unit steps. Pace is offered in five-second steps from
-4:00 through 15:00 per mile or 2:30 through 9:30 per kilometer. Concise display
-labels are derived server-side for existing read paths and notifications rather
+Each option stores a distance in tenths, an optional target pace in seconds,
+and one shared miles-or-kilometers unit. A null target pace explicitly means
+“Run at your own pace”; it is not an unknown value. The database retains
+separate distance and pace unit columns for compatibility but constrains them
+to equality. Distance is offered from 0.1 through 100 in tenth-unit steps.
+Target pace is offered in five-second steps from 4:00 through 15:00 per mile or
+2:30 through 9:30 per kilometer. Concise display labels, including the own-pace
+label, are derived server-side for existing read paths and notifications rather
 than accepted from the browser. Stable option identifiers let an organizer edit
 values without disconnecting existing responses. An edit may also remove an
 option; the foreign key preserves each attendance row and sets its removed
@@ -457,8 +459,10 @@ The form uses an authored dark multi-column wheel with a centered selection
 band and faded neighboring values. A maintained wheel primitive provides touch
 dragging, inertial scrolling, snapping, and keyboard movement; Flock adds
 spinbutton names and current-value announcements. One segmented measurement
-control changes both distance and pace units, converting the selected effort to
-the nearest supported five-second value.
+control changes both distance and any target-pace unit, converting the selected
+effort to the nearest supported five-second value. A separate segmented control
+switches between a target pace and running at the runner's own pace; the numeric
+wheel is hidden when no target pace applies.
 Earlier free-text options keep their labels and remain readable; editing one
 shows the earlier value and requires the organizer to confirm structured values.
 
@@ -501,6 +505,25 @@ dialog. MapLibre GL is loaded only when a route preview or map is requested;
 OpenFreeMap supplies the public basemap without a browser API key. The map
 assets are excluded from PWA precaching so users who never open a map do not
 download the large rendering bundle during installation.
+
+The same run-option field also opens an authored route planner. Its lazy-loaded
+MapLibre surface lets a creator place up to 25 ordered waypoints by pointer or
+by panning the keyboard-operable map and adding its center. The
+`useRoutePlanner` hook owns cancellation and calls the provider adapter in
+`src/data/routePlanning.ts`; visual components never call the provider
+directly. Geoapify walking routing connects only the previous and new points,
+so Undo and Clear require no extra request and a failed segment leaves the
+accepted draft intact. Event-location geocoding is best effort and only centers
+the initial view. Those requests necessarily disclose the entered event
+location and selected waypoint coordinates to Geoapify while the creator is
+drawing; they are not sent merely to view a saved route.
+
+The browser merges successful segments, limits the completed line to the same
+1,000-coordinate contract as GPX, and sends the existing `EventRoute` shape
+through the unchanged atomic event mutation. Waypoints, geocoding results,
+provider identifiers, and directions are not stored. A saved route is therefore
+provider-neutral and viewable without Geoapify, but editing it requires drawing
+a replacement or importing another GPX file.
 
 ## Superadmin event operations
 
