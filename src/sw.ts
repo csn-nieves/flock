@@ -48,27 +48,34 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
   const url = getSafeNotificationUrl(event.notification.data?.url)
+  const absoluteUrl = new URL(url, self.location.origin).href
 
   event.waitUntil(
-    self.clients
-      .matchAll({ includeUncontrolled: true, type: 'window' })
-      .then(async (clients) => {
-        const existingClient = clients.find((client) => {
-          return new URL(client.url).origin === self.location.origin
-        })
+    (async () => {
+      const clients = await self.clients.matchAll({
+        includeUncontrolled: true,
+        type: 'window',
+      })
+      const existingClient = clients.find((client) => {
+        return new URL(client.url).origin === self.location.origin
+      })
 
-        if (existingClient) {
+      if (existingClient) {
+        try {
+          await existingClient.focus()
           try {
             await existingClient.navigate(url)
-            return existingClient.focus()
+            return
           } catch {
             // Some installed-PWA clients expose a window but reject navigate.
-            // Fall through to openWindow so the notification still deep-links.
           }
+        } catch {
+          // A background PWA client may reject focus; open a fresh window.
         }
+      }
 
-        return self.clients.openWindow(url)
-      }),
+      await self.clients.openWindow(absoluteUrl)
+    })(),
   )
 })
 
