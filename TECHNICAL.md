@@ -50,11 +50,28 @@ Use **Supabase** for:
 
 - PostgreSQL data storage
 - Authentication
-- Realtime features when chat is introduced
+- Postgres Changes delivery for member-only flock chat
 - File storage when flock images are introduced
 - Edge Functions only when an operation requires secrets or privileged server-side behavior
 
 The browser may use the Supabase client directly for permitted operations. Every user-owned or flock-owned table must have Row Level Security enabled and tested before it is used by the application. Service-role credentials and other secrets must never be included in the client bundle.
+
+### Flock chat
+
+- List the authenticated runner's conversation destinations through a protected
+  function that derives membership from `auth.uid()`. Do not reuse broader
+  superadmin flock visibility as private-chat visibility.
+- Store one durable message stream per flock and authorize reads through Row
+  Level Security using current membership.
+- Send through a protected database function that derives the sender from
+  `auth.uid()` and verifies membership again at write time. Browser clients do
+  not receive a direct message-table write grant.
+- Load history in bounded keyset pages ordered by `(created_at, id)`. The UI
+  exposes this as upward infinite scroll rather than page numbers or a load-more
+  control.
+- Subscribe only current members to filtered `INSERT` changes for their flock.
+  Realtime delivery improves immediacy; persisted history remains authoritative
+  after reconnecting, refreshing, or missing an update.
 
 ## Authentication
 

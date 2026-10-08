@@ -814,3 +814,51 @@ means it is the current direction, not that it can never change.
   independent of both the source event and the saved-route library.
 - **Revisit when:** Organizers need recurring schedules, bulk edits, series
   cancellation, inherited audiences, or explicit links between occurrences.
+
+## D042 — Keep flock chat member-only with durable cursor history
+
+- **Status:** Accepted
+- **Decision:** Give each flock one plain-text message stream available only to
+  current members. Persist messages in PostgreSQL, authorize reads with Row
+  Level Security, and accept writes only through a protected function that
+  derives the sender and rechecks membership. Administrative flock access does
+  not grant a nonmember access to private chat.
+- **History and delivery:** Read deterministic `(created_at, id)` cursor pages
+  and present them as upward infinite scroll with no page controls. Use filtered
+  Supabase Realtime inserts for immediate delivery, while treating persisted
+  history as authoritative after refresh, reconnect, or a missed update.
+- **Why:** Flocks need a lightweight place to coordinate runs without moving to
+  another app. Cursor loading keeps long histories stable as new messages arrive,
+  and membership-aligned authorization matches the private group boundary.
+- **Tradeoffs:** Membership loss immediately removes history and send access.
+  The first increment has no direct messages, attachments, edits, deletion,
+  reactions, typing indicators, read receipts, moderation tools, or push alerts.
+- **Revisit when:** Real use requires retention controls, moderation, media,
+  message lifecycle actions, unread counts, device alerts, or one-to-one chat.
+
+## D043 — Put the conversation directory in the application sidebar
+
+- **Status:** Accepted
+- **Decision:** Move flock chat out of flock detail into `/chats` and
+  `/chats/:flockId` routes, but do not add a generic Chats item to primary
+  navigation. Instead, present current flock conversations as a Flock chats
+  group directly in the persistent desktop sidebar and mobile navigation
+  drawer, like group channels. Reserve a clearly separated Direct messages
+  section without enabling an unfinished action. Let the selected conversation
+  consume the available desktop canvas rather than the narrow content width
+  used by forms and detail pages.
+- **Authorization:** Populate the flock-chat list through a protected database
+  function that derives the runner from `auth.uid()` and returns only current
+  memberships. Broader superadmin flock visibility must not reveal private
+  conversation destinations.
+- **Why:** Messaging is becoming a recurring product activity rather than flock
+  metadata, but an extra generic destination adds a redundant step. Exposing
+  conversation destinations directly gives future one-to-one messages a
+  natural home without forcing another redesign or mixing private messaging
+  permissions with administration.
+- **Tradeoffs:** The first panel lists names only; it has no unread counts, last
+  message previews, ordering by activity, or direct-message records. On phones,
+  the list and selected thread are separate views instead of simultaneous
+  columns.
+- **Revisit when:** Direct messages define their participant lifecycle, or real
+  usage justifies unread state, previews, search, pinning, or activity ordering.

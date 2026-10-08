@@ -17,7 +17,8 @@ planned admin operations are complete. Run events now carry organizer-defined
 distance and pace options, and attendance is tied to a runner's selected plan.
 Moderated workflow validation remains prepared but is temporarily deferred by
 the product owner so feature development can continue. Run options now support
-optional mapped GPX courses for both personal and flock events. Chat and
+optional mapped GPX courses for both personal and flock events. Current members
+can now coordinate in a durable realtime flock chat. Direct messages and
 monetization remain outside the current slice.
 
 ## Completed foundation
@@ -75,6 +76,19 @@ monetization remain outside the current slice.
   roles. The member section independently covers loading, empty, failure,
   retry, populated, background refresh, and stale-data recovery while keeping
   the flock page usable.
+- Current flock members can read and send plain-text messages in one private
+  chat per flock from a Flock chats group integrated into the application
+  sidebar and mobile drawer. A separate Direct messages group reserves the
+  future one-to-one hierarchy without enabling it. History loads automatically
+  as a runner scrolls upward,
+  preserves their reading position, and receives filtered Realtime inserts.
+  The composer previews its bounded bold, italic, and underline formatting
+  directly while editing and includes a compact emoji picker. A versioned text
+  run encoding preserves overlapping styles in history without storing or
+  rendering arbitrary HTML.
+  Persisted history remains authoritative after a missed connection. Row Level
+  Security and the send function both enforce current membership; superadmin
+  access alone does not expose chat.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from
@@ -191,10 +205,12 @@ monetization remain outside the current slice.
 
 ## Current application boundary
 
-The live router exposes sign-in, the OAuth callback, and the protected flock
-workflow through explicit route-controller modules. The protected index and
-`/flocks` both render the flock collection; list actions reach `/profile` and `/flocks/new`
-and `/flocks/:flockId`. Successful creation replaces the completed form route
+The live router exposes sign-in, the OAuth callback, and protected product
+workflows through explicit route-controller modules. The protected index and
+`/flocks` both render the flock collection; primary navigation reaches
+`/events`, `/discover`, `/profile`, and `/settings`; the shell's Flock chats
+group reaches `/chats/:flockId`, which owns the selected conversation. Flock list actions reach
+`/flocks/new` and `/flocks/:flockId`. Successful creation replaces the completed form route
 with the returned flock detail destination. Visible app-owned back controls
 return create/detail pages to the collection, invitation creation to its flock,
 and invitation acceptance to the collection. These actions replace the current
@@ -214,8 +230,11 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the repeat-event-planning vertical slice, then select the
-   next feature increment. The rehearsed moderated sessions in
+1. Review and merge the flock-chat vertical slice, including its sidebar
+   conversation directory. The next logical feature is one-to-one runner messaging built on
+   the same cursor, Realtime, composer, and conversation-panel foundation
+   without weakening participant-specific authorization. The
+   rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.
 

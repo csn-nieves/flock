@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { flockQueryKeys } from '@src/data/queryKeys'
+import { flockChatQueryKeys, flockQueryKeys } from '@src/data/queryKeys'
 
 describe('flockQueryKeys', () => {
   it('keeps list, detail, and member keys under the same flock root', () => {
@@ -15,6 +15,16 @@ describe('flockQueryKeys', () => {
     expect(flockQueryKeys.members('morning-runners')).toEqual([
       'flocks',
       'members',
+      'morning-runners',
+    ])
+  })
+})
+
+describe('flockChatQueryKeys', () => {
+  it('separates the conversation list from flock message history', () => {
+    expect(flockChatQueryKeys.lists()).toEqual(['flock-chat', 'list'])
+    expect(flockChatQueryKeys.messages('morning-runners')).toEqual([
+      'flock-chat',
       'morning-runners',
     ])
   })

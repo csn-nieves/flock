@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { PropsWithChildren } from 'react'
 import type { CreateFlockInput, FlockSummary } from '@src/types/flocks'
-import { flockQueryKeys } from '@src/data/queryKeys'
+import { flockChatQueryKeys, flockQueryKeys } from '@src/data/queryKeys'
 import { createTestQueryClient } from '@src/test/queryClient'
 import { useCreateFlock } from './useCreateFlock'
 
@@ -69,6 +69,9 @@ describe('useCreateFlock', () => {
     expect(result.current.data).toEqual(flock)
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: flockQueryKeys.lists(),
+    })
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: flockChatQueryKeys.lists(),
     })
   })
 

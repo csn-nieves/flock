@@ -7,8 +7,10 @@ Last reviewed: 2026-10-07
 Flock is a mobile-first application for organizing run clubs. A run club is a
 “flock.” The first complete product slice will let an organizer create a flock,
 share an invitation, let another runner join, and show the flock's member list.
-Routes, pace groups, chat, and monetization remain outside the current
-implemented boundary.
+One current-member chat now exists for each flock and is reached directly from
+the application shell's Flock chats group. Direct messages,
+monetization, live run tracking, and fitness integrations remain outside the
+current implemented boundary.
 
 Flock is being built as a progressive web app so runners can install and use it
 from a phone without requiring an App Store release, native mobile toolchain, or
@@ -31,6 +33,7 @@ Browser / installed PWA
                     │   └── ProtectedRoute
                     │       ├── index → FlocksRoute → FlocksPage
                     │       ├── FlocksRoute → FlocksPage
+                    │       ├── ChatsRoute → ChatsPage
                     │       ├── ProfileRoute → ProfilePage
                     │       ├── CreateFlockRoute → CreateFlockPage
                     │       └── FlockDetailRoute → FlockDetailPage
@@ -247,6 +250,20 @@ canonical owner, maps `useUpdateFlock` into the shared edit form, updates the
 detail cache after server confirmation, and refreshes flock lists so changed
 identity data stays consistent across routes.
 
+`ChatsRoute` owns `/chats` and `/chats/:flockId`. `AppShell` loads the
+authenticated runner's current flock-chat destinations through `useFlockChats`
+and presents them as a dedicated Flock chats group in the persistent desktop
+sidebar or mobile navigation drawer, with a separate future Direct messages
+group. There is no generic Chats navigation item. The route resolves its
+selection against the same authorized cached list and enables `useFlockChat`
+only for a selected current membership. The pure `ChatsPage` owns the selected
+thread and the phone return directory; the desktop thread uses the available
+application canvas rather than repeating a second conversation list.
+Superadmin visibility into flock administration does not imply private-chat
+access. The message hook owns cursor history, send mutation state, cache
+deduplication, and the filtered Realtime subscription; the page receives only
+application-shaped messages and callbacks.
+
 `ProfileRoute` calls `useProfile` and `useUpdateProfile`, owns the protected
 `/profile` destination, and maps loading, retry, save, and success state into
 the pure `ProfilePage`. The update function derives the target from
@@ -318,6 +335,48 @@ and is regenerated from the migration-built local database with
 `npm run db:types`; it is committed for deterministic builds but never edited
 by hand. Generated types provide compile-time table contracts, while Row Level
 Security, constraints, and input validation remain the runtime authority.
+
+## Flock chat
+
+`flock_messages` stores text messages with flock, sender, and deterministic
+creation ordering. Formatted bodies use an app-owned, versioned list of text
+runs with bounded bold, italic, and underline flags. The client validates that
+structure and renders it through React elements; it never interprets message
+bodies as HTML. This keeps overlapping formatting deterministic while the rich
+composer remains visual without changing the database contract. A compatibility
+renderer preserves messages written with the branch's earlier bounded marker
+format. Pasted content enters as plain text, and emoji remain ordinary Unicode
+text. Current membership governs reads through Row Level Security.
+The browser has select access only; `send_flock_message` derives the sender from
+the authenticated session, checks live membership, trims the body, and returns
+the inserted message with its display name. A superadmin who is not a member
+cannot read or send private chat messages.
+
+`list_my_flock_chats` derives the caller from `auth.uid()` and returns only
+flocks where that runner has a current membership. The Chats panel does not use
+the broader flock collection query because superadmin administration may expose
+flocks that must remain absent from private messaging. Creating a flock or
+accepting a flock invitation invalidates this dedicated list so the persistent
+sidebar reflects the new membership without a page reload.
+
+`list_flock_messages` returns reverse-chronological keyset pages using the
+composite `(flock_id, created_at desc, id desc)` index. The data layer reverses
+each bounded page for chronological rendering, and React Query retains pages so
+the presentation can prepend older history without visible pagination. The
+message log snapshots its scroll height before a prepend and restores the
+reader's visual position afterward.
+
+Supabase Realtime publishes message inserts. A member subscribes to only the
+current flock, hydrates each insert with its authorized sender profile, and
+deduplicates it against the send mutation result. Each insert also refreshes the
+persisted message page immediately, so delayed profile hydration cannot hide a
+message. Live arrivals append while a runner is near the bottom; otherwise the
+interface offers a New messages action. Realtime is not the source of truth: a
+successful subscription refreshes persisted history once to
+close the gap between the initial query and the live channel. Refresh or
+reconnect can therefore recover missed messages. This increment
+does not include direct messages, attachments, edits, deletion, reactions,
+typing indicators, read receipts, or chat push notifications.
 
 React Query owns asynchronous server-state caching outside authentication. One
 application-level `QueryClientProvider` wraps the router and session provider.

@@ -1433,6 +1433,68 @@ not gain a parallel path. Personal and flock surfaces share the same mapping,
 wide form, retry behavior, and phone-safe action hierarchy; no database change
 was required.
 
+## 2026-10-07 — Adding current-member flock chat
+
+### Durable history with upward infinite scroll and live delivery
+
+Current flock members can now coordinate through one plain-text message stream
+per flock. PostgreSQL persists messages, Row Level Security
+protects reads, and a membership-checking database function derives the sender
+for every write. Superadmin operational access remains intentionally separate
+from private membership, so a nonmember administrator cannot read or send chat.
+
+History uses deterministic cursor pages and appears as continuous upward scroll
+instead of numbered pagination. Prepending older messages preserves the reader's
+position. Realtime inserts append immediately near the bottom; runners reading
+older history receive a New messages action instead of being pulled away. The
+composer preserves failed drafts and provides explicit loading, retry, send,
+connection, empty, and paused-update states.
+
+Database tests cover grants, membership changes, superadmin isolation, cursor
+windows, body validation, and publication. Component coverage exercises send and
+infinite history across desktop Chrome, Android-sized Chrome, and iPhone WebKit;
+the full-stack two-user journey verifies live messages in both directions. Direct
+messages, attachments, reactions, message lifecycle actions, read receipts,
+typing indicators, moderation tools, and chat push notifications remain deferred.
+
+### Promoting chat into the primary application navigation
+
+Messaging now lives outside roster and event information in flock detail, but
+does not add a redundant generic Chats item to primary navigation. Instead, the
+application sidebar presents flock conversations directly like group channels,
+with the same directory inside the phone navigation drawer. Selecting one opens
+a full-width desktop conversation while keeping message lines readable; phones
+move into one thread with an explicit All chats return action. A separate Direct
+messages section establishes the intended hierarchy while remaining honest that
+one-to-one messaging is not implemented yet.
+
+The conversation list comes from `list_my_flock_chats`, which derives the
+runner from the session and returns only current memberships. That extra server
+boundary matters for superadmins: operational access to a flock still cannot
+reveal its private chat destination. Existing cursor history, Realtime delivery,
+composer behavior, and message authorization moved without creating a second
+messaging implementation.
+
+The conversation surface then adopted the same information hierarchy as a
+durable team chat: flock names appear without channel hash marks, message rows
+use initial tiles with sender and timestamp metadata instead of alternating
+bubbles, and the route is locked to the available viewport so its heading and
+composer remain visible while history alone scrolls. Long flock names truncate
+inside the sidebar, and the realtime hook refreshes history when its subscription
+becomes live to recover an insert that could otherwise land between the initial
+query and channel readiness. The composer also exposes selection-based bold,
+italic, and underline actions using an app-owned bounded format, keeping the
+database text contract intact while avoiding raw HTML rendering.
+
+The composer then became genuinely visual rather than exposing its storage
+representation while a runner writes. Bold, italic, and underline now render
+inside a single framed editing surface, with an integrated toolbar and a compact
+emoji popover. Sending serializes a versioned list of text runs and bounded
+style flags so overlapping selections render identically in history. Unicode
+text remains ordinary content, pasted HTML is reduced to plain text, and
+history continues to render through safe React elements rather than raw HTML.
+A compatibility renderer keeps earlier marker-formatted branch data readable.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

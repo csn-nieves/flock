@@ -29,7 +29,9 @@ Each run club is called a **flock**. A flock will eventually support:
 - Repeatable personal and flock event plans that require a new date and keep
   each event's invitations and attendance independent
 - RSVPs tied to a selected distance and pace
-- Real-time event and club communication
+- A private real-time flock chat for current members, with older history loaded
+  continuously as a runner scrolls upward
+- Future one-to-one runner communication
 
 ## Delivery model
 

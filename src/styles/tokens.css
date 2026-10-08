@@ -33,6 +33,7 @@
     0 0 0 0.125rem var(--flock-color-background),
     0 0 0 0.3125rem var(--flock-color-focus);
   --flock-shadow-floating: 0 0.75rem 2.5rem rgb(16 36 62 / 18%);
+  --flock-z-popover: 300;
 }
 
 [data-theme='dark'] {

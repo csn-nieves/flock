@@ -10,6 +10,7 @@ const runnerEmail = 'maya.chen@flock.com'
 test('persists flock membership, event visibility, and RSVP across two real users', async ({
   browser,
 }) => {
+  test.setTimeout(60_000)
   const uniqueSuffix = Date.now()
   const flockName = `E2E Night Owls ${uniqueSuffix}`
   const flockLocation = `Moonrise Park ${uniqueSuffix}`
@@ -48,6 +49,7 @@ test('persists flock membership, event visibility, and RSVP across two real user
     ).toBeVisible()
     await expect(organizerPage).toHaveTitle(`${flockName} — Flock`)
     await expect(organizerPage.getByText(flockLocation)).toBeVisible()
+    const flockPath = new URL(organizerPage.url()).pathname
 
     await organizerPage
       .getByRole('button', { name: 'Edit flock details' })
@@ -60,9 +62,11 @@ test('persists flock membership, event visibility, and RSVP across two real user
       .getByLabel('Description')
       .fill('No-drop moonlight miles with a regroup at every turn.')
     await editFlockDialog.getByRole('button', { name: 'Save changes' }).click()
-    await expect(organizerPage.getByRole('status')).toHaveText(
-      'Flock details saved.',
-    )
+    await expect(
+      organizerPage.getByRole('status').filter({
+        hasText: 'Flock details saved.',
+      }),
+    ).toHaveText('Flock details saved.')
     await organizerPage.reload()
     await expect(organizerPage.getByText(updatedFlockLocation)).toBeVisible()
     await expect(
@@ -94,6 +98,44 @@ test('persists flock membership, event visibility, and RSVP across two real user
     await expect(
       organizerPage.getByRole('list', { name: 'Flock members' }),
     ).toContainText('Maya Chen')
+
+    await organizerPage
+      .getByRole('navigation', { name: 'Chat conversations' })
+      .getByRole('link', { name: flockName })
+      .click()
+    await runnerPage
+      .getByRole('navigation', { name: 'Chat conversations' })
+      .getByRole('link', { name: flockName })
+      .click()
+
+    const organizerChatMessage = `Headlamps ready ${uniqueSuffix}`
+    await Promise.all([
+      expect(organizerPage.getByText('Live', { exact: true })).toBeVisible(),
+      expect(runnerPage.getByText('Live', { exact: true })).toBeVisible(),
+    ])
+    // Local Supabase can report SUBSCRIBED just before its cold publication
+    // stream is ready to deliver the first database change.
+    await organizerPage.waitForTimeout(5_000)
+    await organizerPage
+      .getByRole('textbox', { exact: true, name: 'Message' })
+      .fill(organizerChatMessage)
+    await organizerPage.getByRole('button', { name: 'Send message' }).click()
+    await expect(
+      runnerPage.getByRole('log', { name: 'Flock messages' }),
+    ).toContainText(organizerChatMessage)
+
+    await runnerPage.waitForTimeout(1_000)
+    const runnerChatMessage = `Ready to run ${uniqueSuffix}`
+    await runnerPage
+      .getByRole('textbox', { exact: true, name: 'Message' })
+      .fill(runnerChatMessage)
+    await runnerPage.getByRole('button', { name: 'Send message' }).click()
+    await expect(
+      organizerPage.getByRole('log', { name: 'Flock messages' }),
+    ).toContainText(runnerChatMessage)
+
+    await organizerPage.goto(flockPath)
+    await runnerPage.goto(flockPath)
 
     await organizerPage.getByRole('button', { name: 'Create an event' }).click()
     const createEventDialog = organizerPage.getByRole('dialog', {

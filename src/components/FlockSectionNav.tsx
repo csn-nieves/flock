@@ -1,10 +1,11 @@
-const sections = [
+const baseSections = [
   { label: 'Overview', href: '#flock-overview' },
   { label: 'Members', href: '#flock-members' },
-  { label: 'Events', href: '#flock-events' },
 ]
 
 function FlockSectionNav() {
+  const sections = [...baseSections, { label: 'Events', href: '#flock-events' }]
+
   return (
     <nav
       aria-label="Flock sections"

@@ -23,6 +23,15 @@ vi.mock('@src/hooks/useFlocks', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useFlockChats', () => ({
+  useFlockChats: () => ({
+    data: [],
+    isError: false,
+    isFetching: false,
+    isPending: false,
+  }),
+}))
+
 vi.mock('@src/hooks/useDiscoverySearch', () => ({
   useFlockSearch: () => ({
     data: [],

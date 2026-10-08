@@ -174,6 +174,45 @@ export type Database = {
           },
         ]
       }
+      flock_messages: {
+        Row: {
+          body: string
+          created_at: string
+          flock_id: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          flock_id: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          flock_id?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'flock_messages_flock_id_fkey'
+            columns: ['flock_id']
+            isOneToOne: false
+            referencedRelation: 'flocks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'flock_messages_sender_id_fkey'
+            columns: ['sender_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['user_id']
+          },
+        ]
+      }
       flocks: {
         Row: {
           created_at: string
@@ -446,6 +485,29 @@ export type Database = {
           user_id: string
         }[]
       }
+      list_flock_messages: {
+        Args: {
+          before_created_at?: string
+          before_id?: string
+          page_size?: number
+          target_flock_id: string
+        }
+        Returns: {
+          body: string
+          created_at: string
+          flock_id: string
+          id: string
+          sender_display_name: string
+          sender_id: string
+        }[]
+      }
+      list_my_flock_chats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          flock_id: string
+          flock_name: string
+        }[]
+      }
       list_pending_event_invitations: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -504,6 +566,17 @@ export type Database = {
         Returns: {
           display_name: string
           user_id: string
+        }[]
+      }
+      send_flock_message: {
+        Args: { message_body: string; target_flock_id: string }
+        Returns: {
+          body: string
+          created_at: string
+          flock_id: string
+          id: string
+          sender_display_name: string
+          sender_id: string
         }[]
       }
       set_flock_event_response: {
