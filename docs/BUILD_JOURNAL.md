@@ -1565,6 +1565,22 @@ justifies them. Database coverage exercises opted-in and opted-out recipients,
 self-exclusion, read-before-delivery suppression, membership loss, rapid
 message collapse, payload privacy, and both chat authorization models.
 
+## 2026-10-08 — Aligning push webhooks with current Supabase secret keys
+
+Deploying the validation environment exposed a provider change before the
+database webhook was saved. Supabase's current dedicated Edge Function webhook
+supplies a project secret through the `apikey` header, while the original Flock
+function expected the legacy service-role key as a bearer credential.
+
+The function now parses Supabase's built-in `SUPABASE_SECRET_KEYS` dictionary,
+requires an exact `apikey` match before claiming any private job, and rejects
+the legacy bearer header at that boundary. The service-role key remains
+available only inside the function for privileged notification RPCs. Focused
+tests cover key rotation, malformed configuration, missing or unknown keys, and
+legacy-header rejection. Deployment guidance now follows the dashboard's
+dedicated Edge Function and **Add secret key** path without copying a privileged
+credential into webhook configuration.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

@@ -70,15 +70,18 @@ alerts:
 4. Deploy `send-push-notification` after deploying its database
    migration.
 5. Create a Supabase Database Webhook for `INSERT` and `UPDATE` events on
-   `private.notification_jobs`. Target the Edge Function with
-   `POST`, keep `Content-Type: application/json`, and add the service-role
-   authorization header. Updates are required because opting in can requeue a
+   `private.notification_jobs`. Choose the dedicated Supabase Edge Functions
+   webhook type, target `send-push-notification` with `POST`, and use **Add
+   secret key** so Supabase supplies the current project secret in the
+   `apikey` header. Updates are required because opting in can requeue a
    still-active alert that previously had no device subscription.
 
 The function has platform JWT verification disabled because database webhooks
-do not carry an end-user session. It performs its own exact service-role bearer
-check before claiming a private, idempotent job. Do not configure the webhook
-with a public or anonymous credential.
+do not carry an end-user session. It checks the `apikey` header against
+Supabase's built-in `SUPABASE_SECRET_KEYS` dictionary before claiming a private,
+idempotent job. The legacy service-role credential remains internal to the
+function for privileged database calls and never crosses the webhook boundary.
+Do not configure the webhook with a public or publishable credential.
 
 ## Local database development
 

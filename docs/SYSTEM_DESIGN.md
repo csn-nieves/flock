@@ -144,14 +144,17 @@ including the flock owner. Older create or update activity is suppressed when
 a newer change already exists for the event.
 
 A database webhook invokes the `send-push-notification` Edge Function for
-pending jobs. The webhook authenticates with the service role; the function
-also checks that credential before claiming work. It sends the encrypted
-payload to every current device subscription through the browser's own push
-service, records one idempotent outcome, and removes endpoints that return
-`404` or `410`. Invitation alerts open `/events#event-invitations`; flock-event
-alerts open `/flocks/:flockId#flock-events`. The existing Events and flock
-detail screens remain the durable sources of truth when delivery is delayed,
-unsupported, blocked, or suppressed by the operating system.
+pending jobs. The webhook supplies a current Supabase project secret through
+the `apikey` header, and the function verifies it against the platform-provided
+`SUPABASE_SECRET_KEYS` dictionary before claiming work. The service-role
+credential stays inside the function for privileged RPCs. The function sends
+the encrypted payload to every current device subscription through the
+browser's own push service, records one idempotent outcome, and removes
+endpoints that return `404` or `410`. Invitation alerts open
+`/events#event-invitations`; flock-event alerts open
+`/flocks/:flockId#flock-events`. The existing Events and flock detail screens
+remain the durable sources of truth when delivery is delayed, unsupported,
+blocked, or suppressed by the operating system.
 
 Flock and direct-message sends queue one private job only for each eligible
 recipient who already has an active device subscription. Flock jobs snapshot
