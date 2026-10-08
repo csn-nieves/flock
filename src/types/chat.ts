@@ -14,12 +14,20 @@ export type DirectMessage = ChatMessage & {
   conversationId: string
 }
 
-export type FlockChatSummary = {
+export type ConversationActivity = {
+  latestMessageAt: string | null
+  latestMessagePreview: string | null
+  latestSenderDisplayName: string | null
+  latestSenderId: string | null
+  unreadCount: number
+}
+
+export type FlockChatSummary = ConversationActivity & {
   id: string
   name: string
 }
 
-export type DirectConversationSummary = {
+export type DirectConversationSummary = ConversationActivity & {
   id: string
   otherDisplayName: string
   otherUserId: string

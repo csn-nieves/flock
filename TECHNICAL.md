@@ -73,6 +73,9 @@ The browser may use the Supabase client directly for permitted operations. Every
 - Subscribe only current members to filtered `INSERT` changes for their flock.
   Realtime delivery improves immediacy; persisted history remains authoritative
   after reconnecting, refreshing, or missing an update.
+- Store one per-member read cursor for each flock chat. Advance it only through
+  a protected function that verifies the message belongs to the flock and never
+  permits the cursor to move backward. Remove it when membership ends.
 
 ### Direct messages
 
@@ -89,6 +92,22 @@ The browser may use the Supabase client directly for permitted operations. Every
 - Reuse the bounded `(created_at, id)` cursor history, visual composer, and
   filtered Realtime delivery used by flock chat. The browser receives no direct
   insert grant; sends derive and validate the participant at write time.
+- Store an independent per-participant read cursor. Conversation-list functions
+  return the latest authorized message, sender, timestamp, and count of other-
+  participant messages after that cursor, then order conversations by activity.
+
+### Conversation activity
+
+- Derive unread counts on the server and exclude the current runner's own
+  messages. A flock with no cursor begins at the runner's membership time; a
+  direct conversation begins at its creation time.
+- Treat `(created_at, id)` as the exact read boundary so equal timestamps remain
+  deterministic. Opening an authorized thread advances the cursor to its newest
+  loaded message and invalidates the matching conversation directory.
+- Use one application-level Realtime channel to refresh flock and direct
+  directories after authorized message inserts or changes to the current
+  runner's read rows. Persisted list functions remain authoritative across
+  devices and after missed live events.
 
 ## Authentication
 

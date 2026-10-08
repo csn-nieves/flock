@@ -6,6 +6,7 @@ import type {
   FlockMessagePage,
 } from '@src/types/chat'
 import type { Database } from '@src/types/database'
+import { getPlainTextMessage } from '@src/lib/richTextMessage'
 
 const messagePageSize = 30
 
@@ -18,8 +19,23 @@ export async function listMyFlockChats(): Promise<FlockChatSummary[]> {
 
   return data.map((flock) => ({
     id: flock.flock_id,
+    latestMessageAt: flock.latest_message_created_at,
+    latestMessagePreview: flock.latest_message_body
+      ? getPlainTextMessage(flock.latest_message_body)
+      : null,
+    latestSenderDisplayName: flock.latest_sender_display_name,
+    latestSenderId: flock.latest_sender_id,
     name: flock.flock_name,
+    unreadCount: flock.unread_count,
   }))
+}
+
+export async function markFlockChatRead(flockId: string, messageId: string) {
+  const { error } = await supabase.rpc('mark_flock_chat_read', {
+    target_flock_id: flockId,
+    target_message_id: messageId,
+  })
+  if (error) throw error
 }
 
 function toFlockMessage(row: FlockMessageRow): FlockMessage {

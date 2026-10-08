@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   useInfiniteQuery,
   useMutation,
@@ -31,6 +31,8 @@ type UseChatMessagesOptions<Message extends ChatMessage> = {
     conversationId: string,
     cursor: ChatMessageCursor | null,
   ) => Promise<ChatMessagePage<Message>>
+  markRead: (conversationId: string, messageId: string) => Promise<void>
+  listQueryKey: QueryKey
   sendMessage: (conversationId: string, body: string) => Promise<Message>
   table: 'direct_messages' | 'flock_messages'
 }
@@ -70,12 +72,15 @@ export function useChatMessages<Message extends ChatMessage>({
   getQueryKey,
   id,
   listMessages,
+  listQueryKey,
+  markRead,
   sendMessage,
   table,
 }: UseChatMessagesOptions<Message>) {
   const queryClient = useQueryClient()
   const [connectionStatus, setConnectionStatus] =
     useState<ChatConnectionStatus>('connecting')
+  const lastReadAttemptRef = useRef<string | null>(null)
   const queryKey = useMemo(() => getQueryKey(id ?? ''), [getQueryKey, id])
   const messagesQuery = useInfiniteQuery<
     ChatMessagePage<Message>,
@@ -177,6 +182,26 @@ export function useChatMessages<Message extends ChatMessage>({
         .flatMap((page) => page.messages),
     [messagesQuery.data?.pages],
   )
+
+  const latestMessageId = messages.at(-1)?.id
+
+  useEffect(() => {
+    lastReadAttemptRef.current = null
+  }, [id])
+
+  useEffect(() => {
+    if (!enabled || !id || !latestMessageId) return
+    if (lastReadAttemptRef.current === latestMessageId) return
+
+    lastReadAttemptRef.current = latestMessageId
+    void markRead(id, latestMessageId)
+      .then(() => queryClient.invalidateQueries({ queryKey: listQueryKey }))
+      .catch(() => {
+        if (lastReadAttemptRef.current === latestMessageId) {
+          lastReadAttemptRef.current = null
+        }
+      })
+  }, [enabled, id, latestMessageId, listQueryKey, markRead, queryClient])
 
   return {
     connectionStatus,

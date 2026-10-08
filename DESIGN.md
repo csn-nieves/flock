@@ -173,7 +173,13 @@ conversations without channel hash marks, and a visibly separated direct-message
 section lists private one-to-one conversations plus a compact New action. On large
 screens, the selected thread consumes the available application canvas instead
 of inheriting the narrow form-page cap. Long flock and runner names truncate at
-the sidebar boundary while retaining the complete accessible name and hover title. On
+the sidebar boundary while retaining the complete accessible name and hover title.
+Each destination uses two compact lines: the conversation name and recent
+activity time above a one-line sender-prefixed preview. Unread destinations use
+stronger type and a stable rounded count badge capped visually at `99+`; the
+complete accessible label retains the real count, preview, and timestamp. The
+same metadata appears in the phone directory, and opening a thread clears its
+server-backed unread state without hiding the selected destination. On
 phones, the same directory lives in the navigation drawer and the thread has an
 explicit All chats return action.
 

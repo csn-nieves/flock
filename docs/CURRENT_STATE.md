@@ -91,7 +91,11 @@ conversations. Monetization remains outside the current slice.
   Security and protected send functions enforce current flock membership or
   direct-conversation participation; superadmin access alone does not expose
   either kind of chat. Direct profile visibility extends only to the other
-  participant.
+  participant. Both conversation groups are ordered by latest activity and show
+  a sender-prefixed preview, timestamp, and unread count. PostgreSQL stores a
+  private monotonic read cursor for each runner and conversation; opening a
+  thread advances it, and one shell-level Realtime subscription keeps new
+  activity and cleared unread state synchronized across signed-in devices.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from
@@ -235,10 +239,10 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the direct-message vertical slice. The next logical
-   messaging increment is server-backed unread state and activity ordering,
-   including last-message previews and a clear last-read boundary, before chat
-   device notifications are introduced. The rehearsed moderated sessions in
+1. Review and merge the conversation activity and unread-state vertical slice.
+   The next logical messaging increment is opt-in chat device notifications,
+   using the durable conversation and read boundaries to avoid treating old or
+   self-authored messages as new alerts. The rehearsed moderated sessions in
    `docs/WORKFLOW_VALIDATION.md` remain ready when participant availability
    returns; they no longer block feature branches in the meantime.
 

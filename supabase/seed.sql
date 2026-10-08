@@ -540,4 +540,41 @@ select
   '2026-10-06 15:00:00+00'::timestamptz + make_interval(mins => message_number * 6)
 from generate_series(1, 12) as message_number;
 
+insert into public.flock_chat_reads (
+  flock_id,
+  user_id,
+  last_read_message_id,
+  last_read_created_at,
+  updated_at
+)
+select
+  message.flock_id,
+  '11111111-1111-4111-8111-111111111111'::uuid,
+  message.id,
+  message.created_at,
+  '2026-10-06 19:00:00+00'::timestamptz
+from public.flock_messages as message
+where message.id = md5('seed-flock-message-34')::uuid;
+
+insert into public.direct_conversation_reads (
+  conversation_id,
+  user_id,
+  last_read_message_id,
+  last_read_created_at,
+  updated_at
+)
+select
+  message.conversation_id,
+  reader.user_id,
+  message.id,
+  message.created_at,
+  '2026-10-06 17:00:00+00'::timestamptz
+from (
+  values
+    ('11111111-1111-4111-8111-111111111111'::uuid, 11),
+    ('33333333-3333-4333-8333-333333333333'::uuid, 10)
+) as reader(user_id, message_number)
+join public.direct_messages as message
+  on message.id = md5('seed-direct-message-' || reader.message_number)::uuid;
+
 commit;

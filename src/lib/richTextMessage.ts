@@ -98,3 +98,8 @@ export function decodeRichTextMessage(value: string): RichTextRun[] | null {
     return null
   }
 }
+
+export function getPlainTextMessage(value: string) {
+  const runs = decodeRichTextMessage(value)
+  return runs ? runs.map(({ text }) => text).join('') : value
+}

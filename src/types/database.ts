@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      direct_conversation_reads: {
+        Row: {
+          conversation_id: string
+          last_read_created_at: string
+          last_read_message_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          last_read_created_at: string
+          last_read_message_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          last_read_created_at?: string
+          last_read_message_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'direct_conversation_reads_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'direct_conversations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'direct_conversation_reads_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['user_id']
+          },
+        ]
+      }
       direct_conversations: {
         Row: {
           created_at: string
@@ -81,6 +120,38 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'profiles'
             referencedColumns: ['user_id']
+          },
+        ]
+      }
+      flock_chat_reads: {
+        Row: {
+          flock_id: string
+          last_read_created_at: string
+          last_read_message_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          flock_id: string
+          last_read_created_at: string
+          last_read_message_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          flock_id?: string
+          last_read_created_at?: string
+          last_read_message_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'flock_chat_reads_membership_fkey'
+            columns: ['flock_id', 'user_id']
+            isOneToOne: true
+            referencedRelation: 'flock_members'
+            referencedColumns: ['flock_id', 'user_id']
           },
         ]
       }
@@ -600,8 +671,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           conversation_id: string
+          latest_message_body: string
+          latest_message_created_at: string
+          latest_sender_display_name: string
+          latest_sender_id: string
           other_display_name: string
           other_user_id: string
+          unread_count: number
         }[]
       }
       list_my_flock_chats: {
@@ -609,6 +685,11 @@ export type Database = {
         Returns: {
           flock_id: string
           flock_name: string
+          latest_message_body: string
+          latest_message_created_at: string
+          latest_sender_display_name: string
+          latest_sender_id: string
+          unread_count: number
         }[]
       }
       list_pending_event_invitations: {
@@ -624,6 +705,14 @@ export type Database = {
           invitation_id: string
           invitation_kind: string
         }[]
+      }
+      mark_direct_conversation_read: {
+        Args: { target_conversation_id: string; target_message_id: string }
+        Returns: undefined
+      }
+      mark_flock_chat_read: {
+        Args: { target_flock_id: string; target_message_id: string }
+        Returns: undefined
       }
       register_push_subscription: {
         Args: {

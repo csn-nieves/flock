@@ -1,6 +1,7 @@
 import {
   getFlockMessage,
   listFlockMessages,
+  markFlockChatRead,
   sendFlockMessage,
 } from '@src/data/flockChat'
 import { flockChatQueryKeys } from '@src/data/queryKeys'
@@ -15,6 +16,8 @@ export function useFlockChat(flockId: string | undefined, enabled: boolean) {
     getQueryKey: flockChatQueryKeys.messages,
     id: flockId,
     listMessages: listFlockMessages,
+    listQueryKey: flockChatQueryKeys.lists(),
+    markRead: markFlockChatRead,
     sendMessage: sendFlockMessage,
     table: 'flock_messages',
   })

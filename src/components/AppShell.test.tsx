@@ -6,13 +6,32 @@ import AppShell from './AppShell'
 
 vi.mock('@src/hooks/useAuthSession', () => ({
   useAuthSession: () => ({
-    session: { user: { user_metadata: { display_name: 'Local Runner' } } },
+    session: {
+      user: {
+        id: 'runner-id',
+        user_metadata: { display_name: 'Local Runner' },
+      },
+    },
   }),
+}))
+
+vi.mock('@src/hooks/useConversationDirectorySync', () => ({
+  useConversationDirectorySync: vi.fn(),
 }))
 
 vi.mock('@src/hooks/useFlockChats', () => ({
   useFlockChats: () => ({
-    data: [{ id: 'morning-runners-id', name: 'Morning Runners' }],
+    data: [
+      {
+        id: 'morning-runners-id',
+        latestMessageAt: null,
+        latestMessagePreview: null,
+        latestSenderDisplayName: null,
+        latestSenderId: null,
+        name: 'Morning Runners',
+        unreadCount: 0,
+      },
+    ],
     isError: false,
     isFetching: false,
     isPending: false,
@@ -24,8 +43,13 @@ vi.mock('@src/hooks/useDirectConversations', () => ({
     data: [
       {
         id: 'maya-conversation-id',
+        latestMessageAt: null,
+        latestMessagePreview: null,
+        latestSenderDisplayName: null,
+        latestSenderId: null,
         otherDisplayName: 'Maya Chen',
         otherUserId: 'maya-id',
+        unreadCount: 0,
       },
     ],
     isError: false,
@@ -59,13 +83,13 @@ describe('AppShell', () => {
       screen.getAllByRole('heading', { name: 'Flock chats' }).length,
     ).toBeGreaterThan(0)
     expect(
-      screen.getAllByRole('link', { name: 'Morning Runners' }).length,
+      screen.getAllByRole('link', { name: /Morning Runners/ }).length,
     ).toBeGreaterThan(0)
     expect(
       screen.getAllByRole('heading', { name: 'Direct messages' }).length,
     ).toBeGreaterThan(0)
     expect(
-      screen.getAllByRole('link', { name: 'Maya Chen' }).length,
+      screen.getAllByRole('link', { name: /Maya Chen/ }).length,
     ).toBeGreaterThan(0)
     expect(screen.getAllByRole('link', { name: 'New' }).length).toBeGreaterThan(
       0,

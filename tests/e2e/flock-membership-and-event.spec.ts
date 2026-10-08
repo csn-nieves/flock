@@ -101,11 +101,11 @@ test('persists flock membership, event visibility, and RSVP across two real user
 
     await organizerPage
       .getByRole('navigation', { name: 'Chat conversations' })
-      .getByRole('link', { name: flockName })
+      .getByRole('link', { name: new RegExp(flockName) })
       .click()
     await runnerPage
       .getByRole('navigation', { name: 'Chat conversations' })
-      .getByRole('link', { name: flockName })
+      .getByRole('link', { name: new RegExp(flockName) })
       .click()
 
     const organizerChatMessage = `Headlamps ready ${uniqueSuffix}`
@@ -136,28 +136,40 @@ test('persists flock membership, event visibility, and RSVP across two real user
 
     await organizerPage
       .getByRole('navigation', { name: 'Chat conversations' })
-      .getByRole('link', { name: 'Maya Chen' })
+      .getByRole('link', { name: /^Maya Chen,/ })
       .click()
-    await runnerPage
-      .getByRole('navigation', { name: 'Chat conversations' })
-      .getByRole('link', { name: 'Local Runner' })
-      .click()
+    await runnerPage.goto('/flocks')
+    // Let the shell-level directory subscription finish its cold start before
+    // the other device creates activity.
+    await runnerPage.waitForTimeout(5_000)
 
     const organizerDirectMessage = `Private bridge plan ${uniqueSuffix}`
-    await Promise.all([
-      expect(organizerPage.getByText('Live', { exact: true })).toBeVisible(),
-      expect(runnerPage.getByText('Live', { exact: true })).toBeVisible(),
-    ])
+    await expect(organizerPage.getByText('Live', { exact: true })).toBeVisible()
     await organizerPage.waitForTimeout(1_000)
     await organizerPage
       .getByRole('textbox', { exact: true, name: 'Message' })
       .fill(organizerDirectMessage)
     await organizerPage.getByRole('button', { name: 'Send message' }).click()
+
+    const runnerDirectConversation = runnerPage
+      .getByRole('navigation', { name: 'Chat conversations' })
+      .getByRole('link', {
+        name: new RegExp(
+          `^Local Runner, [1-9]\\d* unread messages?, Local Runner: ${organizerDirectMessage}`,
+        ),
+      })
+    await expect(runnerDirectConversation).toBeVisible({ timeout: 10_000 })
+    await runnerDirectConversation.click()
     await expect(
       runnerPage.getByRole('log', {
         name: 'Direct messages with Local Runner',
       }),
     ).toContainText(organizerDirectMessage)
+    await expect(
+      runnerPage
+        .getByRole('navigation', { name: 'Chat conversations' })
+        .getByRole('link', { name: /^Local Runner,/ }),
+    ).not.toHaveAccessibleName(/unread/)
 
     const runnerDirectMessage = `Private reply ${uniqueSuffix}`
     await runnerPage

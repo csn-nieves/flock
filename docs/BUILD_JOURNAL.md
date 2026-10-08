@@ -1524,6 +1524,31 @@ messages in both directions. Blocking, reporting, message lifecycle actions,
 unread counts, activity summaries, read receipts, typing indicators,
 attachments, and chat push notifications remain deferred.
 
+## 2026-10-08 — Ordering conversations and syncing unread state
+
+Flock and direct-message destinations now lead with recent activity instead of
+alphabetical names alone. Each directory row shows a sender-prefixed plain-text
+preview, compact timestamp, and bounded unread badge, while preserving the full
+count and context for assistive technology. Rich-text storage is decoded before
+previewing, so formatting never leaks into navigation.
+
+PostgreSQL now stores one private read cursor per runner and conversation.
+Protected functions verify the target message and advance the composite cursor
+monotonically; unread counts exclude the runner's own messages and use join or
+conversation creation time before the first read. Flock cursors disappear with
+membership, and neither another member nor a nonparticipant superadmin can read
+or write private cursor state.
+
+Opening a thread advances its cursor to the newest loaded message. A single
+shell-level Realtime channel refreshes the two conversation directories for
+new messages and runner-owned cursor changes, so new activity and cleared
+unread state follow the account across devices. Persisted list RPCs remain the
+source of truth. Database coverage verifies boundary math, authorization,
+publication, monotonic updates, and membership cleanup; the two-user browser
+journey verifies background delivery, preview/count visibility, opening the
+message, and clearing unread state. Per-message receipts, manual mark-unread,
+and chat push notifications remain deferred.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

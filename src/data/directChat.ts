@@ -6,6 +6,7 @@ import type {
   DirectMessage,
 } from '@src/types/chat'
 import type { Database } from '@src/types/database'
+import { getPlainTextMessage } from '@src/lib/richTextMessage'
 
 const messagePageSize = 30
 
@@ -31,9 +32,27 @@ export async function listMyDirectConversations(): Promise<
 
   return data.map((conversation) => ({
     id: conversation.conversation_id,
+    latestMessageAt: conversation.latest_message_created_at,
+    latestMessagePreview: conversation.latest_message_body
+      ? getPlainTextMessage(conversation.latest_message_body)
+      : null,
+    latestSenderDisplayName: conversation.latest_sender_display_name,
+    latestSenderId: conversation.latest_sender_id,
     otherDisplayName: conversation.other_display_name,
     otherUserId: conversation.other_user_id,
+    unreadCount: conversation.unread_count,
   }))
+}
+
+export async function markDirectConversationRead(
+  conversationId: string,
+  messageId: string,
+) {
+  const { error } = await supabase.rpc('mark_direct_conversation_read', {
+    target_conversation_id: conversationId,
+    target_message_id: messageId,
+  })
+  if (error) throw error
 }
 
 export async function getOrCreateDirectConversation(targetUserId: string) {

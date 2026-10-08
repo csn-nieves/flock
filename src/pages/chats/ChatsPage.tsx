@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
 import ChatThread, { type ChatThreadProps } from '@src/components/ChatThread'
+import { ConversationSummary } from '@src/components/ConversationSummary'
+import { getConversationAccessibleLabel } from '@src/lib/conversationActivity'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
 import DirectMessageStarter, {
@@ -30,6 +32,7 @@ export type DirectConversationListState =
     }
 
 export type ChatsPageProps = {
+  currentUserId: string
   directConversations: DirectConversationListState
   flockChats: FlockChatListState
   isStartingDirectMessage: boolean
@@ -46,10 +49,14 @@ export type ChatsPageProps = {
 }
 
 function FlockConversationList({
+  currentUserId,
   flockChats,
   onSelectFlock,
   selectedFlockId,
-}: Pick<ChatsPageProps, 'flockChats' | 'onSelectFlock' | 'selectedFlockId'>) {
+}: Pick<
+  ChatsPageProps,
+  'currentUserId' | 'flockChats' | 'onSelectFlock' | 'selectedFlockId'
+>) {
   return (
     <div className="px-4 py-5 sm:px-5">
       <div className="flex items-center justify-between gap-3">
@@ -102,8 +109,13 @@ function FlockConversationList({
             return (
               <li key={flock.id}>
                 <button
+                  aria-label={getConversationAccessibleLabel(
+                    flock.name,
+                    flock,
+                    currentUserId,
+                  )}
                   aria-current={isSelected ? 'page' : undefined}
-                  className={`flex min-h-touch w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold transition-colors duration-fast ${
+                  className={`flex min-h-touch w-full cursor-pointer items-center gap-3 rounded-md px-3 py-1 text-left transition-colors duration-fast ${
                     isSelected
                       ? 'bg-primary text-on-primary'
                       : 'text-text hover:bg-background'
@@ -121,7 +133,12 @@ function FlockConversationList({
                   >
                     {flock.name.charAt(0).toLocaleUpperCase()}
                   </span>
-                  <span className="min-w-0 truncate">{flock.name}</span>
+                  <ConversationSummary
+                    activity={flock}
+                    currentUserId={currentUserId}
+                    isSelected={isSelected}
+                    title={flock.name}
+                  />
                 </button>
               </li>
             )
@@ -133,6 +150,7 @@ function FlockConversationList({
 }
 
 function DirectConversationList({
+  currentUserId,
   directConversations,
   onSelectDirectConversation,
   onStartDirectMessage,
@@ -140,6 +158,7 @@ function DirectConversationList({
 }: Pick<
   ChatsPageProps,
   | 'directConversations'
+  | 'currentUserId'
   | 'onSelectDirectConversation'
   | 'onStartDirectMessage'
   | 'selectedDirectConversationId'
@@ -210,8 +229,13 @@ function DirectConversationList({
             return (
               <li key={conversation.id}>
                 <button
+                  aria-label={getConversationAccessibleLabel(
+                    conversation.otherDisplayName,
+                    conversation,
+                    currentUserId,
+                  )}
                   aria-current={isSelected ? 'page' : undefined}
-                  className={`flex min-h-touch w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold transition-colors duration-fast ${
+                  className={`flex min-h-touch w-full cursor-pointer items-center gap-3 rounded-md px-3 py-1 text-left transition-colors duration-fast ${
                     isSelected
                       ? 'bg-primary text-on-primary'
                       : 'text-text hover:bg-background'
@@ -233,9 +257,12 @@ function DirectConversationList({
                       .charAt(0)
                       .toLocaleUpperCase() || '?'}
                   </span>
-                  <span className="min-w-0 truncate">
-                    {conversation.otherDisplayName}
-                  </span>
+                  <ConversationSummary
+                    activity={conversation}
+                    currentUserId={currentUserId}
+                    isSelected={isSelected}
+                    title={conversation.otherDisplayName}
+                  />
                 </button>
               </li>
             )
