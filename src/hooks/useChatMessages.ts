@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   useInfiniteQuery,
   useMutation,
@@ -189,8 +189,16 @@ export function useChatMessages<Message extends ChatMessage>({
     lastReadAttemptRef.current = null
   }, [id])
 
-  useEffect(() => {
-    if (!enabled || !id || !latestMessageId) return
+  const markLatestRead = useCallback(() => {
+    if (
+      !enabled ||
+      !id ||
+      !latestMessageId ||
+      (typeof document !== 'undefined' &&
+        document.visibilityState !== 'visible')
+    ) {
+      return
+    }
     if (lastReadAttemptRef.current === latestMessageId) return
 
     lastReadAttemptRef.current = latestMessageId
@@ -202,6 +210,20 @@ export function useChatMessages<Message extends ChatMessage>({
         }
       })
   }, [enabled, id, latestMessageId, listQueryKey, markRead, queryClient])
+
+  useEffect(() => {
+    markLatestRead()
+  }, [markLatestRead])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      markLatestRead()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [markLatestRead])
 
   return {
     connectionStatus,
