@@ -121,6 +121,20 @@ describe('EventsPage', () => {
     )
   })
 
+  it('opens a dedicated detail view for a personal event', () => {
+    const onOpenEvent = vi.fn()
+    render(
+      <EventsPage
+        {...defaultProps}
+        events={[event]}
+        onOpenEvent={onOpenEvent}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'View details' }))
+    expect(onOpenEvent).toHaveBeenCalledWith('event')
+  })
+
   it('keeps creator controls hidden for accepted invitees', () => {
     render(
       <EventsPage {...defaultProps} currentUserId="invitee" events={[event]} />,
