@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind:
+            | 'event_invitation'
+            | 'flock_event'
+            | 'flock_message'
+            | 'direct_message'
+          path: string
+          read_at: string | null
+          source_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind:
+            | 'event_invitation'
+            | 'flock_event'
+            | 'flock_message'
+            | 'direct_message'
+          path: string
+          read_at?: string | null
+          source_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?:
+            | 'event_invitation'
+            | 'flock_event'
+            | 'flock_message'
+            | 'direct_message'
+          path?: string
+          read_at?: string | null
+          source_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       direct_conversation_reads: {
         Row: {
           conversation_id: string
@@ -448,6 +496,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      mark_notification_read: {
+        Args: { target_notification_id: string }
+        Returns: undefined
+      }
       accept_event_invitation: {
         Args: { invitation_token: string }
         Returns: {

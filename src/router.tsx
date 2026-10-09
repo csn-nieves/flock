@@ -50,6 +50,10 @@ export const routes = [
             ...lazyRoute(() => import('@src/routes/SettingsRoute')),
           },
           {
+            path: 'notifications',
+            ...lazyRoute(() => import('@src/routes/NotificationsRoute')),
+          },
+          {
             path: 'events',
             ...lazyRoute(() => import('@src/routes/EventsRoute')),
           },

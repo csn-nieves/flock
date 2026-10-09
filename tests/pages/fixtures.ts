@@ -19,6 +19,9 @@ export const test = base.extend({
         await route.fulfill({ json: [], status: 200 })
       },
     )
+    await page.route('**/rest/v1/notifications**', async (route) => {
+      await route.fulfill({ json: [], status: 200 })
+    })
 
     // Playwright's fixture callback is named `use`; it is not a React hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks

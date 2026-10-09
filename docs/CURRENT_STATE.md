@@ -213,6 +213,11 @@ profiles, flock covers, and personal or flock-event covers.
   database migrations, and Edge Function deployment. Its remaining delivery
   gate is a database webhook authenticated with Supabase's current secret-key
   header rather than the legacy service-role bearer header.
+- Authenticated runners now have a durable in-app Notifications screen with
+  unread counts, mark-read actions, Realtime refresh, and deep links for event
+  invitations, flock-event changes, flock messages, and direct messages. This
+  feed is separate from private Web Push delivery jobs, so alerts remain
+  visible even when a device is offline or push is not configured.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths, flock locations, and flock
   descriptions for realistic list and detail development.
@@ -275,10 +280,9 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the push-webhook authentication compatibility fix, redeploy
-   the Edge Function, create the validation environment's `INSERT` and `UPDATE`
-   webhook, and complete one real-device notification check. The next logical
-   messaging increment after that is lightweight message reactions, while
+1. Review and merge the durable in-app notification center, then complete one
+   real-device notification check against the hosted environment. The next
+   logical messaging increment after that is lightweight message reactions, while
    attachments, editing, deletion, typing indicators, visible read receipts,
    and moderation controls remain separate product decisions. The rehearsed
    moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain ready when

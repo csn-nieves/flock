@@ -146,6 +146,9 @@ async function installJourneyRoutes(
       await route.fulfill({ json: [], status: 200 })
     },
   )
+  await page.route('**/rest/v1/notifications**', async (route: Route) => {
+    await route.fulfill({ json: [], status: 200 })
+  })
 
   await page.route('**/rest/v1/saved_routes**', async (route: Route) => {
     await route.fulfill({ json: [], status: 200 })
