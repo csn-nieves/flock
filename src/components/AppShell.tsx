@@ -11,6 +11,8 @@ import { useDirectConversations } from '@src/hooks/useDirectConversations'
 import { useFlockChats } from '@src/hooks/useFlockChats'
 import { useProfile } from '@src/hooks/useProfile'
 import { usePushSubscriptionRefresh } from '@src/hooks/usePushSubscriptionRefresh'
+import { useNotifications } from '@src/hooks/useNotifications'
+import BellIcon from '@src/primitives/icons/BellIcon'
 import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import ProfileIcon from '@src/primitives/icons/ProfileIcon'
 import SettingsIcon from '@src/primitives/icons/SettingsIcon'
@@ -384,6 +386,7 @@ function AppShell() {
   const { session } = useAuthSession()
   const flocksQuery = useFlockChats()
   const directConversationsQuery = useDirectConversations()
+  const notificationsQuery = useNotifications()
   const profileQuery = useProfile()
   useConversationDirectorySync(session?.user.id)
   usePushSubscriptionRefresh()
@@ -396,6 +399,9 @@ function AppShell() {
     'Your profile'
   const initial = displayName.trim().charAt(0).toLocaleUpperCase() || 'P'
   const profileAvatar = profileQuery.data?.avatarUrl ?? null
+  const unreadNotificationCount =
+    notificationsQuery.data?.filter((notification) => !notification.isRead)
+      .length ?? 0
 
   useEffect(() => {
     if (!isMenuOpen) return
@@ -449,20 +455,40 @@ function AppShell() {
             />
             Flock
           </NavLink>
-          <button
-            aria-controls="mobile-navigation"
-            aria-expanded={isMenuOpen}
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            className="flex size-11 items-center justify-center rounded-md text-text hover:bg-surface-subtle"
-            type="button"
-            onClick={() => setIsMenuOpen((open) => !open)}
-          >
-            <span aria-hidden="true" className="grid gap-1.5">
-              <span className="block h-0.5 w-5 rounded-full bg-current" />
-              <span className="block h-0.5 w-5 rounded-full bg-current" />
-              <span className="block h-0.5 w-5 rounded-full bg-current" />
-            </span>
-          </button>
+          <div className="flex items-center gap-1">
+            <NavLink
+              aria-label={
+                unreadNotificationCount > 0
+                  ? `Notifications, ${unreadNotificationCount} unread`
+                  : 'Notifications'
+              }
+              className="relative flex size-11 items-center justify-center rounded-md text-text hover:bg-surface-subtle"
+              to="/notifications"
+            >
+              <BellIcon className="size-5" />
+              {unreadNotificationCount > 0 ? (
+                <span className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] leading-4 text-on-danger">
+                  {unreadNotificationCount > 99
+                    ? '99+'
+                    : unreadNotificationCount}
+                </span>
+              ) : null}
+            </NavLink>
+            <button
+              aria-controls="mobile-navigation"
+              aria-expanded={isMenuOpen}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              className="flex size-11 items-center justify-center rounded-md text-text hover:bg-surface-subtle"
+              type="button"
+              onClick={() => setIsMenuOpen((open) => !open)}
+            >
+              <span aria-hidden="true" className="grid gap-1.5">
+                <span className="block h-0.5 w-5 rounded-full bg-current" />
+                <span className="block h-0.5 w-5 rounded-full bg-current" />
+                <span className="block h-0.5 w-5 rounded-full bg-current" />
+              </span>
+            </button>
+          </div>
         </div>
         {isMenuOpen ? (
           <>
@@ -520,18 +546,37 @@ function AppShell() {
       </header>
 
       <aside className="sticky top-0 hidden h-dvh max-h-dvh w-60 shrink-0 self-start overflow-y-auto border-r border-border bg-surface-subtle lg:flex lg:flex-col lg:p-5">
-        <NavLink
-          aria-label="Flock home"
-          className="flex items-center gap-3 font-display text-xl font-bold text-text"
-          to="/flocks"
-        >
-          <img
-            alt=""
-            className="size-10 rounded-lg"
-            src="/icons/flock-mark.svg"
-          />
-          Flock
-        </NavLink>
+        <div className="flex items-center justify-between gap-2">
+          <NavLink
+            aria-label="Flock home"
+            className="flex min-w-0 items-center gap-3 font-display text-xl font-bold text-text"
+            to="/flocks"
+          >
+            <img
+              alt=""
+              className="size-10 shrink-0 rounded-lg"
+              src="/icons/flock-mark.svg"
+            />
+            <span>Flock</span>
+          </NavLink>
+          <NavLink
+            aria-label={
+              unreadNotificationCount > 0
+                ? `Notifications, ${unreadNotificationCount} unread`
+                : 'Notifications'
+            }
+            className="relative flex size-11 shrink-0 items-center justify-center rounded-md text-text-muted hover:bg-background hover:text-text"
+            title="Notifications"
+            to="/notifications"
+          >
+            <BellIcon className="size-5" />
+            {unreadNotificationCount > 0 ? (
+              <span className="absolute right-1 top-1 flex min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] leading-4 text-on-danger">
+                {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+              </span>
+            ) : null}
+          </NavLink>
+        </div>
         <nav aria-label="Main navigation" className="mt-10 grid gap-1">
           {navigation.map((item) => (
             <NavigationLink key={item.to} {...item} />

@@ -4,6 +4,7 @@ const eventRootKey = ['events'] as const
 const savedRouteRootKey = ['saved-routes'] as const
 const flockChatRootKey = ['flock-chat'] as const
 const directChatRootKey = ['direct-chat'] as const
+const notificationRootKey = ['notifications'] as const
 
 export const flockQueryKeys = {
   all: flockRootKey,
@@ -40,6 +41,11 @@ export const directChatQueryKeys = {
   lists: () => [...directChatRootKey, 'list'] as const,
   messages: (conversationId: string) =>
     [...directChatRootKey, conversationId] as const,
+}
+
+export const notificationQueryKeys = {
+  all: notificationRootKey,
+  list: () => [...notificationRootKey, 'list'] as const,
 }
 
 export const discoveryQueryKeys = {
