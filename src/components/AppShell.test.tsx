@@ -1,8 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { describe, expect, it, vi } from 'vitest'
 import AppShell from './AppShell'
+
+const signOutMock = vi.hoisted(() => vi.fn().mockResolvedValue({ error: null }))
+
+vi.mock('@src/data/auth', () => ({ signOut: signOutMock }))
 
 vi.mock('@src/hooks/useAuthSession', () => ({
   useAuthSession: () => ({
@@ -71,10 +76,15 @@ vi.mock('@src/hooks/useProfile', () => ({
 }))
 
 function renderShell(path = '/flocks') {
+  const queryClient = new QueryClient()
   const router = createMemoryRouter([{ path: '*', element: <AppShell /> }], {
     initialEntries: [path],
   })
-  render(<RouterProvider router={router} />)
+  render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  )
   return router
 }
 
@@ -126,5 +136,13 @@ describe('AppShell', () => {
     expect(
       screen.queryByRole('navigation', { name: 'Mobile navigation' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('signs out and returns to the sign-in route', async () => {
+    const router = renderShell()
+    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }))
+
+    await vi.waitFor(() => expect(signOutMock).toHaveBeenCalledOnce())
+    expect(router.state.location.pathname).toBe('/sign-in')
   })
 })

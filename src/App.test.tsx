@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { describe, expect, it, vi } from 'vitest'
@@ -71,12 +72,20 @@ vi.mock('virtual:pwa-register/react', () => ({
 }))
 
 describe('App', () => {
+  function renderApp(router: ReturnType<typeof createMemoryRouter>) {
+    return render(
+      <QueryClientProvider client={new QueryClient()}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    )
+  }
+
   it('renders the flock collection at the protected index route', async () => {
     const router = createMemoryRouter(routes, {
       initialEntries: ['/'],
     })
 
-    render(<RouterProvider router={router} />)
+    renderApp(router)
 
     expect(
       screen.getByRole('main', { name: 'Flock application' }),
@@ -95,7 +104,7 @@ describe('App', () => {
       initialEntries: ['/discover'],
     })
 
-    render(<RouterProvider router={router} />)
+    renderApp(router)
 
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Discover' }),

@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
@@ -70,7 +71,11 @@ function renderProtectedRoute({ strict = false } = {}) {
       initialEntries: ['/flocks/sunday-runners?invite=abc123#members'],
     },
   )
-  const route = <RouterProvider router={router} />
+  const route = (
+    <QueryClientProvider client={new QueryClient()}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  )
 
   render(strict ? <StrictMode>{route}</StrictMode> : route)
 
