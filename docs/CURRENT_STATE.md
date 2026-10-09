@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-08
+Last reviewed: 2026-10-09
 
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
@@ -65,6 +65,10 @@ profiles, flock covers, and personal or flock-event covers.
 - Authentication, the application shell, and the default flock collection load
   eagerly; secondary route controllers load on demand through React Router so
   they do not inflate the initial application chunk.
+- Authenticated runners can sign out from the desktop sidebar or mobile account
+  menu. Successful sign-out clears client-side query data and returns to the
+  public sign-in route; failed sign-outs keep the session active and show an
+  inline retry message.
 - A mobile-first `FlocksRoute`, pure successful `FlocksPage`, and pure
   route-state views covering loading, error, retrying, empty, populated, and
   background refresh.

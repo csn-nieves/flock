@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
 import { ConversationSummary } from '@src/components/ConversationSummary'
 import ProfileAvatar from '@src/components/ProfileAvatar'
@@ -12,6 +13,8 @@ import { useProfile } from '@src/hooks/useProfile'
 import { usePushSubscriptionRefresh } from '@src/hooks/usePushSubscriptionRefresh'
 import ComposeMessageIcon from '@src/primitives/icons/ComposeMessageIcon'
 import SettingsIcon from '@src/primitives/icons/SettingsIcon'
+import Button from '@src/primitives/Button'
+import { signOut } from '@src/data/auth'
 import type {
   DirectConversationSummary,
   FlockChatSummary,
@@ -62,6 +65,35 @@ function SettingsNavigationLink({ onClick }: { onClick?: () => void }) {
       </span>
       <span>Settings</span>
     </NavLink>
+  )
+}
+
+function SignOutControl({
+  error,
+  isPending,
+  onSignOut,
+}: {
+  error?: string
+  isPending: boolean
+  onSignOut: () => void
+}) {
+  return (
+    <div>
+      <Button
+        aria-busy={isPending || undefined}
+        className="w-full justify-start px-3 text-sm text-text-muted hover:text-text"
+        disabled={isPending}
+        variant="ghost"
+        onClick={onSignOut}
+      >
+        {isPending ? 'Signing out…' : 'Sign out'}
+      </Button>
+      {error ? (
+        <p className="mt-1 px-3 text-xs leading-4 text-danger" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
   )
 }
 
@@ -248,7 +280,11 @@ export function ConversationNavigation({
 
 function AppShell() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const [signOutError, setSignOutError] = useState<string>()
   const location = useLocation()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { session } = useAuthSession()
   const flocksQuery = useFlockChats()
   const directConversationsQuery = useDirectConversations()
@@ -277,6 +313,24 @@ function AppShell() {
   }, [isMenuOpen])
 
   const closeMenu = () => setIsMenuOpen(false)
+
+  async function handleSignOut() {
+    setSignOutError(undefined)
+    setIsSigningOut(true)
+    try {
+      const { error } = await signOut()
+      if (error) throw error
+      queryClient.clear()
+      closeMenu()
+      navigate('/sign-in', { replace: true })
+    } catch {
+      setSignOutError(
+        'We could not sign you out. Check your connection and try again.',
+      )
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
 
   return (
     <div
@@ -375,6 +429,11 @@ function AppShell() {
                 <div onClick={closeMenu}>
                   <SettingsNavigationLink onClick={closeMenu} />
                 </div>
+                <SignOutControl
+                  error={signOutError}
+                  isPending={isSigningOut}
+                  onSignOut={() => void handleSignOut()}
+                />
               </div>
             </nav>
           </>
@@ -436,6 +495,11 @@ function AppShell() {
             <span className="min-w-0 truncate">{displayName}</span>
           </NavLink>
           <SettingsNavigationLink />
+          <SignOutControl
+            error={signOutError}
+            isPending={isSigningOut}
+            onSignOut={() => void handleSignOut()}
+          />
         </div>
       </aside>
 
