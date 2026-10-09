@@ -429,7 +429,10 @@ begin
       flock_id,
       owner_id,
       event_titles[event_number],
-      '2026-10-03 08:00:00+00'::timestamptz + make_interval(days => event_number),
+      case
+        when event_number <= 3 then '2027-10-03 08:00:00+00'::timestamptz
+        else '2026-10-03 08:00:00+00'::timestamptz
+      end + make_interval(days => event_number),
       event_locations[event_number],
       event_descriptions[event_number]
     );
