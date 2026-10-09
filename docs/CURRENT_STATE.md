@@ -144,6 +144,11 @@ profiles, flock covers, and personal or flock-event covers.
   view their upcoming personal events, create a user-owned event through a
   reusable modal form, and use the same structured run-option picker and
   response-bound attendance model as flock events.
+- Authenticated runners can open a dedicated `/events/:eventId` detail page
+  from personal or flock event lists. The detail view presents the event cover,
+  schedule, location, description, calendar and directions links, attendance
+  controls, run plans, and full route-map previews while preserving the
+  event's authorization boundary.
 - Event creators can optionally import one GPX route per run option for either a
   personal or flock event. Flock keeps only a bounded longitude/latitude line
   and calculated distance, protects it with the parent event's authorization,

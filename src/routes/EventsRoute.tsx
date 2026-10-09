@@ -176,6 +176,7 @@ function EventsRoute() {
           ).toString(),
         })
       }}
+      onOpenEvent={(eventId) => navigate(`/events/${eventId}`)}
       onRetryInvitations={() => {
         acceptInvitationMutation.reset()
         void pendingInvitationsQuery.refetch()

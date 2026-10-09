@@ -54,6 +54,10 @@ export const routes = [
             ...lazyRoute(() => import('@src/routes/EventsRoute')),
           },
           {
+            path: 'events/:eventId',
+            ...lazyRoute(() => import('@src/routes/EventDetailRoute')),
+          },
+          {
             path: 'chats',
             ...lazyRoute(() => import('@src/routes/ChatsRoute')),
           },

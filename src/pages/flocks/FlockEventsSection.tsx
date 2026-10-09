@@ -21,6 +21,7 @@ export type FlockEventsSectionProps = {
   onCancel: (eventId: string) => Promise<void>
   onCreate: (input: CreateFlockEventInput) => Promise<void>
   onRetry: () => void
+  onOpenEvent?: (eventId: string) => void
   onRespond: (
     eventId: string,
     response: EventResponse,
@@ -61,6 +62,7 @@ function FlockEventsSection({
   onCreate,
   onCancel,
   onRetry,
+  onOpenEvent,
   onRespond,
   onUpdate,
   responseError,
@@ -131,6 +133,15 @@ function FlockEventsSection({
               <h3 className="m-0 font-display text-base font-bold text-text">
                 {item.title}
               </h3>
+              {onOpenEvent ? (
+                <Button
+                  className="mt-1 min-h-0 px-0 py-0 text-sm text-primary"
+                  variant="ghost"
+                  onClick={() => onOpenEvent(item.id)}
+                >
+                  View details
+                </Button>
+              ) : null}
               <p className="mt-1 mb-0 text-sm text-text-muted">
                 {new Date(item.startsAt).toLocaleString()} · {item.location}
               </p>

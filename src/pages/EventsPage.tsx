@@ -61,6 +61,7 @@ export type EventsPageProps = {
     recipientUserId: string,
     recipientDisplayName: string,
   ) => Promise<void>
+  onOpenEvent?: (eventId: string) => void
   onRespond: (
     eventId: string,
     response: EventResponse,
@@ -113,6 +114,7 @@ function EventsPage({
   isInviting,
   onInviteFlock,
   onInviteRunner,
+  onOpenEvent,
   onCopyInvitation,
   onShareInvitation,
   onCloseInvitation,
@@ -224,9 +226,20 @@ function EventsPage({
                 />
               ) : null}
               <div className="flex items-start justify-between gap-3">
-                <h2 className="m-0 font-display text-base font-bold text-text">
-                  {event.title}
-                </h2>
+                <div>
+                  <h2 className="m-0 font-display text-base font-bold text-text">
+                    {event.title}
+                  </h2>
+                  {onOpenEvent ? (
+                    <Button
+                      className="mt-1 min-h-0 px-0 py-0 text-sm text-primary"
+                      variant="ghost"
+                      onClick={() => onOpenEvent(event.id)}
+                    >
+                      View details
+                    </Button>
+                  ) : null}
+                </div>
                 {canManageEvent(event) ? (
                   <Button
                     className="shrink-0"

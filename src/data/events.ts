@@ -231,6 +231,21 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
   )
 }
 
+export async function getEvent(eventId: string): Promise<FlockEvent | null> {
+  const { data, error } = await supabase
+    .from('flock_events')
+    .select(eventFields)
+    .eq('id', eventId)
+    .maybeSingle()
+  if (error) throw error
+  if (!data) return null
+
+  const visibleEvents = data.flock_id
+    ? await listFlockEvents(data.flock_id)
+    : await listUserEvents()
+  return visibleEvents.find((event) => event.id === eventId) ?? null
+}
+
 export async function createUserEvent(
   input: EventWithRunOptionsInput,
 ): Promise<FlockEvent> {

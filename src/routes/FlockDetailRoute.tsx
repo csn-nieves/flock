@@ -154,6 +154,7 @@ function FlockDetailRoute() {
             await cancelEventMutation.mutateAsync(eventId)
           },
           onRetry: () => void eventsQuery.refetch(),
+          onOpenEvent: (eventId) => navigate(`/events/${eventId}`),
           onRespond: async (eventId, response, runOptionId) => {
             await responseMutation.mutateAsync({
               eventId,
