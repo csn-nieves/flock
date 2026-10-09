@@ -138,8 +138,28 @@ describe('AppShell', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('groups profile actions in an account menu', () => {
+    renderShell()
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Open account menu',
+      }),
+    )
+
+    expect(screen.getByRole('link', { name: 'Profile' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Settings' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Sign out' })).toHaveClass(
+      'bg-danger',
+    )
+  })
+
   it('signs out and returns to the sign-in route', async () => {
     const router = renderShell()
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Open account menu',
+      }),
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Sign out' }))
 
     await vi.waitFor(() => expect(signOutMock).toHaveBeenCalledOnce())
