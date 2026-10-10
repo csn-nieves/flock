@@ -14,7 +14,11 @@ import {
 } from '@src/lib/richTextMessage'
 import Button from '@src/primitives/Button'
 import PendingIndicator from '@src/primitives/PendingIndicator'
-import type { ChatConnectionStatus, ChatMessage } from '@src/types/chat'
+import type {
+  ChatConnectionStatus,
+  ChatMessage,
+  MessageReactionKey,
+} from '@src/types/chat'
 
 export type ChatThreadProps = {
   connectionStatus: ChatConnectionStatus
@@ -22,11 +26,16 @@ export type ChatThreadProps = {
   hasOlderMessages: boolean
   isLoading: boolean
   isLoadingOlderMessages: boolean
+  isReacting?: boolean
   isSending: boolean
   messages: ChatMessage[]
   onLoadOlderMessages: () => Promise<void>
   onRetry: () => void
   onSend: (body: string) => Promise<void>
+  onToggleReaction?: (
+    messageId: string,
+    reactionKey: MessageReactionKey,
+  ) => Promise<void>
   description?: string
   emptyDescription?: string
   error?: string
@@ -38,6 +47,19 @@ export type ChatThreadProps = {
 
 const maxMessageLength = 2000
 const nearBottomDistance = 72
+
+const reactionOptions: readonly {
+  emoji: string
+  key: MessageReactionKey
+  label: string
+}[] = [
+  { emoji: '👍', key: 'thumbs_up', label: 'thumbs up' },
+  { emoji: '❤️', key: 'heart', label: 'heart' },
+  { emoji: '😂', key: 'laugh', label: 'laugh' },
+  { emoji: '🎉', key: 'celebrate', label: 'celebrate' },
+  { emoji: '🔥', key: 'fire', label: 'fire' },
+  { emoji: '👀', key: 'eyes', label: 'eyes' },
+]
 
 const inlineMarkers = [
   {
@@ -141,17 +163,22 @@ function ChatThread({
   hasOlderMessages,
   isLoading,
   isLoadingOlderMessages,
+  isReacting = false,
   isSending,
   messages,
   messageLogLabel = 'Messages',
   onLoadOlderMessages,
   onRetry,
   onSend,
+  onToggleReaction,
   placeholder = 'Write a message',
   sendError,
   title = 'Conversation',
 }: ChatThreadProps) {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false)
+  const [openReactionMessageId, setOpenReactionMessageId] = useState<
+    string | null
+  >(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const isNearBottomRef = useRef(true)
@@ -369,7 +396,7 @@ function ChatThread({
                             }
                             userId={message.senderId}
                           />
-                          <article className="min-w-0 flex-1">
+                          <article className="relative min-w-0 flex-1">
                             <div className="flex flex-wrap items-baseline gap-x-2">
                               <p className="m-0 font-display text-sm leading-5 font-bold text-text">
                                 {isOwnMessage
@@ -386,6 +413,85 @@ function ChatThread({
                             <p className="mt-0.5 mb-0 whitespace-pre-wrap text-base leading-6 break-words text-text">
                               {formatMessageBody(message.body)}
                             </p>
+                            {onToggleReaction ? (
+                              <>
+                                {openReactionMessageId === message.id ? (
+                                  <div
+                                    aria-label="Choose a reaction"
+                                    className="absolute bottom-full left-0 z-10 mb-1 flex max-w-[calc(100vw-2rem)] flex-wrap gap-1 rounded-lg border border-border bg-background p-2 shadow-lg"
+                                    role="menu"
+                                  >
+                                    {reactionOptions.map((option) => (
+                                      <button
+                                        aria-label={`React with ${option.label}`}
+                                        className="flex size-10 items-center justify-center rounded-md text-lg hover:bg-surface-subtle"
+                                        key={option.key}
+                                        role="menuitem"
+                                        type="button"
+                                        onClick={() => {
+                                          setOpenReactionMessageId(null)
+                                          void onToggleReaction(
+                                            message.id,
+                                            option.key,
+                                          )
+                                        }}
+                                      >
+                                        <span aria-hidden="true">
+                                          {option.emoji}
+                                        </span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                ) : null}
+                                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                  {(message.reactions ?? []).map((reaction) => {
+                                    const option = reactionOptions.find(
+                                      ({ key }) => key === reaction.key,
+                                    )
+                                    if (!option) return null
+                                    return (
+                                      <button
+                                        aria-label={`${option.label}, ${reaction.count} reaction${reaction.count === 1 ? '' : 's'}`}
+                                        aria-pressed={reaction.isSelected}
+                                        className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-2.5 text-sm transition-colors duration-fast ${reaction.isSelected ? 'border-primary/40 bg-primary/10 text-primary-strong' : 'border-border bg-surface-subtle text-text-muted hover:bg-background'}`}
+                                        disabled={isReacting}
+                                        key={reaction.key}
+                                        type="button"
+                                        onClick={() =>
+                                          void onToggleReaction(
+                                            message.id,
+                                            reaction.key,
+                                          )
+                                        }
+                                      >
+                                        <span aria-hidden="true">
+                                          {option.emoji}
+                                        </span>
+                                        <span>{reaction.count}</span>
+                                      </button>
+                                    )
+                                  })}
+                                  <button
+                                    aria-expanded={
+                                      openReactionMessageId === message.id
+                                    }
+                                    aria-label={`Add reaction to message from ${message.senderDisplayName}`}
+                                    className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-surface-subtle text-base text-text-muted transition-colors duration-fast hover:bg-background"
+                                    disabled={isReacting}
+                                    type="button"
+                                    onClick={() =>
+                                      setOpenReactionMessageId((current) =>
+                                        current === message.id
+                                          ? null
+                                          : message.id,
+                                      )
+                                    }
+                                  >
+                                    <span aria-hidden="true">☺</span>
+                                  </button>
+                                </div>
+                              </>
+                            ) : null}
                           </article>
                         </li>
                       )

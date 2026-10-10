@@ -7,18 +7,23 @@ import type {
 } from '@src/types/chat'
 import type { Database } from '@src/types/database'
 import { getPlainTextMessage } from '@src/lib/richTextMessage'
+import { loadMessageReactions } from '@src/data/chatReactions'
 
 const messagePageSize = 30
 
 type DirectMessageRow =
   Database['public']['Functions']['list_direct_messages']['Returns'][number]
 
-function toDirectMessage(row: DirectMessageRow): DirectMessage {
+function toDirectMessage(
+  row: DirectMessageRow,
+  reactions: DirectMessage['reactions'] = [],
+): DirectMessage {
   return {
     body: row.body,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     id: row.id,
+    reactions,
     senderDisplayName: row.sender_display_name,
     senderId: row.sender_id,
   }
@@ -78,9 +83,15 @@ export async function listDirectMessages(
 
   const currentRows = data.slice(0, messagePageSize)
   const oldestRow = currentRows.at(-1)
+  const reactions = await loadMessageReactions(
+    'direct_message_id',
+    currentRows.map((row) => row.id),
+  )
 
   return {
-    messages: currentRows.map(toDirectMessage).reverse(),
+    messages: currentRows
+      .map((row) => toDirectMessage(row, reactions.get(row.id)))
+      .reverse(),
     nextCursor:
       data.length > messagePageSize && oldestRow
         ? { createdAt: oldestRow.created_at, id: oldestRow.id }
@@ -115,11 +126,13 @@ export async function getDirectMessage(
     .single()
   if (error) throw error
 
+  const reactions = await loadMessageReactions('direct_message_id', [data.id])
   return {
     body: data.body,
     conversationId: data.conversation_id,
     createdAt: data.created_at,
     id: data.id,
+    reactions: reactions.get(data.id) ?? [],
     senderDisplayName: data.profiles.display_name,
     senderId: data.sender_id,
   }
