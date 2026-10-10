@@ -10,6 +10,7 @@ sql_paths = ["./seed.sql"]
 [auth]
 site_url = "http://localhost:5173"
 additional_redirect_urls = ["http://localhost:5173/auth/callback"]
+enable_anonymous_sign_ins = true
 
 [auth.email]
 otp_length = 6

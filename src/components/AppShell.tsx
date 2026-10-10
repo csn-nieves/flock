@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
 import { ConversationSummary } from '@src/components/ConversationSummary'
@@ -19,6 +19,7 @@ import SettingsIcon from '@src/primitives/icons/SettingsIcon'
 import SignOutIcon from '@src/primitives/icons/SignOutIcon'
 import Button from '@src/primitives/Button'
 import { signOut } from '@src/data/auth'
+import { initializeDemoWorkspace } from '@src/data/demo'
 import type {
   DirectConversationSummary,
   FlockChatSummary,
@@ -388,8 +389,23 @@ function AppShell() {
   const directConversationsQuery = useDirectConversations()
   const notificationsQuery = useNotifications()
   const profileQuery = useProfile()
+  const isDemo = session?.user.is_anonymous === true
+  const demoWorkspaceQuery = useQuery({
+    queryKey: ['demo-workspace', session?.user.id],
+    queryFn: initializeDemoWorkspace,
+    enabled: isDemo,
+    staleTime: Infinity,
+  })
   useConversationDirectorySync(session?.user.id)
   usePushSubscriptionRefresh()
+
+  useEffect(() => {
+    if (!demoWorkspaceQuery.isSuccess) return
+
+    void queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] !== 'demo-workspace',
+    })
+  }, [demoWorkspaceQuery.isSuccess, queryClient])
   const isChatRoute = location.pathname.startsWith('/chats')
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
   const displayName =
@@ -614,6 +630,18 @@ function AppShell() {
       <div
         className={`min-w-0 flex-1 ${isChatRoute ? 'min-h-0 overflow-hidden' : ''}`}
       >
+        {isDemo ? (
+          <div className="border-b border-primary/30 bg-primary/10 px-4 py-3 text-sm text-text sm:px-8 lg:px-10">
+            <div className="mx-auto flex max-w-4xl items-center gap-2">
+              <span className="font-bold">Demo mode</span>
+              <span className="text-text-muted">
+                {demoWorkspaceQuery.isPending
+                  ? 'Preparing seeded flocks, events, routes, and chats…'
+                  : 'You are exploring seeded Flock data. Sign out when you are ready to return to the sign-in screen.'}
+              </span>
+            </div>
+          </div>
+        ) : null}
         <div
           className={`w-full px-4 sm:px-8 lg:px-10 ${isChatRoute ? 'h-full' : 'mx-auto max-w-4xl'}`}
         >

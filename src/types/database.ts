@@ -722,6 +722,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string
       }
+      initialize_demo_workspace: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       list_direct_messages: {
         Args: {
           before_created_at?: string

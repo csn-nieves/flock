@@ -5,6 +5,7 @@ import { consumeAuthDestination } from '@src/auth/destination'
 import AuthPageLayout from '@src/components/AuthPageLayout'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useEmailAuthController } from '@src/hooks/useEmailAuthController'
+import { useDemoAuthController } from '@src/hooks/useDemoAuthController'
 import { useSocialAuthController } from '@src/hooks/useSocialAuthController'
 import SignInPage from '@src/pages/SignInPage'
 
@@ -14,6 +15,7 @@ type SignInWorkflowRouteProps = {
 
 function SignInWorkflowRoute({ hasSessionError }: SignInWorkflowRouteProps) {
   const emailAuth = useEmailAuthController()
+  const demoAuth = useDemoAuthController()
   const socialAuth = useSocialAuthController()
 
   return (
@@ -34,6 +36,7 @@ function SignInWorkflowRoute({ hasSessionError }: SignInWorkflowRouteProps) {
         verifyCode: (code) => void emailAuth.verifyCode(code),
       }}
       hasSessionError={hasSessionError}
+      demoAuth={demoAuth}
       socialAuth={{
         error: socialAuth.error,
         pendingProvider: socialAuth.pendingProvider,

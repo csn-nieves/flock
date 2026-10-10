@@ -38,6 +38,10 @@ export function requestEmailOtp(email: string) {
   })
 }
 
+export function signInAnonymously() {
+  return supabase.auth.signInAnonymously()
+}
+
 type VerifyEmailOtpInput = {
   email: string
   token: string

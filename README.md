@@ -7,6 +7,19 @@
 - [Product foundation](./PRODUCT.md)
 - [Technical foundation](./TECHNICAL.md)
 - [Design system](./DESIGN.md)
+
+## Demo mode
+
+The sign-in screen includes an **Explore the demo** action. It creates an
+anonymous Supabase session and calls `initialize_demo_workspace()` to add that
+session to curated local flocks, copy route-backed personal events, and seed a
+direct conversation. The workspace is idempotent per anonymous session.
+
+For local development, anonymous auth is enabled in `supabase/config.toml`.
+For a hosted Supabase project, enable **Authentication → Sign-in / Providers →
+Anonymous sign-ins** before deploying the frontend. Demo sessions are separate
+from email, Google, and Facebook accounts and should not be used for real data.
+
 - [System design and build journal](./docs/README.md)
 
 ## Local development
