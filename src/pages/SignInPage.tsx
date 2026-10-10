@@ -2,6 +2,7 @@ import AuthPageLayout from '@src/components/AuthPageLayout'
 import EmailOtpForm from '@src/components/EmailOtpForm'
 import EmailSignInForm from '@src/components/EmailSignInForm'
 import SocialSignInButtons from '@src/components/SocialSignInButtons'
+import Button from '@src/primitives/Button'
 
 type EmailAuthPageState = {
   changeEmail: () => void
@@ -26,14 +27,22 @@ type SocialAuthPageState = {
   pendingProvider?: 'facebook' | 'google'
 }
 
+type DemoAuthPageState = {
+  error?: string
+  isPending: boolean
+  startDemo: () => void
+}
+
 export type SignInPageProps = {
   emailAuth: EmailAuthPageState
+  demoAuth: DemoAuthPageState
   hasSessionError: boolean
   socialAuth: SocialAuthPageState
 }
 
 function SignInPage({
   emailAuth,
+  demoAuth,
   hasSessionError,
   socialAuth,
 }: SignInPageProps) {
@@ -72,6 +81,29 @@ function SignInPage({
         isSubmitting={emailAuth.isRequesting}
         onSubmit={emailAuth.requestCode}
       />
+
+      <div className="mt-6 border-t border-border pt-5">
+        <Button
+          className="w-full"
+          disabled={emailAuth.isRequesting || demoAuth.isPending}
+          isPending={demoAuth.isPending}
+          pendingLabel="Opening demo…"
+          type="button"
+          variant="secondary"
+          onClick={demoAuth.startDemo}
+        >
+          Explore the demo
+        </Button>
+        <p className="mt-2 mb-0 text-center text-xs leading-4 text-text-muted">
+          Browse seeded flocks, events, routes, and chats without creating an
+          account.
+        </p>
+        {demoAuth.error ? (
+          <p className="mt-3 mb-0 text-sm leading-5 text-danger" role="alert">
+            {demoAuth.error}
+          </p>
+        ) : null}
+      </div>
     </>
   )
 

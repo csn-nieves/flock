@@ -2,6 +2,11 @@
 
 Last reviewed: 2026-10-09
 
+Flock now includes an anonymous demo entry point. It provisions a demo runner
+into three curated seeded flocks, copies two route-backed personal events, and
+creates a direct conversation for product walkthroughs. Hosted Supabase
+projects must enable anonymous sign-ins before the button can be used.
+
 This is the short handoff snapshot for starting a new development task. It does
 not replace the product, technical, design, decision, or system-design records.
 Always inspect the current Git branch and working tree because they may contain
