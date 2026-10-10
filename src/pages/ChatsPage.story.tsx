@@ -68,6 +68,8 @@ function createChatMessage(sequence: number): FlockMessage {
     createdAt: `2026-10-07T12:${String(sequence).padStart(2, '0')}:00.000Z`,
     flockId: flocks[0].id,
     id: `message-${sequence}`,
+    reactions:
+      sequence === 1 ? [{ count: 1, isSelected: false, key: 'heart' }] : [],
     senderDisplayName: isOwner ? 'Local Organizer' : 'Local Runner',
     senderId: isOwner ? 'owner-id' : 'runner-id',
   }
@@ -117,6 +119,7 @@ export function SelectedFlock() {
                     },
                   ])
                 },
+                onToggleReaction: async () => undefined,
               }
             : undefined
         }

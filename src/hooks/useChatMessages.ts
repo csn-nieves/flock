@@ -13,6 +13,7 @@ import type {
   ChatMessage,
   ChatMessageCursor,
   ChatMessagePage,
+  MessageReactionKey,
 } from '@src/types/chat'
 
 type ChatMessageData<Message extends ChatMessage> = InfiniteData<
@@ -32,9 +33,14 @@ type UseChatMessagesOptions<Message extends ChatMessage> = {
     cursor: ChatMessageCursor | null,
   ) => Promise<ChatMessagePage<Message>>
   markRead: (conversationId: string, messageId: string) => Promise<void>
+  reactionFilterColumn: 'flock_message_id' | 'direct_message_id'
   listQueryKey: QueryKey
   sendMessage: (conversationId: string, body: string) => Promise<Message>
   table: 'direct_messages' | 'flock_messages'
+  toggleReaction: (
+    messageId: string,
+    reactionKey: MessageReactionKey,
+  ) => Promise<boolean | null>
 }
 
 function appendMessage<Message extends ChatMessage>(
@@ -74,8 +80,10 @@ export function useChatMessages<Message extends ChatMessage>({
   listMessages,
   listQueryKey,
   markRead,
+  reactionFilterColumn,
   sendMessage,
   table,
+  toggleReaction,
 }: UseChatMessagesOptions<Message>) {
   const queryClient = useQueryClient()
   const [connectionStatus, setConnectionStatus] =
@@ -107,6 +115,18 @@ export function useChatMessages<Message extends ChatMessage>({
       queryClient.setQueryData<ChatMessageData<Message>>(queryKey, (data) =>
         appendMessage(data, message),
       )
+    },
+  })
+  const reactionMutation = useMutation({
+    mutationFn: ({
+      messageId,
+      reactionKey,
+    }: {
+      messageId: string
+      reactionKey: MessageReactionKey
+    }) => toggleReaction(messageId, reactionKey),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey })
     },
   })
 
@@ -143,6 +163,18 @@ export function useChatMessages<Message extends ChatMessage>({
             })
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          filter: `${reactionFilterColumn}=eq.${id}`,
+          schema: 'public',
+          table: 'chat_message_reactions',
+        },
+        () => {
+          void queryClient.invalidateQueries({ queryKey })
+        },
+      )
       .subscribe((status) => {
         if (!isActive) return
         if (status === 'SUBSCRIBED') {
@@ -172,6 +204,7 @@ export function useChatMessages<Message extends ChatMessage>({
     id,
     queryClient,
     queryKey,
+    reactionFilterColumn,
     table,
   ])
 
@@ -232,6 +265,7 @@ export function useChatMessages<Message extends ChatMessage>({
     isError: messagesQuery.isError,
     isLoading: messagesQuery.isPending,
     isLoadingOlderMessages: messagesQuery.isFetchingNextPage,
+    isReacting: reactionMutation.isPending,
     isSending: sendMutation.isPending,
     messages,
     sendError: sendMutation.error,
@@ -241,6 +275,12 @@ export function useChatMessages<Message extends ChatMessage>({
     retry: () => void messagesQuery.refetch(),
     send: async (body: string) => {
       await sendMutation.mutateAsync(body)
+    },
+    toggleReaction: async (
+      messageId: string,
+      reactionKey: MessageReactionKey,
+    ) => {
+      await reactionMutation.mutateAsync({ messageId, reactionKey })
     },
   }
 }

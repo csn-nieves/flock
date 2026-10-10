@@ -2,9 +2,19 @@ export type ChatMessage = {
   body: string
   createdAt: string
   id: string
+  reactions?: MessageReaction[]
   senderDisplayName: string
   senderId: string
 }
+
+export type MessageReaction = {
+  count: number
+  isSelected: boolean
+  key: MessageReactionKey
+}
+
+export type MessageReactionKey =
+  'thumbs_up' | 'heart' | 'laugh' | 'celebrate' | 'fire' | 'eyes'
 
 export type FlockMessage = ChatMessage & {
   flockId: string

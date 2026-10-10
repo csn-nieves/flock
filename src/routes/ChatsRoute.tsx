@@ -142,11 +142,13 @@ function ChatsRoute() {
               hasOlderMessages: activeChat.hasOlderMessages,
               isLoading: activeChat.isLoading,
               isLoadingOlderMessages: activeChat.isLoadingOlderMessages,
+              isReacting: activeChat.isReacting,
               isSending: activeChat.isSending,
               messages: activeChat.messages,
               onLoadOlderMessages: activeChat.loadOlderMessages,
               onRetry: activeChat.retry,
               onSend: activeChat.send,
+              onToggleReaction: activeChat.toggleReaction,
               sendError: activeChat.sendError
                 ? 'Your message was not sent. Check your connection and try again.'
                 : undefined,

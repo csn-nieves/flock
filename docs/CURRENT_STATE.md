@@ -108,6 +108,11 @@ profiles, flock covers, and personal or flock-event covers.
   activity. Payloads identify the sender and conversation, include a bounded
   plain-text preview of the message, and deep-link to the authorized chat
   route.
+- Flock and direct chat messages support server-authorized, single-toggle
+  reactions (thumbs up, heart, laugh, celebrate, fire, and eyes). Reaction
+  counts and the current runner's selection are loaded with each message page,
+  refreshed through the conversation's Realtime channel, and protected by the
+  same membership and participant boundaries as message history.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
 - Public profiles contain only display names, stay synchronized from
@@ -280,10 +285,9 @@ privacy gate; discovery currently exposes only limited names and opaque IDs.
 
 ## Next planned increments
 
-1. Review and merge the durable in-app notification center, then complete one
-   real-device notification check against the hosted environment. The next
-   logical messaging increment after that is lightweight message reactions, while
-   attachments, editing, deletion, typing indicators, visible read receipts,
+1. Review and merge lightweight chat message reactions, then complete one
+   real-device notification check against the hosted environment. Attachments,
+   editing, deletion, typing indicators, visible read receipts,
    and moderation controls remain separate product decisions. The rehearsed
    moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain ready when
    participant availability returns; they no longer block feature branches in

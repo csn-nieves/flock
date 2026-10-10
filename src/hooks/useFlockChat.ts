@@ -4,6 +4,7 @@ import {
   markFlockChatRead,
   sendFlockMessage,
 } from '@src/data/flockChat'
+import { toggleFlockMessageReaction } from '@src/data/chatReactions'
 import { flockChatQueryKeys } from '@src/data/queryKeys'
 import { useChatMessages } from '@src/hooks/useChatMessages'
 
@@ -18,7 +19,9 @@ export function useFlockChat(flockId: string | undefined, enabled: boolean) {
     listMessages: listFlockMessages,
     listQueryKey: flockChatQueryKeys.lists(),
     markRead: markFlockChatRead,
+    reactionFilterColumn: 'flock_message_id',
     sendMessage: sendFlockMessage,
     table: 'flock_messages',
+    toggleReaction: toggleFlockMessageReaction,
   })
 }

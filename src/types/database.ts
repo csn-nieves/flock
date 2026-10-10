@@ -9,53 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      notifications: {
+      chat_message_reactions: {
         Row: {
-          body: string
           created_at: string
+          direct_message_id: string | null
+          flock_message_id: string | null
           id: string
-          kind:
-            | 'event_invitation'
-            | 'flock_event'
-            | 'flock_message'
-            | 'direct_message'
-          path: string
-          read_at: string | null
-          source_id: string
-          title: string
+          reaction_key: string
           user_id: string
         }
         Insert: {
-          body: string
           created_at?: string
+          direct_message_id?: string | null
+          flock_message_id?: string | null
           id?: string
-          kind:
-            | 'event_invitation'
-            | 'flock_event'
-            | 'flock_message'
-            | 'direct_message'
-          path: string
-          read_at?: string | null
-          source_id: string
-          title: string
+          reaction_key: string
           user_id: string
         }
         Update: {
-          body?: string
           created_at?: string
+          direct_message_id?: string | null
+          flock_message_id?: string | null
           id?: string
-          kind?:
-            | 'event_invitation'
-            | 'flock_event'
-            | 'flock_message'
-            | 'direct_message'
-          path?: string
-          read_at?: string | null
-          source_id?: string
-          title?: string
+          reaction_key?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'chat_message_reactions_direct_message_id_fkey'
+            columns: ['direct_message_id']
+            isOneToOne: false
+            referencedRelation: 'direct_messages'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'chat_message_reactions_flock_message_id_fkey'
+            columns: ['flock_message_id']
+            isOneToOne: false
+            referencedRelation: 'flock_messages'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'chat_message_reactions_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['user_id']
+          },
+        ]
       }
       direct_conversation_reads: {
         Row: {
@@ -437,6 +438,54 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind:
+            | 'event_invitation'
+            | 'flock_event'
+            | 'flock_message'
+            | 'direct_message'
+          path: string
+          read_at: string | null
+          source_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind:
+            | 'event_invitation'
+            | 'flock_event'
+            | 'flock_message'
+            | 'direct_message'
+          path: string
+          read_at?: string | null
+          source_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?:
+            | 'event_invitation'
+            | 'flock_event'
+            | 'flock_message'
+            | 'direct_message'
+          path?: string
+          read_at?: string | null
+          source_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -496,14 +545,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      mark_all_notifications_read: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      mark_notification_read: {
-        Args: { target_notification_id: string }
-        Returns: undefined
-      }
       accept_event_invitation: {
         Args: { invitation_token: string }
         Returns: {
@@ -762,12 +803,20 @@ export type Database = {
           invitation_kind: string
         }[]
       }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       mark_direct_conversation_read: {
         Args: { target_conversation_id: string; target_message_id: string }
         Returns: undefined
       }
       mark_flock_chat_read: {
         Args: { target_flock_id: string; target_message_id: string }
+        Returns: undefined
+      }
+      mark_notification_read: {
+        Args: { target_notification_id: string }
         Returns: undefined
       }
       register_push_subscription: {
@@ -857,6 +906,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      toggle_direct_message_reaction: {
+        Args: { target_message_id: string; target_reaction_key: string }
+        Returns: boolean
+      }
+      toggle_flock_message_reaction: {
+        Args: { target_message_id: string; target_reaction_key: string }
+        Returns: boolean
       }
       unregister_push_subscription: {
         Args: { subscription_endpoint: string }

@@ -99,6 +99,28 @@ test('renders direct messages with the same fixed chat workspace', async ({
   ).toBe(page.viewportSize()?.height)
 })
 
+test('shows message reactions and an accessible picker', async ({ mount }) => {
+  const component = await mount('pages/ChatsPage/SelectedFlock')
+
+  await expect(
+    component.getByRole('button', { name: 'heart, 1 reaction' }),
+  ).toBeVisible()
+  await component
+    .getByRole('button', { name: 'Add reaction to message from Local Runner' })
+    .click()
+  const reactionMenu = component.getByRole('menu', {
+    name: 'Choose a reaction',
+  })
+  await expect(reactionMenu).toBeVisible()
+  await expect(reactionMenu).toHaveClass(/absolute/)
+  await expect(
+    component.getByRole('button', { name: 'heart, 1 reaction' }),
+  ).toBeVisible()
+  await expect(
+    component.getByRole('menuitem', { name: 'React with fire' }),
+  ).toBeVisible()
+})
+
 test('shows runner search results when starting a direct message', async ({
   mount,
 }) => {

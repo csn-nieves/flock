@@ -7,6 +7,7 @@ import type {
 } from '@src/types/chat'
 import type { Database } from '@src/types/database'
 import { getPlainTextMessage } from '@src/lib/richTextMessage'
+import { loadMessageReactions } from '@src/data/chatReactions'
 
 const messagePageSize = 30
 
@@ -38,12 +39,16 @@ export async function markFlockChatRead(flockId: string, messageId: string) {
   if (error) throw error
 }
 
-function toFlockMessage(row: FlockMessageRow): FlockMessage {
+function toFlockMessage(
+  row: FlockMessageRow,
+  reactions: FlockMessage['reactions'] = [],
+): FlockMessage {
   return {
     body: row.body,
     createdAt: row.created_at,
     flockId: row.flock_id,
     id: row.id,
+    reactions,
     senderDisplayName: row.sender_display_name,
     senderId: row.sender_id,
   }
@@ -63,9 +68,15 @@ export async function listFlockMessages(
 
   const currentRows = data.slice(0, messagePageSize)
   const oldestRow = currentRows.at(-1)
+  const reactions = await loadMessageReactions(
+    'flock_message_id',
+    currentRows.map((row) => row.id),
+  )
 
   return {
-    messages: currentRows.map(toFlockMessage).reverse(),
+    messages: currentRows
+      .map((row) => toFlockMessage(row, reactions.get(row.id)))
+      .reverse(),
     nextCursor:
       data.length > messagePageSize && oldestRow
         ? { createdAt: oldestRow.created_at, id: oldestRow.id }
@@ -100,11 +111,13 @@ export async function getFlockMessage(
     .single()
   if (error) throw error
 
+  const reactions = await loadMessageReactions('flock_message_id', [data.id])
   return {
     body: data.body,
     createdAt: data.created_at,
     flockId: data.flock_id,
     id: data.id,
+    reactions: reactions.get(data.id) ?? [],
     senderDisplayName: data.profiles.display_name,
     senderId: data.sender_id,
   }
