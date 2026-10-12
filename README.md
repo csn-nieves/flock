@@ -96,6 +96,22 @@ idempotent job. The legacy service-role credential remains internal to the
 function for privileged database calls and never crosses the webhook boundary.
 Do not configure the webhook with a public or publishable credential.
 
+## Production custom domain
+
+Cloudflare Pages can serve Flock from a Namecheap-registered domain on the
+free Cloudflare plan. Add the domain to Cloudflare first, then choose
+**Custom DNS** in Namecheap and replace the registrar nameservers with the two
+Cloudflare nameservers assigned to the zone. Keep any existing MX and TXT
+records needed for email forwarding.
+
+Cloudflare must show the zone as **Active** before the domain can be attached
+to the Pages project. In **Workers & Pages → flock-validation → Custom
+domains**, add the apex domain (for example, `flockrun.fit`) after activation.
+Nameserver propagation commonly takes one to two hours and can take up to 24
+hours; the site may show a TLS error until propagation and the managed edge
+certificate finish provisioning. No separately purchased SSL certificate is
+required.
+
 To apply committed migrations to the hosted validation project, run the
 following from a clean checkout of the revision being tested:
 
