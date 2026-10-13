@@ -37,6 +37,16 @@ vi.mock('@src/hooks/useSocialAuthController', () => ({
   useSocialAuthController: () => socialController,
 }))
 
+const demoController = vi.hoisted(() => ({
+  error: undefined as string | undefined,
+  isPending: false,
+  startDemo: vi.fn(),
+}))
+
+vi.mock('@src/hooks/useDemoAuthController', () => ({
+  useDemoAuthController: () => demoController,
+}))
+
 const authSession = vi.hoisted(() => ({
   error: null as Error | null,
   isLoading: false,
@@ -94,6 +104,8 @@ describe('SignInRoute', () => {
     controller.resendError = undefined
     controller.step = 'email'
     controller.verificationError = undefined
+    demoController.error = undefined
+    demoController.isPending = false
     socialController.error = undefined
     socialController.pendingProvider = undefined
     destination.consumeAuthDestination.mockReturnValue('/')
@@ -168,6 +180,36 @@ describe('SignInRoute', () => {
     expect(controller.requestCode).toHaveBeenCalledWith('runner@example.com')
   })
 
+  it('renders the demo entry and starts the demo workspace', () => {
+    renderSignInRoute()
+
+    expect(
+      screen.getAllByRole('heading', {
+        level: 2,
+        name: 'See how your next run comes together.',
+      }),
+    ).toHaveLength(2)
+
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Explore the demo' })[0],
+    )
+
+    expect(demoController.startDemo).toHaveBeenCalledOnce()
+  })
+
+  it('shows demo pending and error feedback', () => {
+    demoController.error = 'We could not start the demo. Try again.'
+    demoController.isPending = true
+    renderSignInRoute()
+
+    expect(screen.getAllByRole('alert')[0]).toHaveTextContent(
+      'We could not start the demo. Try again.',
+    )
+    expect(
+      screen.getAllByRole('button', { name: 'Opening demo…' })[0],
+    ).toBeDisabled()
+  })
+
   it('renders social options and forwards provider intent', () => {
     renderSignInRoute()
 
@@ -230,6 +272,9 @@ describe('SignInRoute', () => {
     expect(controller.verifyCode).toHaveBeenCalledWith('123456')
     expect(controller.resendCode).toHaveBeenCalledOnce()
     expect(controller.changeEmail).toHaveBeenCalledOnce()
+    expect(
+      screen.queryByRole('button', { name: 'Explore the demo' }),
+    ).not.toBeInTheDocument()
   })
 
   it('passes controller errors and pending state to verification', () => {
