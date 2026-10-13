@@ -1,186 +1,100 @@
 # Flock
 
-## Project documentation
+Flock is a mobile-first progressive web app for run clubs. Organizers create
+**flocks**, plan personal or group runs, define distance and pace options,
+share GPX or road-following routes, manage RSVPs, and keep members connected
+through private flock chats and direct messages.
 
-- [Codex repository instructions](./AGENTS.md)
-- [Current development state](./docs/CURRENT_STATE.md)
-- [Product foundation](./PRODUCT.md)
-- [Technical foundation](./TECHNICAL.md)
-- [Design system](./DESIGN.md)
+The app also supports profile, flock, and event photos, saved routes, event
+invitations, realtime updates, and opt-in Web Push notifications. The goal is
+to give runners one calm, practical place to decide where and when to run
+together.
 
-## Demo mode
+## Built with
 
-The sign-in screen includes an **Explore the demo** action. It creates an
-anonymous Supabase session and calls `initialize_demo_workspace()` to add that
-session to curated local flocks, copy route-backed personal events, and seed a
-direct conversation. The workspace is idempotent per anonymous session.
+- React, TypeScript, Vite, React Router, and Tailwind CSS
+- Supabase PostgreSQL, Auth, Row Level Security, Realtime, Storage, and Edge Functions
+- Geoapify Routing API for road-following routes drawn in the browser
+- Standards-based Web Push with a custom PWA service worker
+- Cloudflare Pages for hosting and Namecheap for the production domain
+- Vitest, Playwright, and pgTAP for unit, browser, end-to-end, and database coverage
 
-For local development, anonymous auth is enabled in `supabase/config.toml`.
-For a hosted Supabase project, enable **Authentication → Sign-in / Providers →
-Anonymous sign-ins** before deploying the frontend. Demo sessions are separate
-from email, Google, and Facebook accounts and should not be used for real data.
+## Run locally
 
-- [System design and build journal](./docs/README.md)
-
-## Local development
-
-Install the project dependencies and
-[Just](https://just.systems/man/en/packages.html), then make sure Docker is
-running. Start the complete local application with:
+Prerequisites: Node.js, Docker, the Supabase CLI, and [Just](https://just.systems/).
 
 ```sh
 npm install
 just dev
 ```
 
-`just dev` starts the local Supabase stack, reads its public API URL and
-publishable key, and passes only those values to Vite. It does not create or
-modify `.env.local`. The first local database start applies the migrations and
-loads deterministic development data.
+`just dev` starts local Supabase, applies migrations, loads the curated seed
+data, starts Vite, and prints the local URLs. Open the app at the printed Vite
+URL. Use `runner@flock.com` or `organizer@flock.com`; read the six-digit email
+code in the Mailpit URL shown by `just status`.
 
-Sign in as `runner@flock.com` and open the Mailpit URL shown by
-`just status` to read the six-digit local sign-in code. This account owns two
-sample flocks and belongs to a third. `organizer@flock.com` is also available
-for testing the other owner.
-
-Stop Vite with `Control-C`. Supabase stays available so the next startup is
-fast. Stop its containers separately when they are no longer needed:
-
-```sh
-just stop
-```
-
-Variables prefixed with `VITE_` are included in the browser bundle. The
-Supabase project URL and publishable key belong there; secret and service-role
-keys must never be added to the frontend environment.
-
-The Web Push public key is also safe browser configuration and belongs in
-`VITE_WEB_PUSH_PUBLIC_KEY`. Its paired private key must remain an Edge Function
-secret.
-
-Road-following event-route drawing uses Geoapify's browser Routing API. Create
-a Geoapify project, restrict its public API key to the local, preview, and
-production Flock origins, and provide it to Vite as
-`VITE_GEOAPIFY_API_KEY`. This key is shipped in the browser bundle by design;
-do not put a server secret in that variable. Without it, GPX route import and
-saved route viewing still work, while the drawing dialog explains that route
-planning is unavailable.
-
-## Push notification deployment
-
-The repository contains the subscription schema, event and chat notification
-jobs, custom service worker, and `send-push-notification` Edge Function. A hosted
-environment needs one-time VAPID and webhook configuration before it can send
-alerts:
-
-1. Generate one VAPID key pair, for example with
-   `npx web-push generate-vapid-keys`. Keep the private key out of Git.
-2. Set the public key as `VITE_WEB_PUSH_PUBLIC_KEY` in the frontend build
-   environment.
-3. Set `WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`, and `WEB_PUSH_SUBJECT` as
-   Supabase Edge Function secrets. The subject must be an HTTPS URL or a
-   `mailto:` contact owned by the project.
-4. Deploy `send-push-notification` after deploying its database
-   migration.
-5. Create a Supabase Database Webhook for `INSERT` and `UPDATE` events on
-   `private.notification_jobs`. Choose the dedicated Supabase Edge Functions
-   webhook type, target `send-push-notification` with `POST`, and use **Add
-   secret key** so Supabase supplies the current project secret in the
-   `apikey` header. Updates are required because opting in can requeue a
-   still-active alert that previously had no device subscription.
-
-The function has platform JWT verification disabled because database webhooks
-do not carry an end-user session. It checks the `apikey` header against
-Supabase's built-in `SUPABASE_SECRET_KEYS` dictionary before claiming a private,
-idempotent job. The legacy service-role credential remains internal to the
-function for privileged database calls and never crosses the webhook boundary.
-Do not configure the webhook with a public or publishable credential.
-
-## Production custom domain
-
-Cloudflare Pages can serve Flock from a Namecheap-registered domain on the
-free Cloudflare plan. Add the domain to Cloudflare first, then choose
-**Custom DNS** in Namecheap and replace the registrar nameservers with the two
-Cloudflare nameservers assigned to the zone. Keep any existing MX and TXT
-records needed for email forwarding.
-
-Cloudflare must show the zone as **Active** before the domain can be attached
-to the Pages project. In **Workers & Pages → flock-validation → Custom
-domains**, add the apex domain (for example, `flockrun.fit`) after activation.
-Nameserver propagation commonly takes one to two hours and can take up to 24
-hours; the site may show a TLS error until propagation and the managed edge
-certificate finish provisioning. No separately purchased SSL certificate is
-required.
-
-To apply committed migrations to the hosted validation project, run the
-following from a clean checkout of the revision being tested:
-
-```sh
-npx supabase login
-npx supabase link --project-ref <validation-project-ref>
-npx supabase db push --dry-run
-npx supabase db push
-```
-
-Review the dry-run output before applying it. Do not use `--include-seed` for
-the hosted validation project; the committed seed contains local-development
-identities rather than participant accounts. This workflow targets the linked
-Supabase project, so confirm that the project reference is correct before
-running the final `db push`.
-
-## Local database development
-
-Flock's database schema is tracked in `supabase/migrations`, and development
-fixtures are tracked in `supabase/seed.sql`. Rebuild the local database from
-both sources when you need a known state:
+Reset local data and regenerate the media fixtures with:
 
 ```sh
 just reset
 ```
 
-This command deletes local database changes before replaying migrations and
-seed data, then uploads the curated local media fixtures to the private
-`flock-media` bucket. The media step reads the local Supabase service-role key
-from `supabase status` at runtime; no credential or binary is committed to the
-repository. It never targets the hosted project. Use `just status` to display
-the local Studio and Mailpit URLs.
+Stop the local stack with `just stop`.
 
-The underlying npm commands remain available for CI and environments without
-Just. Verify the migrations and pgTAP authorization tests from a clean local
-database with:
+For route drawing, set `VITE_GEOAPIFY_API_KEY` to a browser-restricted
+Geoapify key. The local Supabase public URL and publishable key are supplied by
+`just dev`; never put service-role keys or other secrets in Vite variables.
 
-```sh
-npm run db:verify
-```
+## Demo without signing up
 
-`db:verify` resets only the local database before testing it. Run the complete
-repository verification suite with `just check`.
+Choose **Explore the demo** on the sign-in screen. Flock creates an anonymous
+Supabase session and provisions a curated demo workspace with flock membership,
+route-backed events, a direct conversation, and representative seeded data.
+The workspace is isolated and idempotent for that demo session.
 
-Run the full-stack browser journeys against real local Supabase sessions, RPCs,
-Row Level Security, and persisted data with:
+Anonymous sign-ins are enabled automatically in local development. For a
+hosted environment, enable **Supabase → Authentication → Sign-in / Providers
+→ Anonymous sign-ins** first. Demo sessions are separate from email, Google,
+and Facebook accounts and should not be used for real data.
 
-```sh
-npm run test:e2e
-```
+## Production
 
-This command starts Supabase if needed, resets only the local database to the
-committed migrations and seed, starts the application with local public
-configuration, and runs the organizer-to-runner flock membership, flock event,
-and personal-event invitation journeys in desktop Chromium. It never targets a
-hosted project. Use the regular page-test matrix for responsive browser
-coverage; the full-stack suite owns the frontend-to-database integration
-boundary.
+The deployed app is available at **[flockrun.fit](https://flockrun.fit)**.
+Cloudflare Pages hosts the frontend, while the production Supabase project
+provides authentication, database, storage, realtime, and server-side
+functions. The Cloudflare Pages preview remains available at
+`https://flock-validation.pages.dev` for validation work.
 
-After changing the public database schema, regenerate the frontend's TypeScript
-definitions from the running local database:
+Production setup requires:
 
-```sh
-npm run db:types
-```
+1. Configure the frontend’s public `VITE_` values in Cloudflare Pages,
+   including the Supabase URL, publishable key, Web Push public key, and (when
+   route drawing is enabled) the Geoapify browser key.
+2. Set the Supabase Auth Site URL and redirect allow-list entries for
+   `https://flockrun.fit/auth/callback` and the local or preview origins used
+   for testing.
+3. Apply committed migrations to the intended Supabase project after reviewing
+   the dry run:
 
-Commit `src/types/database.ts` so CI and other contributors use the same schema
-contract. The file is generated and must not be edited manually.
+   ```sh
+   npx supabase login
+   npx supabase link --project-ref <project-ref>
+   npx supabase db push --dry-run
+   npx supabase db push
+   ```
 
-Do not make application schema changes directly in the hosted dashboard. Create
-and test a migration first; deployment of migrations to the hosted project is a
-separate, deliberate step.
+4. Configure production SMTP, Web Push VAPID secrets, the notification Edge
+   Function, and its database webhook when device alerts are needed.
+
+Do not use `--include-seed` against the hosted project; the seed contains local
+development identities and fixtures. Keep service-role credentials in
+Supabase or Cloudflare server-side configuration only.
+
+## Project documentation
+
+- [Current state](./docs/CURRENT_STATE.md) — active milestone and next step
+- [Product foundation](./PRODUCT.md) — users, scope, and product principles
+- [Technical foundation](./TECHNICAL.md) — architecture and security boundaries
+- [Design system](./DESIGN.md) — visual language and design tokens
+- [Engineering notes](./docs/README.md) — system design, decisions, and build journal
+- [Repository instructions](./AGENTS.md) — contribution and verification rules
