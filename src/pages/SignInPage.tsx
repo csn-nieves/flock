@@ -1,8 +1,8 @@
 import AuthPageLayout from '@src/components/AuthPageLayout'
+import DemoExperienceCard from '@src/components/DemoExperienceCard'
 import EmailOtpForm from '@src/components/EmailOtpForm'
 import EmailSignInForm from '@src/components/EmailSignInForm'
 import SocialSignInButtons from '@src/components/SocialSignInButtons'
-import Button from '@src/primitives/Button'
 
 type EmailAuthPageState = {
   changeEmail: () => void
@@ -46,6 +46,7 @@ function SignInPage({
   hasSessionError,
   socialAuth,
 }: SignInPageProps) {
+  const isEmailEntry = emailAuth.step === 'email'
   let heading = 'Sign in to Flock'
   let description = 'Choose Google, Facebook, or a six-digit email code.'
   let form = (
@@ -81,29 +82,6 @@ function SignInPage({
         isSubmitting={emailAuth.isRequesting}
         onSubmit={emailAuth.requestCode}
       />
-
-      <div className="mt-6 border-t border-border pt-5">
-        <Button
-          className="w-full"
-          disabled={emailAuth.isRequesting || demoAuth.isPending}
-          isPending={demoAuth.isPending}
-          pendingLabel="Opening demo…"
-          type="button"
-          variant="secondary"
-          onClick={demoAuth.startDemo}
-        >
-          Explore the demo
-        </Button>
-        <p className="mt-2 mb-0 text-center text-xs leading-4 text-text-muted">
-          Browse seeded flocks, events, routes, and chats without creating an
-          account.
-        </p>
-        {demoAuth.error ? (
-          <p className="mt-3 mb-0 text-sm leading-5 text-danger" role="alert">
-            {demoAuth.error}
-          </p>
-        ) : null}
-      </div>
     </>
   )
 
@@ -126,19 +104,52 @@ function SignInPage({
   }
 
   return (
-    <AuthPageLayout description={description} heading={heading}>
-      {hasSessionError ? (
-        <p
-          className="mt-0 mb-6 rounded-md border border-accent bg-surface-subtle px-4 py-3 text-sm leading-5 text-text"
-          role="alert"
-        >
-          We could not verify whether you are already signed in. You can still
-          sign in below.
-        </p>
-      ) : null}
+    <div
+      className={[
+        'mx-auto grid w-full max-w-5xl items-center gap-8 px-4 py-8 sm:px-6 sm:py-12',
+        isEmailEntry
+          ? 'lg:grid-cols-[minmax(0,0.85fr)_minmax(22rem,1fr)] lg:gap-16 lg:py-16'
+          : '',
+      ].join(' ')}
+    >
+      <AuthPageLayout
+        className="mx-0 max-w-none py-8 sm:py-0"
+        description={description}
+        heading={heading}
+      >
+        {hasSessionError ? (
+          <p
+            className="mt-0 mb-6 rounded-md border border-accent bg-surface-subtle px-4 py-3 text-sm leading-5 text-text"
+            role="alert"
+          >
+            We could not verify whether you are already signed in. You can still
+            sign in below.
+          </p>
+        ) : null}
 
-      {form}
-    </AuthPageLayout>
+        {form}
+
+        {isEmailEntry ? (
+          <div className="mt-8 lg:hidden">
+            <DemoExperienceCard
+              error={demoAuth.error}
+              isPending={demoAuth.isPending}
+              onStart={demoAuth.startDemo}
+            />
+          </div>
+        ) : null}
+      </AuthPageLayout>
+
+      {isEmailEntry ? (
+        <div className="hidden lg:block">
+          <DemoExperienceCard
+            error={demoAuth.error}
+            isPending={demoAuth.isPending}
+            onStart={demoAuth.startDemo}
+          />
+        </div>
+      ) : null}
+    </div>
   )
 }
 

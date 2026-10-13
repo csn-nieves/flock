@@ -5,6 +5,7 @@ type AuthPageLayoutProps = {
   description: string
   heading: string
   isStatus?: boolean
+  className?: string
 }
 
 function AuthPageLayout({
@@ -12,13 +13,19 @@ function AuthPageLayout({
   description,
   heading,
   isStatus = false,
+  className,
 }: AuthPageLayoutProps) {
   const descriptionRole = isStatus ? 'status' : undefined
 
   return (
     <section
       aria-labelledby="auth-heading"
-      className="mx-auto flex w-full max-w-sm flex-col py-8 sm:py-12"
+      className={[
+        'mx-auto flex w-full max-w-sm flex-col py-8 sm:py-12',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <header className="mb-8">
         <h1
