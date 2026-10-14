@@ -396,6 +396,7 @@ function AppShell() {
     enabled: isDemo,
     staleTime: Infinity,
   })
+  const isDemoWorkspaceReady = !isDemo || demoWorkspaceQuery.isSuccess
   useConversationDirectorySync(session?.user.id)
   usePushSubscriptionRefresh()
 
@@ -645,7 +646,33 @@ function AppShell() {
         <div
           className={`w-full px-4 sm:px-8 lg:px-10 ${isChatRoute ? 'h-full' : 'mx-auto max-w-4xl'}`}
         >
-          <Outlet />
+          {isDemoWorkspaceReady ? (
+            <Outlet />
+          ) : (
+            <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center">
+              <div aria-live="polite" className="max-w-md space-y-2">
+                <h1 className="font-display text-2xl font-bold text-text">
+                  {demoWorkspaceQuery.isError
+                    ? 'The demo needs another try'
+                    : 'Preparing your demo'}
+                </h1>
+                <p className="text-sm text-text-muted">
+                  {demoWorkspaceQuery.isError
+                    ? 'We could not prepare the demo workspace yet.'
+                    : 'We are setting up flocks, events, routes, and chats.'}
+                </p>
+              </div>
+              {demoWorkspaceQuery.isError ? (
+                <Button
+                  isPending={demoWorkspaceQuery.isFetching}
+                  pendingLabel="Trying again…"
+                  onClick={() => void demoWorkspaceQuery.refetch()}
+                >
+                  Try again
+                </Button>
+              ) : null}
+            </div>
+          )}
         </div>
       </div>
     </div>
