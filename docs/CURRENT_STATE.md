@@ -3,9 +3,11 @@
 Last reviewed: 2026-10-12
 
 Flock now includes an anonymous demo entry point. It provisions a demo runner
-into three curated seeded flocks, copies two route-backed personal events, and
-creates a direct conversation for product walkthroughs. Hosted Supabase
-projects must enable anonymous sign-ins before the button can be used.
+into three self-contained demo flocks, creates route-backed flock and personal
+events, and preserves the seeded direct-conversation walkthrough when its local
+companion account exists. The demo no longer depends on production seed data.
+Hosted Supabase projects must enable anonymous sign-ins before the button can be
+used.
 
 The Cloudflare Pages production custom domain `flockrun.fit` is now active;
 production authentication URL and redirect verification remain the next
