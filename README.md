@@ -49,8 +49,10 @@ Geoapify key. The local Supabase public URL and publishable key are supplied by
 
 Choose **Explore the demo** on the sign-in screen. Flock creates an anonymous
 Supabase session and provisions a curated demo workspace with flock membership,
-route-backed events, a direct conversation, and representative seeded data.
-The workspace is isolated and idempotent for that demo session.
+route-backed events, and a direct conversation when the local companion account
+is available. The workspace is created by the database function itself, so it
+does not depend on production seed data. It is isolated and idempotent for that
+demo session.
 
 Anonymous sign-ins are enabled automatically in local development. For a
 hosted environment, enable **Supabase → Authentication → Sign-in / Providers
