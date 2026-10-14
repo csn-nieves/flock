@@ -74,7 +74,7 @@ describe('DiscoverPage', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Open a conversation with Alex Runner',
+        name: 'Open profile for Alex Runner',
       }),
     )
     fireEvent.click(screen.getByRole('button', { name: 'Open Morning Miles' }))

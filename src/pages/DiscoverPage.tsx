@@ -24,7 +24,7 @@ function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
           {runners.data.map((runner) => (
             <li key={runner.user_id}>
               <Button
-                aria-label={`Open a conversation with ${runner.display_name}`}
+                aria-label={`Open profile for ${runner.display_name}`}
                 className="w-full justify-between rounded-md px-4 py-3 text-left"
                 variant="secondary"
                 onClick={() => onSelectRunner(runner.user_id)}

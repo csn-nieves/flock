@@ -170,7 +170,7 @@ function AdminRoute() {
         navigate(`/flocks/${encodeURIComponent(flockId)}`)
       }
       onSelectRunner={(userId) =>
-        navigate(`/chats/direct/new?runnerId=${encodeURIComponent(userId)}`)
+        navigate(`/runners/${encodeURIComponent(userId)}`)
       }
       removeMembershipError={
         removeMembership.isError

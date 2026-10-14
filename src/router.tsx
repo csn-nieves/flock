@@ -82,6 +82,10 @@ export const routes = [
             ...lazyRoute(() => import('@src/routes/DiscoverRoute')),
           },
           {
+            path: 'runners/:userId',
+            ...lazyRoute(() => import('@src/routes/RunnerProfileRoute')),
+          },
+          {
             path: 'admin',
             ...lazyRoute(() => import('@src/routes/AdminRoute')),
           },

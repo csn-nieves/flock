@@ -270,7 +270,7 @@ describe('AdminPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open Morning Miles' }))
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Open a conversation with Maya Chen',
+        name: 'Open profile for Maya Chen',
       }),
     )
 
