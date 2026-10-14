@@ -57,11 +57,8 @@ function RunnerProfilePage({
           ) : null}
         </div>
         <div className="mt-8 border-t border-border pt-6">
-          <p className="m-0 text-sm leading-5 text-text-muted">
-            Connect with runners who share your pace and your routes.
-          </p>
           {!isCurrentUser ? (
-            <Button className="mt-4 w-full" onClick={onMessage}>
+            <Button className="w-full" onClick={onMessage}>
               <ProfileIcon className="size-5" />
               Message {profile.displayName}
             </Button>
