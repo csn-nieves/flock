@@ -6,4 +6,6 @@ export async function initializeDemoWorkspace() {
   if (error) {
     throw error
   }
+
+  return true
 }
