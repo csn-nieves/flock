@@ -47,6 +47,23 @@ export async function getMyProfile(): Promise<Profile> {
   return profile
 }
 
+export async function getRunnerProfile(userId: string): Promise<Profile> {
+  const { data, error } = await supabase.rpc('get_runner_profile', {
+    target_user_id: userId,
+  })
+
+  if (error) throw error
+
+  const profile = data[0]
+  if (!profile) throw new Error('That runner profile is unavailable.')
+
+  const avatarUrl = await getImageUrl(profileImagePath(profile.user_id))
+  return {
+    ...toProfile(profile),
+    ...(avatarUrl ? { avatarUrl } : {}),
+  }
+}
+
 export async function updateMyProfile(input: {
   displayName: string
   location: string | null

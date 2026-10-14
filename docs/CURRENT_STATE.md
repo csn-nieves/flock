@@ -124,9 +124,10 @@ profiles, flock covers, and personal or flock-event covers.
   same membership and participant boundaries as message history.
 - Flock rosters also show a runner's optional coarse city or region when one is
   available, while omitting unset locations cleanly.
-- Public profiles contain only display names, stay synchronized from
-  authentication metadata, and are readable only by authenticated runners who
-  share a flock. Member emails remain private in Supabase Auth.
+- Public runner profiles contain only display names, coarse locations, and
+  optional photos. Authenticated runners can open a profile from discovery or
+  the admin directory and start a direct conversation without exposing member
+  emails or flock membership.
 - Authenticated runners can edit their own display name through the protected
   `/profile` route; the page remains pure while its controller owns query,
   mutation, navigation, and document state.
@@ -292,17 +293,17 @@ Once authenticated, acceptance joins them immediately and replaces the
 token-bearing URL with the returned flock detail destination. Invalid, expired,
 and already-consumed invitations share one non-disclosing unavailable state.
 Invitations remain a convenient path into a flock, not an invitation-only
-privacy gate; discovery currently exposes only limited names and opaque IDs.
+privacy gate; discovery exposes limited profile identity while profile reads
+remain authenticated and server-authorized.
 
 ## Next planned increments
 
-1. Review and merge lightweight chat message reactions, then complete one
-   real-device notification check against the hosted environment. Attachments,
-   editing, deletion, typing indicators, visible read receipts,
-   and moderation controls remain separate product decisions. The rehearsed
-   moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain ready when
-   participant availability returns; they no longer block feature branches in
-   the meantime.
+1. Add discovery filters and richer flock search after the public runner
+   profile flow is validated. Notification preferences, event reminders,
+   recurring events, and moderation controls remain separate product slices.
+   The rehearsed moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain
+   ready when participant availability returns; they no longer block feature
+   branches in the meantime.
 
 ## Known follow-ups
 

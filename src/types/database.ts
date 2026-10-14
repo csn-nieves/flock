@@ -722,6 +722,15 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string
       }
+      get_runner_profile: {
+        Args: { target_user_id: string }
+        Returns: {
+          display_name: string
+          location: string | null
+          updated_at: string
+          user_id: string
+        }[]
+      }
       initialize_demo_workspace: {
         Args: Record<PropertyKey, never>
         Returns: undefined

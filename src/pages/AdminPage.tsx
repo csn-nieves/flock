@@ -293,7 +293,7 @@ function AdminPage({
           {users.map((user) => (
             <li key={user.user_id}>
               <Button
-                aria-label={`Open a conversation with ${user.display_name}`}
+                aria-label={`Open profile for ${user.display_name}`}
                 className="w-full justify-start rounded-md px-4 py-3 text-left"
                 variant="secondary"
                 onClick={() => onSelectRunner(user.user_id)}

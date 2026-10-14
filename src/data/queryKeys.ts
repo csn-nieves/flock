@@ -18,6 +18,7 @@ export const flockQueryKeys = {
 
 export const profileQueryKeys = {
   current: profileRootKey,
+  runner: (userId: string) => [...profileRootKey, 'runner', userId] as const,
 }
 
 export const eventQueryKeys = {

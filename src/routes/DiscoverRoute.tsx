@@ -17,7 +17,7 @@ function DiscoverRoute() {
         navigate(`/flocks/${encodeURIComponent(flockId)}`)
       }
       onSelectRunner={(userId) =>
-        navigate(`/chats/direct/new?runnerId=${encodeURIComponent(userId)}`)
+        navigate(`/runners/${encodeURIComponent(userId)}`)
       }
     />
   )

@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getMyProfile, updateMyProfile } from './profiles'
+import { getMyProfile, getRunnerProfile, updateMyProfile } from './profiles'
 
 const mocks = vi.hoisted(() => ({
   auth: { getUser: vi.fn() },
   from: vi.fn(),
   rpc: vi.fn(),
   single: vi.fn(),
+  storage: undefined as unknown,
 }))
 vi.mock('./supabase', () => ({ supabase: mocks }))
 
@@ -69,6 +70,43 @@ describe('profile data', () => {
     expect(mocks.rpc).toHaveBeenCalledWith('update_my_profile', {
       next_display_name: 'New Runner',
       next_location: undefined,
+    })
+  })
+
+  it('maps an authenticated runner profile and its avatar', async () => {
+    mocks.rpc.mockResolvedValue({
+      data: [
+        {
+          display_name: 'Maya Chen',
+          location: 'Brooklyn',
+          updated_at: '2026-10-03',
+          user_id: 'maya-id',
+        },
+      ],
+      error: null,
+    })
+    mocks.storage = {
+      from: vi.fn().mockReturnValue({
+        list: vi.fn().mockResolvedValue({
+          data: [{ name: 'avatar' }],
+          error: null,
+        }),
+        createSignedUrl: vi.fn().mockResolvedValue({
+          data: { signedUrl: 'https://example.test/maya-avatar' },
+          error: null,
+        }),
+      }),
+    }
+
+    await expect(getRunnerProfile('maya-id')).resolves.toEqual({
+      avatarUrl: 'https://example.test/maya-avatar',
+      displayName: 'Maya Chen',
+      location: 'Brooklyn',
+      updatedAt: '2026-10-03',
+      userId: 'maya-id',
+    })
+    expect(mocks.rpc).toHaveBeenCalledWith('get_runner_profile', {
+      target_user_id: 'maya-id',
     })
   })
 })

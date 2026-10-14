@@ -946,3 +946,23 @@ means it is the current direction, not that it can never change.
 - **Revisit when:** Real usage calls for per-conversation muting, notification
   previews, category controls, quiet hours, delivery retries, or an operational
   dashboard.
+
+## D047 — Make runner identity discoverable without exposing private account data
+
+- **Status:** Accepted
+- **Decision:** Let authenticated runners open a narrow public profile from
+  discovery and administrative runner records. The profile contains only the
+  display name, optional coarse location, and optional profile photo; a profile
+  offers a direct-message action but does not list flock membership or email.
+- **Authorization:** A security-definer function derives the requested profile
+  by identifier and requires an authenticated session. Profile media is readable
+  to authenticated runners through the private bucket, while upload and
+  replacement remain owner-only.
+- **Why:** Search results need a meaningful destination before a runner starts
+  a conversation. Reusing the existing profile fields gives that destination
+  without turning authentication records or flock rosters into public data.
+- **Tradeoffs:** Any signed-in runner can discover the limited identity fields,
+  and there is no profile visibility toggle, blocking, or reporting workflow in
+  this slice. Those controls should be added before broader social discovery.
+- **Revisit when:** Usage calls for profile privacy controls, richer runner
+  identity, reporting/blocking, or unauthenticated discovery.
