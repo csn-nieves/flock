@@ -3,7 +3,12 @@ import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 import { useFlockSearch, useRunnerSearch } from '@src/hooks/useDiscoverySearch'
 
-function DiscoverPage() {
+export type DiscoverPageProps = {
+  onSelectFlock: (flockId: string) => void
+  onSelectRunner: (userId: string) => void
+}
+
+function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
   const [term, setTerm] = useState('')
   const [submitted, setSubmitted] = useState('')
   const runners = useRunnerSearch(submitted)
@@ -17,11 +22,16 @@ function DiscoverPage() {
       return (
         <ul className="mt-2 space-y-2">
           {runners.data.map((runner) => (
-            <li
-              className="rounded-md border border-border px-4 py-3"
-              key={runner.user_id}
-            >
-              {runner.display_name}
+            <li key={runner.user_id}>
+              <Button
+                aria-label={`Open a conversation with ${runner.display_name}`}
+                className="w-full justify-between rounded-md px-4 py-3 text-left"
+                variant="secondary"
+                onClick={() => onSelectRunner(runner.user_id)}
+              >
+                <span className="truncate">{runner.display_name}</span>
+                <span aria-hidden="true">→</span>
+              </Button>
             </li>
           ))}
         </ul>
@@ -37,11 +47,16 @@ function DiscoverPage() {
       return (
         <ul className="mt-2 space-y-2">
           {flocks.data.map((flock) => (
-            <li
-              className="rounded-md border border-border px-4 py-3"
-              key={flock.id}
-            >
-              {flock.name}
+            <li key={flock.id}>
+              <Button
+                aria-label={`Open ${flock.name}`}
+                className="w-full justify-between rounded-md px-4 py-3 text-left"
+                variant="secondary"
+                onClick={() => onSelectFlock(flock.id)}
+              >
+                <span className="truncate">{flock.name}</span>
+                <span aria-hidden="true">→</span>
+              </Button>
             </li>
           ))}
         </ul>

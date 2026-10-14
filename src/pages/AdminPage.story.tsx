@@ -87,6 +87,8 @@ export function EventControls() {
             ),
           )
         }}
+        onSelectFlock={() => undefined}
+        onSelectRunner={() => undefined}
         totalEventCount={42}
         totalEventPages={3}
         totalMembershipCount={memberships.length}
@@ -116,6 +118,8 @@ export function EmptyEvents() {
         onEventPageChange={() => undefined}
         onMembershipPageChange={() => undefined}
         onRemoveMembership={async () => undefined}
+        onSelectFlock={() => undefined}
+        onSelectRunner={() => undefined}
         totalEventCount={0}
         totalEventPages={1}
         totalMembershipCount={0}

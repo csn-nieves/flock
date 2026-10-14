@@ -25,6 +25,8 @@ type AdminPageProps = {
   onEventPageChange: (page: number) => void
   onMembershipPageChange: (page: number) => void
   onRemoveMembership: (membership: AdminMembership) => Promise<void>
+  onSelectFlock: (flockId: string) => void
+  onSelectRunner: (userId: string) => void
   currentMembershipPage: number
   totalEventCount: number
   totalEventPages: number
@@ -94,6 +96,8 @@ function AdminPage({
   onEventPageChange,
   onMembershipPageChange,
   onRemoveMembership,
+  onSelectFlock,
+  onSelectRunner,
   removeMembershipError,
   totalEventCount,
   totalEventPages,
@@ -244,10 +248,15 @@ function AdminPage({
               className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background p-4"
               key={flock.id}
             >
-              <div>
-                <h3 className="m-0 font-display font-bold text-text">
+              <div className="min-w-0">
+                <Button
+                  aria-label={`Open ${flock.name}`}
+                  className="max-w-full justify-start truncate px-0 text-left font-display font-bold"
+                  variant="ghost"
+                  onClick={() => onSelectFlock(flock.id)}
+                >
                   {flock.name}
-                </h3>
+                </Button>
                 <p className="mt-1 mb-0 text-sm text-text-muted">
                   Owner: {userNames.get(flock.owner_id) ?? flock.owner_id}
                 </p>
@@ -282,11 +291,15 @@ function AdminPage({
         </h2>
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {users.map((user) => (
-            <li
-              className="rounded-md border border-border bg-surface-subtle px-4 py-3 text-text"
-              key={user.user_id}
-            >
-              {user.display_name}
+            <li key={user.user_id}>
+              <Button
+                aria-label={`Open a conversation with ${user.display_name}`}
+                className="w-full justify-start rounded-md px-4 py-3 text-left"
+                variant="secondary"
+                onClick={() => onSelectRunner(user.user_id)}
+              >
+                {user.display_name}
+              </Button>
             </li>
           ))}
         </ul>

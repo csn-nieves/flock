@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 
 import { useAuthSession } from '@src/hooks/useAuthSession'
@@ -32,12 +32,16 @@ function ChatsRoute() {
     !isSearchComposing,
   )
   const isStartingDirectMessage = location.pathname === '/chats/direct/new'
+  const targetRunnerId = isStartingDirectMessage
+    ? new URLSearchParams(location.search).get('runnerId')
+    : null
   const flocksQuery = useFlockChats()
   const directConversationsQuery = useDirectConversations()
   const runnerSearchQuery = useRunnerSearch(
     isStartingDirectMessage ? debouncedRunnerSearchTerm : '',
   )
   const startDirectConversation = useStartDirectConversation()
+  const startedRunnerIdRef = useRef<string | undefined>(undefined)
   const selectedFlock = flocksQuery.data?.find((flock) => flock.id === flockId)
   const selectedDirectConversation = directConversationsQuery.data?.find(
     (conversation) => conversation.id === conversationId,
@@ -48,6 +52,27 @@ function ChatsRoute() {
     selectedDirectConversation !== undefined,
   )
   const activeChat = selectedDirectConversation ? directChat : flockChat
+
+  useEffect(() => {
+    if (
+      !targetRunnerId ||
+      !session?.user.id ||
+      startedRunnerIdRef.current === targetRunnerId ||
+      startDirectConversation.isPending
+    ) {
+      return
+    }
+
+    startedRunnerIdRef.current = targetRunnerId
+    void startDirectConversation
+      .mutateAsync(targetRunnerId)
+      .then((nextConversationId) => {
+        navigate(`/chats/direct/${encodeURIComponent(nextConversationId)}`)
+      })
+      .catch(() => {
+        startedRunnerIdRef.current = undefined
+      })
+  }, [navigate, session?.user.id, startDirectConversation, targetRunnerId])
 
   let flockChats: FlockChatListState
   if (flocksQuery.data !== undefined) {

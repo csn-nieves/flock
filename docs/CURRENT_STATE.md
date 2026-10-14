@@ -249,7 +249,9 @@ profiles, flock covers, and personal or flock-event covers.
   auth flows, without depending on browser history.
 - Authenticated runners can search discoverable runner display names and flock
   names from the protected `/discover` route through limited, authenticated
-  database functions.
+  database functions. Flock results open their detail route, while runner
+  results open the existing canonical direct-message flow without widening
+  profile visibility.
 - A seeded `organizer@flock.com` account has the server-enforced
   `superadmin` role, which can read and manage all current flock and event
   records through expanded RLS policies and protected RPCs.
