@@ -53,6 +53,8 @@ const defaultProps = {
   onEventPageChange: vi.fn(),
   onMembershipPageChange: vi.fn(),
   onRemoveMembership: vi.fn().mockResolvedValue(undefined),
+  onSelectFlock: vi.fn(),
+  onSelectRunner: vi.fn(),
   removeMembershipError: undefined,
   totalEventCount: 1,
   totalEventPages: 1,
@@ -252,5 +254,27 @@ describe('AdminPage', () => {
     expect(
       screen.queryByRole('dialog', { name: 'Delete flock?' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('forwards flock and runner destinations', () => {
+    const onSelectFlock = vi.fn()
+    const onSelectRunner = vi.fn()
+    render(
+      <AdminPage
+        {...defaultProps}
+        onSelectFlock={onSelectFlock}
+        onSelectRunner={onSelectRunner}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Morning Miles' }))
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Open a conversation with Maya Chen',
+      }),
+    )
+
+    expect(onSelectFlock).toHaveBeenCalledWith('flock-id')
+    expect(onSelectRunner).toHaveBeenCalledWith('user-id')
   })
 })

@@ -166,6 +166,12 @@ function AdminRoute() {
           userId: membership.userId,
         })
       }
+      onSelectFlock={(flockId) =>
+        navigate(`/flocks/${encodeURIComponent(flockId)}`)
+      }
+      onSelectRunner={(userId) =>
+        navigate(`/chats/direct/new?runnerId=${encodeURIComponent(userId)}`)
+      }
       removeMembershipError={
         removeMembership.isError
           ? 'We could not remove this member. Check your connection and try again.'
