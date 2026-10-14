@@ -3,6 +3,14 @@ import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
 import { useFlockSearch, useRunnerSearch } from '@src/hooks/useDiscoverySearch'
 
+type DiscoveryFilter = 'all' | 'runners' | 'flocks'
+
+const filterLabels: Record<DiscoveryFilter, string> = {
+  all: 'All',
+  flocks: 'Flocks',
+  runners: 'Runners',
+}
+
 export type DiscoverPageProps = {
   onSelectFlock: (flockId: string) => void
   onSelectRunner: (userId: string) => void
@@ -10,9 +18,20 @@ export type DiscoverPageProps = {
 
 function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
   const [term, setTerm] = useState('')
+  const [location, setLocation] = useState('')
   const [submitted, setSubmitted] = useState('')
-  const runners = useRunnerSearch(submitted)
-  const flocks = useFlockSearch(submitted)
+  const [submittedLocation, setSubmittedLocation] = useState('')
+  const [filter, setFilter] = useState<DiscoveryFilter>('all')
+  const runners = useRunnerSearch(
+    submitted,
+    submittedLocation,
+    filter === 'all' || filter === 'runners',
+  )
+  const flocks = useFlockSearch(
+    submitted,
+    submittedLocation,
+    filter === 'all' || filter === 'flocks',
+  )
   const canSearch = term.trim().length >= 2
 
   function renderRunners(): ReactNode {
@@ -30,7 +49,17 @@ function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
                 onClick={() => onSelectRunner(runner.user_id)}
               >
                 <span className="truncate">{runner.display_name}</span>
-                <span aria-hidden="true">→</span>
+                <span
+                  className="flex shrink-0 items-center gap-3"
+                  aria-hidden="true"
+                >
+                  {runner.location ? (
+                    <span className="max-w-32 truncate text-xs font-normal text-text-muted">
+                      {runner.location}
+                    </span>
+                  ) : null}
+                  <span>→</span>
+                </span>
               </Button>
             </li>
           ))}
@@ -54,8 +83,25 @@ function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
                 variant="secondary"
                 onClick={() => onSelectFlock(flock.id)}
               >
-                <span className="truncate">{flock.name}</span>
-                <span aria-hidden="true">→</span>
+                <span className="min-w-0 text-left">
+                  <span className="block truncate">{flock.name}</span>
+                  {flock.description ? (
+                    <span className="mt-1 block truncate text-xs font-normal text-text-muted">
+                      {flock.description}
+                    </span>
+                  ) : null}
+                </span>
+                <span
+                  className="flex shrink-0 items-center gap-3"
+                  aria-hidden="true"
+                >
+                  {flock.location ? (
+                    <span className="max-w-32 truncate text-xs font-normal text-text-muted">
+                      {flock.location}
+                    </span>
+                  ) : null}
+                  <span>→</span>
+                </span>
               </Button>
             </li>
           ))}
@@ -76,13 +122,18 @@ function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
       >
         Discover
       </h1>
-      <p className="mt-2 text-text-muted">Find runners and flocks by name.</p>
+      <p className="mt-2 text-text-muted">
+        Find runners and flocks by name, then narrow the results by location.
+      </p>
       <form
         noValidate
-        className="mt-6 flex gap-2"
+        className="mt-6 grid gap-4"
         onSubmit={(event) => {
           event.preventDefault()
-          if (canSearch) setSubmitted(term.trim())
+          if (canSearch) {
+            setSubmitted(term.trim())
+            setSubmittedLocation(location.trim())
+          }
         }}
       >
         <TextField
@@ -92,30 +143,66 @@ function DiscoverPage({ onSelectFlock, onSelectRunner }: DiscoverPageProps) {
           value={term}
           onChange={(event) => setTerm(event.target.value)}
         />
-        <Button className="mt-7 shrink-0" disabled={!canSearch} type="submit">
+        <TextField
+          aria-label="Filter by location"
+          label="Location (optional)"
+          name="location"
+          value={location}
+          onChange={(event) => setLocation(event.target.value)}
+        />
+        <div
+          className="flex flex-wrap gap-2"
+          aria-label="Result type"
+          role="group"
+        >
+          {(['all', 'runners', 'flocks'] as const).map((option) => {
+            const isSelected = filter === option
+            return (
+              <button
+                aria-pressed={isSelected}
+                className={[
+                  'min-h-10 rounded-full border px-4 text-sm font-bold transition-colors duration-fast',
+                  isSelected
+                    ? 'border-primary bg-primary text-on-primary'
+                    : 'border-border bg-background text-text-muted hover:bg-surface-subtle hover:text-text',
+                ].join(' ')}
+                key={option}
+                type="button"
+                onClick={() => setFilter(option)}
+              >
+                {filterLabels[option]}
+              </button>
+            )
+          })}
+        </div>
+        <Button className="w-full sm:w-fit" disabled={!canSearch} type="submit">
           Search
         </Button>
       </form>
       {submitted ? (
         <div className="mt-8 space-y-6">
-          <section aria-labelledby="runner-results-heading">
-            <h2
-              className="font-display text-lg font-bold text-text"
-              id="runner-results-heading"
-            >
-              Runners
-            </h2>
-            {renderRunners()}
-          </section>
-          <section aria-labelledby="flock-results-heading">
-            <h2
-              className="font-display text-lg font-bold text-text"
-              id="flock-results-heading"
-            >
-              Flocks
-            </h2>
-            {renderFlocks()}
-          </section>
+          {filter !== 'flocks' ? (
+            <section aria-labelledby="runner-results-heading">
+              <h2
+                className="font-display text-lg font-bold text-text"
+                id="runner-results-heading"
+              >
+                Runners
+              </h2>
+              {renderRunners()}
+            </section>
+          ) : null}
+          {filter !== 'runners' ? (
+            <section aria-labelledby="flock-results-heading">
+              <h2
+                className="font-display text-lg font-bold text-text"
+                id="flock-results-heading"
+              >
+                Flocks
+              </h2>
+              {renderFlocks()}
+            </section>
+          ) : null}
         </div>
       ) : (
         <p className="mt-6 text-sm text-text-muted">

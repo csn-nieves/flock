@@ -50,6 +50,8 @@ export const notificationQueryKeys = {
 }
 
 export const discoveryQueryKeys = {
-  runners: (term: string) => ['discovery', 'runners', term] as const,
-  flocks: (term: string) => ['discovery', 'flocks', term] as const,
+  runners: (term: string, location = '') =>
+    ['discovery', 'runners', term, location] as const,
+  flocks: (term: string, location = '') =>
+    ['discovery', 'flocks', term, location] as const,
 }

@@ -966,3 +966,20 @@ means it is the current direction, not that it can never change.
   this slice. Those controls should be added before broader social discovery.
 - **Revisit when:** Usage calls for profile privacy controls, richer runner
   identity, reporting/blocking, or unauthenticated discovery.
+
+## D048 — Keep discovery filters server-applied and bounded
+
+- **Status:** Accepted
+- **Decision:** Discovery keeps one submitted name query, adds an optional
+  coarse-location filter, and lets runners choose all results, runners, or
+  flocks. The database functions apply both filters and return at most 20
+  records per result type.
+- **Result fields:** Runner results include display name and optional location.
+  Flock results include name, optional location, and description. Both remain
+  limited public identity fields; ownership and membership details stay out of
+  the search response.
+- **Why:** Type filtering makes discovery useful on a phone without asking
+  runners to scan unrelated records, while server-side filtering preserves the
+  existing bounded and authorized search boundary.
+- **Revisit when:** Discovery needs distance-based search, pagination, sorting,
+  privacy controls, or richer flock metadata.
