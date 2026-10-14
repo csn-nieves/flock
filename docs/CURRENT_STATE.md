@@ -1,11 +1,13 @@
 # Flock current state
 
-Last reviewed: 2026-10-12
+Last reviewed: 2026-10-14
 
 Flock now includes an anonymous demo entry point. It provisions a demo runner
-into three self-contained demo flocks, creates route-backed flock and personal
-events, and preserves the seeded direct-conversation walkthrough when its local
-companion account exists. The demo no longer depends on production seed data.
+into six self-contained demo flocks, creates route-backed flock and personal
+events, and fills flock chats with realistic walkthrough messages. Anonymous
+demo sessions use curated bundled profile, flock, and event imagery whenever a
+private storage object is not present, so production demos do not appear empty.
+The demo no longer depends on production seed data.
 Hosted Supabase projects must enable anonymous sign-ins before the button can be
 used.
 

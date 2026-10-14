@@ -4,6 +4,55 @@ const mediaBucket = 'flock-media'
 const maximumImageBytes = 5 * 1024 * 1024
 const acceptedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
+const demoMedia = {
+  profiles: [
+    'runner-portrait-01.webp',
+    'runner-portrait-02.webp',
+    'runner-portrait-03.webp',
+    'runner-portrait-04.webp',
+    'runner-portrait-05.webp',
+    'runner-portrait-06.webp',
+  ],
+  flocks: [
+    'flock-runners-01.webp',
+    'flock-runners-02.webp',
+    'flock-runners-03.webp',
+  ],
+  events: [
+    'event-riverside-01.webp',
+    'event-riverside-02.webp',
+    'event-trail-01.webp',
+    'event-trail-02.webp',
+    'event-waterfront-01.webp',
+  ],
+} as const
+
+function demoMediaFallback(path: string) {
+  const [resource] = path.split('/')
+  const assets = demoMedia[resource as keyof typeof demoMedia]
+  if (!assets) return null
+
+  const hash = [...path].reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0,
+  )
+  return `/demo-media/${assets[hash % assets.length]}`
+}
+
+async function getDemoMediaFallback(path: string) {
+  if (typeof supabase.auth?.getSession !== 'function') return null
+
+  const { data } = await supabase.auth.getSession()
+  if (
+    !(data.session?.user as { is_anonymous?: boolean } | undefined)
+      ?.is_anonymous
+  ) {
+    return null
+  }
+
+  return demoMediaFallback(path)
+}
+
 export function validateImageFile(file: File) {
   if (!acceptedImageTypes.has(file.type)) {
     throw new Error('Choose a JPG, PNG, or WebP image.')
@@ -38,7 +87,9 @@ export async function getImageUrl(path: string) {
     .from(mediaBucket)
     .list(folder, { limit: 1, search: filename })
 
-  if (listError || !files.some((file) => file.name === filename)) return null
+  if (listError || !files.some((file) => file.name === filename)) {
+    return getDemoMediaFallback(path)
+  }
 
   const { data, error } = await supabase.storage
     .from(mediaBucket)
