@@ -40,11 +40,24 @@ describe('DiscoverPage', () => {
   it('submits a term and renders runner and flock results', () => {
     runnerSearch.mockReturnValue({
       isPending: false,
-      data: [{ user_id: 'runner-id', display_name: 'Alex Runner' }],
+      data: [
+        {
+          user_id: 'runner-id',
+          display_name: 'Alex Runner',
+          location: 'Brooklyn',
+        },
+      ],
     })
     flockSearch.mockReturnValue({
       isPending: false,
-      data: [{ id: 'flock-id', name: 'Morning Miles' }],
+      data: [
+        {
+          description: 'Sunrise miles along the waterfront.',
+          id: 'flock-id',
+          location: 'Brooklyn',
+          name: 'Morning Miles',
+        },
+      ],
     })
     renderDiscoverPage()
     fireEvent.change(
@@ -54,6 +67,33 @@ describe('DiscoverPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Search' }))
     expect(screen.getByText('Alex Runner')).toBeInTheDocument()
     expect(screen.getByText('Morning Miles')).toBeInTheDocument()
+    expect(
+      screen.getByText('Sunrise miles along the waterfront.'),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText('Brooklyn')).toHaveLength(2)
+  })
+
+  it('filters the visible result type', () => {
+    runnerSearch.mockReturnValue({
+      isPending: false,
+      data: [{ user_id: 'runner-id', display_name: 'Alex Runner' }],
+    })
+    flockSearch.mockReturnValue({
+      isPending: false,
+      data: [{ id: 'flock-id', name: 'Morning Miles' }],
+    })
+    renderDiscoverPage()
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Search runners and flocks' }),
+      { target: { value: 'Morning' } },
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Flocks' }))
+
+    expect(
+      screen.queryByRole('heading', { name: 'Runners' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Flocks' })).toBeInTheDocument()
   })
 
   it('forwards runner and flock selections', () => {

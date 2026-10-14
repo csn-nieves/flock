@@ -30,6 +30,15 @@ describe('useRunnerSearch', () => {
       wrapper: TestQueryClientProvider,
     })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(searchRunnersMock).toHaveBeenCalledWith('Alex')
+    expect(searchRunnersMock).toHaveBeenCalledWith('Alex', '')
+  })
+
+  it('passes a trimmed location filter', async () => {
+    searchRunnersMock.mockResolvedValue([])
+    const { result } = renderHook(() => useRunnerSearch('Alex', ' Brooklyn '), {
+      wrapper: TestQueryClientProvider,
+    })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(searchRunnersMock).toHaveBeenCalledWith('Alex', 'Brooklyn')
   })
 })

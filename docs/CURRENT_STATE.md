@@ -128,6 +128,9 @@ profiles, flock covers, and personal or flock-event covers.
   optional photos. Authenticated runners can open a profile from discovery or
   the admin directory and start a direct conversation without exposing member
   emails or flock membership.
+- Discovery supports result-type filters for runners or flocks, optional
+  coarse-location filtering, and richer flock result summaries with location
+  and description.
 - Authenticated runners can edit their own display name through the protected
   `/profile` route; the page remains pure while its controller owns query,
   mutation, navigation, and document state.
@@ -298,9 +301,8 @@ remain authenticated and server-authorized.
 
 ## Next planned increments
 
-1. Add discovery filters and richer flock search after the public runner
-   profile flow is validated. Notification preferences, event reminders,
-   recurring events, and moderation controls remain separate product slices.
+1. Add notification preferences and event reminders. Recurring events,
+   moderation controls, and broader discovery remain separate product slices.
    The rehearsed moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain
    ready when participant availability returns; they no longer block feature
    branches in the meantime.

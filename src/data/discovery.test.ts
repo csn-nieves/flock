@@ -15,6 +15,7 @@ describe('discovery data', () => {
 
     await expect(searchRunners('Alex')).resolves.toEqual(results)
     expect(rpcMock).toHaveBeenCalledWith('search_runners', {
+      location_term: '',
       search_term: 'Alex',
     })
   })
@@ -27,6 +28,7 @@ describe('discovery data', () => {
 
     await expect(searchFlocks('Morning')).resolves.toEqual(results)
     expect(rpcMock).toHaveBeenCalledWith('search_flocks', {
+      location_term: '',
       search_term: 'Morning',
     })
   })
@@ -36,5 +38,16 @@ describe('discovery data', () => {
     rpcMock.mockResolvedValue({ data: null, error })
 
     await expect(searchRunners('Alex')).rejects.toBe(error)
+  })
+
+  it('passes an optional location filter to the runner RPC', async () => {
+    rpcMock.mockResolvedValue({ data: [], error: null })
+
+    await searchRunners('Alex', 'Brooklyn')
+
+    expect(rpcMock).toHaveBeenCalledWith('search_runners', {
+      location_term: 'Brooklyn',
+      search_term: 'Alex',
+    })
   })
 })

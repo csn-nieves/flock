@@ -864,17 +864,20 @@ export type Database = {
         }
       }
       search_flocks: {
-        Args: { search_term: string }
+        Args: { location_term: string; search_term: string }
         Returns: {
+          description: string | null
           id: string
+          location: string | null
           name: string
           owner_id: string
         }[]
       }
       search_runners: {
-        Args: { search_term: string }
+        Args: { location_term: string; search_term: string }
         Returns: {
           display_name: string
+          location: string | null
           user_id: string
         }[]
       }
