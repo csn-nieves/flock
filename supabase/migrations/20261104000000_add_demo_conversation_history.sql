@@ -162,7 +162,12 @@ begin
     insert into public.flock_event_attendance (event_id, user_id, response, run_option_id)
     values
       (demo_event_id, actor_user_id, 'in', demo_run_option_id),
-      (demo_event_id, companion_user_id, case when flock_number % 2 = 0 then 'maybe' else 'in' end, demo_run_option_id)
+      (
+        demo_event_id,
+        companion_user_id,
+        (case when flock_number % 2 = 0 then 'maybe' else 'in' end)::public.flock_event_response,
+        demo_run_option_id
+      )
     on conflict (event_id, user_id) do update
     set response = excluded.response,
       run_option_id = excluded.run_option_id,
@@ -261,7 +266,12 @@ begin
     limit 1;
 
     insert into public.flock_event_attendance (event_id, user_id, response, run_option_id)
-    values (demo_event_id, actor_user_id, case when event_number = 2 then 'maybe' else 'in' end, demo_run_option_id)
+    values (
+      demo_event_id,
+      actor_user_id,
+      (case when event_number = 2 then 'maybe' else 'in' end)::public.flock_event_response,
+      demo_run_option_id
+    )
     on conflict (event_id, user_id) do update
     set response = excluded.response,
       run_option_id = excluded.run_option_id,
