@@ -228,6 +228,17 @@ describe('ChatsRoute', () => {
     )
   })
 
+  it('starts a private conversation from a discovery runner destination', async () => {
+    const router = renderChatsRoute('/chats/direct/new?runnerId=maya-id')
+
+    await act(async () => {})
+
+    expect(startDirectConversation.mutateAsync).toHaveBeenCalledWith('maya-id')
+    expect(router.state.location.pathname).toBe(
+      '/chats/direct/maya-conversation-id',
+    )
+  })
+
   it('keeps list failure recoverable', () => {
     flocksQuery.data = undefined
     flocksQuery.isError = true

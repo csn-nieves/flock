@@ -1,14 +1,26 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import DiscoverPage from '@src/pages/DiscoverPage'
 
 function DiscoverRoute() {
+  const navigate = useNavigate()
+
   useEffect(() => {
     document.title = 'Discover — Flock'
     return () => {
       document.title = 'Flock'
     }
   }, [])
-  return <DiscoverPage />
+  return (
+    <DiscoverPage
+      onSelectFlock={(flockId) =>
+        navigate(`/flocks/${encodeURIComponent(flockId)}`)
+      }
+      onSelectRunner={(userId) =>
+        navigate(`/chats/direct/new?runnerId=${encodeURIComponent(userId)}`)
+      }
+    />
+  )
 }
 
 export default DiscoverRoute

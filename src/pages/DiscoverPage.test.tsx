@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import DiscoverPage from './DiscoverPage'
 
@@ -11,10 +11,26 @@ vi.mock('@src/hooks/useDiscoverySearch', () => ({
 }))
 
 describe('DiscoverPage', () => {
+  const onSelectFlock = vi.fn()
+  const onSelectRunner = vi.fn()
+
+  function renderDiscoverPage() {
+    return render(
+      <DiscoverPage
+        onSelectFlock={onSelectFlock}
+        onSelectRunner={onSelectRunner}
+      />,
+    )
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('requires two characters before searching', () => {
     runnerSearch.mockReturnValue({ isPending: false, data: [] })
     flockSearch.mockReturnValue({ isPending: false, data: [] })
-    render(<DiscoverPage />)
+    renderDiscoverPage()
     expect(screen.getByRole('button', { name: 'Search' })).toBeDisabled()
     expect(
       screen.getByText('Enter at least two characters to search.'),
@@ -30,7 +46,7 @@ describe('DiscoverPage', () => {
       isPending: false,
       data: [{ id: 'flock-id', name: 'Morning Miles' }],
     })
-    render(<DiscoverPage />)
+    renderDiscoverPage()
     fireEvent.change(
       screen.getByRole('textbox', { name: 'Search runners and flocks' }),
       { target: { value: 'Alex' } },
@@ -38,5 +54,32 @@ describe('DiscoverPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Search' }))
     expect(screen.getByText('Alex Runner')).toBeInTheDocument()
     expect(screen.getByText('Morning Miles')).toBeInTheDocument()
+  })
+
+  it('forwards runner and flock selections', () => {
+    runnerSearch.mockReturnValue({
+      isPending: false,
+      data: [{ user_id: 'runner-id', display_name: 'Alex Runner' }],
+    })
+    flockSearch.mockReturnValue({
+      isPending: false,
+      data: [{ id: 'flock-id', name: 'Morning Miles' }],
+    })
+    renderDiscoverPage()
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Search runners and flocks' }),
+      { target: { value: 'Alex' } },
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }))
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Open a conversation with Alex Runner',
+      }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Open Morning Miles' }))
+
+    expect(onSelectRunner).toHaveBeenCalledWith('runner-id')
+    expect(onSelectFlock).toHaveBeenCalledWith('flock-id')
   })
 })
