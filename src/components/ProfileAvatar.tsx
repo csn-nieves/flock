@@ -13,7 +13,7 @@ function ProfileAvatar({
   fallbackClassName,
   userId,
 }: ProfileAvatarProps) {
-  const { data: avatarUrl } = useProfileAvatarUrl(userId)
+  const { data: avatarUrl } = useProfileAvatarUrl(userId, displayName)
   const initial = displayName.trim().charAt(0).toLocaleUpperCase() || '?'
 
   return avatarUrl ? (

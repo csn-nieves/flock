@@ -42,7 +42,10 @@ export async function getMyProfile(): Promise<Profile> {
   }
 
   const profile = toProfile(data)
-  const avatarUrl = await getImageUrl(profileImagePath(user.id))
+  const avatarUrl = await getImageUrl(
+    profileImagePath(user.id),
+    profile.displayName,
+  )
   if (avatarUrl) profile.avatarUrl = avatarUrl
   return profile
 }
@@ -57,7 +60,10 @@ export async function getRunnerProfile(userId: string): Promise<Profile> {
   const profile = data[0]
   if (!profile) throw new Error('That runner profile is unavailable.')
 
-  const avatarUrl = await getImageUrl(profileImagePath(profile.user_id))
+  const avatarUrl = await getImageUrl(
+    profileImagePath(profile.user_id),
+    profile.display_name,
+  )
   return {
     ...toProfile(profile),
     ...(avatarUrl ? { avatarUrl } : {}),
@@ -83,6 +89,9 @@ export async function updateMyProfile(input: {
     throw new Error('The profile update did not return a profile.')
   }
 
-  const avatarUrl = await getImageUrl(profileImagePath(profile.user_id))
+  const avatarUrl = await getImageUrl(
+    profileImagePath(profile.user_id),
+    profile.display_name,
+  )
   return { ...toProfile(profile), ...(avatarUrl ? { avatarUrl } : {}) }
 }
