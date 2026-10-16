@@ -27,19 +27,30 @@ const demoMedia = {
   ],
 } as const
 
-function demoMediaFallback(path: string) {
+function demoMediaFallback(path: string, fallbackKey: string) {
   const [resource] = path.split('/')
   const assets = demoMedia[resource as keyof typeof demoMedia]
   if (!assets) return null
 
-  const hash = [...path].reduce(
+  const profileIndex =
+    resource === 'profiles'
+      ? [
+          'demo runner',
+          'jordan rivera',
+          'maya chen',
+          'priya shah',
+          'theo brooks',
+          'nina alvarez',
+        ].indexOf(fallbackKey.trim().toLocaleLowerCase())
+      : -1
+  const hash = [...(fallbackKey || path)].reduce(
     (total, character) => total + character.charCodeAt(0),
     0,
   )
-  return `/demo-media/${assets[hash % assets.length]}`
+  return `/demo-media/${assets[profileIndex >= 0 ? profileIndex : hash % assets.length]}`
 }
 
-async function getDemoMediaFallback(path: string) {
+async function getDemoMediaFallback(path: string, fallbackKey: string) {
   if (typeof supabase.auth?.getSession !== 'function') return null
 
   const { data } = await supabase.auth.getSession()
@@ -50,7 +61,7 @@ async function getDemoMediaFallback(path: string) {
     return null
   }
 
-  return demoMediaFallback(path)
+  return demoMediaFallback(path, fallbackKey)
 }
 
 export function validateImageFile(file: File) {
@@ -77,7 +88,7 @@ export async function uploadImage(path: string, file: File) {
   return getImageUrl(path)
 }
 
-export async function getImageUrl(path: string) {
+export async function getImageUrl(path: string, fallbackKey = path) {
   if (!supabase.storage) return null
 
   const separatorIndex = path.lastIndexOf('/')
@@ -88,7 +99,7 @@ export async function getImageUrl(path: string) {
     .list(folder, { limit: 1, search: filename })
 
   if (listError || !files.some((file) => file.name === filename)) {
-    return getDemoMediaFallback(path)
+    return getDemoMediaFallback(path, fallbackKey)
   }
 
   const { data, error } = await supabase.storage

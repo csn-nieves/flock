@@ -128,7 +128,7 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
       const ownResponse = responses.find(
         (item) => item.user_id === userData.session?.user.id,
       )
-      const imageUrl = await getImageUrl(eventImagePath(event.id))
+      const imageUrl = await getImageUrl(eventImagePath(event.id), event.title)
       return {
         ...event,
         ...(imageUrl ? { imageUrl } : {}),
@@ -212,7 +212,7 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
       const ownResponse = responses.find(
         (item) => item.user_id === userData.session?.user.id,
       )
-      const imageUrl = await getImageUrl(eventImagePath(event.id))
+      const imageUrl = await getImageUrl(eventImagePath(event.id), event.title)
       return {
         ...event,
         ...(imageUrl ? { imageUrl } : {}),
@@ -336,7 +336,7 @@ export async function updateFlockEvent(
     ...updatedEvent,
     imageUrl: imageFile
       ? await uploadImage(eventImagePath(updatedEvent.id), imageFile)
-      : await getImageUrl(eventImagePath(updatedEvent.id)),
+      : await getImageUrl(eventImagePath(updatedEvent.id), updatedEvent.title),
   }
 }
 
@@ -361,6 +361,6 @@ export async function updateUserEvent(
     ...updatedEvent,
     imageUrl: imageFile
       ? await uploadImage(eventImagePath(updatedEvent.id), imageFile)
-      : await getImageUrl(eventImagePath(updatedEvent.id)),
+      : await getImageUrl(eventImagePath(updatedEvent.id), updatedEvent.title),
   }
 }

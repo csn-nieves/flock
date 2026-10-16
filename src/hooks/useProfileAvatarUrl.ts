@@ -5,42 +5,44 @@ import { getImageUrl, profileImagePath } from '@src/data/media'
 const avatarCache = new Map<string, string | null>()
 const avatarRequests = new Map<string, Promise<string | null>>()
 
-function loadProfileAvatarUrl(userId: string) {
-  const existingRequest = avatarRequests.get(userId)
+function loadProfileAvatarUrl(userId: string, displayName: string) {
+  const cacheKey = `${userId}:${displayName}`
+  const existingRequest = avatarRequests.get(cacheKey)
   if (existingRequest) return existingRequest
 
-  const request = getImageUrl(profileImagePath(userId))
+  const request = getImageUrl(profileImagePath(userId), displayName)
     .catch(() => null)
     .then((url) => {
-      avatarCache.set(userId, url)
-      avatarRequests.delete(userId)
+      avatarCache.set(cacheKey, url)
+      avatarRequests.delete(cacheKey)
       return url
     })
-  avatarRequests.set(userId, request)
+  avatarRequests.set(cacheKey, request)
   return request
 }
 
-export function useProfileAvatarUrl(userId: string) {
+export function useProfileAvatarUrl(userId: string, displayName: string) {
+  const cacheKey = `${userId}:${displayName}`
   const [loadedAvatar, setLoadedAvatar] = useState<{
     url: string | null
     userId: string
   }>({ url: null, userId: '' })
 
   useEffect(() => {
-    if (!userId || avatarCache.has(userId)) return
+    if (!userId || avatarCache.has(cacheKey)) return
 
     let isCurrent = true
-    void loadProfileAvatarUrl(userId).then((url) => {
+    void loadProfileAvatarUrl(userId, displayName).then((url) => {
       if (isCurrent) setLoadedAvatar({ url, userId })
     })
     return () => {
       isCurrent = false
     }
-  }, [userId])
+  }, [cacheKey, displayName, userId])
 
   return {
     data:
-      avatarCache.get(userId) ??
+      avatarCache.get(cacheKey) ??
       (loadedAvatar.userId === userId ? loadedAvatar.url : null),
   }
 }

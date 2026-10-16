@@ -50,12 +50,15 @@ Geoapify key. The local Supabase public URL and publishable key are supplied by
 Choose **Explore the demo** on the sign-in screen. Flock creates an anonymous
 Supabase session and provisions a curated demo workspace with six distinct
 flocks, upcoming route-backed group and personal events, and realistic flock
-chat history from two isolated demo runners. The workspace includes direct
-messages, reactions, and persisted RSVP examples. Demo sessions also receive
-curated profile, flock, and event imagery from the app bundle when a private
-storage object has not been created for that temporary workspace. The workspace
-is created by the database function itself, so it does not depend on production
-seed data. It is isolated and idempotent for that demo session.
+chat history from six isolated demo runners. Each runner has a distinct profile,
+flock participation, and avatar mapping. The workspace includes several direct
+conversations with distinct longer histories, flock-specific chat topics, varied
+reactions, and persisted RSVP examples. Demo sessions also receive curated
+profile, flock, and event imagery
+from the app bundle when a private storage object has not been created for that
+temporary workspace. The workspace is created by the database function itself,
+so it does not depend on production seed data. It is isolated and idempotent
+for that demo session.
 
 Anonymous sign-ins are enabled automatically in local development. For a
 hosted environment, enable **Supabase → Authentication → Sign-in / Providers

@@ -41,7 +41,7 @@ export async function listFlocks(): Promise<FlockSummary[]> {
 
   return Promise.all(
     data.map(async (flock) => {
-      const imageUrl = await getImageUrl(flockImagePath(flock.id))
+      const imageUrl = await getImageUrl(flockImagePath(flock.id), flock.name)
       return { ...flock, ...(imageUrl ? { imageUrl } : {}) }
     }),
   )
@@ -59,7 +59,7 @@ export async function getFlock(flockId: string): Promise<FlockSummary | null> {
   }
 
   if (!data) return null
-  const imageUrl = await getImageUrl(flockImagePath(data.id))
+  const imageUrl = await getImageUrl(flockImagePath(data.id), data.name)
   return { ...data, ...(imageUrl ? { imageUrl } : {}) }
 }
 
@@ -83,6 +83,6 @@ export async function updateFlock({
 
   const imageUrl = imageFile
     ? await uploadImage(flockImagePath(data.id), imageFile)
-    : await getImageUrl(flockImagePath(data.id))
+    : await getImageUrl(flockImagePath(data.id), data.name)
   return { ...data, ...(imageUrl ? { imageUrl } : {}) }
 }

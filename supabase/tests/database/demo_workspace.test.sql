@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(12);
+select plan(15);
 
 insert into auth.users (id, email, raw_user_meta_data)
 values (
@@ -45,7 +45,7 @@ select is(
    from public.flock_event_attendance as attendance
    join public.flock_events as event on event.id = attendance.event_id
    where event.created_by = '99999999-9999-4999-8999-999999999999'),
-  15::bigint,
+  27::bigint,
   'demo events include persisted RSVP records'
 );
 
@@ -69,16 +69,27 @@ select is(
      select id from public.flocks
      where owner_id = '99999999-9999-4999-8999-999999999999'
    )),
-  2::bigint,
-  'demo flock chats include messages from both demo runners'
+  6::bigint,
+  'demo flock chats include messages from six distinct runners'
+);
+
+select is(
+  (select count(distinct message.body)
+   from public.flock_messages as message
+   where message.flock_id in (
+     select id from public.flocks
+     where owner_id = '99999999-9999-4999-8999-999999999999'
+   )),
+  48::bigint,
+  'every seeded flock message has unique conversation text'
 );
 
 select is(
   (select count(*)
    from public.direct_conversations
    where '99999999-9999-4999-8999-999999999999'::uuid in (participant_one_id, participant_two_id)),
-  1::bigint,
-  'demo initialization creates an isolated direct conversation'
+  5::bigint,
+  'demo initialization creates five isolated direct conversations'
 );
 
 select is(
@@ -89,8 +100,20 @@ select is(
      conversation.participant_one_id,
      conversation.participant_two_id
    )),
-  4::bigint,
-  'demo direct conversation includes a multi-message exchange'
+  40::bigint,
+  'demo direct conversations include long multi-message exchanges'
+);
+
+select is(
+  (select count(distinct message.body)
+   from public.direct_messages as message
+   join public.direct_conversations as conversation on conversation.id = message.conversation_id
+   where '99999999-9999-4999-8999-999999999999'::uuid in (
+     conversation.participant_one_id,
+     conversation.participant_two_id
+   )),
+  40::bigint,
+  'every seeded direct message has unique conversation text'
 );
 
 select ok(
@@ -103,6 +126,30 @@ select ok(
      conversation.participant_two_id
    )),
   'demo direct messages include reactions'
+);
+
+select is(
+  (select count(distinct reaction_key)
+   from public.chat_message_reactions as reaction
+   where reaction.flock_message_id in (
+     select message.id
+     from public.flock_messages as message
+     where message.flock_id in (
+       select id from public.flocks
+       where owner_id = '99999999-9999-4999-8999-999999999999'
+     )
+   )
+   or reaction.direct_message_id in (
+     select message.id
+     from public.direct_messages as message
+     join public.direct_conversations as conversation on conversation.id = message.conversation_id
+     where '99999999-9999-4999-8999-999999999999'::uuid in (
+       conversation.participant_one_id,
+       conversation.participant_two_id
+     )
+   )),
+  6::bigint,
+  'demo conversations use every supported reaction'
 );
 
 select is(

@@ -43,6 +43,19 @@ describe('media data', () => {
     )
   })
 
+  it('keeps named demo runners on distinct portrait assets', async () => {
+    mocks.auth.getSession.mockResolvedValue({
+      data: { session: { user: { is_anonymous: true } } },
+    })
+    mocks.storage.from.mockReturnValue({
+      list: vi.fn().mockResolvedValue({ data: [], error: null }),
+    })
+
+    await expect(
+      getImageUrl('profiles/demo-companion/avatar', 'Jordan Rivera'),
+    ).resolves.toBe('/demo-media/runner-portrait-02.webp')
+  })
+
   it('keeps missing media empty for regular sessions', async () => {
     mocks.storage.from.mockReturnValue({
       list: vi.fn().mockResolvedValue({ data: [], error: null }),
