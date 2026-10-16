@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(13);
+select plan(15);
 
 insert into auth.users (id, email, raw_user_meta_data)
 values (
@@ -74,6 +74,17 @@ select is(
 );
 
 select is(
+  (select count(distinct message.body)
+   from public.flock_messages as message
+   where message.flock_id in (
+     select id from public.flocks
+     where owner_id = '99999999-9999-4999-8999-999999999999'
+   )),
+  48::bigint,
+  'every seeded flock message has unique conversation text'
+);
+
+select is(
   (select count(*)
    from public.direct_conversations
    where '99999999-9999-4999-8999-999999999999'::uuid in (participant_one_id, participant_two_id)),
@@ -91,6 +102,18 @@ select is(
    )),
   40::bigint,
   'demo direct conversations include long multi-message exchanges'
+);
+
+select is(
+  (select count(distinct message.body)
+   from public.direct_messages as message
+   join public.direct_conversations as conversation on conversation.id = message.conversation_id
+   where '99999999-9999-4999-8999-999999999999'::uuid in (
+     conversation.participant_one_id,
+     conversation.participant_two_id
+   )),
+  40::bigint,
+  'every seeded direct message has unique conversation text'
 );
 
 select ok(

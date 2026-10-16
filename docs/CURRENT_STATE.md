@@ -8,9 +8,9 @@ events, and fills flock chats with realistic walkthrough messages. Anonymous
 demo sessions use curated bundled profile, flock, and event imagery whenever a
 private storage object is not present, so production demos do not appear empty.
 The demo now includes five isolated companion runners plus the demo runner,
-distinct profile/avatar mappings, varied flock authors, five direct-message
-histories, chat reactions across every supported reaction type, and persisted
-RSVP examples across the event gallery.
+distinct profile/avatar mappings, varied flock authors, five unique direct-message
+histories, flock-specific chat topics, chat reactions across every supported
+reaction type, and persisted RSVP examples across the event gallery.
 The demo no longer depends on production seed data.
 Hosted Supabase projects must enable anonymous sign-ins before the button can be
 used.
