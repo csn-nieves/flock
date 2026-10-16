@@ -52,8 +52,8 @@ Supabase session and provisions a curated demo workspace with six distinct
 flocks, upcoming route-backed group and personal events, and realistic flock
 chat history from six isolated demo runners. Each runner has a distinct profile,
 flock participation, and avatar mapping. The workspace includes several direct
-conversations with distinct longer histories, flock-specific chat topics, varied
-reactions, and persisted RSVP examples. Demo sessions also receive curated
+conversations with individually authored longer histories, flock-specific
+topics, varied reactions, and persisted RSVP examples. Demo sessions also receive curated
 profile, flock, and event imagery
 from the app bundle when a private storage object has not been created for that
 temporary workspace. The workspace is created by the database function itself,

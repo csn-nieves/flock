@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
@@ -103,6 +103,7 @@ function AccountMenu({
   initial,
   isOpen,
   isPending,
+  placement,
   profileAvatar,
   signOutError,
   onClose,
@@ -113,14 +114,13 @@ function AccountMenu({
   initial: string
   isOpen: boolean
   isPending: boolean
+  placement: 'desktop' | 'mobile'
   profileAvatar: string | null
   signOutError?: string
   onClose: () => void
   onSignOut: () => void
   onToggle: () => void
 }) {
-  const menuRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (!isOpen) return
 
@@ -128,7 +128,15 @@ function AccountMenu({
       if (event.key === 'Escape') onClose()
     }
     const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) onClose()
+      const target = event.target as Node
+      const openMenus = document.querySelectorAll(
+        '[data-account-menu-root][data-open="true"]',
+      )
+      const clickedInsideAnOpenMenu = Array.from(openMenus).some((menu) =>
+        menu.contains(target),
+      )
+
+      if (!clickedInsideAnOpenMenu) onClose()
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -140,9 +148,9 @@ function AccountMenu({
   }, [isOpen, onClose])
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative" data-account-menu-root="true" data-open={isOpen}>
       <button
-        aria-controls="account-menu"
+        aria-controls={`account-menu-${placement}`}
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="Open account menu"
@@ -171,7 +179,7 @@ function AccountMenu({
         <div
           aria-label="Account actions"
           className="absolute bottom-[calc(100%+0.5rem)] left-0 right-0 z-50 grid gap-1 rounded-lg border border-border bg-background p-2 shadow-floating"
-          id="account-menu"
+          id={`account-menu-${placement}`}
         >
           <NavLink
             className="flex min-h-touch items-center gap-3 rounded-md px-3 py-2 text-sm font-bold text-text transition-colors duration-fast hover:bg-surface-subtle lg:min-h-0 lg:py-1"
@@ -458,7 +466,7 @@ function AppShell() {
     <div
       className={`flex flex-col lg:flex-row ${isChatRoute ? 'h-dvh overflow-hidden' : 'min-h-dvh'}`}
     >
-      <header className="border-b border-border bg-background lg:hidden">
+      <header className="relative border-b border-border bg-background lg:hidden">
         <div className="flex min-h-16 items-center justify-between gap-4 px-4">
           <NavLink
             aria-label="Flock home"
@@ -517,10 +525,10 @@ function AppShell() {
             />
             <nav
               aria-label="Mobile navigation"
-              className="absolute inset-x-0 z-40 border-b border-border bg-background px-4 py-4 shadow-floating"
+              className="absolute inset-x-0 top-full z-40 flex h-[calc(100dvh-4rem)] max-h-[calc(100dvh-4rem)] flex-col overflow-hidden overscroll-contain border-b border-border bg-background px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-floating"
               id="mobile-navigation"
             >
-              <div className="grid gap-1">
+              <div className="grid shrink-0 gap-1">
                 {navigation.map((item) => (
                   <div key={item.to} onClick={closeMenu}>
                     <NavigationLink {...item} />
@@ -530,7 +538,7 @@ function AppShell() {
                   <NavigationLink label="Admin" to="/admin" />
                 ) : null}
               </div>
-              <div className="mt-5">
+              <div className="mt-5 min-h-0 flex-1 overflow-y-auto overscroll-contain">
                 <ConversationNavigation
                   currentUserId={session?.user.id ?? ''}
                   directConversations={directConversationsQuery.data}
@@ -544,12 +552,13 @@ function AppShell() {
                   onNavigate={closeMenu}
                 />
               </div>
-              <div className="mt-4 grid gap-1 border-t border-border pt-4">
+              <div className="mt-4 grid shrink-0 gap-1 border-t border-border bg-background pt-4">
                 <AccountMenu
                   displayName={displayName}
                   initial={initial}
                   isOpen={isAccountMenuOpen}
                   isPending={isSigningOut}
+                  placement="mobile"
                   profileAvatar={profileAvatar}
                   signOutError={signOutError}
                   onClose={closeMenu}
@@ -600,7 +609,7 @@ function AppShell() {
           ))}
           {isSuperadmin ? <NavigationLink label="Admin" to="/admin" /> : null}
         </nav>
-        <div className="mt-6">
+        <div className="mt-6 min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <ConversationNavigation
             currentUserId={session?.user.id ?? ''}
             directConversations={directConversationsQuery.data}
@@ -619,6 +628,7 @@ function AppShell() {
             initial={initial}
             isOpen={isAccountMenuOpen}
             isPending={isSigningOut}
+            placement="desktop"
             profileAvatar={profileAvatar}
             signOutError={signOutError}
             onClose={closeMenu}

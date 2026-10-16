@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
@@ -151,6 +151,45 @@ describe('AppShell', () => {
     expect(screen.getByRole('button', { name: 'Sign out' })).toHaveClass(
       'bg-danger',
     )
+  })
+
+  it('keeps mobile account actions usable inside the navigation drawer', () => {
+    const router = renderShell()
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+
+    const mobileNavigation = screen.getByRole('navigation', {
+      name: 'Mobile navigation',
+    })
+    fireEvent.click(
+      within(mobileNavigation).getByRole('button', {
+        name: 'Open account menu',
+      }),
+    )
+    fireEvent.click(
+      within(mobileNavigation).getByRole('link', { name: 'Profile' }),
+    )
+
+    expect(router.state.location.pathname).toBe('/profile')
+  })
+
+  it('signs out from the mobile account menu', async () => {
+    const router = renderShell()
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+
+    const mobileNavigation = screen.getByRole('navigation', {
+      name: 'Mobile navigation',
+    })
+    fireEvent.click(
+      within(mobileNavigation).getByRole('button', {
+        name: 'Open account menu',
+      }),
+    )
+    fireEvent.click(
+      within(mobileNavigation).getByRole('button', { name: 'Sign out' }),
+    )
+
+    await vi.waitFor(() => expect(signOutMock).toHaveBeenCalled())
+    expect(router.state.location.pathname).toBe('/sign-in')
   })
 
   it('signs out and returns to the sign-in route', async () => {

@@ -147,6 +147,11 @@ test('opens flock conversations from the primary Chats destination', async ({
       .getByRole('region', { name: 'Chat workspace' })
       .boundingBox()
     expect(workspaceBox?.width).toBeGreaterThan(900)
+    await expect(
+      page
+        .getByRole('complementary')
+        .getByRole('button', { name: 'Open account menu' }),
+    ).toBeInViewport()
   }
 
   await chatNavigation.getByRole('link', { name: /Morning Runners/ }).click()
@@ -169,6 +174,53 @@ test('opens flock conversations from the primary Chats destination', async ({
     await expect(page).toHaveURL('/chats')
     await expect(page.getByRole('list', { name: 'Flock chats' })).toBeVisible()
   }
+})
+
+test('opens reliable account actions inside the mobile navigation drawer', async ({
+  page,
+}) => {
+  test.skip((page.viewportSize()?.width ?? 0) >= 1024, 'mobile drawer only')
+
+  await page.goto('/chats')
+  await page.getByRole('button', { name: 'Open menu' }).click()
+
+  const mobileNavigation = page.getByRole('navigation', {
+    name: 'Mobile navigation',
+  })
+  const viewportHeight = page.viewportSize()?.height ?? 0
+  const navigationBox = await mobileNavigation.boundingBox()
+  expect(navigationBox).not.toBeNull()
+  expect(
+    (navigationBox?.y ?? 0) + (navigationBox?.height ?? 0),
+  ).toBeLessThanOrEqual(viewportHeight + 1)
+  await expect(
+    mobileNavigation.getByRole('button', { name: 'Open account menu' }),
+  ).toBeInViewport()
+  await mobileNavigation
+    .getByRole('button', { name: 'Open account menu' })
+    .click()
+
+  const accountActions = mobileNavigation.locator(
+    '[aria-label="Account actions"]',
+  )
+  await expect(accountActions).toBeVisible()
+  await expect(
+    accountActions.getByRole('link', { name: 'Profile' }),
+  ).toBeVisible()
+  await expect(
+    accountActions.getByRole('link', { name: 'Settings' }),
+  ).toBeVisible()
+  await expect(
+    accountActions.getByRole('button', { name: 'Sign out' }),
+  ).toBeVisible()
+  const expandedNavigationBox = await mobileNavigation.boundingBox()
+  expect(expandedNavigationBox).not.toBeNull()
+  expect(
+    (expandedNavigationBox?.y ?? 0) + (expandedNavigationBox?.height ?? 0),
+  ).toBeLessThanOrEqual(viewportHeight + 1)
+
+  await accountActions.getByRole('link', { name: 'Settings' }).click()
+  await expect(page).toHaveURL('/settings')
 })
 
 test('opens a private conversation from the shared chat navigation', async ({
