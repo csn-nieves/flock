@@ -108,12 +108,12 @@ call the Resend API directly.
 In the production Supabase project, open **Authentication → Emails → SMTP
 Settings** and enable custom SMTP with:
 
-| Setting | Value |
-| --- | --- |
-| SMTP host | `smtp.resend.com` |
-| SMTP port | `465` |
-| SMTP username | `resend` |
-| SMTP password | The Resend API key (never commit it) |
+| Setting        | Value                                |
+| -------------- | ------------------------------------ |
+| SMTP host      | `smtp.resend.com`                    |
+| SMTP port      | `465`                                |
+| SMTP username  | `resend`                             |
+| SMTP password  | The Resend API key (never commit it) |
 | Sender address | A verified address on `flockrun.fit` |
 
 Verify `flockrun.fit` in Resend first. Because the production domain uses
@@ -128,7 +128,7 @@ A `200 OK` response from Supabase's `/auth/v1/otp` endpoint only means Auth
 accepted the request. If no email appears in Resend, check **Logs → Logs
 Explorer → Auth** in the same Supabase project and verify that custom SMTP is
 enabled there. The production app currently uses the project whose URL begins
-with `ymshtreewbadfwssapsz`; configuring a different Supabase project will not
+with `ymsh****************`; configuring a different Supabase project will not
 affect production delivery.
 
 ## Project documentation
