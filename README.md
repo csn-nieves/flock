@@ -91,8 +91,9 @@ Production setup requires:
    npx supabase db push
    ```
 
-4. Configure production SMTP, Web Push VAPID secrets, the notification Edge
-   Function, and its database webhook when device alerts are needed.
+4. Configure production transactional email with Resend (see below).
+5. Configure Web Push VAPID secrets, the notification Edge Function, and its
+   database webhook when device alerts are needed.
 
 Do not use `--include-seed` against the hosted project; the seed contains local
 development identities and fixtures. Keep service-role credentials in
@@ -131,6 +132,38 @@ client secret. In **Authentication → URL Configuration**, set:
 The provider client secret belongs only in Google Cloud and Supabase. Never
 place it in a `VITE_` variable, source control, screenshots, or support
 messages. Flock requests only the basic identity scopes needed for sign-in.
+
+### Transactional email with Resend
+
+Flock uses Supabase Auth to send email verification and one-time login codes.
+Resend provides the production SMTP delivery service; the application does not
+call the Resend API directly.
+
+In the production Supabase project, open **Authentication → Emails → SMTP
+Settings** and enable custom SMTP with:
+
+| Setting        | Value                                |
+| -------------- | ------------------------------------ |
+| SMTP host      | `smtp.resend.com`                    |
+| SMTP port      | `465`                                |
+| SMTP username  | `resend`                             |
+| SMTP password  | The Resend API key (never commit it) |
+| Sender address | A verified address on `flockrun.fit` |
+
+Verify `flockrun.fit` in Resend first. Because the production domain uses
+Cloudflare nameservers, add Resend's SPF, DKIM, and any required return-path
+records in Cloudflare DNS rather than in Namecheap. Keep the Resend API key in
+Supabase's SMTP configuration only; it must not be a `VITE_` variable or a
+repository secret.
+
+To test delivery, request a fresh code from `https://flockrun.fit` and confirm
+the message appears in Resend's email activity and arrives at the recipient.
+A `200 OK` response from Supabase's `/auth/v1/otp` endpoint only means Auth
+accepted the request. If no email appears in Resend, check **Logs → Logs
+Explorer → Auth** in the same Supabase project and verify that custom SMTP is
+enabled there. The production app currently uses the project whose URL begins
+with `ymsh****************`; configuring a different Supabase project will not
+affect production delivery.
 
 ## Project documentation
 
