@@ -123,6 +123,11 @@ function NotificationPreferenceSettings({
       label: 'Event invitations',
     },
     {
+      description: 'Reminders 24 hours and 1 hour before events you join.',
+      key: 'eventReminders',
+      label: 'Event reminders',
+    },
+    {
       description: 'New events and changes from your flocks.',
       key: 'flockEvents',
       label: 'Flock event updates',

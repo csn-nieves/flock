@@ -11,8 +11,11 @@ import type {
 import { supabase } from './supabase'
 import { eventImagePath, getImageUrl, uploadImage } from './media'
 
+const browserTimeZone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+
 const eventFields =
-  'id, flock_id, created_by, title, starts_at, location, description, created_at, canceled_at'
+  'id, flock_id, created_by, title, starts_at, time_zone, reminders_enabled, location, description, created_at, canceled_at'
 
 function serializeRunOptions(runOptions: readonly EventRunOptionInput[]) {
   return runOptions.map(({ distanceTenths, id, paceSeconds, route, unit }) => ({
@@ -38,6 +41,7 @@ function toEvent(row: {
   id: string
   location: string
   starts_at: string
+  time_zone?: string | null
   title: string
 }): FlockEvent {
   return {
@@ -59,6 +63,7 @@ function toEvent(row: {
     location: row.location,
     runOptions: [],
     startsAt: row.starts_at,
+    timeZone: row.time_zone ?? null,
     title: row.title,
   }
 }
@@ -256,6 +261,7 @@ export async function createUserEvent(
     event_location: eventInput.location,
     event_description: eventInput.description,
     event_run_options: serializeRunOptions(eventInput.runOptions),
+    event_time_zone: eventInput.timeZone ?? browserTimeZone(),
   })
   if (error) throw error
   if (!data) throw new Error('The event creation did not return an event.')
@@ -302,6 +308,7 @@ export async function createFlockEvent(
     event_location: eventInput.location,
     event_description: eventInput.description,
     event_run_options: serializeRunOptions(eventInput.runOptions),
+    event_time_zone: eventInput.timeZone ?? browserTimeZone(),
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data
@@ -327,6 +334,7 @@ export async function updateFlockEvent(
     event_location: eventInput.location,
     event_description: eventInput.description,
     event_run_options: serializeRunOptions(eventInput.runOptions),
+    event_time_zone: eventInput.timeZone ?? browserTimeZone(),
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data
@@ -352,6 +360,7 @@ export async function updateUserEvent(
     event_location: eventInput.location,
     event_description: eventInput.description,
     event_run_options: serializeRunOptions(eventInput.runOptions),
+    event_time_zone: eventInput.timeZone ?? browserTimeZone(),
   })
   if (error) throw error
   const event = Array.isArray(data) ? data[0] : data

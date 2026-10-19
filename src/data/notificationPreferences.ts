@@ -4,6 +4,7 @@ import { supabase } from './supabase'
 type NotificationPreferencesRow = {
   chat_messages: boolean
   event_invitations: boolean
+  event_reminders: boolean
   flock_events: boolean
 }
 
@@ -13,6 +14,7 @@ function mapPreferences(
   return {
     chatMessages: row.chat_messages,
     eventInvitations: row.event_invitations,
+    eventReminders: row.event_reminders,
     flockEvents: row.flock_events,
   }
 }
@@ -31,6 +33,7 @@ export async function updateNotificationPreferences(
     {
       target_chat_messages: preferences.chatMessages,
       target_event_invitations: preferences.eventInvitations,
+      target_event_reminders: preferences.eventReminders,
       target_flock_events: preferences.flockEvents,
     },
   )

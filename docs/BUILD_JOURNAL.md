@@ -1598,6 +1598,26 @@ legacy-header rejection. Deployment guidance now follows the dashboard's
 dedicated Edge Function and **Add secret key** path without copying a privileged
 credential into webhook configuration.
 
+## 2026-10-19 — Scheduled event reminders
+
+### Change — working tree
+
+Added server-scheduled event reminders for the event creator and runners who
+respond “I’m in” or “Maybe.” Each event gets 24-hour and 1-hour reminder
+windows, durable in-app notifications, and optional Web Push jobs. Reminder
+creation and delivery are idempotent, recheck attendance and cancellation
+state, and respect a new per-runner event-reminders preference.
+
+New or edited events capture an IANA time zone and include the event name,
+date, time, and time-zone identifier in reminder copy. Legacy events keep
+reminders disabled until an organizer edits them and confirms the time zone.
+The database scheduler runs every five minutes through `pg_cron`, while the
+existing push webhook remains responsible for delivery.
+
+The design was deliberately grilled before implementation. Recurring event
+series, RSVP-change alerts, quiet hours, configurable reminder windows, and
+delivery history remain separate decisions.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

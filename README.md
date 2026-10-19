@@ -93,7 +93,8 @@ Production setup requires:
 
 4. Configure production transactional email with Resend (see below).
 5. Configure Web Push VAPID secrets, the notification Edge Function, and its
-   database webhook when device alerts are needed.
+   database webhook when device alerts are needed. Enable Supabase's `pg_cron`
+   extension so the scheduled event-reminder job can run every five minutes.
 
 Do not use `--include-seed` against the hosted project; the seed contains local
 development identities and fixtures. Keep service-role credentials in

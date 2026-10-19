@@ -6,6 +6,7 @@ import type { NotificationPreferences } from '@src/types/notificationPreferences
 const defaultNotificationPreferences: NotificationPreferences = {
   chatMessages: true,
   eventInvitations: true,
+  eventReminders: true,
   flockEvents: true,
 }
 
@@ -126,6 +127,7 @@ describe('SettingsPage', () => {
     expect(onNotificationPreferencesChange).toHaveBeenCalledWith({
       chatMessages: false,
       eventInvitations: true,
+      eventReminders: true,
       flockEvents: true,
     })
   })

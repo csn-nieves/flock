@@ -32,6 +32,10 @@ function runOptionToFormValue(option: EventRunOption, intent: EventFormIntent) {
   }
 }
 
+function getBrowserTimeZone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+}
+
 export function eventToFormValues(
   event: FlockEvent,
   intent: EventFormIntent,
@@ -43,6 +47,7 @@ export function eventToFormValues(
       runOptionToFormValue(option, intent),
     ),
     startsAt: intent === 'edit' ? event.startsAt.slice(0, 16) : '',
+    timeZone: event.timeZone ?? getBrowserTimeZone(),
     title: event.title,
   }
 }

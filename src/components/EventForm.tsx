@@ -61,6 +61,11 @@ function EventForm({
   const locationInputRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(initialValues?.title ?? '')
   const [startsAt, setStartsAt] = useState(initialValues?.startsAt ?? '')
+  const [timeZone, setTimeZone] = useState(
+    initialValues?.timeZone ??
+      Intl.DateTimeFormat().resolvedOptions().timeZone ??
+      'UTC',
+  )
   const [location, setLocation] = useState(initialValues?.location ?? '')
   const [description, setDescription] = useState(
     initialValues?.description ?? '',
@@ -112,6 +117,7 @@ function EventForm({
           )
         : undefined,
       startsAt: new Date(startsAt).toISOString(),
+      timeZone,
       title: title.trim(),
     })
   }
@@ -152,6 +158,40 @@ function EventForm({
         value={startsAt}
         onChange={(event) => setStartsAt(event.target.value)}
       />
+      <label
+        className="block text-sm font-bold leading-5 text-text"
+        htmlFor={`${mode}-event-time-zone`}
+      >
+        Time zone
+        <select
+          className="mt-1.5 block min-h-touch w-full rounded-md border border-border bg-background px-3 py-2 text-base font-normal leading-6 text-text focus-visible:border-focus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          id={`${mode}-event-time-zone`}
+          name={`${mode}-event-time-zone`}
+          value={timeZone}
+          onChange={(event) => setTimeZone(event.target.value)}
+        >
+          {[
+            timeZone,
+            'America/New_York',
+            'America/Chicago',
+            'America/Denver',
+            'America/Los_Angeles',
+            'Europe/London',
+            'Europe/Paris',
+            'Asia/Tokyo',
+            'Australia/Sydney',
+          ]
+            .filter((value, index, values) => values.indexOf(value) === index)
+            .map((value) => (
+              <option key={value} value={value}>
+                {value.replaceAll('_', ' ').replaceAll('/', ' — ')}
+              </option>
+            ))}
+        </select>
+        <span className="mt-1 block text-sm font-normal leading-5 text-text-muted">
+          Reminders use this time zone.
+        </span>
+      </label>
       <TextField
         error={
           showValidation && !location.trim() ? 'Enter a location.' : undefined

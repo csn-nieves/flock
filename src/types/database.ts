@@ -305,7 +305,9 @@ export type Database = {
           flock_id: string | null
           id: string
           location: string
+          reminders_enabled: boolean
           starts_at: string
+          time_zone: string | null
           title: string
         }
         Insert: {
@@ -316,7 +318,9 @@ export type Database = {
           flock_id?: string | null
           id?: string
           location: string
+          reminders_enabled?: boolean
           starts_at: string
+          time_zone?: string | null
           title: string
         }
         Update: {
@@ -327,7 +331,9 @@ export type Database = {
           flock_id?: string | null
           id?: string
           location?: string
+          reminders_enabled?: boolean
           starts_at?: string
+          time_zone?: string | null
           title?: string
         }
         Relationships: [
@@ -438,16 +444,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          chat_messages: boolean
+          event_invitations: boolean
+          event_reminders: boolean
+          flock_events: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chat_messages?: boolean
+          event_invitations?: boolean
+          event_reminders?: boolean
+          flock_events?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chat_messages?: boolean
+          event_invitations?: boolean
+          event_reminders?: boolean
+          flock_events?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string
           created_at: string
           id: string
-          kind:
-            | 'event_invitation'
-            | 'flock_event'
-            | 'flock_message'
-            | 'direct_message'
+          kind: string
           path: string
           read_at: string | null
           source_id: string
@@ -458,11 +487,7 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
-          kind:
-            | 'event_invitation'
-            | 'flock_event'
-            | 'flock_message'
-            | 'direct_message'
+          kind: string
           path: string
           read_at?: string | null
           source_id: string
@@ -473,39 +498,11 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
-          kind?:
-            | 'event_invitation'
-            | 'flock_event'
-            | 'flock_message'
-            | 'direct_message'
+          kind?: string
           path?: string
           read_at?: string | null
           source_id?: string
           title?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      notification_preferences: {
-        Row: {
-          chat_messages: boolean
-          event_invitations: boolean
-          flock_events: boolean
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          chat_messages?: boolean
-          event_invitations?: boolean
-          flock_events?: boolean
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          chat_messages?: boolean
-          event_invitations?: boolean
-          flock_events?: boolean
-          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -579,7 +576,9 @@ export type Database = {
           flock_id: string | null
           id: string
           location: string
+          reminders_enabled: boolean
           starts_at: string
+          time_zone: string | null
           title: string
         }
         SetofOptions: {
@@ -599,7 +598,9 @@ export type Database = {
           flock_id: string | null
           id: string
           location: string
+          reminders_enabled: boolean
           starts_at: string
+          time_zone: string | null
           title: string
         }
         SetofOptions: {
@@ -652,26 +653,57 @@ export type Database = {
           token: string
         }[]
       }
-      create_flock_event: {
-        Args: {
-          event_description: string
-          event_location: string
-          event_run_options: Json
-          event_starts_at: string
-          event_title: string
-          target_flock_id: string
-        }
-        Returns: {
-          created_at: string
-          created_by: string
-          description: string
-          flock_id: string
-          id: string
-          location: string
-          starts_at: string
-          title: string
-        }[]
-      }
+      create_flock_event:
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_title: string
+              target_flock_id: string
+            }
+            Returns: {
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string
+              id: string
+              location: string
+              starts_at: string
+              title: string
+            }[]
+          }
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_time_zone: string
+              event_title: string
+              target_flock_id: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              reminders_enabled: boolean
+              starts_at: string
+              time_zone: string | null
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       create_flock_event_invitation: {
         Args: { target_event_id: string; target_flock_id: string }
         Returns: {
@@ -715,33 +747,82 @@ export type Database = {
           token: string
         }[]
       }
-      create_user_event: {
-        Args: {
-          event_description: string
-          event_location: string
-          event_run_options: Json
-          event_starts_at: string
-          event_title: string
-        }
+      create_user_event:
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_title: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              reminders_enabled: boolean
+              starts_at: string
+              time_zone: string | null
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_time_zone: string
+              event_title: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              reminders_enabled: boolean
+              starts_at: string
+              time_zone: string | null
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      delete_saved_route: { Args: { target_route_id: string }; Returns: string }
+      get_notification_preferences: {
+        Args: Record<PropertyKey, never>
         Returns: {
-          canceled_at: string | null
-          created_at: string
-          created_by: string
-          description: string
-          flock_id: string | null
-          id: string
-          location: string
-          starts_at: string
-          title: string
+          chat_messages: boolean
+          event_invitations: boolean
+          event_reminders: boolean
+          flock_events: boolean
+          updated_at: string
+          user_id: string
         }
         SetofOptions: {
           from: '*'
-          to: 'flock_events'
+          to: 'notification_preferences'
           isOneToOne: true
           isSetofReturn: false
         }
       }
-      delete_saved_route: { Args: { target_route_id: string }; Returns: string }
       get_or_create_direct_conversation: {
         Args: { target_user_id: string }
         Returns: string
@@ -750,22 +831,16 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: {
           display_name: string
-          location: string | null
+          location: string
           updated_at: string
           user_id: string
         }[]
       }
-      get_notification_preferences: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          chat_messages: boolean
-          event_invitations: boolean
-          flock_events: boolean
-          updated_at: string
-          user_id: string
-        }
-      }
       initialize_demo_workspace: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      initialize_demo_workspace_base: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
@@ -900,9 +975,9 @@ export type Database = {
       search_flocks: {
         Args: { location_term: string; search_term: string }
         Returns: {
-          description: string | null
+          description: string
           id: string
-          location: string | null
+          location: string
           name: string
           owner_id: string
         }[]
@@ -911,7 +986,7 @@ export type Database = {
         Args: { location_term: string; search_term: string }
         Returns: {
           display_name: string
-          location: string | null
+          location: string
           user_id: string
         }[]
       }
@@ -969,33 +1044,66 @@ export type Database = {
         Args: { subscription_endpoint: string }
         Returns: undefined
       }
-      update_flock_event: {
-        Args: {
-          event_description: string
-          event_location: string
-          event_run_options: Json
-          event_starts_at: string
-          event_title: string
-          target_event_id: string
-        }
-        Returns: {
-          canceled_at: string | null
-          created_at: string
-          created_by: string
-          description: string
-          flock_id: string | null
-          id: string
-          location: string
-          starts_at: string
-          title: string
-        }
-        SetofOptions: {
-          from: '*'
-          to: 'flock_events'
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      update_flock_event:
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_title: string
+              target_event_id: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              reminders_enabled: boolean
+              starts_at: string
+              time_zone: string | null
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              event_description: string
+              event_location: string
+              event_run_options: Json
+              event_starts_at: string
+              event_time_zone: string
+              event_title: string
+              target_event_id: string
+            }
+            Returns: {
+              canceled_at: string | null
+              created_at: string
+              created_by: string
+              description: string
+              flock_id: string | null
+              id: string
+              location: string
+              reminders_enabled: boolean
+              starts_at: string
+              time_zone: string | null
+              title: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'flock_events'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       update_my_profile: {
         Args: { next_display_name: string; next_location?: string }
         Returns: {
@@ -1005,20 +1113,50 @@ export type Database = {
           user_id: string
         }[]
       }
-      update_notification_preferences: {
-        Args: {
-          target_chat_messages: boolean
-          target_event_invitations: boolean
-          target_flock_events: boolean
-        }
-        Returns: {
-          chat_messages: boolean
-          event_invitations: boolean
-          flock_events: boolean
-          updated_at: string
-          user_id: string
-        }
-      }
+      update_notification_preferences:
+        | {
+            Args: {
+              target_chat_messages: boolean
+              target_event_invitations: boolean
+              target_flock_events: boolean
+            }
+            Returns: {
+              chat_messages: boolean
+              event_invitations: boolean
+              event_reminders: boolean
+              flock_events: boolean
+              updated_at: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'notification_preferences'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              target_chat_messages: boolean
+              target_event_invitations: boolean
+              target_event_reminders: boolean
+              target_flock_events: boolean
+            }
+            Returns: {
+              chat_messages: boolean
+              event_invitations: boolean
+              event_reminders: boolean
+              flock_events: boolean
+              updated_at: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: '*'
+              to: 'notification_preferences'
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
     }
     Enums: {
       flock_event_response: 'in' | 'out' | 'maybe'

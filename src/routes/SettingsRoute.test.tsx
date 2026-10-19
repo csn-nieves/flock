@@ -18,6 +18,7 @@ vi.mock('@src/hooks/useNotificationPreferences', () => ({
     data: {
       chatMessages: true,
       eventInvitations: true,
+      eventReminders: true,
       flockEvents: true,
     },
     isError: false,
