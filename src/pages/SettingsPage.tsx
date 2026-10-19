@@ -3,6 +3,7 @@ import type {
   PushNotificationAction,
   PushNotificationStatus,
 } from '@src/types/pushNotifications'
+import type { NotificationPreferences } from '@src/types/notificationPreferences'
 import Button from '@src/primitives/Button'
 
 type SettingsPageProps = {
@@ -12,6 +13,12 @@ type SettingsPageProps = {
   onDisableNotifications: () => void
   onEnableNotifications: () => void
   onRetryNotifications: () => void
+  notificationPreferences: NotificationPreferences | undefined
+  notificationPreferencesError: boolean
+  notificationPreferencesPending: boolean
+  onNotificationPreferencesChange: (
+    preferences: NotificationPreferences,
+  ) => void
   onThemeChange: (preference: ThemePreference) => void
 }
 
@@ -27,6 +34,10 @@ function SettingsPage({
   onDisableNotifications,
   onEnableNotifications,
   onRetryNotifications,
+  notificationPreferences,
+  notificationPreferencesError,
+  notificationPreferencesPending,
+  onNotificationPreferencesChange,
   onThemeChange,
   preference,
 }: SettingsPageProps) {
@@ -80,6 +91,97 @@ function SettingsPage({
         onEnable={onEnableNotifications}
         onRetry={onRetryNotifications}
       />
+      <NotificationPreferenceSettings
+        error={notificationPreferencesError}
+        isPending={notificationPreferencesPending}
+        preferences={notificationPreferences}
+        onChange={onNotificationPreferencesChange}
+      />
+    </section>
+  )
+}
+
+function NotificationPreferenceSettings({
+  error,
+  isPending,
+  onChange,
+  preferences,
+}: {
+  error: boolean
+  isPending: boolean
+  onChange: (preferences: NotificationPreferences) => void
+  preferences: NotificationPreferences | undefined
+}) {
+  const choices: Array<{
+    description: string
+    key: keyof NotificationPreferences
+    label: string
+  }> = [
+    {
+      description: 'Invitations to personal and flock events.',
+      key: 'eventInvitations',
+      label: 'Event invitations',
+    },
+    {
+      description: 'New events and changes from your flocks.',
+      key: 'flockEvents',
+      label: 'Flock event updates',
+    },
+    {
+      description: 'New messages in flock chats and direct messages.',
+      key: 'chatMessages',
+      label: 'Chat and direct-message activity',
+    },
+  ]
+
+  return (
+    <section
+      aria-labelledby="notification-preference-heading"
+      className="mt-4 rounded-lg border border-border bg-surface-subtle p-5"
+    >
+      <h2
+        className="m-0 font-display text-lg font-bold text-text"
+        id="notification-preference-heading"
+      >
+        Notification choices
+      </h2>
+      <p className="mt-2 mb-0 leading-6 text-text-muted">
+        Choose the kinds of activity Flock can send to your inbox and devices.
+      </p>
+      {error ? (
+        <p className="mt-4 mb-0 text-sm font-bold text-danger" role="alert">
+          Notification choices could not be loaded. Try again later.
+        </p>
+      ) : null}
+      <fieldset className="mt-5 grid gap-2">
+        <legend className="sr-only">Notification categories</legend>
+        {choices.map((choice) => (
+          <label
+            className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-background px-3 py-3 hover:bg-surface-subtle"
+            key={choice.key}
+          >
+            <input
+              checked={preferences?.[choice.key] ?? true}
+              className="mt-1 size-4 accent-primary"
+              disabled={!preferences || isPending}
+              type="checkbox"
+              onChange={(event) => {
+                if (!preferences) return
+                onChange({
+                  ...preferences,
+                  [choice.key]: event.target.checked,
+                })
+              }}
+            />
+            <span>
+              <span className="block font-bold text-text">{choice.label}</span>
+              <span className="mt-1 block text-sm leading-5 text-text-muted">
+                {choice.description}
+              </span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
     </section>
   )
 }

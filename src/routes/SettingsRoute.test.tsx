@@ -13,6 +13,21 @@ vi.mock('@src/hooks/usePushNotifications', () => ({
   }),
 }))
 
+vi.mock('@src/hooks/useNotificationPreferences', () => ({
+  useNotificationPreferences: () => ({
+    data: {
+      chatMessages: true,
+      eventInvitations: true,
+      flockEvents: true,
+    },
+    isError: false,
+  }),
+  useUpdateNotificationPreferences: () => ({
+    isPending: false,
+    mutate: vi.fn(),
+  }),
+}))
+
 describe('SettingsRoute', () => {
   it('sets the settings document title', () => {
     render(

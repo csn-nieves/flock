@@ -18,6 +18,19 @@ test('changes the notification control for the current device', async ({
   ).toBeVisible()
 })
 
+test('keeps notification categories individually controllable', async ({
+  mount,
+}) => {
+  const component = await mount('pages/SettingsPage/NotificationControl')
+  const chatPreference = component.getByRole('checkbox', {
+    name: /Chat and direct-message activity/,
+  })
+
+  await expect(chatPreference).toBeChecked()
+  await chatPreference.uncheck()
+  await expect(chatPreference).not.toBeChecked()
+})
+
 test('keeps iPhone installation guidance inside the viewport', async ({
   mount,
   page,

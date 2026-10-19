@@ -14,6 +14,32 @@ export const test = base.extend({
       await route.fulfill({ json: [], status: 200 })
     })
     await page.route(
+      '**/rest/v1/rpc/get_notification_preferences',
+      async (route) => {
+        await route.fulfill({
+          json: {
+            chat_messages: true,
+            event_invitations: true,
+            flock_events: true,
+          },
+          status: 200,
+        })
+      },
+    )
+    await page.route(
+      '**/rest/v1/rpc/update_notification_preferences',
+      async (route) => {
+        await route.fulfill({
+          json: {
+            chat_messages: true,
+            event_invitations: true,
+            flock_events: true,
+          },
+          status: 200,
+        })
+      },
+    )
+    await page.route(
       '**/rest/v1/rpc/list_my_direct_conversations',
       async (route) => {
         await route.fulfill({ json: [], status: 200 })

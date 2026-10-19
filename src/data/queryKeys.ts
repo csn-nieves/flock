@@ -5,6 +5,7 @@ const savedRouteRootKey = ['saved-routes'] as const
 const flockChatRootKey = ['flock-chat'] as const
 const directChatRootKey = ['direct-chat'] as const
 const notificationRootKey = ['notifications'] as const
+const notificationPreferencesRootKey = ['notification-preferences'] as const
 
 export const flockQueryKeys = {
   all: flockRootKey,
@@ -47,6 +48,10 @@ export const directChatQueryKeys = {
 export const notificationQueryKeys = {
   all: notificationRootKey,
   list: () => [...notificationRootKey, 'list'] as const,
+}
+
+export const notificationPreferencesQueryKeys = {
+  current: notificationPreferencesRootKey,
 }
 
 export const discoveryQueryKeys = {

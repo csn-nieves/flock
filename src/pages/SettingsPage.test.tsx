@@ -1,6 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import SettingsPage from './SettingsPage'
+import type { NotificationPreferences } from '@src/types/notificationPreferences'
+
+const defaultNotificationPreferences: NotificationPreferences = {
+  chatMessages: true,
+  eventInvitations: true,
+  flockEvents: true,
+}
 
 const defaultProps = {
   notificationPendingAction: undefined,
@@ -8,6 +15,10 @@ const defaultProps = {
   onDisableNotifications: vi.fn(),
   onEnableNotifications: vi.fn(),
   onRetryNotifications: vi.fn(),
+  notificationPreferences: defaultNotificationPreferences,
+  notificationPreferencesError: false,
+  notificationPreferencesPending: false,
+  onNotificationPreferencesChange: vi.fn(),
   onThemeChange: vi.fn(),
   preference: 'system' as const,
 }
@@ -95,5 +106,27 @@ describe('SettingsPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
     expect(onRetryNotifications).toHaveBeenCalledOnce()
+  })
+
+  it('updates an individual notification category', () => {
+    const onNotificationPreferencesChange = vi.fn()
+    render(
+      <SettingsPage
+        {...defaultProps}
+        onNotificationPreferencesChange={onNotificationPreferencesChange}
+      />,
+    )
+
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: /Chat and direct-message activity/,
+      }),
+    )
+
+    expect(onNotificationPreferencesChange).toHaveBeenCalledWith({
+      chatMessages: false,
+      eventInvitations: true,
+      flockEvents: true,
+    })
   })
 })
