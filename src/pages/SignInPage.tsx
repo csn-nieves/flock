@@ -3,6 +3,7 @@ import DemoExperienceCard from '@src/components/DemoExperienceCard'
 import EmailOtpForm from '@src/components/EmailOtpForm'
 import EmailSignInForm from '@src/components/EmailSignInForm'
 import SocialSignInButtons from '@src/components/SocialSignInButtons'
+import { Link } from 'react-router'
 
 type EmailAuthPageState = {
   changeEmail: () => void
@@ -138,6 +139,24 @@ function SignInPage({
             />
           </div>
         ) : null}
+
+        <nav
+          aria-label="Legal information"
+          className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-sm text-text-muted"
+        >
+          <Link
+            className="underline underline-offset-2 hover:text-text"
+            to="/privacy"
+          >
+            Privacy
+          </Link>
+          <Link
+            className="underline underline-offset-2 hover:text-text"
+            to="/data-deletion"
+          >
+            Request data deletion
+          </Link>
+        </nav>
       </AuthPageLayout>
 
       {isEmailEntry ? (
