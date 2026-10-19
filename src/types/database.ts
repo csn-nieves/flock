@@ -486,6 +486,30 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          chat_messages: boolean
+          event_invitations: boolean
+          flock_events: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chat_messages?: boolean
+          event_invitations?: boolean
+          flock_events?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chat_messages?: boolean
+          event_invitations?: boolean
+          flock_events?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -731,6 +755,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_notification_preferences: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          chat_messages: boolean
+          event_invitations: boolean
+          flock_events: boolean
+          updated_at: string
+          user_id: string
+        }
+      }
       initialize_demo_workspace: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -970,6 +1004,20 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+      }
+      update_notification_preferences: {
+        Args: {
+          target_chat_messages: boolean
+          target_event_invitations: boolean
+          target_flock_events: boolean
+        }
+        Returns: {
+          chat_messages: boolean
+          event_invitations: boolean
+          flock_events: boolean
+          updated_at: string
+          user_id: string
+        }
       }
     }
     Enums: {

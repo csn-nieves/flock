@@ -245,6 +245,10 @@ profiles, flock covers, and personal or flock-event covers.
   invitations, flock-event changes, flock messages, and direct messages. This
   feed is separate from private Web Push delivery jobs, so alerts remain
   visible even when a device is offline or push is not configured.
+- Runners can now control in-app and device notification categories for event
+  invitations, flock-event updates, and flock or direct-message activity. The
+  preference is stored per runner and notification fan-out respects it on both
+  the durable in-app feed and pending push jobs.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths, flock locations, and flock
   descriptions for realistic list and detail development.
@@ -310,7 +314,7 @@ remain authenticated and server-authorized.
 
 ## Next planned increments
 
-1. Add notification preferences and event reminders. Recurring events,
+1. Add scheduled event reminders. Recurring events,
    moderation controls, and broader discovery remain separate product slices.
    The rehearsed moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain
    ready when participant availability returns; they no longer block feature
