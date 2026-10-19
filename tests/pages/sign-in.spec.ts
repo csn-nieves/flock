@@ -92,6 +92,13 @@ test('moves from email entry to code verification', async ({ page }) => {
   await expect(
     page.getByRole('heading', { level: 1, name: 'Sign in to Flock' }),
   ).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute(
+    'href',
+    '/privacy',
+  )
+  await expect(
+    page.getByRole('link', { name: 'Request data deletion' }),
+  ).toHaveAttribute('href', '/data-deletion')
 
   const emailInput = page.getByRole('textbox', { name: 'Email address' })
   await emailInput.fill('runner@example.com')
