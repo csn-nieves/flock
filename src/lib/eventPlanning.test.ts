@@ -37,6 +37,7 @@ const event: FlockEvent = {
     },
   ],
   startsAt: '2026-10-10T12:00:00Z',
+  timeZone: 'America/New_York',
   title: 'Saturday social run',
 }
 
