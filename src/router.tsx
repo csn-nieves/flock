@@ -4,6 +4,7 @@ import ProtectedRoute from '@src/auth/ProtectedRoute'
 import RouteLoadingFallback from '@src/components/RouteLoadingFallback'
 import FlocksRoute from '@src/routes/FlocksRoute'
 import OAuthCallbackRoute from '@src/routes/OAuthCallbackRoute'
+import PublicLegalRoute from '@src/routes/PublicLegalRoute'
 import SignInRoute from '@src/routes/SignInRoute'
 import App from './App'
 
@@ -29,6 +30,14 @@ export const routes = [
       {
         path: 'auth/callback',
         Component: OAuthCallbackRoute,
+      },
+      {
+        path: 'privacy',
+        Component: PublicLegalRoute,
+      },
+      {
+        path: 'data-deletion',
+        Component: PublicLegalRoute,
       },
       {
         Component: ProtectedRoute,

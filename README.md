@@ -98,6 +98,40 @@ Do not use `--include-seed` against the hosted project; the seed contains local
 development identities and fixtures. Keep service-role credentials in
 Supabase or Cloudflare server-side configuration only.
 
+### Google OAuth for production
+
+The application contains the Google OAuth flow, but Google and Supabase
+provider configuration remain separate from the frontend code. Keep the
+development OAuth client separate from the production client.
+
+In Google Cloud's **Google Auth Platform** for the Flock project:
+
+1. Set the app audience to **External** and publish it when the branding and
+   public policy pages are ready. Testing mode limits sign-in to listed test
+   users.
+2. Set the app name to `Flock`, use the currently available Google support
+   email, and set the homepage to `https://flockrun.fit/sign-in`.
+3. Set the privacy policy URL to `https://flockrun.fit/privacy`. Terms of
+   service are not currently part of Flock's public route set.
+4. Register `flockrun.fit` as an authorized domain and use the same domain for
+   the production Web OAuth client.
+5. Create a separate Web OAuth client named `Flock Production Web` with
+   `https://flockrun.fit` as its authorized JavaScript origin.
+6. In **Authorized redirect URIs**, enter the exact Supabase callback URL shown
+   on the production project's Google provider page. It has this form:
+   `https://<production-project-ref>.supabase.co/auth/v1/callback`.
+
+In the production Supabase project, open **Authentication → Sign In /
+Providers → Google**, enable Google, and enter the production Web client ID and
+client secret. In **Authentication → URL Configuration**, set:
+
+- Site URL: `https://flockrun.fit`
+- Redirect URL: `https://flockrun.fit/auth/callback`
+
+The provider client secret belongs only in Google Cloud and Supabase. Never
+place it in a `VITE_` variable, source control, screenshots, or support
+messages. Flock requests only the basic identity scopes needed for sign-in.
+
 ## Project documentation
 
 - [Current state](./docs/CURRENT_STATE.md) — active milestone and next step
