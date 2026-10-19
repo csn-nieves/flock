@@ -7,6 +7,7 @@ import SettingsPage from './SettingsPage'
 const notificationPreferences: NotificationPreferences = {
   chatMessages: true,
   eventInvitations: true,
+  eventReminders: true,
   flockEvents: true,
 }
 

@@ -249,6 +249,13 @@ profiles, flock covers, and personal or flock-event covers.
   invitations, flock-event updates, and flock or direct-message activity. The
   preference is stored per runner and notification fan-out respects it on both
   the durable in-app feed and pending push jobs.
+- Upcoming events can now send durable in-app and optional Web Push reminders
+  24 hours and 1 hour before the start. Reminders target the creator and
+  runners who are in or maybe, recheck current attendance and cancellation
+  state at delivery, and remain idempotent across scheduler retries. New or
+  edited events store an organizer-selected IANA time zone; legacy events keep
+  reminders disabled until explicitly edited. Hosted Supabase environments
+  must enable `pg_cron` for the five-minute reminder scheduler.
 - Deterministic local data includes owner-only, two-person, and five-person
   rosters with varied display-name lengths, flock locations, and flock
   descriptions for realistic list and detail development.
@@ -314,8 +321,8 @@ remain authenticated and server-authorized.
 
 ## Next planned increments
 
-1. Add scheduled event reminders. Recurring events,
-   moderation controls, and broader discovery remain separate product slices.
+1. Add recurring event planning. Moderation controls and broader discovery
+   remain separate product slices.
    The rehearsed moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain
    ready when participant availability returns; they no longer block feature
    branches in the meantime.

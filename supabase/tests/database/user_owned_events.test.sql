@@ -44,10 +44,13 @@ select ok(
 );
 
 select ok(
-  (select prosrc like '%return created_event%'
-   from pg_proc
-   where pronamespace = 'public'::regnamespace
-     and proname = 'create_user_event'),
+  exists (
+    select 1
+    from pg_proc
+    where pronamespace = 'public'::regnamespace
+      and proname = 'create_user_event'
+      and prosrc like '%return created_event%'
+  ),
   'user event creation returns the inserted event'
 );
 

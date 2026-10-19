@@ -11,6 +11,7 @@ function formatNotificationDate(value: string) {
 
 function getNotificationLabel(notification: Notification) {
   if (notification.kind === 'event_invitation') return 'Event invitation'
+  if (notification.kind === 'event_reminder') return 'Event reminder'
   if (notification.kind === 'flock_event') return 'Flock event'
   if (notification.kind === 'flock_message') return 'Flock chat'
   return 'Direct message'

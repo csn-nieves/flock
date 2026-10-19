@@ -1,5 +1,9 @@
 export type NotificationKind =
-  'event_invitation' | 'flock_event' | 'flock_message' | 'direct_message'
+  | 'event_invitation'
+  | 'event_reminder'
+  | 'flock_event'
+  | 'flock_message'
+  | 'direct_message'
 
 export type Notification = {
   body: string

@@ -63,6 +63,7 @@ describe('eventToFormValues', () => {
         },
       ],
       startsAt: '',
+      timeZone: 'America/New_York',
       title: 'Saturday social run',
     })
     expect(values).not.toHaveProperty('attendance')

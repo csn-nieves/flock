@@ -1,4 +1,4 @@
-import type { Notification } from '@src/types/notifications'
+import type { Notification, NotificationKind } from '@src/types/notifications'
 import { supabase } from './supabase'
 
 const notificationFields = 'body, created_at, id, kind, path, read_at, title'
@@ -17,7 +17,7 @@ export async function listNotifications(): Promise<Notification[]> {
     createdAt: notification.created_at,
     id: notification.id,
     isRead: notification.read_at !== null,
-    kind: notification.kind,
+    kind: notification.kind as NotificationKind,
     path: notification.path,
     title: notification.title,
   }))

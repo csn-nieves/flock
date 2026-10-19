@@ -17,6 +17,7 @@ export type FlockEvent = {
   location: string
   runOptions: readonly EventRunOption[]
   startsAt: string
+  timeZone?: string | null
   title: string
 }
 
@@ -62,6 +63,7 @@ export type EventInput = {
   imageFile?: File
   location: string
   startsAt: string
+  timeZone?: string
   title: string
 }
 
