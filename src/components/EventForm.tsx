@@ -117,7 +117,11 @@ function EventForm({
       return
     }
     if (repeatFrequency) {
-      if (!Number.isInteger(repeatInterval) || repeatInterval < 1 || repeatInterval > 4) {
+      if (
+        !Number.isInteger(repeatInterval) ||
+        repeatInterval < 1 ||
+        repeatInterval > 4
+      ) {
         setRecurrenceError('Choose an interval from 1 to 4.')
         return
       }
@@ -340,7 +344,17 @@ function EventForm({
         required
         type="datetime-local"
         value={startsAt}
-        onChange={(event) => setStartsAt(event.target.value)}
+        onChange={(event) => {
+          const nextStartsAt = event.target.value
+          setStartsAt(nextStartsAt)
+          if (
+            repeatFrequency === 'weekly' &&
+            weeklyDays.length === 0 &&
+            nextStartsAt
+          ) {
+            setWeeklyDays([new Date(nextStartsAt).getDay()])
+          }
+        }}
       />
       <label
         className="block text-sm font-bold leading-5 text-text"

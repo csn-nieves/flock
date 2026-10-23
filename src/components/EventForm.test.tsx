@@ -226,6 +226,30 @@ describe('EventForm', () => {
     )
   })
 
+  it('initializes the weekly day when frequency is chosen before the date', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'weekly' },
+    })
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Club run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-21T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurrence: expect.objectContaining({ weekdays: [3] }),
+      }),
+    )
+  })
+
   it('rejects recurrence counts above the agreed limit', () => {
     const onSubmit = vi.fn()
     render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
