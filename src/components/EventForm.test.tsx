@@ -226,6 +226,58 @@ describe('EventForm', () => {
     )
   })
 
+  it('rejects recurrence counts above the agreed limit', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Daily runs' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'daily' },
+    })
+    fireEvent.change(screen.getByLabelText('Occurrences'), {
+      target: { value: '366' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Choose between 1 and 365 occurrences.',
+    )
+  })
+
+  it('rejects an end date before the first occurrence', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Daily runs' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'daily' },
+    })
+    fireEvent.change(screen.getByLabelText('End date (optional)'), {
+      target: { value: '2026-10-19' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'The end date must be on or after the first event.',
+    )
+  })
+
   it('couples distance and pace units and converts pace when units change', () => {
     render(
       <EventForm

@@ -90,6 +90,7 @@ function EventForm({
     'day-of-month' | 'weekday-position'
   >('day-of-month')
   const [weeklyDays, setWeeklyDays] = useState<number[]>([])
+  const [recurrenceError, setRecurrenceError] = useState<string>()
 
   useEffect(() => {
     if (error) formErrorRef.current?.focus()
@@ -101,6 +102,7 @@ function EventForm({
     const startsAtIsMissing = !startsAt
     const locationIsMissing = !location.trim()
     setShowValidation(true)
+    setRecurrenceError(undefined)
 
     if (titleIsMissing) {
       titleInputRef.current?.focus()
@@ -113,6 +115,27 @@ function EventForm({
     if (locationIsMissing) {
       locationInputRef.current?.focus()
       return
+    }
+    if (repeatFrequency) {
+      if (!Number.isInteger(repeatInterval) || repeatInterval < 1 || repeatInterval > 4) {
+        setRecurrenceError('Choose an interval from 1 to 4.')
+        return
+      }
+      if (
+        !repeatUntil &&
+        (!Number.isInteger(repeatLimit) || repeatLimit < 1 || repeatLimit > 365)
+      ) {
+        setRecurrenceError('Choose between 1 and 365 occurrences.')
+        return
+      }
+      if (repeatUntil && startsAt && repeatUntil < startsAt.slice(0, 10)) {
+        setRecurrenceError('The end date must be on or after the first event.')
+        return
+      }
+      if (repeatFrequency === 'weekly' && weeklyDays.length === 0) {
+        setRecurrenceError('Choose at least one day for a weekly event.')
+        return
+      }
     }
     await onSubmit({
       description: description.trim(),
@@ -243,6 +266,14 @@ function EventForm({
                 value={repeatUntil}
                 onChange={(event) => setRepeatUntil(event.target.value)}
               />
+              {recurrenceError ? (
+                <p
+                  className="m-0 text-sm leading-5 text-accent sm:col-span-2"
+                  role="alert"
+                >
+                  {recurrenceError}
+                </p>
+              ) : null}
               {repeatFrequency === 'monthly' ? (
                 <label
                   className="block text-sm font-bold leading-5 text-text"
