@@ -255,6 +255,11 @@ function EventsPage({
               <p className="mt-1 mb-0 text-sm text-text-muted">
                 {new Date(event.startsAt).toLocaleString()} · {event.location}
               </p>
+              {event.seriesId ? (
+                <p className="mt-1 mb-0 text-xs font-bold text-primary">
+                  Recurring series · occurrence {event.seriesPosition}
+                </p>
+              ) : null}
               {event.description ? (
                 <p className="mt-2 mb-0 text-sm leading-5 text-text-muted">
                   {event.description}

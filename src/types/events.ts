@@ -16,6 +16,8 @@ export type FlockEvent = {
   imageUrl?: string | null
   location: string
   runOptions: readonly EventRunOption[]
+  seriesId?: string | null
+  seriesPosition?: number | null
   startsAt: string
   timeZone?: string | null
   title: string

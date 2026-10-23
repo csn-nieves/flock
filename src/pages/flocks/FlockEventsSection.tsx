@@ -145,6 +145,11 @@ function FlockEventsSection({
               <p className="mt-1 mb-0 text-sm text-text-muted">
                 {new Date(item.startsAt).toLocaleString()} · {item.location}
               </p>
+              {item.seriesId ? (
+                <p className="mt-1 mb-0 text-xs font-bold text-primary">
+                  Recurring series · occurrence {item.seriesPosition}
+                </p>
+              ) : null}
               {item.description ? (
                 <p className="mt-2 mb-0 text-sm leading-5 text-text-muted">
                   {item.description}

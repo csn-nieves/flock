@@ -16,7 +16,7 @@ const browserTimeZone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
 const eventFields =
-  'id, flock_id, created_by, title, starts_at, time_zone, reminders_enabled, location, description, created_at, canceled_at'
+  'id, flock_id, created_by, title, starts_at, time_zone, reminders_enabled, location, description, created_at, canceled_at, series_id, series_position'
 
 function serializeRunOptions(runOptions: readonly EventRunOptionInput[]) {
   return runOptions.map(({ distanceTenths, id, paceSeconds, route, unit }) => ({
@@ -42,6 +42,8 @@ function toEvent(row: {
   id: string
   location: string
   starts_at: string
+  series_id?: string | null
+  series_position?: number | null
   time_zone?: string | null
   title: string
 }): FlockEvent {
@@ -63,6 +65,8 @@ function toEvent(row: {
     imageUrl: null,
     location: row.location,
     runOptions: [],
+    seriesId: row.series_id ?? null,
+    seriesPosition: row.series_position ?? null,
     startsAt: row.starts_at,
     timeZone: row.time_zone ?? null,
     title: row.title,
