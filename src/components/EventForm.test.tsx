@@ -166,6 +166,41 @@ describe('EventForm', () => {
     )
   })
 
+  it('submits a recurring schedule from the event date', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Weekly run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'weekly' },
+    })
+    fireEvent.change(screen.getByLabelText('Every'), {
+      target: { value: '2' },
+    })
+    fireEvent.change(screen.getByLabelText('Occurrences'), {
+      target: { value: '6' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurrence: {
+          frequency: 'weekly',
+          interval: 2,
+          occurrenceLimit: 6,
+          weekdays: [2],
+        },
+      }),
+    )
+  })
+
   it('couples distance and pace units and converts pace when units change', () => {
     render(
       <EventForm
