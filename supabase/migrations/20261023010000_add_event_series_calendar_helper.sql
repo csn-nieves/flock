@@ -11,7 +11,7 @@ create function private.event_series_occurrence_starts(
   max_occurrences smallint,
   event_until_date date
 )
-returns table (position smallint, starts_at timestamptz)
+returns table (occurrence_position smallint, starts_at timestamptz)
 language plpgsql
 immutable
 set search_path = ''
@@ -37,7 +37,7 @@ begin
       candidate := local_date + day_offset;
       if day_offset % event_interval = 0 and (event_until_date is null or candidate <= event_until_date) then
         next_position := next_position + 1;
-        position := next_position;
+        occurrence_position := next_position;
         starts_at := make_timestamptz(
           extract(year from candidate)::integer,
           extract(month from candidate)::integer,
@@ -57,7 +57,7 @@ begin
       if week_offset / 7 % event_interval = 0 and week_day = any(event_weekdays)
         and (event_until_date is null or candidate <= event_until_date) then
         next_position := next_position + 1;
-        position := next_position;
+        occurrence_position := next_position;
         starts_at := make_timestamptz(
           extract(year from candidate)::integer,
           extract(month from candidate)::integer,
@@ -85,7 +85,7 @@ begin
       end if;
       if candidate >= local_date and (event_until_date is null or candidate <= event_until_date) then
         next_position := next_position + 1;
-        position := next_position;
+        occurrence_position := next_position;
         starts_at := make_timestamptz(extract(year from candidate)::integer, extract(month from candidate)::integer, extract(day from candidate)::integer, extract(hour from local_time), extract(minute from local_time), extract(second from local_time), event_time_zone);
         return next;
       end if;
