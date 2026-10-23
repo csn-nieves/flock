@@ -42,12 +42,15 @@ begin
           extract(year from candidate)::integer,
           extract(month from candidate)::integer,
           extract(day from candidate)::integer,
-          extract(hour from local_time),
-          extract(minute from local_time),
-          extract(second from local_time),
+          extract(hour from local_time)::integer,
+          extract(minute from local_time)::integer,
+          extract(second from local_time)::double precision,
           event_time_zone
         );
         return next;
+        if next_position >= max_occurrences then
+          return;
+        end if;
       end if;
     end loop;
   elsif event_frequency = 'weekly' then
@@ -62,10 +65,13 @@ begin
           extract(year from candidate)::integer,
           extract(month from candidate)::integer,
           extract(day from candidate)::integer,
-          extract(hour from local_time), extract(minute from local_time),
-          extract(second from local_time), event_time_zone
+          extract(hour from local_time)::integer, extract(minute from local_time)::integer,
+          extract(second from local_time)::double precision, event_time_zone
         );
         return next;
+        if next_position >= max_occurrences then
+          return;
+        end if;
       end if;
     end loop;
   else
@@ -86,8 +92,11 @@ begin
       if candidate >= local_date and (event_until_date is null or candidate <= event_until_date) then
         next_position := next_position + 1;
         occurrence_position := next_position;
-        starts_at := make_timestamptz(extract(year from candidate)::integer, extract(month from candidate)::integer, extract(day from candidate)::integer, extract(hour from local_time), extract(minute from local_time), extract(second from local_time), event_time_zone);
+        starts_at := make_timestamptz(extract(year from candidate)::integer, extract(month from candidate)::integer, extract(day from candidate)::integer, extract(hour from local_time)::integer, extract(minute from local_time)::integer, extract(second from local_time)::double precision, event_time_zone);
         return next;
+        if next_position >= max_occurrences then
+          return;
+        end if;
       end if;
     end loop;
   end if;
