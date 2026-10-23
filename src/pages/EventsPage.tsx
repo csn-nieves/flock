@@ -50,7 +50,7 @@ export type EventsPageProps = {
   onCancelEvent: (eventId: string) => Promise<void>
   onCloseInvitation: () => void
   onCopyInvitation: (url: string) => Promise<void>
-  onCreate: (input: EventWithRunOptionsInput) => void
+  onCreate: (input: EventFormInput) => void
   onInviteFlock: (
     eventId: string,
     flockId: string,

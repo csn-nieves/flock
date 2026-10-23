@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
-import type { EventFormInput, EventRoute } from '@src/types/events'
+import type {
+  EventFormInput,
+  EventRecurrenceInput,
+  EventRoute,
+} from '@src/types/events'
 import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 import RouteFileField from './RouteFileField'
 import RunOptionPicker from './RunOptionPicker'
@@ -77,6 +81,14 @@ function EventForm({
       : [newRunOption()],
   )
   const [showValidation, setShowValidation] = useState(false)
+  const [repeatFrequency, setRepeatFrequency] =
+    useState<EventRecurrenceInput['frequency']>()
+  const [repeatInterval, setRepeatInterval] = useState(1)
+  const [repeatLimit, setRepeatLimit] = useState(2)
+  const [repeatUntil, setRepeatUntil] = useState('')
+  const [monthlyMode, setMonthlyMode] = useState<
+    'day-of-month' | 'weekday-position'
+  >('day-of-month')
 
   useEffect(() => {
     if (error) formErrorRef.current?.focus()
@@ -116,6 +128,33 @@ function EventForm({
             }),
           )
         : undefined,
+      ...(repeatFrequency
+        ? {
+            recurrence: {
+              frequency: repeatFrequency,
+              interval: repeatInterval,
+              ...(repeatFrequency === 'monthly'
+                ? {
+                    monthlyMode,
+                    ...(monthlyMode === 'day-of-month'
+                      ? { dayOfMonth: new Date(startsAt).getDate() }
+                      : {
+                          weekday: new Date(startsAt).getDay(),
+                          weekOfMonth: Math.min(
+                            5,
+                            Math.ceil(new Date(startsAt).getDate() / 7),
+                          ),
+                        }),
+                  }
+                : {}),
+              occurrenceLimit: repeatUntil ? undefined : repeatLimit,
+              untilDate: repeatUntil || undefined,
+              ...(repeatFrequency === 'weekly'
+                ? { weekdays: [new Date(startsAt).getDay()] }
+                : {}),
+            },
+          }
+        : {}),
       startsAt: new Date(startsAt).toISOString(),
       timeZone,
       title: title.trim(),
@@ -145,6 +184,87 @@ function EventForm({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
       />
+      {mode === 'create' ? (
+        <fieldset className="space-y-3 rounded-lg border border-border p-3">
+          <legend className="px-1 font-display text-sm font-bold text-text">
+            Repeat event
+          </legend>
+          <label
+            className="block text-sm font-bold leading-5 text-text"
+            htmlFor={`${mode}-event-repeat-frequency`}
+          >
+            Frequency
+            <select
+              className="mt-1.5 block min-h-touch w-full rounded-md border border-border bg-background px-3 py-2 text-base font-normal text-text"
+              id={`${mode}-event-repeat-frequency`}
+              value={repeatFrequency ?? ''}
+              onChange={(event) =>
+                setRepeatFrequency(
+                  (event.target.value || undefined) as
+                    EventRecurrenceInput['frequency'] | undefined,
+                )
+              }
+            >
+              <option value="">Does not repeat</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </label>
+          {repeatFrequency ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TextField
+                label="Every"
+                name={`${mode}-event-repeat-interval`}
+                type="number"
+                min={1}
+                max={4}
+                value={String(repeatInterval)}
+                onChange={(event) =>
+                  setRepeatInterval(Number(event.target.value))
+                }
+              />
+              <TextField
+                label="Occurrences"
+                name={`${mode}-event-repeat-count`}
+                type="number"
+                min={1}
+                max={365}
+                value={repeatUntil ? '' : String(repeatLimit)}
+                onChange={(event) => setRepeatLimit(Number(event.target.value))}
+              />
+              <TextField
+                label="End date (optional)"
+                name={`${mode}-event-repeat-until`}
+                type="date"
+                value={repeatUntil}
+                onChange={(event) => setRepeatUntil(event.target.value)}
+              />
+              {repeatFrequency === 'monthly' ? (
+                <label
+                  className="block text-sm font-bold leading-5 text-text"
+                  htmlFor={`${mode}-event-repeat-monthly-mode`}
+                >
+                  Monthly pattern
+                  <select
+                    className="mt-1.5 block min-h-touch w-full rounded-md border border-border bg-background px-3 py-2 text-base font-normal text-text"
+                    id={`${mode}-event-repeat-monthly-mode`}
+                    value={monthlyMode}
+                    onChange={(event) =>
+                      setMonthlyMode(event.target.value as typeof monthlyMode)
+                    }
+                  >
+                    <option value="day-of-month">Same day of the month</option>
+                    <option value="weekday-position">
+                      Same weekday position
+                    </option>
+                  </select>
+                </label>
+              ) : null}
+            </div>
+          ) : null}
+        </fieldset>
+      ) : null}
 
       <TextField
         error={

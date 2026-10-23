@@ -68,6 +68,7 @@ export type EventInput = {
 }
 
 export type EventFormInput = EventInput & {
+  recurrence?: EventRecurrenceInput
   runOptions?: EventRunOptionInput[]
 }
 
