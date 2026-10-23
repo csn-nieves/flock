@@ -7,6 +7,7 @@ import { useFlock } from '@src/hooks/useFlock'
 import { useFlockMembers } from '@src/hooks/useFlockMembers'
 import { useFlockEvents } from '@src/hooks/useFlockEvents'
 import { useCreateFlockEvent } from '@src/hooks/useCreateFlockEvent'
+import { useCreateEventSeries } from '@src/hooks/useCreateEventSeries'
 import { useAuthSession } from '@src/hooks/useAuthSession'
 import { useSetFlockEventResponse } from '@src/hooks/useSetFlockEventResponse'
 import { useUpdateFlockEvent } from '@src/hooks/useUpdateFlockEvent'
@@ -21,6 +22,15 @@ import FlockDetailPage, {
 } from '@src/pages/flocks/FlockDetailPage'
 import type { FlockMemberListState } from '@src/pages/flocks/FlockMembersSection'
 import CreateFlockInvitationPage from '@src/pages/flocks/CreateFlockInvitationPage'
+import type {
+  EventFormInput,
+  EventWithRunOptionsInput,
+} from '@src/types/events'
+
+function requireRunOptions(input: EventFormInput): EventWithRunOptionsInput {
+  if (!input.runOptions) throw new Error('Flock events require run options.')
+  return { ...input, runOptions: input.runOptions }
+}
 
 function FlockDetailRoute() {
   const [isEditOpen, setIsEditOpen] = useState(false)
@@ -31,6 +41,7 @@ function FlockDetailRoute() {
   const membersQuery = useFlockMembers(flockId)
   const eventsQuery = useFlockEvents(flockId)
   const createEventMutation = useCreateFlockEvent(flockId ?? '')
+  const createSeriesMutation = useCreateEventSeries(flockId ?? null)
   const navigate = useNavigate()
   const { session } = useAuthSession()
   const isSuperadmin = session?.user.app_metadata?.role === 'superadmin'
@@ -134,9 +145,10 @@ function FlockDetailRoute() {
         savedMessage={savedMessage}
         events={{
           canCreate: canCreateEvents,
-          createError: createEventMutation.isError
-            ? 'We could not create this event. Check your connection and try again.'
-            : undefined,
+          createError:
+            createEventMutation.isError || createSeriesMutation.isError
+              ? 'We could not create this event. Check your connection and try again.'
+              : undefined,
           error: eventsQuery.isError ? 'Events are unavailable.' : undefined,
           editError: updateEventMutation.isError
             ? 'Event update failed.'
@@ -144,11 +156,21 @@ function FlockDetailRoute() {
           events: eventsQuery.data,
           isLoading: eventsQuery.isPending,
           isSaving:
-            createEventMutation.isPending || updateEventMutation.isPending,
+            createEventMutation.isPending ||
+            createSeriesMutation.isPending ||
+            updateEventMutation.isPending,
           isCanceling: cancelEventMutation.isPending,
           isResponding: responseMutation.isPending,
           onCreate: async (input) => {
-            await createEventMutation.mutateAsync(input)
+            if (input.recurrence) {
+              const { recurrence, ...eventInput } = input
+              await createSeriesMutation.mutateAsync({
+                input: requireRunOptions(eventInput),
+                recurrence,
+              })
+            } else {
+              await createEventMutation.mutateAsync(requireRunOptions(input))
+            }
           },
           onCancel: async (eventId) => {
             await cancelEventMutation.mutateAsync(eventId)

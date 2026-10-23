@@ -19,7 +19,7 @@ export type FlockEventsSectionProps = {
   isResponding: boolean
   isSaving: boolean
   onCancel: (eventId: string) => Promise<void>
-  onCreate: (input: CreateFlockEventInput) => Promise<void>
+  onCreate: (input: EventFormInput) => Promise<void>
   onRetry: () => void
   onOpenEvent?: (eventId: string) => void
   onRespond: (
@@ -284,7 +284,10 @@ function FlockEventsSection({
                 savedRouteLibrary={savedRouteLibrary}
                 onSubmit={async (input) => {
                   try {
-                    await onCreate(requireRunOptions(input))
+                    if (!input.runOptions) {
+                      throw new Error('Flock events require run options.')
+                    }
+                    await onCreate(input)
                     setIsCreating(false)
                   } catch {
                     // Preserve the open modal and draft after a failed create.
@@ -310,7 +313,10 @@ function FlockEventsSection({
                 onCancel={() => setRepeatingEvent(null)}
                 onSubmit={async (input) => {
                   try {
-                    await onCreate(requireRunOptions(input))
+                    if (!input.runOptions) {
+                      throw new Error('Flock events require run options.')
+                    }
+                    await onCreate(input)
                     setRepeatingEvent(null)
                   } catch {
                     // Preserve the repeated plan after a failed create.
