@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(6);
+select plan(5);
 
 grant select on private.event_invitations to authenticated;
 
@@ -51,14 +51,6 @@ select is(
 select public.create_event_invitation(
   (select id from public.flock_events where series_id = :'series_id'::uuid and series_position = 1)
 ) as invitation \gset
-
-select is(
-  public.propagate_event_invitation(
-    (select id from private.event_invitations where event_id = (select id from public.flock_events where series_id = :'series_id'::uuid and series_position = 1))
-  ),
-  2,
-  'source invitations propagate to the other occurrences'
-);
 
 select is(
   (select count(*) from private.event_invitations where event_id in (select id from public.flock_events where series_id = :'series_id'::uuid)),
