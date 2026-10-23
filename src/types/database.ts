@@ -172,6 +172,62 @@ export type Database = {
           },
         ]
       }
+      event_series: {
+        Row: {
+          created_at: string
+          created_by: string
+          day_of_month: number | null
+          flock_id: string | null
+          frequency: string
+          id: string
+          interval_count: number
+          monthly_mode: string | null
+          occurrence_limit: number | null
+          until_date: string | null
+          week_of_month: number | null
+          weekday: number | null
+          weekdays: number[]
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          day_of_month?: number | null
+          flock_id?: string | null
+          frequency: string
+          id?: string
+          interval_count?: number
+          monthly_mode?: string | null
+          occurrence_limit?: number | null
+          until_date?: string | null
+          week_of_month?: number | null
+          weekday?: number | null
+          weekdays?: number[]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          day_of_month?: number | null
+          flock_id?: string | null
+          frequency?: string
+          id?: string
+          interval_count?: number
+          monthly_mode?: string | null
+          occurrence_limit?: number | null
+          until_date?: string | null
+          week_of_month?: number | null
+          weekday?: number | null
+          weekdays?: number[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'event_series_flock_id_fkey'
+            columns: ['flock_id']
+            isOneToOne: false
+            referencedRelation: 'flocks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       flock_chat_reads: {
         Row: {
           flock_id: string
@@ -306,6 +362,8 @@ export type Database = {
           id: string
           location: string
           reminders_enabled: boolean
+          series_id: string | null
+          series_position: number | null
           starts_at: string
           time_zone: string | null
           title: string
@@ -319,6 +377,8 @@ export type Database = {
           id?: string
           location: string
           reminders_enabled?: boolean
+          series_id?: string | null
+          series_position?: number | null
           starts_at: string
           time_zone?: string | null
           title: string
@@ -332,6 +392,8 @@ export type Database = {
           id?: string
           location?: string
           reminders_enabled?: boolean
+          series_id?: string | null
+          series_position?: number | null
           starts_at?: string
           time_zone?: string | null
           title?: string
@@ -342,6 +404,13 @@ export type Database = {
             columns: ['flock_id']
             isOneToOne: false
             referencedRelation: 'flocks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'flock_events_series_id_fkey'
+            columns: ['series_id']
+            isOneToOne: false
+            referencedRelation: 'event_series'
             referencedColumns: ['id']
           },
         ]
@@ -577,6 +646,8 @@ export type Database = {
           id: string
           location: string
           reminders_enabled: boolean
+          series_id: string | null
+          series_position: number | null
           starts_at: string
           time_zone: string | null
           title: string
@@ -599,6 +670,8 @@ export type Database = {
           id: string
           location: string
           reminders_enabled: boolean
+          series_id: string | null
+          series_position: number | null
           starts_at: string
           time_zone: string | null
           title: string
@@ -653,6 +726,27 @@ export type Database = {
           token: string
         }[]
       }
+      create_event_series: {
+        Args: {
+          event_day_of_month: number
+          event_description: string
+          event_frequency: string
+          event_interval: number
+          event_location: string
+          event_monthly_mode: string
+          event_occurrence_limit: number
+          event_run_options: Json
+          event_starts_at: string
+          event_time_zone: string
+          event_title: string
+          event_until_date: string
+          event_week_of_month: number
+          event_weekday: number
+          event_weekdays: number[]
+          target_flock_id: string
+        }
+        Returns: string
+      }
       create_flock_event:
         | {
             Args: {
@@ -693,6 +787,8 @@ export type Database = {
               id: string
               location: string
               reminders_enabled: boolean
+              series_id: string | null
+              series_position: number | null
               starts_at: string
               time_zone: string | null
               title: string
@@ -765,6 +861,8 @@ export type Database = {
               id: string
               location: string
               reminders_enabled: boolean
+              series_id: string | null
+              series_position: number | null
               starts_at: string
               time_zone: string | null
               title: string
@@ -794,6 +892,8 @@ export type Database = {
               id: string
               location: string
               reminders_enabled: boolean
+              series_id: string | null
+              series_position: number | null
               starts_at: string
               time_zone: string | null
               title: string
@@ -941,6 +1041,10 @@ export type Database = {
         Args: { target_notification_id: string }
         Returns: undefined
       }
+      propagate_event_invitation: {
+        Args: { target_invitation_id: string }
+        Returns: number
+      }
       register_push_subscription: {
         Args: {
           subscription_auth_key: string
@@ -1063,6 +1167,8 @@ export type Database = {
               id: string
               location: string
               reminders_enabled: boolean
+              series_id: string | null
+              series_position: number | null
               starts_at: string
               time_zone: string | null
               title: string
@@ -1093,6 +1199,8 @@ export type Database = {
               id: string
               location: string
               reminders_enabled: boolean
+              series_id: string | null
+              series_position: number | null
               starts_at: string
               time_zone: string | null
               title: string

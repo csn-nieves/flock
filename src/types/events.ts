@@ -75,4 +75,16 @@ export type EventWithRunOptionsInput = EventInput & {
   runOptions: EventRunOptionInput[]
 }
 
+export type EventRecurrenceInput = {
+  dayOfMonth?: number
+  frequency: 'daily' | 'weekly' | 'monthly'
+  interval: number
+  monthlyMode?: 'day-of-month' | 'weekday-position'
+  occurrenceLimit?: number
+  untilDate?: string
+  weekday?: number
+  weekdays?: number[]
+  weekOfMonth?: number
+}
+
 export type CreateFlockEventInput = EventWithRunOptionsInput

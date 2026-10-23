@@ -1,6 +1,7 @@
 import type {
   CreateFlockEventInput,
   EventAttendanceGroup,
+  EventRecurrenceInput,
   EventRunOptionInput,
   EventResponse,
   EventRunOption,
@@ -272,6 +273,37 @@ export async function createUserEvent(
       ? await uploadImage(eventImagePath(event.id), imageFile)
       : null,
   }
+}
+
+export async function createEventSeries(
+  flockId: string | null,
+  input: EventWithRunOptionsInput,
+  recurrence: EventRecurrenceInput,
+): Promise<string> {
+  const { imageFile, ...eventInput } = input
+  void imageFile
+  const { data, error } = await supabase.rpc('create_event_series', {
+    target_flock_id: flockId!,
+    event_title: eventInput.title,
+    event_starts_at: eventInput.startsAt,
+    event_location: eventInput.location,
+    event_description: eventInput.description,
+    event_run_options: serializeRunOptions(eventInput.runOptions),
+    event_time_zone: eventInput.timeZone ?? browserTimeZone(),
+    event_frequency: recurrence.frequency,
+    event_interval: recurrence.interval,
+    event_weekdays: recurrence.weekdays ?? [],
+    event_monthly_mode: recurrence.monthlyMode!,
+    event_day_of_month: recurrence.dayOfMonth!,
+    event_weekday: recurrence.weekday!,
+    event_week_of_month: recurrence.weekOfMonth!,
+    event_occurrence_limit: recurrence.occurrenceLimit!,
+    event_until_date: recurrence.untilDate!,
+  })
+  if (error) throw error
+  if (!data)
+    throw new Error('The recurring event creation did not return a series.')
+  return data
 }
 
 export async function cancelFlockEvent(eventId: string): Promise<void> {
