@@ -1618,6 +1618,23 @@ The design was deliberately grilled before implementation. Recurring event
 series, RSVP-change alerts, quiet hours, configurable reminder windows, and
 delivery history remain separate decisions.
 
+## 2026-10-22 — Recurrence rule foundation
+
+### Change — working tree
+
+Added a pure recurrence-rule seam for the next recurring-event slice. Daily,
+weekly, and monthly rules support intervals from one through four; weekly rules
+select one or more weekdays; monthly rules support day-of-month and
+weekday-position semantics. Day-number rules skip months that do not contain
+the requested day. A count or end-date bound is required, and generation
+rejects schedules above 365 occurrences rather than truncating them.
+
+The generator works on local calendar dates only. Timestamp materialization in
+an IANA timezone remains an application/database integration concern for the
+next slice, which prevents this foundation from making unsafe daylight-saving
+assumptions. Generated occurrences will use the existing event lifecycle;
+invitations carry forward while RSVPs and attendance remain per occurrence.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next

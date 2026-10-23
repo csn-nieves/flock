@@ -321,8 +321,12 @@ remain authenticated and server-authorized.
 
 ## Next planned increments
 
-1. Add recurring event planning. Moderation controls and broader discovery
-   remain separate product slices.
+1. Continue recurring event planning from the recurrence-rule foundation. The
+   first domain slice now covers daily, weekly, and monthly calendar rules,
+   timezone-neutral local-date generation, and a 365-occurrence bound.
+   The next slice should add the transactional database series and occurrence
+   materialization, including copied invitations without copied RSVPs.
+   Moderation controls and broader discovery remain separate product slices.
    The rehearsed moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain
    ready when participant availability returns; they no longer block feature
    branches in the meantime.

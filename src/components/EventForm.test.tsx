@@ -166,6 +166,142 @@ describe('EventForm', () => {
     )
   })
 
+  it('submits a recurring schedule from the event date', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Weekly run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'weekly' },
+    })
+    fireEvent.change(screen.getByLabelText('Every'), {
+      target: { value: '2' },
+    })
+    fireEvent.change(screen.getByLabelText('Occurrences'), {
+      target: { value: '6' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurrence: {
+          frequency: 'weekly',
+          interval: 2,
+          occurrenceLimit: 6,
+          weekdays: [2],
+        },
+      }),
+    )
+  })
+
+  it('submits multiple selected weekdays for a weekly schedule', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Club runs' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'weekly' },
+    })
+    fireEvent.click(screen.getByLabelText('Thu'))
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurrence: expect.objectContaining({ weekdays: [2, 4] }),
+      }),
+    )
+  })
+
+  it('initializes the weekly day when frequency is chosen before the date', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'weekly' },
+    })
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Club run' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-21T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurrence: expect.objectContaining({ weekdays: [3] }),
+      }),
+    )
+  })
+
+  it('rejects recurrence counts above the agreed limit', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Daily runs' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'daily' },
+    })
+    fireEvent.change(screen.getByLabelText('Occurrences'), {
+      target: { value: '366' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Choose between 1 and 365 occurrences.',
+    )
+  })
+
+  it('rejects an end date before the first occurrence', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Daily runs' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'daily' },
+    })
+    fireEvent.change(screen.getByLabelText('End date (optional)'), {
+      target: { value: '2026-10-19' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'The end date must be on or after the first event.',
+    )
+  })
+
   it('couples distance and pace units and converts pace when units change', () => {
     render(
       <EventForm

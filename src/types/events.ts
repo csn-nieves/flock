@@ -16,6 +16,8 @@ export type FlockEvent = {
   imageUrl?: string | null
   location: string
   runOptions: readonly EventRunOption[]
+  seriesId?: string | null
+  seriesPosition?: number | null
   startsAt: string
   timeZone?: string | null
   title: string
@@ -68,11 +70,24 @@ export type EventInput = {
 }
 
 export type EventFormInput = EventInput & {
+  recurrence?: EventRecurrenceInput
   runOptions?: EventRunOptionInput[]
 }
 
 export type EventWithRunOptionsInput = EventInput & {
   runOptions: EventRunOptionInput[]
+}
+
+export type EventRecurrenceInput = {
+  dayOfMonth?: number
+  frequency: 'daily' | 'weekly' | 'monthly'
+  interval: number
+  monthlyMode?: 'day-of-month' | 'weekday-position'
+  occurrenceLimit?: number
+  untilDate?: string
+  weekday?: number
+  weekdays?: number[]
+  weekOfMonth?: number
 }
 
 export type CreateFlockEventInput = EventWithRunOptionsInput

@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import Button from '@src/primitives/Button'
 import TextField from '@src/primitives/TextField'
-import type { EventFormInput, EventRoute } from '@src/types/events'
+import type {
+  EventFormInput,
+  EventRecurrenceInput,
+  EventRoute,
+} from '@src/types/events'
 import type { SavedRouteLibrary } from '@src/types/savedRoutes'
 import RouteFileField from './RouteFileField'
 import RunOptionPicker from './RunOptionPicker'
@@ -77,6 +81,16 @@ function EventForm({
       : [newRunOption()],
   )
   const [showValidation, setShowValidation] = useState(false)
+  const [repeatFrequency, setRepeatFrequency] =
+    useState<EventRecurrenceInput['frequency']>()
+  const [repeatInterval, setRepeatInterval] = useState(1)
+  const [repeatLimit, setRepeatLimit] = useState(2)
+  const [repeatUntil, setRepeatUntil] = useState('')
+  const [monthlyMode, setMonthlyMode] = useState<
+    'day-of-month' | 'weekday-position'
+  >('day-of-month')
+  const [weeklyDays, setWeeklyDays] = useState<number[]>([])
+  const [recurrenceError, setRecurrenceError] = useState<string>()
 
   useEffect(() => {
     if (error) formErrorRef.current?.focus()
@@ -88,6 +102,7 @@ function EventForm({
     const startsAtIsMissing = !startsAt
     const locationIsMissing = !location.trim()
     setShowValidation(true)
+    setRecurrenceError(undefined)
 
     if (titleIsMissing) {
       titleInputRef.current?.focus()
@@ -100,6 +115,31 @@ function EventForm({
     if (locationIsMissing) {
       locationInputRef.current?.focus()
       return
+    }
+    if (repeatFrequency) {
+      if (
+        !Number.isInteger(repeatInterval) ||
+        repeatInterval < 1 ||
+        repeatInterval > 4
+      ) {
+        setRecurrenceError('Choose an interval from 1 to 4.')
+        return
+      }
+      if (
+        !repeatUntil &&
+        (!Number.isInteger(repeatLimit) || repeatLimit < 1 || repeatLimit > 365)
+      ) {
+        setRecurrenceError('Choose between 1 and 365 occurrences.')
+        return
+      }
+      if (repeatUntil && startsAt && repeatUntil < startsAt.slice(0, 10)) {
+        setRecurrenceError('The end date must be on or after the first event.')
+        return
+      }
+      if (repeatFrequency === 'weekly' && weeklyDays.length === 0) {
+        setRecurrenceError('Choose at least one day for a weekly event.')
+        return
+      }
     }
     await onSubmit({
       description: description.trim(),
@@ -116,6 +156,31 @@ function EventForm({
             }),
           )
         : undefined,
+      ...(repeatFrequency
+        ? {
+            recurrence: {
+              frequency: repeatFrequency,
+              interval: repeatInterval,
+              ...(repeatFrequency === 'monthly'
+                ? {
+                    monthlyMode,
+                    ...(monthlyMode === 'day-of-month'
+                      ? { dayOfMonth: new Date(startsAt).getDate() }
+                      : {
+                          weekday: new Date(startsAt).getDay(),
+                          weekOfMonth: Math.min(
+                            5,
+                            Math.ceil(new Date(startsAt).getDate() / 7),
+                          ),
+                        }),
+                  }
+                : {}),
+              occurrenceLimit: repeatUntil ? undefined : repeatLimit,
+              untilDate: repeatUntil || undefined,
+              ...(repeatFrequency === 'weekly' ? { weekdays: weeklyDays } : {}),
+            },
+          }
+        : {}),
       startsAt: new Date(startsAt).toISOString(),
       timeZone,
       title: title.trim(),
@@ -145,6 +210,129 @@ function EventForm({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
       />
+      {mode === 'create' ? (
+        <fieldset className="space-y-3 rounded-lg border border-border p-3">
+          <legend className="px-1 font-display text-sm font-bold text-text">
+            Repeat event
+          </legend>
+          <label
+            className="block text-sm font-bold leading-5 text-text"
+            htmlFor={`${mode}-event-repeat-frequency`}
+          >
+            Frequency
+            <select
+              className="mt-1.5 block min-h-touch w-full rounded-md border border-border bg-background px-3 py-2 text-base font-normal text-text"
+              id={`${mode}-event-repeat-frequency`}
+              value={repeatFrequency ?? ''}
+              onChange={(event) =>
+                (() => {
+                  const nextFrequency = (event.target.value || undefined) as
+                    EventRecurrenceInput['frequency'] | undefined
+                  setRepeatFrequency(nextFrequency)
+                  if (nextFrequency === 'weekly' && startsAt) {
+                    setWeeklyDays([new Date(startsAt).getDay()])
+                  }
+                })()
+              }
+            >
+              <option value="">Does not repeat</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </label>
+          {repeatFrequency ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TextField
+                label="Every"
+                name={`${mode}-event-repeat-interval`}
+                type="number"
+                min={1}
+                max={4}
+                value={String(repeatInterval)}
+                onChange={(event) =>
+                  setRepeatInterval(Number(event.target.value))
+                }
+              />
+              <TextField
+                label="Occurrences"
+                name={`${mode}-event-repeat-count`}
+                type="number"
+                min={1}
+                max={365}
+                value={repeatUntil ? '' : String(repeatLimit)}
+                onChange={(event) => setRepeatLimit(Number(event.target.value))}
+              />
+              <TextField
+                label="End date (optional)"
+                name={`${mode}-event-repeat-until`}
+                type="date"
+                value={repeatUntil}
+                onChange={(event) => setRepeatUntil(event.target.value)}
+              />
+              {recurrenceError ? (
+                <p
+                  className="m-0 text-sm leading-5 text-accent sm:col-span-2"
+                  role="alert"
+                >
+                  {recurrenceError}
+                </p>
+              ) : null}
+              {repeatFrequency === 'monthly' ? (
+                <label
+                  className="block text-sm font-bold leading-5 text-text"
+                  htmlFor={`${mode}-event-repeat-monthly-mode`}
+                >
+                  Monthly pattern
+                  <select
+                    className="mt-1.5 block min-h-touch w-full rounded-md border border-border bg-background px-3 py-2 text-base font-normal text-text"
+                    id={`${mode}-event-repeat-monthly-mode`}
+                    value={monthlyMode}
+                    onChange={(event) =>
+                      setMonthlyMode(event.target.value as typeof monthlyMode)
+                    }
+                  >
+                    <option value="day-of-month">Same day of the month</option>
+                    <option value="weekday-position">
+                      Same weekday position
+                    </option>
+                  </select>
+                </label>
+              ) : null}
+              {repeatFrequency === 'weekly' ? (
+                <fieldset className="space-y-2 rounded-md border border-border p-3 sm:col-span-2">
+                  <legend className="px-1 text-sm font-bold text-text">
+                    Days
+                  </legend>
+                  <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
+                      (label, day) => (
+                        <label
+                          className="flex min-h-touch items-center gap-2 rounded-md border border-border px-2 text-sm font-normal text-text"
+                          key={label}
+                        >
+                          <input
+                            checked={weeklyDays.includes(day)}
+                            type="checkbox"
+                            onChange={() =>
+                              setWeeklyDays((current) =>
+                                current.includes(day)
+                                  ? current.filter((value) => value !== day)
+                                  : [...current, day].sort((a, b) => a - b),
+                              )
+                            }
+                          />
+                          {label}
+                        </label>
+                      ),
+                    )}
+                  </div>
+                </fieldset>
+              ) : null}
+            </div>
+          ) : null}
+        </fieldset>
+      ) : null}
 
       <TextField
         error={
@@ -156,7 +344,17 @@ function EventForm({
         required
         type="datetime-local"
         value={startsAt}
-        onChange={(event) => setStartsAt(event.target.value)}
+        onChange={(event) => {
+          const nextStartsAt = event.target.value
+          setStartsAt(nextStartsAt)
+          if (
+            repeatFrequency === 'weekly' &&
+            weeklyDays.length === 0 &&
+            nextStartsAt
+          ) {
+            setWeeklyDays([new Date(nextStartsAt).getDay()])
+          }
+        }}
       />
       <label
         className="block text-sm font-bold leading-5 text-text"

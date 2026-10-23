@@ -89,6 +89,11 @@ function EventDetailPage({
           <p className="m-0 text-xs font-bold tracking-[0.14em] text-primary">
             {eventKind(event)}
           </p>
+          {event.seriesId ? (
+            <p className="mt-2 mb-0 text-sm font-bold text-text-muted">
+              Recurring series · occurrence {event.seriesPosition}
+            </p>
+          ) : null}
           <h1
             className="mt-3 mb-0 max-w-2xl font-display text-3xl font-bold leading-tight tracking-[-0.03em] text-text sm:text-4xl"
             id="event-detail-heading"

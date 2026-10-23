@@ -19,7 +19,7 @@ export type FlockEventsSectionProps = {
   isResponding: boolean
   isSaving: boolean
   onCancel: (eventId: string) => Promise<void>
-  onCreate: (input: CreateFlockEventInput) => Promise<void>
+  onCreate: (input: EventFormInput) => Promise<void>
   onRetry: () => void
   onOpenEvent?: (eventId: string) => void
   onRespond: (
@@ -145,6 +145,11 @@ function FlockEventsSection({
               <p className="mt-1 mb-0 text-sm text-text-muted">
                 {new Date(item.startsAt).toLocaleString()} · {item.location}
               </p>
+              {item.seriesId ? (
+                <p className="mt-1 mb-0 text-xs font-bold text-primary">
+                  Recurring series · occurrence {item.seriesPosition}
+                </p>
+              ) : null}
               {item.description ? (
                 <p className="mt-2 mb-0 text-sm leading-5 text-text-muted">
                   {item.description}
@@ -284,7 +289,10 @@ function FlockEventsSection({
                 savedRouteLibrary={savedRouteLibrary}
                 onSubmit={async (input) => {
                   try {
-                    await onCreate(requireRunOptions(input))
+                    if (!input.runOptions) {
+                      throw new Error('Flock events require run options.')
+                    }
+                    await onCreate(input)
                     setIsCreating(false)
                   } catch {
                     // Preserve the open modal and draft after a failed create.
@@ -310,7 +318,10 @@ function FlockEventsSection({
                 onCancel={() => setRepeatingEvent(null)}
                 onSubmit={async (input) => {
                   try {
-                    await onCreate(requireRunOptions(input))
+                    if (!input.runOptions) {
+                      throw new Error('Flock events require run options.')
+                    }
+                    await onCreate(input)
                     setRepeatingEvent(null)
                   } catch {
                     // Preserve the repeated plan after a failed create.

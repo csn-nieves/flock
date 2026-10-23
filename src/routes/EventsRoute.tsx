@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCreateUserEvent } from '@src/hooks/useCreateUserEvent'
+import { useCreateEventSeries } from '@src/hooks/useCreateEventSeries'
 import {
   useCreateFlockEventInvitation,
   useCreateTargetedEventInvitation,
@@ -21,11 +22,23 @@ import EventsPage, {
 import type { EventAudienceType } from '@src/components/EventAudiencePicker'
 import type { ShareInvitationResult } from '@src/pages/flocks/InvitationLinkCard'
 import type { EventAudienceInvitationLink } from '@src/types/invitations'
+import type {
+  EventFormInput,
+  EventWithRunOptionsInput,
+} from '@src/types/events'
+
+function requireRunOptions(input: EventFormInput): EventWithRunOptionsInput {
+  if (!input.runOptions) {
+    throw new Error('Run events require run options.')
+  }
+  return { ...input, runOptions: input.runOptions }
+}
 
 function EventsRoute() {
   const { session } = useAuthSession()
   const eventsQuery = useUserEvents()
   const createMutation = useCreateUserEvent()
+  const createSeriesMutation = useCreateEventSeries(null)
   const targetedInvitationMutation = useCreateTargetedEventInvitation()
   const flockInvitationMutation = useCreateFlockEventInvitation()
   const pendingInvitationsQuery = usePendingEventInvitations()
@@ -110,9 +123,9 @@ function EventsRoute() {
       }
       runnerResults={runnerSearch.data ?? []}
       savedRouteLibrary={savedRouteLibrary}
-      isCreating={createMutation.isPending}
+      isCreating={createMutation.isPending || createSeriesMutation.isPending}
       createError={
-        createMutation.isError
+        createMutation.isError || createSeriesMutation.isError
           ? 'We could not create this event. Check your connection and try again.'
           : undefined
       }
@@ -228,7 +241,15 @@ function EventsRoute() {
         await cancelMutation.mutateAsync(eventId)
       }}
       onCreate={async (input) => {
-        await createMutation.mutateAsync(input)
+        if (input.recurrence) {
+          const { recurrence, ...eventInput } = input
+          await createSeriesMutation.mutateAsync({
+            input: requireRunOptions(eventInput),
+            recurrence,
+          })
+        } else {
+          await createMutation.mutateAsync(requireRunOptions(input))
+        }
         navigate('/events', { replace: true })
       }}
     />

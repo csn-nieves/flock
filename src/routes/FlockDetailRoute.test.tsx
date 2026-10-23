@@ -42,6 +42,14 @@ const createEventMock = vi.hoisted(() =>
     mutateAsync: vi.fn(),
   })),
 )
+const createSeriesMock = vi.hoisted(() =>
+  vi.fn(() => ({
+    isError: false,
+    isPending: false,
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  })),
+)
 const authSession = vi.hoisted(() => ({
   session: { user: { id: 'owner-id' } },
 }))
@@ -107,6 +115,10 @@ vi.mock('@src/hooks/useFlockEvents', () => ({
 
 vi.mock('@src/hooks/useCreateFlockEvent', () => ({
   useCreateFlockEvent: createEventMock,
+}))
+
+vi.mock('@src/hooks/useCreateEventSeries', () => ({
+  useCreateEventSeries: createSeriesMock,
 }))
 
 vi.mock('@src/hooks/useAuthSession', () => ({
