@@ -201,6 +201,31 @@ describe('EventForm', () => {
     )
   })
 
+  it('submits multiple selected weekdays for a weekly schedule', () => {
+    const onSubmit = vi.fn()
+    render(<EventForm isPending={false} mode="create" onSubmit={onSubmit} />)
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Club runs' },
+    })
+    fireEvent.change(screen.getByLabelText('Date and time'), {
+      target: { value: '2026-10-20T08:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Location'), {
+      target: { value: 'Riverside' },
+    })
+    fireEvent.change(screen.getByLabelText('Frequency'), {
+      target: { value: 'weekly' },
+    })
+    fireEvent.click(screen.getByLabelText('Thu'))
+    fireEvent.submit(screen.getByRole('button', { name: 'Create event' }))
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurrence: expect.objectContaining({ weekdays: [2, 4] }),
+      }),
+    )
+  })
+
   it('couples distance and pace units and converts pace when units change', () => {
     render(
       <EventForm

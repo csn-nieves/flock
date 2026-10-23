@@ -89,6 +89,7 @@ function EventForm({
   const [monthlyMode, setMonthlyMode] = useState<
     'day-of-month' | 'weekday-position'
   >('day-of-month')
+  const [weeklyDays, setWeeklyDays] = useState<number[]>([])
 
   useEffect(() => {
     if (error) formErrorRef.current?.focus()
@@ -149,9 +150,7 @@ function EventForm({
                 : {}),
               occurrenceLimit: repeatUntil ? undefined : repeatLimit,
               untilDate: repeatUntil || undefined,
-              ...(repeatFrequency === 'weekly'
-                ? { weekdays: [new Date(startsAt).getDay()] }
-                : {}),
+              ...(repeatFrequency === 'weekly' ? { weekdays: weeklyDays } : {}),
             },
           }
         : {}),
@@ -199,10 +198,14 @@ function EventForm({
               id={`${mode}-event-repeat-frequency`}
               value={repeatFrequency ?? ''}
               onChange={(event) =>
-                setRepeatFrequency(
-                  (event.target.value || undefined) as
-                    EventRecurrenceInput['frequency'] | undefined,
-                )
+                (() => {
+                  const nextFrequency = (event.target.value || undefined) as
+                    EventRecurrenceInput['frequency'] | undefined
+                  setRepeatFrequency(nextFrequency)
+                  if (nextFrequency === 'weekly' && startsAt) {
+                    setWeeklyDays([new Date(startsAt).getDay()])
+                  }
+                })()
               }
             >
               <option value="">Does not repeat</option>
@@ -260,6 +263,36 @@ function EventForm({
                     </option>
                   </select>
                 </label>
+              ) : null}
+              {repeatFrequency === 'weekly' ? (
+                <fieldset className="space-y-2 rounded-md border border-border p-3 sm:col-span-2">
+                  <legend className="px-1 text-sm font-bold text-text">
+                    Days
+                  </legend>
+                  <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
+                      (label, day) => (
+                        <label
+                          className="flex min-h-touch items-center gap-2 rounded-md border border-border px-2 text-sm font-normal text-text"
+                          key={label}
+                        >
+                          <input
+                            checked={weeklyDays.includes(day)}
+                            type="checkbox"
+                            onChange={() =>
+                              setWeeklyDays((current) =>
+                                current.includes(day)
+                                  ? current.filter((value) => value !== day)
+                                  : [...current, day].sort((a, b) => a - b),
+                              )
+                            }
+                          />
+                          {label}
+                        </label>
+                      ),
+                    )}
+                  </div>
+                </fieldset>
               ) : null}
             </div>
           ) : null}
