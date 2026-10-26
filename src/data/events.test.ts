@@ -66,6 +66,46 @@ describe('event data', () => {
     expect(query.is).toHaveBeenCalledWith('flock_id', null)
   })
 
+  it('retries event lists without newer optional columns on older production schemas', async () => {
+    const primaryQuery = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      gte: vi.fn(),
+      is: vi.fn(),
+      order: vi.fn(),
+    }
+    primaryQuery.select.mockReturnValue(primaryQuery)
+    primaryQuery.eq.mockReturnValue(primaryQuery)
+    primaryQuery.gte.mockReturnValue(primaryQuery)
+    primaryQuery.is.mockReturnValue(primaryQuery)
+    primaryQuery.order.mockResolvedValue({
+      data: null,
+      error: { code: '42703', message: 'column time_zone does not exist' },
+    })
+
+    const legacyQuery = { ...primaryQuery, select: vi.fn() }
+    legacyQuery.select.mockReturnValue(legacyQuery)
+    legacyQuery.eq = vi.fn().mockReturnValue(legacyQuery)
+    legacyQuery.gte = vi.fn().mockReturnValue(legacyQuery)
+    legacyQuery.is = vi.fn().mockReturnValue(legacyQuery)
+    legacyQuery.order = vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    })
+
+    mocks.from
+      .mockReturnValueOnce(primaryQuery)
+      .mockReturnValueOnce(legacyQuery)
+
+    await expect(listFlockEvents('flock')).resolves.toEqual([])
+    expect(primaryQuery.select).toHaveBeenCalledWith(
+      expect.stringContaining('time_zone'),
+    )
+    expect(legacyQuery.select).toHaveBeenCalledWith(
+      expect.not.stringContaining('time_zone'),
+    )
+  })
+
   it('includes attendance counts and the current user response for personal events', async () => {
     const query = {
       select: vi.fn(),

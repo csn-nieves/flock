@@ -17,6 +17,56 @@ const browserTimeZone = () =>
 
 const eventFields =
   'id, flock_id, created_by, title, starts_at, time_zone, reminders_enabled, location, description, created_at, canceled_at, series_id, series_position'
+const legacyEventFields =
+  'id, flock_id, created_by, title, starts_at, location, description, created_at, canceled_at'
+
+type EventRow = {
+  canceled_at?: string | null
+  created_at: string
+  created_by: string
+  description: string
+  flock_id: string | null
+  id: string
+  location: string
+  starts_at: string
+  series_id?: string | null
+  series_position?: number | null
+  time_zone?: string | null
+  title: string
+}
+
+function isMissingEventColumn(error: { code?: string; message?: string }) {
+  return (
+    error.code === '42703' ||
+    error.message?.toLocaleLowerCase().includes('column') === true
+  )
+}
+
+async function listEvents(
+  configure: (
+    query: ReturnType<typeof supabase.from>,
+  ) => ReturnType<typeof supabase.from>,
+): Promise<{
+  data: EventRow[] | null
+  error: { code?: string; message?: string } | null
+}> {
+  const primaryResult = await configure(
+    supabase.from('flock_events').select(eventFields),
+  )
+  if (!primaryResult.error || !isMissingEventColumn(primaryResult.error)) {
+    return primaryResult as unknown as {
+      data: EventRow[] | null
+      error: { code?: string; message?: string } | null
+    }
+  }
+
+  return (await configure(
+    supabase.from('flock_events').select(legacyEventFields),
+  )) as unknown as {
+    data: EventRow[] | null
+    error: { code?: string; message?: string } | null
+  }
+}
 
 function serializeRunOptions(runOptions: readonly EventRunOptionInput[]) {
   return runOptions.map(({ distanceTenths, id, paceSeconds, route, unit }) => ({
@@ -74,15 +124,15 @@ function toEvent(row: {
 }
 
 export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
-  const { data, error } = await supabase
-    .from('flock_events')
-    .select(eventFields)
-    .eq('flock_id', flockId)
-    .gte('starts_at', new Date().toISOString())
-    .is('canceled_at', null)
-    .order('starts_at', { ascending: true })
+  const { data, error } = await listEvents((query) =>
+    query
+      .eq('flock_id', flockId)
+      .gte('starts_at', new Date().toISOString())
+      .is('canceled_at', null)
+      .order('starts_at', { ascending: true }),
+  )
   if (error) throw error
-  const events = data.map(toEvent)
+  const events = (data ?? []).map(toEvent)
   if (events.length === 0) return events
   const eventIds = events.map((event) => event.id)
   const [attendanceResult, optionsResult] = await Promise.all([
@@ -158,15 +208,15 @@ export async function listFlockEvents(flockId: string): Promise<FlockEvent[]> {
 }
 
 export async function listUserEvents(): Promise<FlockEvent[]> {
-  const { data, error } = await supabase
-    .from('flock_events')
-    .select(eventFields)
-    .is('flock_id', null)
-    .gte('starts_at', new Date().toISOString())
-    .is('canceled_at', null)
-    .order('starts_at', { ascending: true })
+  const { data, error } = await listEvents((query) =>
+    query
+      .is('flock_id', null)
+      .gte('starts_at', new Date().toISOString())
+      .is('canceled_at', null)
+      .order('starts_at', { ascending: true }),
+  )
   if (error) throw error
-  const events = data.map(toEvent)
+  const events = (data ?? []).map(toEvent)
   if (events.length === 0) return events
   const eventIds = events.map((event) => event.id)
   const [attendanceResult, optionsResult] = await Promise.all([
