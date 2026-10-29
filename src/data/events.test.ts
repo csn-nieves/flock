@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createFlockEvent,
   createUserEvent,
+  getEvent,
   listFlockEvents,
   listUserEvents,
   setFlockEventResponse,
@@ -103,6 +104,33 @@ describe('event data', () => {
     )
     expect(legacyQuery.select).toHaveBeenCalledWith(
       expect.not.stringContaining('time_zone'),
+    )
+  })
+
+  it('retries event detail reads without newer optional columns on older schemas', async () => {
+    const primaryQuery = { select: vi.fn(), eq: vi.fn(), maybeSingle: vi.fn() }
+    primaryQuery.select.mockReturnValue(primaryQuery)
+    primaryQuery.eq.mockReturnValue(primaryQuery)
+    primaryQuery.maybeSingle.mockResolvedValue({
+      data: null,
+      error: { code: '42703', message: 'column series_id does not exist' },
+    })
+
+    const legacyQuery = { select: vi.fn(), eq: vi.fn(), maybeSingle: vi.fn() }
+    legacyQuery.select.mockReturnValue(legacyQuery)
+    legacyQuery.eq.mockReturnValue(legacyQuery)
+    legacyQuery.maybeSingle.mockResolvedValue({ data: null, error: null })
+
+    mocks.from
+      .mockReturnValueOnce(primaryQuery)
+      .mockReturnValueOnce(legacyQuery)
+
+    await expect(getEvent('event')).resolves.toBeNull()
+    expect(primaryQuery.select).toHaveBeenCalledWith(
+      expect.stringContaining('series_id'),
+    )
+    expect(legacyQuery.select).toHaveBeenCalledWith(
+      expect.not.stringContaining('series_id'),
     )
   })
 

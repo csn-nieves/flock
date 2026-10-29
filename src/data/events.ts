@@ -292,11 +292,7 @@ export async function listUserEvents(): Promise<FlockEvent[]> {
 }
 
 export async function getEvent(eventId: string): Promise<FlockEvent | null> {
-  const { data, error } = await supabase
-    .from('flock_events')
-    .select(eventFields)
-    .eq('id', eventId)
-    .maybeSingle()
+  const { data, error } = await getEventRow(eventId)
   if (error) throw error
   if (!data) return null
 
@@ -304,6 +300,32 @@ export async function getEvent(eventId: string): Promise<FlockEvent | null> {
     ? await listFlockEvents(data.flock_id)
     : await listUserEvents()
   return visibleEvents.find((event) => event.id === eventId) ?? null
+}
+
+async function getEventRow(eventId: string): Promise<{
+  data: EventRow | null
+  error: { code?: string; message?: string } | null
+}> {
+  const primaryResult = await supabase
+    .from('flock_events')
+    .select(eventFields)
+    .eq('id', eventId)
+    .maybeSingle()
+  if (!primaryResult.error || !isMissingEventColumn(primaryResult.error)) {
+    return primaryResult as unknown as {
+      data: EventRow | null
+      error: { code?: string; message?: string } | null
+    }
+  }
+
+  return (await supabase
+    .from('flock_events')
+    .select(legacyEventFields)
+    .eq('id', eventId)
+    .maybeSingle()) as unknown as {
+    data: EventRow | null
+    error: { code?: string; message?: string } | null
+  }
 }
 
 export async function createUserEvent(
