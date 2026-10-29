@@ -19,6 +19,7 @@ export type FlockEventsSectionProps = {
   isResponding: boolean
   isSaving: boolean
   onCancel: (eventId: string) => Promise<void>
+  onCancelSeries?: (seriesId: string) => Promise<void>
   onCreate: (input: EventFormInput) => Promise<void>
   onRetry: () => void
   onOpenEvent?: (eventId: string) => void
@@ -61,6 +62,7 @@ function FlockEventsSection({
   isResponding,
   onCreate,
   onCancel,
+  onCancelSeries,
   onRetry,
   onOpenEvent,
   onRespond,
@@ -146,9 +148,20 @@ function FlockEventsSection({
                 {new Date(item.startsAt).toLocaleString()} · {item.location}
               </p>
               {item.seriesId ? (
-                <p className="mt-1 mb-0 text-xs font-bold text-primary">
-                  Recurring series · occurrence {item.seriesPosition}
-                </p>
+                <div className="mt-1 flex items-center gap-2 text-xs font-bold text-primary">
+                  <span>
+                    Recurring series · occurrence {item.seriesPosition}
+                  </span>
+                  {canCreate && onCancelSeries ? (
+                    <Button
+                      className="min-h-0 px-0 py-0 text-xs"
+                      variant="ghost"
+                      onClick={() => setCancelingEvent(item)}
+                    >
+                      Cancel series
+                    </Button>
+                  ) : null}
+                </div>
               ) : null}
               {item.description ? (
                 <p className="mt-2 mb-0 text-sm leading-5 text-text-muted">
@@ -332,9 +345,15 @@ function FlockEventsSection({
           ) : null}
           {cancelingEvent ? (
             <Modal
-              description={`This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`}
+              description={
+                cancelingEvent.seriesId
+                  ? `This will cancel all upcoming occurrences of “${cancelingEvent.title}” while keeping attendance history.`
+                  : `This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`
+              }
               onClose={() => setCancelingEvent(null)}
-              title="Cancel event?"
+              title={
+                cancelingEvent.seriesId ? 'Cancel series?' : 'Cancel event?'
+              }
               tone="danger"
             >
               <div className="grid gap-2 sm:flex sm:flex-row-reverse">
@@ -344,7 +363,11 @@ function FlockEventsSection({
                   pendingLabel="Canceling event"
                   onClick={async () => {
                     try {
-                      await onCancel(cancelingEvent.id)
+                      if (cancelingEvent.seriesId && onCancelSeries) {
+                        await onCancelSeries(cancelingEvent.seriesId)
+                      } else {
+                        await onCancel(cancelingEvent.id)
+                      }
                       setCancelingEvent(null)
                     } catch {
                       // Keep the confirmation open so the owner can retry.
@@ -352,7 +375,7 @@ function FlockEventsSection({
                   }}
                   variant="danger"
                 >
-                  Cancel event
+                  {cancelingEvent.seriesId ? 'Cancel series' : 'Cancel event'}
                 </Button>
                 <Button
                   className="w-full sm:w-auto"

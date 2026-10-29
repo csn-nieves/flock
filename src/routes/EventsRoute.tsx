@@ -13,6 +13,7 @@ import { useFlockSearch, useRunnerSearch } from '@src/hooks/useDiscoverySearch'
 import { useSetUserEventResponse } from '@src/hooks/useSetUserEventResponse'
 import { useUpdateUserEvent } from '@src/hooks/useUpdateUserEvent'
 import { useCancelUserEvent } from '@src/hooks/useCancelUserEvent'
+import { useCancelEventSeries } from '@src/hooks/useCancelEventSeries'
 import { useUserEvents } from '@src/hooks/useUserEvents'
 import { useSavedRouteLibrary } from '@src/hooks/useSavedRouteLibrary'
 import EventsPage, {
@@ -46,6 +47,7 @@ function EventsRoute() {
   const responseMutation = useSetUserEventResponse()
   const updateMutation = useUpdateUserEvent()
   const cancelMutation = useCancelUserEvent()
+  const cancelSeriesMutation = useCancelEventSeries(null)
   const savedRouteLibrary = useSavedRouteLibrary()
   const [audienceType, setAudienceType] = useState<EventAudienceType>('runner')
   const [audienceSearchTerm, setAudienceSearchTerm] = useState('')
@@ -239,6 +241,9 @@ function EventsRoute() {
       }}
       onCancelEvent={async (eventId) => {
         await cancelMutation.mutateAsync(eventId)
+      }}
+      onCancelSeries={async (seriesId) => {
+        await cancelSeriesMutation.mutateAsync(seriesId)
       }}
       onCreate={async (input) => {
         if (input.recurrence) {

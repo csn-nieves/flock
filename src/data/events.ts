@@ -389,6 +389,14 @@ export async function cancelFlockEvent(eventId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function cancelEventSeries(seriesId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('cancel_event_series', {
+    target_series_id: seriesId,
+  })
+  if (error) throw error
+  return data ?? 0
+}
+
 export async function setFlockEventResponse(
   eventId: string,
   response: EventResponse,

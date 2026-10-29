@@ -747,6 +747,10 @@ export type Database = {
         }
         Returns: string
       }
+      cancel_event_series: {
+        Args: { target_series_id: string }
+        Returns: number
+      }
       create_flock_event:
         | {
             Args: {
