@@ -78,6 +78,9 @@ const updateFlockMutation = vi.hoisted(() => ({
 const cancelEventMock = vi.hoisted(() =>
   vi.fn(() => ({ isError: false, isPending: false, mutateAsync: vi.fn() })),
 )
+const cancelSeriesMock = vi.hoisted(() =>
+  vi.fn(() => ({ isError: false, isPending: false, mutateAsync: vi.fn() })),
+)
 const invitationMutationMock = vi.hoisted(() =>
   vi.fn(() => ({
     data: undefined,
@@ -139,6 +142,10 @@ vi.mock('@src/hooks/useUpdateFlock', () => ({
 
 vi.mock('@src/hooks/useCancelFlockEvent', () => ({
   useCancelFlockEvent: cancelEventMock,
+}))
+
+vi.mock('@src/hooks/useCancelEventSeries', () => ({
+  useCancelEventSeries: cancelSeriesMock,
 }))
 
 vi.mock('@src/hooks/useCreateFlockInvitation', () => ({
