@@ -48,6 +48,7 @@ export type EventsPageProps = {
   onAudienceTypeChange: (audienceType: EventAudienceType) => void
   onAcceptInvitation: (invitationId: string) => Promise<void>
   onCancelEvent: (eventId: string) => Promise<void>
+  onCancelSeries?: (seriesId: string) => Promise<void>
   onCloseInvitation: () => void
   onCopyInvitation: (url: string) => Promise<void>
   onCreate: (input: EventFormInput) => void
@@ -124,6 +125,7 @@ function EventsPage({
   isSaving,
   onUpdate,
   onCancelEvent,
+  onCancelSeries,
   managementError,
   acceptingInvitationId,
   invitationInboxError,
@@ -256,9 +258,20 @@ function EventsPage({
                 {new Date(event.startsAt).toLocaleString()} · {event.location}
               </p>
               {event.seriesId ? (
-                <p className="mt-1 mb-0 text-xs font-bold text-primary">
-                  Recurring series · occurrence {event.seriesPosition}
-                </p>
+                <div className="mt-1 flex items-center gap-2 text-xs font-bold text-primary">
+                  <span>
+                    Recurring series · occurrence {event.seriesPosition}
+                  </span>
+                  {canManageEvent(event) && onCancelSeries ? (
+                    <Button
+                      className="min-h-0 px-0 py-0 text-xs"
+                      variant="ghost"
+                      onClick={() => setCancelingEvent(event)}
+                    >
+                      Cancel series
+                    </Button>
+                  ) : null}
+                </div>
               ) : null}
               {event.description ? (
                 <p className="mt-2 mb-0 text-sm leading-5 text-text-muted">
@@ -394,9 +407,13 @@ function EventsPage({
 
       {cancelingEvent ? (
         <Modal
-          description={`This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`}
+          description={
+            cancelingEvent.seriesId
+              ? `This will cancel all upcoming occurrences of “${cancelingEvent.title}” while keeping attendance history.`
+              : `This will remove “${cancelingEvent.title}” from upcoming events while keeping attendance history.`
+          }
           onClose={() => setCancelingEvent(null)}
-          title="Cancel event?"
+          title={cancelingEvent.seriesId ? 'Cancel series?' : 'Cancel event?'}
           tone="danger"
         >
           <div className="grid gap-2 sm:flex sm:flex-row-reverse">
@@ -407,14 +424,18 @@ function EventsPage({
               variant="danger"
               onClick={async () => {
                 try {
-                  await onCancelEvent(cancelingEvent.id)
+                  if (cancelingEvent.seriesId && onCancelSeries) {
+                    await onCancelSeries(cancelingEvent.seriesId)
+                  } else {
+                    await onCancelEvent(cancelingEvent.id)
+                  }
                   setCancelingEvent(null)
                 } catch {
                   // Keep the confirmation open so the owner can retry.
                 }
               }}
             >
-              Cancel event
+              {cancelingEvent.seriesId ? 'Cancel series' : 'Cancel event'}
             </Button>
             <Button
               className="w-full sm:w-auto"

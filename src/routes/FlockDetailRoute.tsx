@@ -13,6 +13,7 @@ import { useSetFlockEventResponse } from '@src/hooks/useSetFlockEventResponse'
 import { useUpdateFlockEvent } from '@src/hooks/useUpdateFlockEvent'
 import { useUpdateFlock } from '@src/hooks/useUpdateFlock'
 import { useCancelFlockEvent } from '@src/hooks/useCancelFlockEvent'
+import { useCancelEventSeries } from '@src/hooks/useCancelEventSeries'
 import { useCreateFlockInvitation } from '@src/hooks/useCreateFlockInvitation'
 import { useSavedRouteLibrary } from '@src/hooks/useSavedRouteLibrary'
 import FlockDetailPage, {
@@ -52,6 +53,7 @@ function FlockDetailRoute() {
   const responseMutation = useSetFlockEventResponse(flockId ?? '')
   const updateEventMutation = useUpdateFlockEvent(flockId ?? '')
   const cancelEventMutation = useCancelFlockEvent(flockId ?? '')
+  const cancelSeriesMutation = useCancelEventSeries(flockId ?? null)
   const invitationMutation = useCreateFlockInvitation()
   const updateFlockMutation = useUpdateFlock(flockId ?? '')
   const savedRouteLibrary = useSavedRouteLibrary(canCreateEvents)
@@ -174,6 +176,9 @@ function FlockDetailRoute() {
           },
           onCancel: async (eventId) => {
             await cancelEventMutation.mutateAsync(eventId)
+          },
+          onCancelSeries: async (seriesId) => {
+            await cancelSeriesMutation.mutateAsync(seriesId)
           },
           onRetry: () => void eventsQuery.refetch(),
           onOpenEvent: (eventId) => navigate(`/events/${eventId}`),

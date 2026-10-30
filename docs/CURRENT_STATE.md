@@ -1,6 +1,6 @@
 # Flock current state
 
-Last reviewed: 2026-10-16
+Last reviewed: 2026-10-28
 
 Flock now includes an anonymous demo entry point. It provisions a demo runner
 into six self-contained demo flocks, creates route-backed flock and personal
@@ -322,10 +322,11 @@ remain authenticated and server-authorized.
 ## Next planned increments
 
 1. Continue recurring event planning from the recurrence-rule foundation. The
-   first domain slice now covers daily, weekly, and monthly calendar rules,
-   timezone-neutral local-date generation, and a 365-occurrence bound.
-   The next slice should add the transactional database series and occurrence
-   materialization, including copied invitations without copied RSVPs.
+   transactional database series and occurrence materialization now exist,
+   including copied invitations without copied RSVPs, and organizers can
+   cancel all future occurrences of a series while preserving past history.
+   The next slice should review series editing and notification behavior as
+   real recurring-event usage reveals the need.
    Moderation controls and broader discovery remain separate product slices.
    The rehearsed moderated sessions in `docs/WORKFLOW_VALIDATION.md` remain
    ready when participant availability returns; they no longer block feature

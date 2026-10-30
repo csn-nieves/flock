@@ -1635,6 +1635,18 @@ next slice, which prevents this foundation from making unsafe daylight-saving
 assumptions. Generated occurrences will use the existing event lifecycle;
 invitations carry forward while RSVPs and attendance remain per occurrence.
 
+## 2026-10-28 — Series-wide cancellation
+
+Added an owner-authorized `cancel_event_series` database function that marks
+all uncanceled future occurrences as canceled, returns the number changed, and
+reuses the existing flock-event notification path for group occurrences.
+Personal-event and flock-event surfaces now expose a confirmed “Cancel series”
+action for organizers. The operation is idempotent and leaves past attendance
+history untouched.
+
+The local database test was added but could not run in this environment because
+the Supabase database was not started on port 54322.
+
 ## Current next steps
 
 See [`CURRENT_STATE.md`](./CURRENT_STATE.md) for the maintained handoff and next
